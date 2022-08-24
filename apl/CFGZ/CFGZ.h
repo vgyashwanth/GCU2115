@@ -1,0 +1,1306 @@
+/**
+ * @file        [CFGZ]
+ * @brief       CFGZ
+ *              Provides API's for reading and writing the configuration
+ *              parameter. Also it provides API for CFGZ verification.
+ * @version     [Version number]
+ * @author      Madhuri Abhang
+ * @date        26th Jun 2021
+ * @author      Sudeep Chandrasekaran
+ * @date        8th July 2021
+ * @copyright   SEDEMAC Mechatronics Pvt Ltd
+ **/
+
+#ifndef APL_CFGZ_CFGZ_H_
+#define APL_CFGZ_CFGZ_H_
+
+#include <HMI/UI_DS.h>
+#include "stdint.h"
+#include "bsp.h"
+#include "../../gc2k-bsp/bsp/DFLASH/DFLASH.h"
+#include "CRC16.h"
+#include "D_SENSE.h"
+#include "HAL_Manager.h"
+#include "MODBUS.h"
+#include "RS485.h"
+#include "productSelection.h"
+#include "CFGC/CFGC.h"
+
+// Max String length.
+#define  MAX_AUX_STRING_SIZE      (21U)
+
+// Number of blocks of CFGZ.
+#define  NUMBER_OF_CFGZ_BLOCKS    (DFLASH_ACTIVE_PROFILE_LENGTH / DFLASH_BLOCK_SIZE )
+
+/*Default modbus slave ID*/
+#define CFGZ_DFLT_MODBUS_SLAVE_ID (2U)
+
+#define PULSE_IP_SENSOR    A_SENSE::MPU_TYPE
+#define DUMMY_ITEMS       0U
+
+class CFGZ
+{
+  public:
+
+    typedef struct
+    {
+        uint16_t u16Password1;
+        uint16_t u16Password2;
+        uint16_t u16CRC;
+        uint16_t u16Dummy;
+    }PASSWORD_t;
+
+    /**
+     * Enum values for floating point variable.
+     */
+    typedef enum
+    {
+        ID_LOW_VOLT_THRESH,
+
+
+        ID_LOP_CALIB_R1,
+        ID_LOP_CALIB_V1,
+        ID_LOP_CALIB_R2,
+        ID_LOP_CALIB_V2,
+        ID_LOP_CALIB_R3,
+        ID_LOP_CALIB_V3,
+        ID_LOP_CALIB_R4,
+        ID_LOP_CALIB_V4,
+        ID_LOP_CALIB_R5,
+        ID_LOP_CALIB_V5,
+        ID_LOP_CALIB_R6,
+        ID_LOP_CALIB_V6,
+        ID_LOP_CALIB_R7,
+        ID_LOP_CALIB_V7,
+        ID_LOP_CALIB_R8,
+        ID_LOP_CALIB_V8,
+        ID_LOP_CALIB_R9,
+        ID_LOP_CALIB_V9,
+        ID_LOP_CALIB_R10,
+        ID_LOP_CALIB_V10,
+
+        ID_FUEL_CALIB_R1,
+        ID_FUEL_CALIB_V1,
+        ID_FUEL_CALIB_R2,
+        ID_FUEL_CALIB_V2,
+        ID_FUEL_CALIB_R3,
+        ID_FUEL_CALIB_V3,
+        ID_FUEL_CALIB_R4,
+        ID_FUEL_CALIB_V4,
+        ID_FUEL_CALIB_R5,
+        ID_FUEL_CALIB_V5,
+        ID_FUEL_CALIB_R6,
+        ID_FUEL_CALIB_V6,
+        ID_FUEL_CALIB_R7,
+        ID_FUEL_CALIB_V7,
+        ID_FUEL_CALIB_R8,
+        ID_FUEL_CALIB_V8,
+        ID_FUEL_CALIB_R9,
+        ID_FUEL_CALIB_V9,
+        ID_FUEL_CALIB_R10,
+        ID_FUEL_CALIB_V10,
+
+        ID_ENG_CLNT_CALIB_R1,
+        ID_ENG_CLNT_CALIB_V1,
+        ID_ENG_CLNT_CALIB_R2,
+        ID_ENG_CLNT_CALIB_V2,
+        ID_ENG_CLNT_CALIB_R3,
+        ID_ENG_CLNT_CALIB_V3,
+        ID_ENG_CLNT_CALIB_R4,
+        ID_ENG_CLNT_CALIB_V4,
+        ID_ENG_CLNT_CALIB_R5,
+        ID_ENG_CLNT_CALIB_V5,
+        ID_ENG_CLNT_CALIB_R6,
+        ID_ENG_CLNT_CALIB_V6,
+        ID_ENG_CLNT_CALIB_R7,
+        ID_ENG_CLNT_CALIB_V7,
+        ID_ENG_CLNT_CALIB_R8,
+        ID_ENG_CLNT_CALIB_V8,
+        ID_ENG_CLNT_CALIB_R9,
+        ID_ENG_CLNT_CALIB_V9,
+        ID_ENG_CLNT_CALIB_R10,
+        ID_ENG_CLNT_CALIB_V10,
+
+        ID_S1_SHUTDOWN_THRESH,
+        ID_S1_WARNING_THRESH,
+
+        ID_S1_CALIB_I1,
+        ID_S1_CALIB_V1,
+        ID_S1_CALIB_I2,
+        ID_S1_CALIB_V2,
+        ID_S1_CALIB_I3,
+        ID_S1_CALIB_V3,
+        ID_S1_CALIB_I4,
+        ID_S1_CALIB_V4,
+        ID_S1_CALIB_I5,
+        ID_S1_CALIB_V5,
+        ID_S1_CALIB_I6,
+        ID_S1_CALIB_V6,
+        ID_S1_CALIB_I7,
+        ID_S1_CALIB_V7,
+        ID_S1_CALIB_I8,
+        ID_S1_CALIB_V8,
+        ID_S1_CALIB_I9,
+        ID_S1_CALIB_V9,
+        ID_S1_CALIB_I10,
+        ID_S1_CALIB_V10,
+
+        ID_S2_SHUTDOWN_THRESH,
+        ID_S2_WARNING_THRESH,
+
+        ID_S2_CALIB_I1,
+        ID_S2_CALIB_V1,
+        ID_S2_CALIB_I2,
+        ID_S2_CALIB_V2,
+        ID_S2_CALIB_I3,
+        ID_S2_CALIB_V3,
+        ID_S2_CALIB_I4,
+        ID_S2_CALIB_V4,
+        ID_S2_CALIB_I5,
+        ID_S2_CALIB_V5,
+        ID_S2_CALIB_I6,
+        ID_S2_CALIB_V6,
+        ID_S2_CALIB_I7,
+        ID_S2_CALIB_V7,
+        ID_S2_CALIB_I8,
+        ID_S2_CALIB_V8,
+        ID_S2_CALIB_I9,
+        ID_S2_CALIB_V9,
+        ID_S2_CALIB_I10,
+        ID_S2_CALIB_V10,
+
+        ID_S3_SHUTDOWN_THRESH,
+        ID_S3_WARNING_THRESH,
+
+        ID_S3_CALIB_I1,
+        ID_S3_CALIB_V1,
+        ID_S3_CALIB_I2,
+        ID_S3_CALIB_V2,
+        ID_S3_CALIB_I3,
+        ID_S3_CALIB_V3,
+        ID_S3_CALIB_I4,
+        ID_S3_CALIB_V4,
+        ID_S3_CALIB_I5,
+        ID_S3_CALIB_V5,
+        ID_S3_CALIB_I6,
+        ID_S3_CALIB_V6,
+        ID_S3_CALIB_I7,
+        ID_S3_CALIB_V7,
+        ID_S3_CALIB_I8,
+        ID_S3_CALIB_V8,
+        ID_S3_CALIB_I9,
+        ID_S3_CALIB_V9,
+        ID_S3_CALIB_I10,
+        ID_S3_CALIB_V10,
+
+        ID_S4_SHUTDOWN_THRESH,
+        ID_S4_WARNING_THRESH,
+
+        ID_S4_CALIB_I1,
+        ID_S4_CALIB_V1,
+        ID_S4_CALIB_I2,
+        ID_S4_CALIB_V2,
+        ID_S4_CALIB_I3,
+        ID_S4_CALIB_V3,
+        ID_S4_CALIB_I4,
+        ID_S4_CALIB_V4,
+        ID_S4_CALIB_I5,
+        ID_S4_CALIB_V5,
+        ID_S4_CALIB_I6,
+        ID_S4_CALIB_V6,
+        ID_S4_CALIB_I7,
+        ID_S4_CALIB_V7,
+        ID_S4_CALIB_I8,
+        ID_S4_CALIB_V8,
+        ID_S4_CALIB_I9,
+        ID_S4_CALIB_V9,
+        ID_S4_CALIB_I10,
+        ID_S4_CALIB_V10,
+
+        ID_ISV_PULL_SIGNAL_TIME,
+        ID_GEN_BREAKER_PULS_TIMER,
+        ID_MAINS_BREAKER_PULS_TIMER,
+        ID_BREAKER_FEEDBACK_TIMER,
+        ID_BREAKER_CLOSE_DELAY,
+
+        ID_MIN_HEALTHY_FREQ,
+        ID_GEN_UV_SHUTDOWN_DELAY_SEC,
+        ID_GEN_UV_WARNING_DELAY_SEC,
+        ID_GEN_OV_SHUTDOWN_DELAY_SEC,
+        ID_GEN_OV_WARNING_DELAY_SEC,
+        ID_GEN_UNDER_FREQ_SHUT_DN_THRESH,
+        ID_GEN_UF_SHUTDOWN_DELAY_SEC,
+        ID_GEN_UNDER_FREQ_WARN_THRESH,
+        ID_GEN_UF_WARNING_DELAY_SEC,
+        ID_GEN_OVER_FREQ_SHUT_DN_THRESH,
+        ID_GEN_OF_SHUTDOWN_DELAY_SEC,
+        ID_GEN_OVER_FREQ_WARN_THRESH,
+        ID_GEN_OF_WARNING_DELAY_SEC,
+
+        ID_HIGH_CURR_THRESH,
+        ID_LOW_CURR_THRESH,
+
+        ID_GEN_RATING,
+
+        ID_MAINS_VOLT_TRIP_DELAY_SEC,
+
+        ID_MAINS_UNDER_FREQ_TRIP_THRESH,
+        ID_MAINS_UNDER_FREQ_RET_THRESH,
+        ID_MAINS_OVER_FREQ_TRIP_THRESH,
+        ID_MAINS_OVER_FREQ_RET_THRESH,
+
+        ID_MAINS_FREQ_TRIP_DELAY_SEC,
+
+        ID_DISCONNECT_PRESURE_THRESH,
+        ID_LOP_SW_TRANSIENT_TIME,
+        ID_CRANK_DISCON_CHARG_ALT_THRESH,
+        ID_LOW_BAT_VTG_THRESH,
+        ID_HIGH_BAT_VTG_THRESH,
+        ID_CHARG_ALT_FAIL_THRESH,
+
+        ID_ENGINE_GAIN,
+        ID_LOP_LVL_SHUTDOWN_THRESH,
+        ID_LOP_LVL_WARNING_THRESH,
+
+        ID_EGOV_GEN_GAIN_SCHEDULE,
+
+        ID_FLOAT_LAST
+    }FLOAT_PARAMS_t;
+
+    /**
+     * Enum values for unsigned integer type variable.
+     */
+    typedef enum
+    {
+        ID_BATT_MON_DELAY,
+        ID_GEN_RUN_DURATION,
+        ID_GEN_OFF_TIME,
+        ID_GEN_ON_TIME,
+
+        ID_EXERCISE_1_START_TIME,
+        ID_EXERCISE_1_ON_DURATION,
+        ID_EXERCISE_2_START_TIME,
+        ID_EXERCISE_2_ON_DURATION,
+
+        ID_NIGHT_START_TIME,
+        ID_NIGHT_OFF_DURATION,
+
+        ID_FUEL_TANK_CAPACITY,
+        ID_SHELT_TEMP_THRESH,
+        ID_SHELT_TEMP_HYST,
+        ID_SHELT_TEMP_MON_DELAY,
+        ID_SHELT_TEMP_RUN_DURATION_MIN,
+
+        ID_CRANK_HOLD_TIME,
+        ID_CRANK_REST_TIME,
+        ID_MANUAL_CRANK_START_DELAY,
+        ID_AUTO_CRANK_START_DELAY,
+        ID_SAFETY_MON_DELAY,
+        ID_WARMUP_DELAY,
+        ID_RETURN_TO_MAINS_DELAY,
+        ID_ENGINE_COOL_DELAY,
+        ID_STOP_ACTION_TIME,
+        ID_ADDN_STOP_TIME,
+        ID_LOAD_TRANS_DELAY,
+        ID_POWER_SAVE_MODE_DELAY,
+        ID_SCREEN_CHANG_TIME,
+        ID_DEEP_SLEEP_DELAY,
+        ID_SOUNDER_ALARM_TIME,
+
+        ID_TEST_MODE_TIMER_MIN,
+
+        ID_AUTO_EXIT_TIME,
+        ID_MIN_HEALTHY_VTG,
+
+        ID_GEN_PT_PRIMARY_RATIO,
+        ID_GEN_PT_SECONDARY_RATIO,
+
+        ID_GEN_UNDER_VTG_SHUTDN_THRESH,
+        ID_GEN_UNDER_VTG_WARN_THRESH,
+        ID_GEN_OVER_VTG_SHUTDN_THRESH,
+        ID_GEN_OVER_VTG_WARN_THRESH,
+        ID_CM_CT_RATIO,
+        ID_OVER_CURR_THRESH,
+        ID_OVER_CURR_DELAY,
+
+        ID_FM_CT_RATIO,
+        ID_CURR_DELAY,
+
+        ID_OVER_LOAD_DELAY,
+        ID_UNBAL_LOAD_DELAY,
+        ID_LOW_LOAD_DELAY_SEC,
+
+        ID_MAINS_PT_PRIMARY_RATIO,
+        ID_MAINS_PT_SECONDARY_RATIO,
+
+        ID_MAINS_UNDER_VTG_TRIP_THRESH,
+        ID_MAINS_UNDER_VTG_RET_THRESH,
+        ID_MAINS_OVER_VTG_TRIP_THRESH,
+        ID_MAINS_OVER_VTG_RET_THRESH,
+        ID_CRANK_DISCON_ENG_SPEED_THRESH,
+        ID_MPU_TEETH_W_POINT_FREQ,
+
+        ID_UNDER_SPEED_THRESH,
+        ID_UNDER_SPEED_DELAY,
+        ID_OVER_SPEED_THRESH,
+        ID_OVER_SPEED_DELAY,
+
+        ID_IDLE_TO_RATED_DELAY,
+        ID_STARTUP_IDLE_TIME,
+        ID_STOPPING_IDLE_TIME,
+
+        ID_INITIAL_LOW_SPEED,
+        ID_LOW_BAT_VTG_DELAY,
+        ID_HIGH_BAT_VTG_DELAY,
+        ID_CHARG_ALT_FAIL_DELAY,
+        ID_PREHEAT_TIMER,
+        ID_ENGINE_TEMP_LIMIT_THREH,
+        ID_CLNT_TEMP_ON_THRESH,
+        ID_CLNT_TEMP_OFF_THRESH,
+        ID_TIMEOUT_AFTER_ACTIVATION,
+        ID_ENG_REQUESTED_SPEED_TO_ECU,
+        ID_SGC_SOURCE_ADDRESS,
+        ID_ECU_SOURCE_ADDRESS,
+        ID_ECU_COMM_FAILURE_ACT_DELAY,
+        ID_ECU_AMBER_ACT_DELAY,
+        ID_ECU_RED_ACT_DELAY,
+        ID_ECU_MALFUNCTION_ACT_DELAY,
+        ID_ECU_PROTECT_ACT_DELAY,
+        ID_HIGH_CLNT_TEMP_SHUTDOWN_THRESH,
+        ID_HIGH_CLNT_TEMP_WARNING_THRESH,
+        ID_MAINTENANCE_DUE_HOURS,
+        ID_FILT_MAINT_THRESH_YEAR,
+
+        ID_EGOV_GEN_SET_SPEED,
+        ID_EGOV_GEN_KP,
+        ID_EGOV_GEN_KI,
+        ID_EGOV_GEN_KD,
+        ID_EGOV_GEN_DITHER,
+        ID_EGOV_GEN_LOADING_FAC,
+        ID_EGOV_GEN_UNLOADING_FAC,
+
+        ID_EGOV_CRANK_BOOST,
+        ID_EGOV_RPM_PID_ON_SPEED,
+        ID_EGOV_RAMP_UP_TIME,
+        ID_EGOV_PID_ON_TIME,
+        ID_EGOV_RUNNING_STEPS,
+        ID_UINT16_LAST
+    }UINT16_PARAMS_t;
+    /**
+     * Enum values for unsigned char type variable.
+     */
+    typedef enum
+    {
+        ID_POWER_ON_MODE,
+        ID_POWER_ON_LAMP_TEST_EN,
+        ID_DEEP_SLEEP_EN,
+
+        ID_LOAD_HISTOGRAM,
+
+        ID_WARNING_AUTO_CLEAR_EN,
+        ID_LANGUAGE,
+        ID_PERCENT_CONTRAST,
+        ID_POWER_SAVE_MODE_EN,
+        ID_COMMUNICATION_EN_MB,
+        ID_SLAVEID_MB,
+        ID_BAUDRATE_MB,
+        ID_PARITYBIT_MB,
+
+        ID_BATT_MON_EN,
+        ID_CYCLIC_MODE_EN,
+
+        ID_EXERCISE_1_EN,
+        ID_EXERCISE_1_OCCURENCE,
+        ID_EXERCISE_1_START_DAY,
+        ID_EXERCISE_1_LOAD_TRANSFER,
+        ID_EXERCISE_2_EN,
+        ID_EXERCISE_2_OCCURENCE,
+        ID_EXERCISE_2_START_DAY,
+        ID_EXERCISE_2_LOAD_TRANSFER,
+
+        ID_NIGHT_MODE_EN,
+
+        ID_DIG_INPUTA_SOURCE,
+        ID_DIG_INPUTA_POLARITY,
+        ID_DIG_INPUTA_ACTION,
+        ID_DIG_INPUTA_ACTIVATION,
+        ID_DIG_INPUTA_ACTIVATION_DLY,
+
+        ID_DIG_INPUTB_SOURCE,
+        ID_DIG_INPUTB_POLARITY,
+        ID_DIG_INPUTB_ACTION,
+        ID_DIG_INPUTB_ACTIVATION,
+        ID_DIG_INPUTB_ACTIVATION_DLY,
+
+        ID_DIG_INPUTC_SOURCE,
+        ID_DIG_INPUTC_POLARITY,
+        ID_DIG_INPUTC_ACTION,
+        ID_DIG_INPUTC_ACTIVATION,
+        ID_DIG_INPUTC_ACTIVATION_DLY,
+
+        ID_DIG_INPUTD_SOURCE,
+        ID_DIG_INPUTD_POLARITY,
+        ID_DIG_INPUTD_ACTION,
+        ID_DIG_INPUTD_ACTIVATION,
+        ID_DIG_INPUTD_ACTIVATION_DLY,
+
+        ID_DIG_INPUTE_SOURCE,
+        ID_DIG_INPUTE_POLARITY,
+        ID_DIG_INPUTE_ACTION,
+        ID_DIG_INPUTE_ACTIVATION,
+        ID_DIG_INPUTE_ACTIVATION_DLY,
+
+        ID_DIG_INPUTF_SOURCE,
+        ID_DIG_INPUTF_POLARITY,
+        ID_DIG_INPUTF_ACTION,
+        ID_DIG_INPUTF_ACTIVATION,
+        ID_DIG_INPUTF_ACTIVATION_DLY,
+
+        ID_DIG_INPUTG_SOURCE,
+        ID_DIG_INPUTG_POLARITY,
+        ID_DIG_INPUTG_ACTION,
+        ID_DIG_INPUTG_ACTIVATION,
+        ID_DIG_INPUTG_ACTIVATION_DLY,
+
+        ID_DIG_INPUTH_SOURCE,
+        ID_DIG_INPUTH_POLARITY,
+        ID_DIG_INPUTH_ACTION,
+        ID_DIG_INPUTH_ACTIVATION,
+        ID_DIG_INPUTH_ACTIVATION_DLY,
+
+        ID_DIG_INPUTI_SOURCE,
+        ID_DIG_INPUTI_POLARITY,
+        ID_DIG_INPUTI_ACTION,
+        ID_DIG_INPUTI_ACTIVATION,
+        ID_DIG_INPUTI_ACTIVATION_DLY,
+
+        ID_LOP_SENS_SELECTION,
+        ID_DIG_INPUTJ_SOURCE,
+        ID_DIG_INPUTJ_POLARITY,
+        ID_DIG_INPUTJ_ACTION,
+        ID_DIG_INPUTJ_ACTIVATION,
+        ID_DIG_INPUTJ_ACTIVATION_DLY,
+        ID_LOP_SENS_FAULT_ACTION,
+
+        ID_FUEL_SENS_SELECTION,
+        ID_DIG_INPUTK_SOURCE,
+        ID_DIG_INPUTK_POLARITY,
+        ID_DIG_INPUTK_ACTION,
+        ID_DIG_INPUTK_ACTIVATION,
+        ID_DIG_INPUTK_ACTIVATION_DLY,
+        ID_FUEL_LOW_LEVEL_SHUT_DN_EN,
+        ID_FUEL_SHUT_DN_THRESH,
+        ID_FUEL_LOW_LEVEL_WARN_EN,
+        ID_FUEL_WARN_THRESH,
+        ID_FUEL_THEFT_WARN_EN,
+        ID_FUEL_THEFT_THRESH,
+        ID_FUEL_SENS_FAULT_ACTION,
+        ID_FUEL_SENSOR_REFERENCE,
+
+        ID_ENG_TEMP_SENS_SELECTION,
+        ID_DIG_INPUTL_SOURCE,
+        ID_DIG_INPUTL_POLARITY,
+        ID_DIG_INPUTL_ACTION,
+        ID_DIG_INPUTL_ACTIVATION,
+        ID_DIG_INPUTL_ACTIVATION_DLY,
+        ID_ENG_TEMP_SENS_FAULT_ACTION,
+
+        ID_S1_SENS_SELECTION,
+        ID_DIG_INPUTM_SOURCE,
+        ID_DIG_INPUTM_POLARITY,
+        ID_DIG_INPUTM_ACTION,
+        ID_DIG_INPUTM_ACTIVATION,
+        ID_DIG_INPUTM_ACTIVATION_DLY,
+        ID_S1_THRESH_TYPE,
+        ID_S1_SHUT_DN_EN,
+        ID_S1_WARN_EN,
+        ID_S1_SENS_FAULT_ACTION,
+
+        ID_S2_SENS_SELECTION,
+        ID_DIG_INPUTN_SOURCE,
+        ID_DIG_INPUTN_POLARITY,
+        ID_DIG_INPUTN_ACTION,
+        ID_DIG_INPUTN_ACTIVATION,
+        ID_DIG_INPUTN_ACTIVATION_DLY,
+        ID_S2_THRESH_TYPE,
+        ID_S2_SHUT_DN_EN,
+        ID_S2_WARN_EN,
+        ID_S2_SENS_FAULT_ACTION,
+
+        ID_S3_SENS_SELECTION,
+        ID_DIG_INPUTO_SOURCE,
+        ID_DIG_INPUTO_POLARITY,
+        ID_DIG_INPUTO_ACTION,
+        ID_DIG_INPUTO_ACTIVATION,
+        ID_DIG_INPUTO_ACTIVATION_DLY,
+        ID_S3_THRESH_TYPE,
+        ID_S3_SHUT_DN_EN,
+        ID_S3_WARN_EN,
+        ID_S3_SENS_FAULT_ACTION,
+
+        ID_S4_SENS_SELECTION,
+        ID_DIG_INPUTP_SOURCE,
+        ID_DIG_INPUTP_POLARITY,
+        ID_DIG_INPUTP_ACTION,
+        ID_DIG_INPUTP_ACTIVATION,
+        ID_DIG_INPUTP_ACTIVATION_DLY,
+        ID_S4_THRESH_TYPE,
+        ID_S4_SHUT_DN_EN,
+        ID_S4_WARN_EN,
+        ID_S4_SENS_FAULT_ACTION,
+
+        ID_DIG_OP_SOURCE_A,
+        ID_DIG_OP_ACTIVATION_A,
+        ID_DIG_OP_SOURCE_B,
+        ID_DIG_OP_ACTIVATION_B,
+        ID_DIG_OP_SOURCE_C,
+        ID_DIG_OP_ACTIVATION_C,
+        ID_DIG_OP_SOURCE_D,
+        ID_DIG_OP_ACTIVATION_D,
+        ID_DIG_OP_SOURCE_E,
+        ID_DIG_OP_ACTIVATION_E,
+        ID_DIG_OP_SOURCE_F,
+        ID_DIG_OP_ACTIVATION_F,
+        ID_DIG_OP_SOURCE_G,
+        ID_DIG_OP_ACTIVATION_G,
+
+        ID_ALTERNATOR_PRESENT,
+        ID_NUMBER_OF_POLES,
+        ID_GEN_AC_SYSTEM_TYPE,
+        ID_PH_REVERS_DETECT_EN,
+        ID_PH_REVERS_ACTION,
+        ID_AUTOLOAD_TRANSFER,
+        ID_ALT_WAVE_DETECT_EN,
+        ID_GEN_PT_ENABLE,
+
+        ID_GEN_UNDER_VTG_SHUT_DN_EN,
+        ID_GEN_UNDER_VTG_WARN_EN,
+        ID_GEN_OVER_VTG_SHUT_DN_EN,
+        ID_GEN_OVER_VTG_WARN_EN,
+        ID_GEN_UNDER_FREQ_SHUT_DN_EN,
+        ID_GEN_UNDER_FREQ_WARN_EN,
+        ID_GEN_OVER_FREQ_SHUT_DN_EN,
+        ID_GEN_OVER_FREQ_WARN_EN,
+        ID_OVER_CURR_ACTION,
+        ID_CT_LOCATION,
+
+        ID_FAN_CM_SELECTION,
+        ID_HIGH_CURR_ACTION,
+        ID_LOW_CURR_ACTION,
+
+        ID_OL_ACTION,
+        ID_OL_THRESH_PERCENT,
+        ID_UNBAL_LOAD_ACTION,
+        ID_UNBAL_LOAD_THRESH,
+
+        ID_LOW_LOAD_ALARM_EN,
+        ID_LOW_LOAD_ACTION,
+        ID_LOW_LOAD_TRIP,
+        ID_LOW_LOAD_RETURN,
+
+        ID_MAINS_MON_EN,
+        ID_MAINS_AC_SYTEM_TYPE,
+        ID_MAINS_PH_REVERS_DETECT_EN,
+        ID_MAINS_PH_REVERS_ACTION,
+        ID_MAINS_PARTIAL_HEALTHY_DETECT_EN,
+        ID_MAINS_PT_ENABLE,
+        ID_MAINS_UNDER_VTG_MON_EN,
+        ID_MAINS_OVER_VTG_MON_EN,
+        ID_MAINS_UNDER_FREQ_MON_EN,
+        ID_MAINS_OVER_FREQ_MON_EN,
+        ID_CRANK_ATTEMPTS,
+        ID_DISCON_ON_LOP_SENS_EN,
+        ID_MONITOR_LLOP_BEFORE_CRANK,
+        ID_MONITOR_LOP_SENSE_BEFORE_CRANK,
+        ID_DISCON_ON_LOP_SW_EN,
+        ID_CRANK_DISCON_ALT_FREQ_THRESH,
+        ID_CRANK_DISCON_CHARG_ALT_EN,
+        ID_ENG_SPEED_SOURCE,
+        ID_UNDERSPEED_SHUT_DN_EN,
+        ID_GROSS_OVER_SPEED_THRESH,
+
+        ID_IDLE_MODE_PULSE_TIME,
+
+        ID_LOW_BAT_VTG_ACTION,
+        ID_HIGH_BAT_VTG_ACTION,
+        ID_CHARG_ALT_FAIL_ACTION,
+        ID_ENGINE_TEMP_LIMIT_EN,
+        ID_CLNT_TEMP_CTRL_EN,
+        ID_CLNT_TEMP_CTRL,
+        ID_AFT_ACTIVATION_THRESH,
+        ID_AFT_DEACTIVATION_THRESH,
+        ID_MON_AFT_FROM_ENGINE_ON,
+        ID_ENGINE_TYPE,
+        ID_LOP_FROM_ENG,
+        ID_CLNT_TEMP_FROM_ENG,
+        ID_ENGINE_SPEED_FROM_ENG,
+        ID_RUNNING_HOURS_FROM_ENG,
+        ID_BATTERY_VOLT_FROM_ENG,
+        ID_SPEED_TO_ECU,
+        ID_START_STOP_TO_ECU,
+        ID_PREHEAT_TO_ECU,
+        ID_ENGINE_FRQ,
+
+        ID_ECU_COMM_FAILURE_ACTION,
+        ID_ECU_COMM_FAILURE_ACTIVATION,
+        ID_ECU_AMBER_ACTION,
+        ID_ECU_AMBER_ACTIVATION,
+        ID_ECU_RED_ACTION,
+        ID_ECU_RED_ACTIVATION,
+        ID_ECU_MALFUNCTION_ACTION,
+        ID_ECU_MALFUNCTION_ACTIVATION,
+        ID_ECU_PROTECT_ACTION,
+        ID_ECU_PROTECT_ACTIVATION,
+        ID_LOP_LVL_SHUTDOWN_EN,
+        ID_LOP_LVL_WARNING_EN,
+        ID_CLNT_TEMP_THRESH_TYPE,
+        ID_CLNT_TEMP_SHUTDOWN_EN,
+        ID_CLNT_TEMP_WARNING_EN,
+        ID_MAINTENANCE_ALARM_ACTION,
+        ID_MAINT_ASH_LOAD_EN,
+        ID_FILT_MAINT_THRESH_DAY,
+        ID_FILT_MAINT_THRESH_MONTH,
+        ID_EGOV_ACT_APPLICATION,
+        ID_EGOV_ACT_SPEED,
+        ID_EGOV_ACT_DIRECTION,
+        ID_EGOV_SET_POINT_SELECTION,
+        ID_EGOV_PERCENT_DROOP,
+
+       ID_DISP_VOLT_FILT_EN,
+       ID_DISP_VOLT_FILT_VAL,
+        ID_UINT8_LAST
+    }UINT8_PARAMS_t;
+
+    /**
+     * Enum values for String type variable.
+     */
+    typedef enum
+    {
+        ID_ARR_AUX_INPUT_A,
+        ID_ARR_AUX_INPUT_B,
+        ID_ARR_AUX_INPUT_C,
+        ID_ARR_AUX_INPUT_D,
+        ID_ARR_AUX_INPUT_E,
+        ID_ARR_AUX_INPUT_F,
+        ID_ARR_AUX_INPUT_G,
+        ID_ARR_AUX_INPUT_H,
+        ID_ARR_AUX_INPUT_I,
+        ID_ARR_AUX_INPUT_J,
+        ID_ARR_AUX_INPUT_K,
+        ID_ARR_AUX_INPUT_L,
+        ID_ARR_AUX_INPUT_M,
+        ID_ARR_AUX_INPUT_N,
+        ID_ARR_AUX_INPUT_O,
+        ID_ARR_AUX_INPUT_P,
+        ID_ARR_SENSOR_S1_NAME,
+        ID_ARR_SENSOR_S2_NAME,
+        ID_ARR_SENSOR_S3_NAME,
+        ID_ARR_SENSOR_S4_NAME,
+        ID_ARR_PROFILE,
+
+        ID_ARRAY_20_BYTE_LAST
+     }ARRAY_PARAMS_t;
+
+     /**
+      * This is the structure of all configuration parameter
+      */
+     typedef struct __attribute__((packed))
+     {
+         float    f32ArrParam[ID_FLOAT_LAST];
+         uint16_t u16ArrParam[ID_UINT16_LAST];
+         uint8_t  u8ArrParam[ID_UINT8_LAST];
+         char     u8ArrStringParam[ID_ARRAY_20_BYTE_LAST][MAX_AUX_STRING_SIZE];
+#if DUMMY_ITEMS
+         uint8_t  uint8Dummy[DUMMY_ITEMS];
+#endif
+     }CFGZ_PARAMS_t;
+
+
+
+     typedef enum{
+         LANGUAGE_ENGLISH,
+         LANGUAGE_SPANISH,
+         LANGUAGE_CHINSESE,
+     }CFGZ_LANGUAGE_t;
+    /*List of sensors that can be connected to the digital input*/
+    typedef enum {
+        CFGZ_SENSOR_NOT_USED         = 0,
+        CFGZ_USER_CONFIGURED_SENSOR,
+        CFGZ_LOW_FUEL_LEVEL_SWITCH,
+        CFGZ_LOW_LUBE_OIL_PRESS_SWITCH,
+        CFGZ_HIGH_ENGINE_TEMP_SWITCH,
+        CFGZ_LOW_WATER_LVL_SWITCH,
+        CFGZ_EMERGENCY_STOP,
+        CFGZ_REMOTE_START_STOP,
+        CFGZ_SIMULATE_START,
+        CFGZ_SIMULATE_STOP,
+        CFGZ_SIMULATE_AUTO,
+        CFGZ_CLOSE_GEN_OPEN_MAINS_SWITCH ,
+        CFGZ_CLOSE_MAINS_OPEN_GEN_SWITCH ,
+        CFGZ_SIMULATE_MAINS,
+        CFGZ_VBEL_BROKEN_SWITCH,
+        CFGZ_MAINS_CONTACTOR_LATCHED,
+        CFGZ_GEN_CONTACTOR_LATCHED,
+        CFGZ_BATTERY_CHARGER_FAIL,
+        CFGZ_SMOKE_FIRE,
+        CFGZ_REMOTE_ALARM_MUTE,
+        CFGZ_REMOTE_ALARM_ACK,
+        CFGZ_STOP_PANEL_LOCK,
+        CFGZ_EXT_PANEL_LOCK,
+        CFGZ_GENERATOR_LOAD_INITHIBIT,
+        CFGZ_MAINS_LOAD_INHIBIT,
+       // CFGZ_SOURCE_NEUTRAL_SW_SIGNAL,
+        CFGZ_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL,
+        CFGZ_IDLE_MODE_ENABLE,
+} CFGZ_DIGITAL_SENSORS_t;
+
+    typedef enum {
+        CFGZ_CLOSE_TO_ACTIVATE = 0,
+        CFGZ_OPEN_TO_ACTIVATE
+    } CFGZ_SENSOR_POLARITY_t;
+
+    typedef enum{
+        CFGZ_ACTION_NONE          = 0,
+        CFGZ_ACTION_NOTIFICATION,
+        CFGZ_ACTION_WARNING,
+        CFGZ_ACTION_ELECTRICAL_TRIP,
+        CFGZ_ACTION_SHUTDOWN,
+
+    } CFGZ_SENSOR_ACTION_t;
+
+    typedef enum
+    {
+        CFGZ_ACTION_NONE_1 =0,
+        CFGZ_ACTION_NOTIFICATION_2,
+        CFGZ_ACTION_WARNING_2,
+    }CFGZ_MAINTENANCE_ACTION;
+    typedef enum {
+        CFGZ_NEVER_ACTIVATE    = 0,
+        CFGZ_FROM_ENGINE_START,
+        CFGZ_FROM_MONITORING_ON,
+        CFGZ_ALWAYS,
+        CFGZ_ACTIVATION_AFTER_FUEL_RELAY_ON
+    } CFGZ_SENSOR_ACTIVATION_t;
+
+    typedef enum {
+        CFGZ_ANLG_SENSOR_NOT_USED   = 0,
+        CFGZ_ANLG_DIG_IN,
+        CFGZ_ANLG_CUSTOM_SENSOR1,
+        CFGZ_ANLG_CUSTOM_SENSOR2,
+        CFGZ_ANLG_CUSTOM_SENSOR3,
+    } CFGZ_ANLG_SENSORS_t;
+
+    typedef enum {
+        CFGZ_LOP_CURR_SENS_NOT_USED   = 0,
+        CFGZ_CURR_ANLG_DIG_IN,
+        CFGZ_ANLG_LOP_CURR_SENSOR
+    } CFGZ_LOP_CURR_SENSORS_t;
+
+    /*An helper type to define mapping of sensors between CFGZ and A_SENSE*/
+    typedef struct {
+        CFGZ_ANLG_SENSORS_t  eCfgSensorTyp;
+        AnalogSensor::TYPS_t eDsenseSensorTyp;
+    } ASENSOR_MAP_ROW_t;
+
+    /*List of actuators that can be connected to HSD's*/
+    typedef enum {
+        CFGZ_NOT_CONFIGURED = 0,
+        CFGZ_AUDIBLE_ALARM,
+        CFGZ_VBAT_OV,
+        CFGZ_VBAT_UV,
+        CFGZ_CA_SHUTDOWN,
+        CFGZ_CA_WARNING,
+        CFGZ_CLOSE_GEN_CONTACTOR,
+        CFGZ_CLOSE_MAINS_CONTACTOR,
+
+        CFGZ_MAINS_FAILURE,
+        CFGZ_ALARM,
+        CFGZ_ELEC_TRIP,
+        CFGZ_SHUTDOWN,
+        CFGZ_WARNING,
+        CFGZ_COOLING_ON,
+        CFGZ_DIG_IN_A,
+        CFGZ_DIG_IN_B,
+        CFGZ_DIG_IN_C,
+        CFGZ_DIG_IN_D,
+        CFGZ_DIG_IN_E,
+        CFGZ_DIG_IN_F,
+        CFGZ_DIG_IN_G,
+        CFGZ_DIG_IN_H,
+        CFGZ_DIG_IN_I,
+        CFGZ_DIG_IN_J,
+        CFGZ_DIG_IN_K,
+        CFGZ_DIG_IN_L,
+        CFGZ_DIG_IN_M,
+        CFGZ_DIG_IN_N,
+        CFGZ_DIG_IN_O,
+        CFGZ_DIG_IN_P,
+        CFGZ_E_STOP,
+        CFGZ_STOP_SOLENOID,
+        CFGZ_FAIL_TO_START,
+        CFGZ_FAIL_TO_STOP,
+        CFGZ_FUEL_RELAY,
+        CFGZ_GEN_AVLBL,
+        CFGZ_GEN_R_OV_SHUTDOWN,
+        CFGZ_GEN_R_UV_SHUTDOWN,
+        CFGZ_GEN_Y_OV_SHUTDOWN,
+        CFGZ_GEN_Y_UV_SHUTDOWN,
+        CFGZ_GEN_B_OV_SHUTDOWN,
+        CFGZ_GEN_B_UV_SHUTDOWN,
+        CFGZ_GEN_OC,
+        CFGZ_HIGH_TEMP,
+        CFGZ_LOW_FUEL,
+        CFGZ_LOW_PRES,
+        CFGZ_MAINS_HIGH,
+        CFGZ_MAINS_LOW,
+        CFGZ_OIL_CKT_OPEN,
+        CFGZ_OPEN_GEN_OUT,
+        CFGZ_OPEN_MAINS_OUT,
+        CFGZ_OF_SHUTDOWN,
+        CFGZ_OS_SHUTDOWN,
+        CFGZ_GROSS_OS_SHUTDOWN,
+        CFGZ_START_RELAY,
+        CFGZ_TEMP_CKT_OPEN,
+        CFGZ_UF_SHUTDOWN,
+        CFGZ_US_SHUTDOWN,
+        CFGZ_FILT_MAINT,
+        CFGZ_MODE_STOP,
+        CFGZ_MODE_AUTO,
+        CFGZ_MODE_MANUAL,
+        CFGZ_PREHEAT,
+        CFGZ_CALLING_FOR_SCHEDULER_RUN,
+        CFGZ_STOP_PANEL_LOCK_OP,
+        CFGZ_EXTERNAL_PANEL_LOCK,
+        CFGZ_FAIL_TO_CLOSE_GEN_CONT,
+        CFGZ_FAIL_TO_CLOSE_MAINS_CONT,
+        CFGZ_LOADING_VTG_NOT_REACHED,
+        CFGZ_LOADING_FREQ_NOT_REACHED,
+        CFGZ_MPU_LOSS,
+        CFGZ_BTS_BATTERY_HYBRID_MODE,
+        CFGZ_AUTOMATIC_FUEL_TRANSFER,
+        CFGZ_ISV_PULL_SIGNAL,
+        CFGZ_ISV_HOLD_SIGNAL,
+        CFGZ_LOW_IDLE_MODE,
+
+        CFGZ_CLNT_TEMP_CTRL,
+        CFGZ_KEY_SWITCH,
+
+        CFGZ_OPEN_GEN_BREAKER_PULSE,
+        CFGZ_CLOSE_GEN_BREAKER_PULSE,
+        CFGZ_OPEN_MAINS_BREAKER_PULSE,
+        CFGZ_CLOSE_MAINS_BREAKER_PULSE,
+
+        CFGZ_IDLE_MODE_ON_PULSE,
+        CFGZ_IDLE_MODE_OFF_PULSE
+
+    } CFGZ_ACT_TYPS_t;
+
+    typedef enum {
+        CFGZ_DENERGIZE_TO_ACTIVATE = 0,
+        CFGZ_ENERGIZE_TO_ACTIVATE 
+    } CFGZ_ACT_ACTIVATION_TYP_t;
+
+    /*Represents a row in the map between the actuator type of CFGZ & ACT*/
+    typedef struct {
+        CFGZ_ACT_TYPS_t           cfgzSensorType;
+        ACTUATOR::ACTUATOR_TYPS_t actuatorType;
+    } ACTUATOR_MAP_ROW_t;
+
+    typedef enum {
+        CFGZ_MODBUS_BAUD_1200 = 0,
+        CFGZ_MODBUS_BAUD_2400,
+        CFGZ_MODBUS_BAUD_4800,
+        CFGZ_MODBUS_BAUD_9600,
+        CFGZ_MODBUS_BAUD_19200,
+        CFGZ_MODBUS_BAUD_38400,
+        CFGZ_MODBUS_BAUD_57600,
+        CFGZ_MODBUS_BAUD_115200
+    } CFGZ_MODBUS_BAUD_t;
+
+    typedef enum {
+        CFGZ_MODBUS_PARITY_NONE = 0,
+        CFGZ_MODBUS_PARITY_EVEN,
+        CFGZ_MODBUS_PARITY_ODD
+    } CFGZ_MODBUS_PARITY_t;
+
+    typedef enum {
+        CFGZ_1_PHASE_SYSTEM = 0,
+        CFGZ_3_PHASE_SYSTEM,
+        CFGZ_SPLIT_PHASE
+    } CFGZ_AC_SYSTEM_TYP_t;
+
+    typedef enum {
+        CFGZ_GENSET_MODE_MANUAL = 0,
+        CFGZ_GENSET_MODE_AUTO
+    } CFGZ_GENSET_MODE_t;
+
+    typedef enum {
+        CFGZ_DISABLE = 0,
+        CFGZ_ENABLE
+    } CFGZ_ENABLE_DISABLE_t;
+
+    typedef enum
+    {
+        CHECK_ERASE_SUCCESS,
+        CHECK_CRC_WRITE_SUCCESS,
+        CHECK_CFGZ_WRITE_SUCCESS,
+        CHECK_CFGZ_INTEGRITY_STATUS
+    }SM_DFLASH_STATUS;
+
+    typedef enum
+    {
+        ON_ALT_OP_CABLE = 0,
+        ON_LOAD_CABLE
+    }CT_LOCATION_t;
+
+    typedef enum
+    {
+        CFGZ_ALT_FREQUENCY,
+        CFGZ_MAGNETIC_PICKUP,
+        CFGZ_W_POINT_FREQ,
+    }SPEED_SOURCE_t;
+
+    typedef enum
+    {
+        CFGZ_HEATER_CONTROL,
+        CFGZ_COOLER_CONTROL
+    }CFGZ_CLNT_CTRL_OPT;
+
+
+    typedef enum
+    {
+        CFGZ_LESS_THAN_THRESHOLD,
+        CFGZ_GREATER_THAN_THRESHOLD
+    }CFGZ_SENSOR_THRESHLD_TYPE;
+
+
+    typedef enum
+    {
+        CFGZ_AS_EGOV,
+        CFGZ_START_STOP
+    }ACTUATOR_APPLICATION_t;
+    typedef enum
+    {
+        CFGZ_FIXED_SPEED,
+        CFGZ_LOAD_BASED_DROOP,
+    }EGOV_SPEED_SELECTION_t;
+
+    typedef enum
+    {
+        CFGZ_EARTH_LEAKAGE_CURR,
+        CFGZ_FAN_CURRENT
+    }CURRENT_MON_SELECTION_t;
+
+    typedef enum
+    {
+        ENG_CONVENTIONAL,
+        ENG_DEFAULT,   // Generic J1939
+        ENG_SCANIA,
+        ENG_VOLVO,
+        ENG_IVECO,
+        ENG_DEUTZ_EMR,
+        ENG_MTU,
+        ENG_KUBOTA,
+        ENG_WECHAI,
+        ENG_HATZ,
+        ENG_PERKINS_ADAM4,
+        ENG_YUCHAI_YCGCU,
+        ENG_CUMMINS,
+        ENG_CUMMINS_500,
+        ENG_CUMMINS_558,
+        ENG_CUMMINS_570,
+        ENG_CUMMINS_850,
+        ENG_CUMMINS_2150,
+        ENG_CUMMINS_2250,
+        ENG_DCEC_CUMMINS,
+        ENG_YUCHAI_BOSCH,
+        TOTAL_ENG_TYPES
+    }ENGINE_TYPES_t;
+
+    /**
+     * Constructor, initiates this module.
+     * @param : None
+     * @return
+     * None
+     */
+    CFGZ(HAL_Manager &hal, MODBUS &modbus, CFGC &cfgc);
+
+    /**
+     * This function to monitor the Erase and write status of D-Flash
+     * Memory. It should be called in main loop.
+     */
+    void Update();
+
+    /**
+     * This functions is used to get the CFGZ parameter value of floating point
+     * type.
+     * @eparam   : Parameter enum value
+     * @return  : Value of the Parameter
+     */
+    float    GetCFGZ_Param(FLOAT_PARAMS_t _f32Param);
+
+    /**
+     * This functions is used to get the CFGZ parameter value of uint16 type.
+     * @eparam   : Parameter enum value
+     * @return  : Value of the Parameter
+     */
+    uint16_t GetCFGZ_Param(UINT16_PARAMS_t _u16Param);
+
+    /**
+     * This functions is used to get the CFGZ parameter value of uint8 type.
+     * @eparam   : Parameter enum value
+     * @return   : Value of the Parameter
+     */
+    uint8_t  GetCFGZ_Param(UINT8_PARAMS_t _u8Param);
+
+    /**
+     * Following functions are used to get the parameter value from CFGZ.
+     * @eparam   : Parameter enum value
+     * @Param   : Address of the variable
+     */
+    void     GetCFGZ_Param(ARRAY_PARAMS_t _ArrParam, char* pu8ArrValue);
+
+    uint16_t GetMisc_Param(MISC_PARAM_16_t ePram);
+    uint8_t GetMisc_Param(MISC_PARAM_8_t ePram);
+
+    /**
+     * This function is used to request to write the parameter values in
+     * D-Flash Memory .
+     * @param  : CFGZ_PARAMS_t : Pointer of the data structure
+     * @return
+     * BSP_SUCCESS  - if the data was read successfully.
+     * BSP_FAIL     - if the data was read fail.
+     */
+    BSP_STATUS_t WriteActiveProfile(CFGZ_PARAMS_t* _Allparams);
+
+    /**
+     * This is callback function for DFLASH write and erase operation.
+     * @param:
+     */
+    void DFLASH_CB(DFLASH::FLASH_STATUS_t evt);
+
+   /**
+    * It will return the status stored in _CFGZ_Verification_status.
+    * @return
+    * BSP_SUCCESS
+    * BSP_FAIL
+    */
+   BSP_STATUS_t GetCFGZ_VerificationStatus(void);
+
+   void ApplyConfigChanges();
+
+   bool IsC03Error();
+
+   bool IsConfigWritten();
+
+   void ReadFactoryProfile();
+
+   SM_DFLASH_STATUS ReturnCFGZFlashState();
+
+   void EnableDisableMainsParam();
+
+   /**
+   * This function is used to read the whole CFGZ parameters from D-Flash
+   * memory and store the values in _All_Param structure.
+   * @return
+   * On Successful read it will return BSP_SUCCESS, otherwise BSP_FAIL,
+   */
+   BSP_STATUS_t ReadCFGZFromDflash(CFGZ_PARAMS_t* Param);
+
+   BSP_STATUS_t ReadCFGZFromEEprom(CFGZ_PARAMS_t* Param);
+
+   void ReadMiscParam(MISC_PARAM_t *stParam);
+
+   void GetExpInterpolationTable(float *af32TableX, float *af32TableY, FLOAT_PARAMS_t eTableStart);
+
+   bool IsDigOutputConfigured(UINT8_PARAMS_t eDigitalOutput);
+
+   static void  EEpromWritCB(EEPROM::EVENTS_t eEvent);
+
+   ENGINE_TYPES_t GetEngType(void);
+
+   void GetEngSrNo(char EngSrNo[]);
+
+   uint8_t GetArrLanguageIndex();
+private:
+
+    /**
+    * Reference object of DFLASH class.
+    */
+    HAL_Manager &_hal;
+
+    /*Holds reference to modbus*/
+    MODBUS      &_modbus;
+
+    CFGC        &_cfgc;
+    /**
+    * This structure will contain current copy of D-Flash CFGZ data.
+    */
+    CFGZ_PARAMS_t _All_Param;
+
+    /**
+    * This structure will contain CFGZ data to be written in DFLASH.
+    */
+    CFGZ_PARAMS_t _All_Param_Write;
+
+    /**
+    * This variable is used to indicate that D-Flash Erase and write operation
+    *  is initiated.
+    */
+    bool _EraseAndWriteInitiated;
+
+    /**
+    * This will store the CFGZ verification status.
+    */
+    BSP_STATUS_t _CFGZ_Verification_status;
+
+    static EEPROM::EVENTS_t _eEvent;
+
+    /**
+    * This function is used to check the CRC of all CFGZ area.
+    * @return
+    * BSP_SUCCESS  - if the CRC matches.
+    * BSP_FAIL     - if the CRC not matches.
+    */
+    BSP_STATUS_t prvGetIntegrityStatus(void);
+
+
+    /**
+    * Reads configuration from the RAM copy of CFGZ and configures D_SENSE
+    * @param: None
+    * @return
+    * None
+    */
+    void prvConfigureDSENSE();
+
+    /**
+    * Reads configuration from the RAM copy of CFGZ and configures A_SENSE
+    * @param: None
+    * @return
+    * None
+    */
+    void prvConfigureASENSE();
+
+    /**
+    * The name(i.e enum value) of digital sensors defined in CFGZ is different 
+    * from those defined in D_SENSE. This function derives the sensor name as in
+    * D_SENSE from the sensor name defined in this module.
+    * @param u8CfgSensorType: The index in CFGZ_PARAMS_t.u8ArrParam where the sensor
+    *                         type is present.
+    * @param eInput         : The digital input for which the sensor type need
+    *                         to be determined.
+    * @return
+    * the digital sensor type.
+    */
+    DigitalSensor::D_SENSOR_TYPS_t prvGetDigitalSensor(uint8_t u8CfgSensorType,
+                                                         D_SENSE::INPUTS_t eInput);
+
+    /**
+    * The name(i.e enum value) of analog sensors defined in CFGZ is different 
+    * from those defined in A_SENSE. This function derives the sensor name as in
+    * A_SENSE from the sensor name defined in this module.
+    * @param u8CfgSensorType: The index in CFGZ_PARAMS_t.u8ArrParam where the sensor
+    *                         type is present.
+    * @param pMap           : The map between the sensor name in CFGZ and A_SENSE.
+    * @param u8MapSize      : Number of rows in the map.
+    * @return
+    * the analog sensor type.
+    */
+    AnalogSensor::TYPS_t prGetAnalogSensor(uint8_t u8CfgSensorIdx, 
+                                        const ASENSOR_MAP_ROW_t *pMap, uint8_t u8MapSize);
+
+
+    /**
+    * Helper function to copy the interpolation table from CFGZ_PARAMS_t to
+    * interpolation data structure defined in A_SENSE.
+    * @param eTableStart   : Start index of interpolation table in CFGZ_PARAMS_t.
+    * @param stDestination : The destination data structure
+    * @return
+    * None
+    */
+    void prvCpyInterpolationTable(FLOAT_PARAMS_t eTableStart, 
+                                    AnalogSensor::INTERPOLATE_INFO_t &stDestination);
+
+    /**
+    * Configures the actuators
+    * @param: None
+    * @return
+    * None
+    */
+    void prvConfigureACT();
+
+    /**
+    * The name of actuators defined in CFGZ is different from those defined in
+    * ACT. This function provides a translation from the CFGZ class name to the 
+    * ACTUATOR class name for an actuator.
+    * @param u8CfgzActuatorTypeIdx: Index in CFGZ_PARAMS_t.u8ArrParam where the
+    *                               CFGZ name for the actuator is present.
+    * @return
+    * The name of actuator in ACTUATOR class
+    */
+    ACTUATOR::ACTUATOR_TYPS_t prvGetACTType(uint8_t u8CfgzActuatorTypeIdx);
+
+    /**
+    * The function configures RS485 and modbus.
+    * @param : None
+    * @return
+    * None
+    */
+    void prvConfigureMODBUS();
+
+    /**
+    * Translates CFGZ baud rate name to RS485 baud rate name.
+    * @param : None
+    * @return
+    * RS485 baud rate
+    */
+    RS485::BAUD_t prvGetRS485Baud();
+
+    /**
+    * Translates CFGZ parity rate name to RS485 parity rate name.
+    * @param : None
+    * @return
+    * RS485 parity rate
+    */
+    RS485::PARITY_t prvGetRS485Parity();
+
+    /**
+    * Configures AC_SENSE module
+    * @param: None
+    * @return
+    * None
+    */
+    void prvConfigureACSense();
+
+    /**
+    * Loads default configuration into the RAM data structure holding CFGZ.
+    * @param: None
+    * @return
+    * None
+    */
+    void prvLoadDefault();
+
+    void prvSetHardcodedActDelay();
+    void prvSetPassword();
+
+    /*
+     * The following structure is "firmware metadata".
+     * This will be stored as the last few bytes in the firmware area.
+     * i.e. firmware cannot actually extend all the way up to FW_END_ADDR;
+     * it must end at least sizeof(FW_METADATA_t) before that.
+     */
+    typedef struct
+    {
+        uint16_t u16CFGZCrc;  // firmware CRC
+        uint16_t u16Reserved1;  // should be 0xffff for now
+        uint32_t u32HighestAddrUsedByCFGZ;
+        RTC::TIME_t timeOfFlashing;
+    } CFGZ_METADATA_t;
+
+    CFGZ_METADATA_t strCFGZMetadata;
+    bool _bDflashCallbackRcvd;
+    bool _bConfigWritten;
+    MISC_PARAM_t _stMiscParam;
+};
+
+#endif /* APL_CFGZ_CFGZ_H_ */

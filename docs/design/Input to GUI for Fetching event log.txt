@@ -1,0 +1,116 @@
+Logic for event log :
+
+1. Following entries are required in Device map file.	
+																	 For KG640 
+	1. Event log start address (EVENT_LOG_START_ADDRESS)        ----> 0x40102180
+	2. Total memory for event log(TOTAL_MEMORY_FOR_EVENT_LOG)   ----> 6144
+	3. No.of bytes per event (NO_OF_BYTES_PER_EVENT)            ----> 12
+	4. Block size (EVENT_BLOCK_SIZE)                            ----> 64
+	5. Total Number of events (TOTAL_NO_OF_EVETNTS)             ----> 30
+	6. Event log structure. 									---->	
+																	 typedef struct
+																	 {
+																		 uint8_t event_id;
+																		 uint8_t event_type;
+																		 uint32_t Engine_Hrs;
+																		 uint16_t u16Speed;																		
+																		 float f32KW;																		 
+																	 }Event_Struct ;    				
+	7. Two dimentional dictionary with Strings for the event log parameters and size of columns ---> 
+																{
+																 {"EVENT Description", columns_size},
+																 {"Event Type",        columns_size},
+																 {"Engine Run hours",  columns_size},															 
+																 {"Speed",             columns_size},
+																 {"Total KW",          columns_size},
+																}
+      *Need to write columns_size accordingly display requirment. 						
+	  
+	8. Event String Array
+	{
+	   "No Alarm",
+       "Low Oil Pressure",
+       "Low Fuel level",
+       "High Eng Temp",
+       "Low Water Level Switch",
+       "Over Speed",
+       "Gross Over Speed",
+       "Under Speed",
+       "R Phase Over Voltage",
+       "R Phase Under Voltage",
+       "Y Phase Over Voltage",
+       "Y Phase Under Voltage",
+       "B Phase Over Voltage",
+       "B Phase Under Voltage",
+       "Over Frequency",
+       "Under Frequency",
+       "Emergency Stop",
+       "Charge Fail",
+       "Battery Over Voltage",
+       "Battery Under Voltage",
+       "Over Current",
+       "Maintenance Due",
+       "Over Load",
+       "Auxilary Input A",
+       "Auxilary Input B",
+       "Auxilary Input C",
+       "Auxilary Input D",
+       "Auxilary Input E",
+       "Auxilary Input F",
+       "Auxilary Input G",
+       "Auxilary Input H",
+       "Fail To Stop",
+       "Fuel Theft",
+       "Unbalanced Load",
+       "Fail To Start",
+       "Eng Temp / pin24 - Ckt Opn",
+       "DG Phase Reversed",
+       "Mains Phase Reversed",
+       "LOP / pin26 - Ckt Opn",
+       "High Canopy Temperature",
+       "V Belt Broken",
+       "Alt Voltage Lost",
+       "Eng Speed Detected",
+       "High Oil Press Detected",
+       "Engine Speed Fault",
+       "Engine Start",
+       "Engine Stop",
+       "Config Modified"
+	}	
+	
+2. Event log feteching logic
+
+	1. Read the memory from EVENT_LOG_START_ADDRESS till TOTAL_MEMORY_FOR_EVENT_LOG. 
+	2. Store that memory in buffer which is of size (TOTAL_MEMORY_FOR_EVENT_LOG + Packaet size(56))
+	3. To collect above data, you need to fire queries of TOTAL_MEMORY_FOR_EVENT_LOG / packate size
+	4. Now find out the max BRN(Block revision number)
+		1. In every event block, first 16 byte contain the BRN details, in that data 1st 4 bytes of every block is BRN number. 
+		2. To get this, run the for loop on above buffer with increment size of Block size. 
+		3. To validate the BRN number calculate the CRC of block and compare with block CRC(Last two byte of BRN) . 
+		4. If you get the invalid CRC then skip that block. 
+    5. After getting the max BRN decrement the BRN number by one. 
+	6. Now display the last TOTAL_NO_OF_EVETNTS Event logs. Skip the inbetween BRN data. Refer the event log block diagram for better understanding.
+	 eg. KG640 one event block
+       |----------------|
+       | BRN 1          |
+       |----------------|
+       |Event1 with CRC |
+       |----------------|
+       |Event1 with CRC |
+       |----------------|
+       |Event2 with CRC |
+       |----------------|
+		
+	7. If (TOTAL_MEMORY_FOR_EVENT_LOG / EVENT_BLOCK_SIZE) < maxBRNNumber then fetch the roll over data if required.  
+	8. In every block after first 16 bytes, rest are events. So to find out the number of events in a given block is 
+		(EVENT_BLOCK_SIZE - 16)/NO_OF_BYTES_PER_EVENT. So read the events accordingly.		
+	9. Number of columns in event log display should be dependent on the number of parameters in the structure.
+	
+	
+
+
+	
+	
+	
+	
+	

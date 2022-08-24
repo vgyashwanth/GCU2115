@@ -1,0 +1,82 @@
+/*
+ * UI_DS.h
+ *
+ *  Created on: 15-Aug-2021
+ *      Author: madhuri.abhang
+ */
+
+#ifndef APL_HMI_UI_DS_H_
+#define APL_HMI_UI_DS_H_
+
+#include "Keypad.h"
+typedef enum
+{
+    DISP_MON_MODE,
+    DISP_ALARM_MODE,
+    DISP_PASSWORD_EDIT_MODE,
+    DISP_CONFIG_MODE,
+    DISP_EVENT_LOG_MODE
+}MODE_TYPE_t;
+
+typedef enum
+{
+    PASSWORD1,
+    PASSWORD2,
+    MISC_16_LAST
+}MISC_PARAM_16_t;
+
+typedef enum
+{
+    PROFILE_NO,
+    RESET_COUNTER,
+    // DISP_VOLT_EN,
+    // DISP_VOLT_CONST,
+    MISC_8_LAST
+}MISC_PARAM_8_t;
+
+typedef enum
+{
+    ID_ENG_CHAR0,
+    ID_ENG_CHAR1,
+    ID_ENG_CHAR2,
+    ID_ENG_CHAR3,
+    ID_ENG_CHAR4,
+    ID_ENG_CHAR5,
+    ID_ENG_CHAR6,
+    ID_ENG_CHAR7,
+    ID_ENG_CHAR8,
+    ID_ENG_CHAR9,
+    ID_ENG_CHAR10,
+    ID_ENG_CHAR11,
+    ENG_ID_CHAR_LAST
+}ENG_ID_t;
+
+typedef struct
+ {
+     uint16_t u16MiscParam[MISC_16_LAST];
+     uint8_t u8MiscParam[MISC_8_LAST];
+     uint8_t u8EngId[ENG_ID_CHAR_LAST];
+     // uint8_t u8Dummy[2];
+     uint16_t u16CRC;
+ }MISC_PARAM_t;
+
+
+#define STOP_KEY_LONG_PRESS      KEYPAD::BSP_KEY_4_LONG_PRESS
+#define STOP_KEY_SHORT_PRESS     KEYPAD::BSP_KEY_4_SHORT_PRESS
+#define DN_STOP_KEY_LONG_PRESS   KEYPAD::BSP_KEY_4_7_LONG_PRESS
+#define UP_DN_KEY_LONG_PRESS     KEYPAD::BSP_KEY_7_8_LONG_PRESS
+#define UP_DN_KEY_SHORT_PRESS    KEYPAD::BSP_KEY_7_8_SHORT_PRESS
+#define UP_SHORT_PRESS           KEYPAD::BSP_KEY_8_SHORT_PRESS
+#define DN_SHORT_PRESS           KEYPAD::BSP_KEY_7_SHORT_PRESS
+#define UP_LONG_PRESS            KEYPAD::BSP_KEY_8_LONG_PRESS
+#define DN_LONG_PRESS            KEYPAD::BSP_KEY_7_LONG_PRESS
+#define AUTO_KEY_LONG_PRESS      KEYPAD::BSP_KEY_2_LONG_PRESS
+#define AUTO_KEY_SHORT_PRESS     KEYPAD::BSP_KEY_2_SHORT_PRESS
+
+#define START_KEY_SHORT_PRESS    KEYPAD::BSP_KEY_3_SHORT_PRESS
+#define ACK_KEY_PRESS            KEYPAD::BSP_KEY_1_SHORT_PRESS
+
+#define GEN_CONT_KEY_PRESS       KEYPAD::BSP_KEY_5_SHORT_PRESS
+#define MAINS_CONT_KEY_PRESS     KEYPAD::BSP_KEY_6_SHORT_PRESS
+
+#endif /* APL_HMI_UI_DS_H_ */

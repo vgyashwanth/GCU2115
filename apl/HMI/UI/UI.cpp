@@ -1,4 +1,5 @@
 /**
+/**
  * @file        [ui]
  * @brief
  * @version     [Version number]
@@ -26,6 +27,13 @@ uint16_t u16IndexOfEditableItems=0,u16NumberofEditableItems=0;
 //All editable option string screens
 enum
 {
+    //RushiStart
+    ID_MANUAL_AUTO_S,
+    ID_ENABLE_DISABLE_S,
+    ID_MODBUS_S,
+    ID_PARITY_S,
+    ID_YES_NO_S,
+    //RushiEnd
    ID_MANUAL_AUTO,
    ID_LANGUAGE,
    ID_ENABLE_DISABLE,
@@ -378,6 +386,29 @@ static const char* strBaudrateOptions[]=
 static const char* strOptions[2][ID_LAST][8]=
 {
  {
+  //RushiStart
+  {
+        "Manual",
+        "Auto"
+  },
+  {
+         "Disable",
+         "Enable"
+  },
+  {
+      "None",
+      "MODBUS"
+  },
+  {
+      "None",
+      "Even",
+      "Odd"
+  },
+  {
+      "No",
+      "Yes"
+  },
+   //RushiEnd
   {
       "Manual",
       "Auto"
@@ -577,6 +608,28 @@ static const char* strOptions[2][ID_LAST][8]=
    }
  },
  {
+  //RushiStart
+  {
+        "Manual",
+        "Auto"
+  },
+  {    "Desactivado",
+          "Activado"
+  },
+  {
+      "Nunca",
+      "MODBUS"
+  },
+  {
+      "Nunca",
+      "Even",
+      "Odd"
+  },
+  {
+      "No",
+      "Si"
+  },
+   //RushiEnd
   {
       "Manual",
       "Auto"
@@ -778,6 +831,9 @@ static const char* strOptions[2][ID_LAST][8]=
 static const char* strMainMenu[2][ID_MAIN_MENU_LAST]
 {
     {
+        //RushiStart
+        "MODULE",
+        //RushiEnd
         "MODULE",
         "INPUTS",
         "OUTPUTS",
@@ -793,6 +849,9 @@ static const char* strMainMenu[2][ID_MAIN_MENU_LAST]
         "DISP VOLT FILT"
     },
     {
+     //RushiStart
+     "MODULO",
+     //RushiEnd
        	"MODULO",
        	"ENTRADAS",
        	"SALIDAS",
@@ -812,6 +871,14 @@ static const char* strMainMenu[2][ID_MAIN_MENU_LAST]
 static const char* strSubMenu[2][ID_SUB_MENU_LAST]
 {
     {
+        //RushiStart
+        "GENERAL",
+        "DISPLAY",
+        "MODBUS_COMM",
+        "BTS_CONFIG",
+        "CYCLIC_CONFIG",
+        "NIGHT_MODE_CONFIG",
+        //RushiEnd
         //Module
          "GENERAL",
          "DISPLAY",
@@ -898,6 +965,14 @@ static const char* strSubMenu[2][ID_SUB_MENU_LAST]
          "DISP VOLT FILT"
     },
     {
+     //RushiStart
+     "GENERAL",
+     "PANTALLA",
+     "COMUNICACION",
+     "CONFIG BATERIA",
+     "CONFIG CICLICA",
+     "NIGHT_MODE_CONFIG",
+     //RushiEnd
      //Module
      "GENERAL",
      "PANTALLA",
@@ -989,6 +1064,33 @@ static const char* strSubMenu[2][ID_SUB_MENU_LAST]
 static const char* strLeafNode[2][SID_LEAF_NODE_STRING]
 {
     {
+        //RushiStart
+        "PROFILE NAME" ,
+        "POWER ON MODE" ,
+        "POWER ON LAMP TEST" ,
+        "PASSWORD LOCK" ,
+
+        "CONTRAST",
+        "POWER SAVE MODE",
+
+        "COMM MODE",
+        "MODBUS SLAVE ID",
+        "BAUDRATE",
+        "PARITY",
+
+        "BATTERY MON",
+        "LOW BATT THRESHOLD",
+        "LOW BATT MON DELAY",
+        "GEN RUN DURATION",
+
+        "CYCLIC MODE",
+        "GEN OFF DURATION",
+        "GEN ON DURATION",
+
+        "NIGHT MODE",
+        "START TIME",
+        "OFF DURATION",
+        //RushiEnd
         "PROFILE NAME",
         "POWER ON MODE",
         "POWER ON LAMP TEST",
@@ -1309,6 +1411,33 @@ static const char* strLeafNode[2][SID_LEAF_NODE_STRING]
         "FILTER CONSTANT"
     },
     {
+     //RushiStart
+     "PROFILE NAME" ,
+     "POWER ON MODE" ,
+     "POWER ON LAMP TEST" ,
+     "PASSWORD LOCK" ,
+
+     "CONTRAST",
+     "POWER SAVE MODE",
+
+     "COMM MODE",
+     "MODBUS SLAVE ID",
+     "BAUDRATE",
+     "PARITY",
+
+     "BATTERY MON",
+     "LOW BATT THRESHOLD",
+     "LOW BATT MON DELAY",
+     "GEN RUN DURATION",
+
+     "CYCLIC MODE",
+     "GEN OFF DURATION",
+     "GEN ON DURATION",
+
+     "NIGHT MODE",
+     "START TIME",
+     "OFF DURATION",
+     //RushiEnd
      "PERFIL",
      "MODO ENCENDIDO",
      "TEST LAMPARAS IND",
@@ -1671,7 +1800,33 @@ void UI::InitEditableItems()
         memcpy( &arrMonth[i], &StrMonth[_u8LanguageArrayIndex][i], 21);
     }
 
+//RushiStart
+    ArrEditableItem[INDEX_OF_GENERAL_PROFILE_NAME] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_PROFILE_NAME), strLeafNode[_u8LanguageArrayIndex][SID_GENERAL_PROFILE_NAME]," ", "%u", (uint8_t)1, (uint8_t)10, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_GENERAL_POWER_ON_MODE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_MODE), strLeafNode[_u8LanguageArrayIndex][SID_GENERAL_POWER_ON_MODE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_MANUAL_AUTO_S], 2  , CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_GENERAL_POWER_ON_LAMP_TEST] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_LAMP_TEST),strLeafNode[_u8LanguageArrayIndex][SID_GENERAL_POWER_ON_LAMP_TEST], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE_S], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_GENERAL_PASSWORD_LOCK] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_PASSWORD_LOCK),strLeafNode[_u8LanguageArrayIndex][SID_GENERAL_PASSWORD_LOCK], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE_S], 2, CEditableItem::PIN1_PIN2_ALLOWED );
 
+    ArrEditableItem[INDEX_OF_DISPLAY_CONTRAST] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_CONTRAST), strLeafNode[_u8LanguageArrayIndex][SID_DISPLAY_CONTRAST], arrUnit[ID_PERCENT], "%u", (uint8_t)0, (uint8_t)100, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_DISPLAY_POWER_SAVE_MODE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_POWER_SAVE_MODE),strLeafNode[_u8LanguageArrayIndex][SID_DISPLAY_POWER_SAVE_MODE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE_S], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+
+    ArrEditableItem[INDEX_OF_MODBUS_COMM_COMM_MODE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_COMM_MODE),strLeafNode[_u8LanguageArrayIndex][SID_MODBUS_COMM_COMM_MODE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_MODBUS_S], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_MODBUS_COMM_MODBUS_SLAVE_ID] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_MODBUS_SLAVE_ID), strLeafNode[_u8LanguageArrayIndex][SID_MODBUS_COMM_MODBUS_SLAVE_ID], "", "%u", (uint8_t)1, (uint8_t)247, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_MODBUS_COMM_MODBUS_BAUDRATE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_MODBUS_BAUDRATE),strLeafNode[_u8LanguageArrayIndex][SID_MODBUS_COMM_MODBUS_BAUDRATE], "", "%s", strBaudrateOptions, 8, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_MODBUS_COMM_PARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_PARITY),strLeafNode[_u8LanguageArrayIndex][SID_MODBUS_COMM_PARITY], "", "%s", strOptions[_u8LanguageArrayIndex][ID_PARITY_S], 3, CEditableItem::PIN1_PIN2_ALLOWED );
+
+    ArrEditableItem[INDEX_OF_BTS_CONFIG_BATTERY_MON] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON),strLeafNode[_u8LanguageArrayIndex][SID_BTS_CONFIG_BATTERY_MON], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO_S], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_BTS_CONFIG_LOW_BATT_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_LOW_BATT_THRESHOLD),strLeafNode[_u8LanguageArrayIndex][SID_BTS_CONFIG_LOW_BATT_THRESHOLD], "", "%f", (float)40.0,(float) 55.0,(float)0.1, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_BTS_CONFIG_LOW_BATT_MON_DELAY] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_LOW_BATT_MON_DELAY),strLeafNode[_u8LanguageArrayIndex][SID_BTS_CONFIG_LOW_BATT_MON_DELAY], arrUnit[ID_SEC], "%u", (uint16_t)5, (uint16_t)300, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_BTS_CONFIG_DG_RUN_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_DG_RUN_DURATION),strLeafNode[_u8LanguageArrayIndex][SID_BTS_CONFIG_DG_RUN_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)720, CEditableItem::PIN1_PIN2_ALLOWED );
+
+    ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_CYCLIC_MODE),strLeafNode[_u8LanguageArrayIndex][SID_CYCLIC_CONFIG_CYCLIC_MODE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO_S], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_DG_OFF_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION),strLeafNode[_u8LanguageArrayIndex][SID_CYCLIC_CONFIG_DG_OFF_DURATION], arrUnit[ID_SEC], "%u", (uint16_t)1, (uint16_t)720, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_DG_ON_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION),strLeafNode[_u8LanguageArrayIndex][SID_CYCLIC_CONFIG_DG_ON_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)720, CEditableItem::PIN1_PIN2_ALLOWED );
+
+    ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFIG_NIGHT_MODE),strLeafNode[_u8LanguageArrayIndex][SID_NIGHT_MODE_CONFIG_NIGHT_MODE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO_S], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_START_TIME] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFIG_START_TIME),strLeafNode[_u8LanguageArrayIndex][SID_NIGHT_MODE_CONFIG_START_TIME], arrUnit[ID_SEC], "%u", (uint16_t)0, (uint16_t)2359, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_OFF_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFIG_OFF_DURATION),strLeafNode[_u8LanguageArrayIndex][SID_NIGHT_MODE_CONFIG_OFF_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)1439, CEditableItem::PIN1_PIN2_ALLOWED );
+//RushiEnd
     ArrEditableItem[INDEX_OF_POWER_ON_MODE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_POWER_ON_MODE), strLeafNode[_u8LanguageArrayIndex][SID_POWER_ON_MODE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_MANUAL_AUTO], 2  , CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_POWER_ON_LAMP_TEST] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_POWER_ON_LAMP_TEST_EN),strLeafNode[_u8LanguageArrayIndex][SID_POWER_ON_LAMP_TEST], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_DEEP_SLEEP_ENABLE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DEEP_SLEEP_EN),strLeafNode[_u8LanguageArrayIndex][SID_DEEP_SLEEP_MODE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
@@ -2417,7 +2572,34 @@ void UI::InitEditableItems()
 
 void UI::InitEditableItemsScreens()
 {
+//RushiStart
+    ArrEditableItemScreen[INDEX_OF_GENERAL_PROFILE_NAME] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_GENERAL_S], &ArrEditableItem[INDEX_OF_GENERAL_PROFILE_NAME], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_GENERAL_POWER_ON_MODE] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_GENERAL_S], &ArrEditableItem[INDEX_OF_GENERAL_POWER_ON_MODE], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_GENERAL_POWER_ON_LAMP_TEST] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_GENERAL_S], &ArrEditableItem[INDEX_OF_GENERAL_POWER_ON_LAMP_TEST], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_GENERAL_PASSWORD_LOCK] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_GENERAL_S], &ArrEditableItem[INDEX_OF_GENERAL_PASSWORD_LOCK], 10, 20);
 
+    ArrEditableItemScreen[INDEX_OF_DISPLAY_CONTRAST] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_DISPLAY_S], &ArrEditableItem[INDEX_OF_DISPLAY_CONTRAST], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_DISPLAY_POWER_SAVE_MODE] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_DISPLAY_S], &ArrEditableItem[INDEX_OF_DISPLAY_POWER_SAVE_MODE], 10, 20);
+
+    ArrEditableItemScreen[INDEX_OF_MODBUS_COMM_COMM_MODE] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_MODBUS_COMM], &ArrEditableItem[INDEX_OF_MODBUS_COMM_COMM_MODE], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_MODBUS_COMM_MODBUS_SLAVE_ID] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_MODBUS_COMM], &ArrEditableItem[INDEX_OF_MODBUS_COMM_MODBUS_SLAVE_ID], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_MODBUS_COMM_MODBUS_BAUDRATE] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_MODBUS_COMM], &ArrEditableItem[INDEX_OF_MODBUS_COMM_MODBUS_BAUDRATE], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_MODBUS_COMM_PARITY] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_MODBUS_COMM], &ArrEditableItem[INDEX_OF_MODBUS_COMM_PARITY], 10, 20);
+
+    ArrEditableItemScreen[INDEX_OF_BTS_CONFIG_BATTERY_MON] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_BTS_CONFIG], &ArrEditableItem[INDEX_OF_BTS_CONFIG_BATTERY_MON], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_BTS_CONFIG_LOW_BATT_THRESHOLD] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_BTS_CONFIG], &ArrEditableItem[INDEX_OF_BTS_CONFIG_LOW_BATT_THRESHOLD], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_BTS_CONFIG_LOW_BATT_MON_DELAY] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_BTS_CONFIG], &ArrEditableItem[INDEX_OF_BTS_CONFIG_LOW_BATT_MON_DELAY], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_BTS_CONFIG_DG_RUN_DURATION] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_BTS_CONFIG], &ArrEditableItem[INDEX_OF_BTS_CONFIG_DG_RUN_DURATION], 10, 20);
+
+    ArrEditableItemScreen[INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_CYCLIC_CONFIG_S], &ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_CYCLIC_CONFIG_DG_OFF_DURATION] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_CYCLIC_CONFIG_S], &ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_DG_OFF_DURATION], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_CYCLIC_CONFIG_DG_ON_DURATION] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_CYCLIC_CONFIG_S], &ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_DG_ON_DURATION], 10, 20);
+
+    ArrEditableItemScreen[INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_NIGHT_MODE_CONFIG], &ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_NIGHT_MODE_CONFIG_START_TIME] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_NIGHT_MODE_CONFIG], &ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_START_TIME], 10, 20);
+    ArrEditableItemScreen[INDEX_OF_NIGHT_MODE_CONFIG_OFF_DURATION] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_NIGHT_MODE_CONFIG], &ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_OFF_DURATION], 10, 20);
+
+//RushiEnd
     ArrEditableItemScreen[INDEX_OF_POWER_ON_MODE] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_GENERAL], &ArrEditableItem[INDEX_OF_POWER_ON_MODE], 10, 20);
     ArrEditableItemScreen[INDEX_OF_POWER_ON_LAMP_TEST] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_GENERAL], &ArrEditableItem[INDEX_OF_POWER_ON_LAMP_TEST], 10, 20);
     ArrEditableItemScreen[INDEX_OF_DEEP_SLEEP_ENABLE] = CEditableItemsScreen(strSubMenu[_u8LanguageArrayIndex][ID_GENERAL], &ArrEditableItem[INDEX_OF_DEEP_SLEEP_ENABLE], 10, 20);
@@ -3034,7 +3216,7 @@ void UI::InitMenuItemsAndMenus()
 {
     //first, initialize the lowest level menu items:
 
-        for(int i=INDEX_OF_POWER_ON_MODE; i<=INDEX_OF_EGOV_RUNNING_STEPS;i++)
+        for(int i=INDEX_OF_GENERAL_PROFILE_NAME; i<=INDEX_OF_EGOV_RUNNING_STEPS;i++)
         {
             menuItemsLowestLevel[i] = CMenuItem( &ArrEditableItemScreen[i]);
         }
@@ -3061,7 +3243,15 @@ void UI::InitMenuItemsAndMenus()
         menuItemsLowestLevel[INDEX_OF_DISP_VOLT_FILT_CONST] = CMenuItem( &ArrEditableItemScreen[INDEX_OF_DISP_VOLT_FILT_CONST]);
 
     //Now create sub-menus and then initialize mid level menu items:
+//RushiStart
+        ArrSubMenu[ID_GENERAL_S] = CMenu(strSubMenu[_u8LanguageArrayIndex][ID_GENERAL_S], INDEX_OF_DISPLAY_CONTRAST-INDEX_OF_GENERAL_PROFILE_NAME , &(menuItemsLowestLevel[INDEX_OF_GENERAL_PROFILE_NAME]));
+        ArrSubMenu[ID_DISPLAY_S] = CMenu(strSubMenu[_u8LanguageArrayIndex][ID_DISPLAY_S], INDEX_OF_MODBUS_COMM_COMM_MODE-INDEX_OF_DISPLAY_CONTRAST, &(menuItemsLowestLevel[INDEX_OF_DISPLAY_CONTRAST]));
+        ArrSubMenu[ID_MODBUS_COMM] = CMenu(strSubMenu[_u8LanguageArrayIndex][ID_MODBUS_COMM], INDEX_OF_BTS_CONFIG_BATTERY_MON-INDEX_OF_MODBUS_COMM_COMM_MODE, &(menuItemsLowestLevel[INDEX_OF_MODBUS_COMM_COMM_MODE]));
+        ArrSubMenu[ID_BTS_CONFIG] = CMenu(strSubMenu[_u8LanguageArrayIndex][ID_BTS_CONFIG], INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE-INDEX_OF_BTS_CONFIG_BATTERY_MON, &(menuItemsLowestLevel[INDEX_OF_BTS_CONFIG_BATTERY_MON]));
+        ArrSubMenu[ID_CYCLIC_CONFIG_S] = CMenu(strSubMenu[_u8LanguageArrayIndex][ID_CYCLIC_CONFIG_S], INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE-INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE, &(menuItemsLowestLevel[INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE]));
+        ArrSubMenu[ID_NIGHT_MODE_CONFIG] = CMenu(strSubMenu[_u8LanguageArrayIndex][ID_NIGHT_MODE_CONFIG], INDEX_OF_POWER_ON_MODE-INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE, &(menuItemsLowestLevel[INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE]));
 
+        //RushiEnd
         ArrSubMenu[ID_GENERAL] = CMenu(strSubMenu[_u8LanguageArrayIndex][ID_GENERAL], INDEX_OF_CONTRAST-INDEX_OF_POWER_ON_MODE , &(menuItemsLowestLevel[INDEX_OF_POWER_ON_MODE]));
         ArrSubMenu[ID_DISPLAY] = CMenu(strSubMenu[_u8LanguageArrayIndex][ID_DISPLAY], INDEX_OF_COMM_MODE-INDEX_OF_CONTRAST, &(menuItemsLowestLevel[INDEX_OF_CONTRAST]));
         ArrSubMenu[ID_RS485_COMM] = CMenu(strSubMenu[_u8LanguageArrayIndex][ID_RS485_COMM], INDEX_OF_SITE_BATTERY_MON-INDEX_OF_COMM_MODE, &(menuItemsLowestLevel[INDEX_OF_COMM_MODE]));
@@ -3142,6 +3332,16 @@ void UI::InitMenuItemsAndMenus()
         ArrSubMenu[ID_DISP_VOLT_FILT] = CMenu(strSubMenu[_u8LanguageArrayIndex][ID_DISP_VOLT_FILT], INDEX_LAST-INDEX_OF_DISP_VOLT_FILT_EN, &(menuItemsLowestLevel[INDEX_OF_DISP_VOLT_FILT_EN]));
 
         // Submenu
+        //RushiStart
+        menuItemsMidLevel[ID_GENERAL_S] = CMenuItem (strSubMenu[_u8LanguageArrayIndex][ID_GENERAL_S], &ArrSubMenu[ID_GENERAL_S]);
+        menuItemsMidLevel[ID_DISPLAY_S] = CMenuItem (strSubMenu[_u8LanguageArrayIndex][ID_DISPLAY_S], &ArrSubMenu[ID_DISPLAY_S]);
+        menuItemsMidLevel[ID_MODBUS_COMM] = CMenuItem (strSubMenu[_u8LanguageArrayIndex][ID_MODBUS_COMM], &ArrSubMenu[ID_MODBUS_COMM]);
+        menuItemsMidLevel[ID_BTS_CONFIG] = CMenuItem (strSubMenu[_u8LanguageArrayIndex][ID_BTS_CONFIG], &ArrSubMenu[ID_BTS_CONFIG]);
+        menuItemsMidLevel[ID_CYCLIC_CONFIG_S] = CMenuItem (strSubMenu[_u8LanguageArrayIndex][ID_CYCLIC_CONFIG_S], &ArrSubMenu[ID_CYCLIC_CONFIG_S]);
+        menuItemsMidLevel[ID_NIGHT_MODE_CONFIG] = CMenuItem (strSubMenu[_u8LanguageArrayIndex][ID_NIGHT_MODE_CONFIG], &ArrSubMenu[ID_NIGHT_MODE_CONFIG]);
+
+
+        //RushiEnd
         menuItemsMidLevel[ID_GENERAL] = CMenuItem (strSubMenu[_u8LanguageArrayIndex][ID_GENERAL], &ArrSubMenu[ID_GENERAL]);
         menuItemsMidLevel[ID_DISPLAY] = CMenuItem (strSubMenu[_u8LanguageArrayIndex][ID_DISPLAY], &ArrSubMenu[ID_DISPLAY]);
         menuItemsMidLevel[ID_RS485_COMM] = CMenuItem (strSubMenu[_u8LanguageArrayIndex][ID_RS485_COMM], &ArrSubMenu[ID_RS485_COMM]);
@@ -3229,6 +3429,10 @@ void UI::InitMenuItemsAndMenus()
         }
 
         //MAainMenu
+        //RushiStart
+        ArrMenu[ID_MODULE_S] = CMenu(strMainMenu[_u8LanguageArrayIndex][ID_MODULE_S], ID_GENERAL - ID_GENERAL_S, &(menuItemsMidLevel[ID_GENERAL_S]));
+        menuItemsTopLevel[ID_MODULE_S] = CMenuItem(strMainMenu[_u8LanguageArrayIndex][ID_MODULE_S], &ArrMenu[ID_MODULE_S]);
+        //RushiEnd
         ArrMenu[ID_MODULE] = CMenu(strMainMenu[_u8LanguageArrayIndex][ID_MODULE], ID_DIG_IN_A - ID_GENERAL, &(menuItemsMidLevel[ID_GENERAL]));
         menuItemsTopLevel[ID_MODULE] = CMenuItem(strMainMenu[_u8LanguageArrayIndex][ID_MODULE], &ArrMenu[ID_MODULE]);
 
@@ -3433,6 +3637,9 @@ void UI::SaveConfigFile()
                 AllParam.f32ArrParam[i] = (float)ArrEditableItem[j].value.fVal;
 
             }
+//RushiStart
+            AllParam.f32ArrParam[CFGZ::ID_BTS_CONFIG_LOW_BATT_THRESHOLD] = (float)ArrEditableItem[INDEX_OF_BTS_CONFIG_LOW_BATT_THRESHOLD].value.fVal;
+//RushiEnd
 
             AllParam.f32ArrParam[CFGZ::ID_ISV_PULL_SIGNAL_TIME] = (float)ArrEditableItem[INDEX_OF_TMR_OF_ISV_PULL_SIGNAL_TIMER].value.fVal;
             AllParam.f32ArrParam[CFGZ::ID_GEN_BREAKER_PULS_TIMER] = (float)ArrEditableItem[INDEX_OF_TMR_OF_GEN_BREAKER].value.fVal;
@@ -3472,7 +3679,14 @@ void UI::SaveConfigFile()
             AllParam.f32ArrParam[CFGZ::ID_LOP_LVL_SHUTDOWN_THRESH] = (float)ArrEditableItem[INDEX_OF_LOP_SHUTDOWN_THRESHOLD].value.fVal;
             AllParam.f32ArrParam[CFGZ::ID_LOP_LVL_WARNING_THRESH] = (float)ArrEditableItem[INDEX_OF_LOP_WARNING_THRESHOLD].value.fVal;
             AllParam.f32ArrParam[CFGZ::ID_EGOV_GEN_GAIN_SCHEDULE] = (float)ArrEditableItem[INDEX_OF_EGOV_GEN_GAIN_SCHEDULE].value.fVal;
-
+//RushiStart
+            AllParam.u16ArrParam[CFGZ::ID_BTS_CONFIG_LOW_BATT_MON_DELAY] = (uint16_t)ArrEditableItem[INDEX_OF_BTS_CONFIG_LOW_BATT_MON_DELAY].value.u16Val;
+            AllParam.u16ArrParam[CFGZ::ID_BTS_CONFIG_DG_RUN_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_BTS_CONFIG_DG_RUN_DURATION].value.u16Val;
+            AllParam.u16ArrParam[CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_DG_OFF_DURATION].value.u16Val;
+            AllParam.u16ArrParam[CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_DG_ON_DURATION].value.u16Val;
+            AllParam.u16ArrParam[CFGZ::ID_NIGHT_MODE_CONFIG_START_TIME] = (uint16_t)ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_START_TIME].value.u16Val;
+            AllParam.u16ArrParam[CFGZ::ID_NIGHT_MODE_CONFIG_OFF_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_OFF_DURATION].value.u16Val;
+//RushiEnd
             AllParam.u16ArrParam[CFGZ::ID_BATT_MON_DELAY] = (uint16_t)ArrEditableItem[INDEX_OF_SITE_LOW_BATT_DELAY].value.u16Val;
             AllParam.u16ArrParam[CFGZ::ID_GEN_RUN_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_SITE_GEN_RUN_DURATION].value.u16Val;
             AllParam.u16ArrParam[CFGZ::ID_GEN_OFF_TIME] = (uint16_t)ArrEditableItem[INDEX_OF_CYCLIC_GEN_OFF_DURATION].value.u16Val;
@@ -3595,6 +3809,21 @@ void UI::SaveConfigFile()
                 AllParam.u16ArrParam[CFGZ:: ID_FILT_MAINT_THRESH_YEAR] = (uint16_t)_stMaintenanceDt.u16Year;
                 _objDisplay.gotoxy(GLCD_X(64),GLCD_Y(50));
             }
+//RushiStart
+            AllParam.u8ArrParam[CFGZ::ID_GENERAL_PROFILE_NAME] = (uint8_t)ArrEditableItem[INDEX_OF_GENERAL_PROFILE_NAME].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_GENERAL_POWER_ON_MODE] = (uint8_t)ArrEditableItem[INDEX_OF_GENERAL_POWER_ON_MODE].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_GENERAL_POWER_ON_LAMP_TEST] = (uint8_t)ArrEditableItem[INDEX_OF_GENERAL_POWER_ON_LAMP_TEST].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_GENERAL_PASSWORD_LOCK] = (uint8_t)ArrEditableItem[INDEX_OF_GENERAL_PASSWORD_LOCK].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_DISPLAY_CONTRAST] = (uint8_t)ArrEditableItem[INDEX_OF_DISPLAY_CONTRAST].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_DISPLAY_POWER_SAVE_MODE] = (uint8_t)ArrEditableItem[INDEX_OF_DISPLAY_POWER_SAVE_MODE].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_MODBUS_COMM_COMM_MODE] = (uint8_t)ArrEditableItem[INDEX_OF_MODBUS_COMM_COMM_MODE].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_MODBUS_COMM_MODBUS_SLAVE_ID] = (uint8_t)ArrEditableItem[INDEX_OF_MODBUS_COMM_MODBUS_SLAVE_ID].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_MODBUS_COMM_MODBUS_BAUDRATE] = (uint8_t)ArrEditableItem[INDEX_OF_MODBUS_COMM_MODBUS_BAUDRATE].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_MODBUS_COMM_PARITY] = (uint8_t)ArrEditableItem[INDEX_OF_MODBUS_COMM_PARITY].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_BTS_CONFIG_BATTERY_MON] = (uint8_t)ArrEditableItem[INDEX_OF_BTS_CONFIG_BATTERY_MON].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_CYCLIC_CONFIG_CYCLIC_MODE] = (uint8_t)ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_NIGHT_MODE_CONFIG_NIGHT_MODE] = (uint8_t)ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE].value.u8Val;
+            //RushiEnd
 
             AllParam.u8ArrParam[CFGZ::ID_POWER_ON_MODE] = (uint8_t)ArrEditableItem[INDEX_OF_POWER_ON_MODE].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_POWER_ON_LAMP_TEST_EN] = (uint8_t)ArrEditableItem[INDEX_OF_POWER_ON_LAMP_TEST].value.u8Val;

@@ -55,6 +55,9 @@ class CFGZ
      */
     typedef enum
     {
+        //RushiStart
+        ID_BTS_CONFIG_LOW_BATT_THRESHOLD ,
+        //RushiEnd
         ID_LOW_VOLT_THRESH,
 
 
@@ -272,6 +275,17 @@ class CFGZ
      */
     typedef enum
     {
+        //RushiStart
+        ID_BTS_CONFIG_LOW_BATT_MON_DELAY ,
+        ID_BTS_CONFIG_DG_RUN_DURATION ,
+
+        ID_CYCLIC_CONFIG_DG_OFF_DURATION ,
+        ID_CYCLIC_CONFIG_DG_ON_DURATION ,
+
+        ID_NIGHT_MODE_CONFIG_START_TIME ,
+        ID_NIGHT_MODE_CONFIG_OFF_DURATION ,
+
+        //RushiEnd
         ID_BATT_MON_DELAY,
         ID_GEN_RUN_DURATION,
         ID_GEN_OFF_TIME,
@@ -391,6 +405,26 @@ class CFGZ
      */
     typedef enum
     {
+        //RushiStart
+        ID_GENERAL_PROFILE_NAME ,
+        ID_GENERAL_POWER_ON_MODE ,
+        ID_GENERAL_POWER_ON_LAMP_TEST ,
+        ID_GENERAL_PASSWORD_LOCK ,
+
+        ID_DISPLAY_CONTRAST ,
+        ID_DISPLAY_POWER_SAVE_MODE ,
+
+        ID_MODBUS_COMM_COMM_MODE ,
+        ID_MODBUS_COMM_MODBUS_SLAVE_ID ,
+        ID_MODBUS_COMM_MODBUS_BAUDRATE ,
+        ID_MODBUS_COMM_PARITY ,
+
+        ID_BTS_CONFIG_BATTERY_MON ,
+
+        ID_CYCLIC_CONFIG_CYCLIC_MODE ,
+
+        ID_NIGHT_MODE_CONFIG_NIGHT_MODE ,
+//RushiEnd
         ID_POWER_ON_MODE,
         ID_POWER_ON_LAMP_TEST_EN,
         ID_DEEP_SLEEP_EN,
@@ -676,6 +710,7 @@ class CFGZ
      */
     typedef enum
     {
+
         ID_ARR_AUX_INPUT_A,
         ID_ARR_AUX_INPUT_B,
         ID_ARR_AUX_INPUT_C,
@@ -897,7 +932,7 @@ class CFGZ
 
     typedef enum {
         CFGZ_DENERGIZE_TO_ACTIVATE = 0,
-        CFGZ_ENERGIZE_TO_ACTIVATE 
+        CFGZ_ENERGIZE_TO_ACTIVATE
     } CFGZ_ACT_ACTIVATION_TYP_t;
 
     /*Represents a row in the map between the actuator type of CFGZ & ACT*/
@@ -1182,7 +1217,7 @@ private:
     void prvConfigureASENSE();
 
     /**
-    * The name(i.e enum value) of digital sensors defined in CFGZ is different 
+    * The name(i.e enum value) of digital sensors defined in CFGZ is different
     * from those defined in D_SENSE. This function derives the sensor name as in
     * D_SENSE from the sensor name defined in this module.
     * @param u8CfgSensorType: The index in CFGZ_PARAMS_t.u8ArrParam where the sensor
@@ -1196,7 +1231,7 @@ private:
                                                          D_SENSE::INPUTS_t eInput);
 
     /**
-    * The name(i.e enum value) of analog sensors defined in CFGZ is different 
+    * The name(i.e enum value) of analog sensors defined in CFGZ is different
     * from those defined in A_SENSE. This function derives the sensor name as in
     * A_SENSE from the sensor name defined in this module.
     * @param u8CfgSensorType: The index in CFGZ_PARAMS_t.u8ArrParam where the sensor
@@ -1206,7 +1241,7 @@ private:
     * @return
     * the analog sensor type.
     */
-    AnalogSensor::TYPS_t prGetAnalogSensor(uint8_t u8CfgSensorIdx, 
+    AnalogSensor::TYPS_t prGetAnalogSensor(uint8_t u8CfgSensorIdx,
                                         const ASENSOR_MAP_ROW_t *pMap, uint8_t u8MapSize);
 
 
@@ -1218,7 +1253,7 @@ private:
     * @return
     * None
     */
-    void prvCpyInterpolationTable(FLOAT_PARAMS_t eTableStart, 
+    void prvCpyInterpolationTable(FLOAT_PARAMS_t eTableStart,
                                     AnalogSensor::INTERPOLATE_INFO_t &stDestination);
 
     /**
@@ -1231,7 +1266,7 @@ private:
 
     /**
     * The name of actuators defined in CFGZ is different from those defined in
-    * ACT. This function provides a translation from the CFGZ class name to the 
+    * ACT. This function provides a translation from the CFGZ class name to the
     * ACTUATOR class name for an actuator.
     * @param u8CfgzActuatorTypeIdx: Index in CFGZ_PARAMS_t.u8ArrParam where the
     *                               CFGZ name for the actuator is present.

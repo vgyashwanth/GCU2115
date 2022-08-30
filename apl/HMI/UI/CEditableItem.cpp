@@ -277,7 +277,6 @@ CEditableItem::CEditableItem( uint32_t u32CurrentOption, const char* promptMessa
     initTempValue();
 }
 
-
 CEditableItem::CEditableItem(DATE_t stVal, const char* promptMessage,
         const char* unitOfMeasurement, const char* formatString,
         DATE_t stminval ,  DATE_t stmaxval , PASS_t  ePassLevel  )

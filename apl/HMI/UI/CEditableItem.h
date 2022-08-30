@@ -148,6 +148,7 @@ public:
     //CEditableItem(char *pStrVal, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, unsigned int minLength = 1, unsigned int maxLength = STRING_PARAM_MAX_LEN, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
     CEditableItem(uint32_t u32CurrentOption, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, const char** stringFixedOptions, uint32_t numOfStringFixedOptions, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
              // converts value to string and returns the string
+
     const char* getString(EditableItemValue_t aValue);   // converts given value
     const char* getString();    // converts the member 'value'
     bool isValidValue(EditableItemValue_t newVal);

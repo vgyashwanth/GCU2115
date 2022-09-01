@@ -24,9 +24,9 @@ CMenuItem UI::menuItemsMidLevel[NUM_OF_MENU_ITEMS_AT_MID_LEVEL];
 CMenuItem UI::menuItemsTopLevel[NUM_OF_MENU_ITEMS_AT_TOP_LEVEL];
 uint16_t u16IndexOfEditableItems=0,u16NumberofEditableItems=0;
 //NewUI
-uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] = {4,2,4,4,3,3,5,5,5,5,5,5,5,5,5,31,35,29,31,30,31,22,\
+uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] = {4,2,4,4,3,3,5,5,5,5,5,5,5,5,5,31,35,29,31,30,31,22,2,2,2,2,2,2,2,4,14,\
                                              6,3,3,6,6,3,27,35,27,36,32,32,32,2,2,2,2,2,2,2,4,7,11,12,12,12,5,7,7,5,8,7,7,11,13,6,3,3,4,4,9,20,4,5,3,1,3,4,10,1,3,6,4,1,2};
-uint8_t SubmenusInMenus[ID_MAIN_MENU_LAST] = {6,16,5,7,7,3,6,3,10,2,4,3,2,1,1};
+uint8_t SubmenusInMenus[ID_MAIN_MENU_LAST] = {6,16,7,2,5,7,7,3,6,3,10,2,4,3,2,1,1};
 //End
 //All editable option string screens
 enum
@@ -838,7 +838,8 @@ static const char* strMainMenu[2][ID_MAIN_MENU_LAST]
         //RushiStart
         "MODULE",
         "INPUTS",
-      //  "TIMERS",
+        "OUTPUTS",
+        "TIMERS",
        // "GENERATOR",
         //RushiEnd
         "MODULE",
@@ -859,7 +860,8 @@ static const char* strMainMenu[2][ID_MAIN_MENU_LAST]
      //RushiStart
      "MODULO",
      "INPUTS",
-    // "TIMERS",
+     "OUTPUTS",
+     "TIMERS",
     // "GENERATOR",
      //RushiEnd
        	"MODULO",
@@ -905,7 +907,7 @@ static const char* strSubMenu[2][ID_SUB_MENU_LAST]
          "AUX S2_RES DIG N",
          "AUX S3 DIG O",
          "AUX S4 DIG P",
-   /*       "ID_OUT_A",
+          "ID_OUT_A",
           "ID_OUT_B",
           "ID_OUT_C",
           "ID_OUT_D",
@@ -914,7 +916,7 @@ static const char* strSubMenu[2][ID_SUB_MENU_LAST]
           "ID_OUT_G",
           "ID_CRANKING_TIMER",
           "ID_GENERAL_TIMER",
-          "ID_ALT_CONFIG",
+   /*       "ID_ALT_CONFIG",
           "ID_VOLT_MONITOR",
           "ID_FREQ_MONITOR",
           "ID_CURRENT_MONITOR",
@@ -1031,7 +1033,7 @@ static const char* strSubMenu[2][ID_SUB_MENU_LAST]
        "ID_AUX_S2_RES_DIG_N",
        "ID_AUX_S3_DIG_O",
        "ID_AUX_S4_DIG_P",
- /*      "ID_OUT_A",
+       "ID_OUT_A",
        "ID_OUT_B",
        "ID_OUT_C",
        "ID_OUT_D",
@@ -1040,7 +1042,7 @@ static const char* strSubMenu[2][ID_SUB_MENU_LAST]
        "ID_OUT_G",
        "ID_CRANKING_TIMER",
        "ID_GENERAL_TIMER",
-       "ID_ALT_CONFIG",
+   /*    "ID_ALT_CONFIG",
        "ID_VOLT_MONITOR",
        "ID_FREQ_MONITOR",
        "ID_CURRENT_MONITOR",
@@ -1436,7 +1438,7 @@ static const char* strLeafNode[2][SID_LEAF_NODE_STRING]
          "SID_AUX_S4_DIG_P_TANK_LENGTH_2",
          "SID_AUX_S4_DIG_P_TANK_HEIGHT_2",
          /*Outputs*/
-    /*     "SID_OUT_A_SOURCE",
+         "SID_OUT_A_SOURCE",
          "SID_OUT_A_ON_ACTIVATION",
 
          "SID_OUT_B_SOURCE",
@@ -1457,7 +1459,7 @@ static const char* strLeafNode[2][SID_LEAF_NODE_STRING]
          "SID_OUT_G_SOURCE",
          "SID_OUT_G_ON_ACTIVATION",
          /*Timers*/
-   /*      "SID_CRANKING_TIMER_CRANK_HOLD_TIME",
+         "SID_CRANKING_TIMER_CRANK_HOLD_TIME",
          "SID_CRANKING_TIMER_CRANK_REST_TIME",
          "SID_CRANKING_TIMER_MANUAL_START_DELAY",
          "SID_CRANKING_TIMER_AUTO_START_DELAY",
@@ -2147,7 +2149,7 @@ static const char* strLeafNode[2][SID_LEAF_NODE_STRING]
       "SID_AUX_S4_DIG_P_TANK_LENGTH_2",
       "SID_AUX_S4_DIG_P_TANK_HEIGHT_2",
       /*Outputs*/
-  /*    "SID_OUT_A_SOURCE",
+      "SID_OUT_A_SOURCE",
       "SID_OUT_A_ON_ACTIVATION",
 
       "SID_OUT_B_SOURCE",
@@ -2168,7 +2170,7 @@ static const char* strLeafNode[2][SID_LEAF_NODE_STRING]
       "SID_OUT_G_SOURCE",
       "SID_OUT_G_ON_ACTIVATION",
       /*Timers*/
-/*      "SID_CRANKING_TIMER_CRANK_HOLD_TIME",
+      "SID_CRANKING_TIMER_CRANK_HOLD_TIME",
       "SID_CRANKING_TIMER_CRANK_REST_TIME",
       "SID_CRANKING_TIMER_MANUAL_START_DELAY",
       "SID_CRANKING_TIMER_AUTO_START_DELAY",
@@ -2900,7 +2902,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_TANK_LENGTH_2] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_2), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S4_DIG_P_TANK_LENGTH_2], arrUnit[ID_DEG_C],  "%f", (float)0, (float)5000.0,(float)0.1, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_2), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S4_DIG_P_TANK_HEIGHT_2], arrUnit[ID_OHM],  "%f", (float)0, (float)5000.0,(float)0.1, CEditableItem::PIN1_ALLOWED );
 
-  /*  ArrEditableItem[INDEX_OF_OUT_A_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_A_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_A_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_A_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_A_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_A_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_OUT_A_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_A_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_OUT_A_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
 
     ArrEditableItem[INDEX_OF_OUT_B_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_B_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_B_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
@@ -2940,7 +2942,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_GENERAL_TIMER_SOUNDER_ALARM_TIMER] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SOUNDER_ALARM_TIMER),strLeafNode[_u8LanguageArrayIndex][SID_GENERAL_TIMER_SOUNDER_ALARM_TIMER], arrUnit[ID_SEC], "%u", (uint16_t)1, (uint16_t)300, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_GENERAL_TIMER_TEST_MODE_TIMER] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_TEST_MODE_TIMER),strLeafNode[_u8LanguageArrayIndex][SID_GENERAL_TIMER_TEST_MODE_TIMER], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)720, CEditableItem::PIN1_ALLOWED );
 
-    ArrEditableItem[INDEX_OF_ALT_CONFIG_ALT_PRESENT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT),strLeafNode[_u8LanguageArrayIndex][SID_ALT_CONFIG_ALT_PRESENT], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO], 2, CEditableItem::PIN1_ALLOWED );
+ /*   ArrEditableItem[INDEX_OF_ALT_CONFIG_ALT_PRESENT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT),strLeafNode[_u8LanguageArrayIndex][SID_ALT_CONFIG_ALT_PRESENT], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO], 2, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_ALT_CONFIG_NUMBER_OF_POLES] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_NUMBER_OF_POLES),strLeafNode[_u8LanguageArrayIndex][SID_ALT_CONFIG_NUMBER_OF_POLES], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ALT_POLES], 4, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_ALT_CONFIG_ALT_AC_SYSTEM] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM),strLeafNode[_u8LanguageArrayIndex][SID_ALT_CONFIG_ALT_AC_SYSTEM], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_NO_OF_PHASES], 3, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_ALT_CONFIG_MIN_HEALTHY_VOLT] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_VOLT), strLeafNode[_u8LanguageArrayIndex][SID_ALT_CONFIG_MIN_HEALTHY_VOLT], arrUnit[ID_V_PH_N], "%f", (uint16_t)50, (uint16_t)350, CEditableItem::PIN1_ALLOWED );

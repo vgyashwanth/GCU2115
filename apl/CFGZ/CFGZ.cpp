@@ -197,67 +197,67 @@ void CFGZ::prvConfigureDSENSE()
     D_SENSE::CFG_t cfg;
 
     cfg.stDIConfig[D_SENSE::DI_A].eType                     = 
-                                        prvGetDigitalSensor(ID_DIG_INPUTA_SOURCE, D_SENSE::DI_A);
+                                        prvGetDigitalSensor(ID_DIG_IN_A_SOURCE, D_SENSE::DI_A);
     cfg.stDIConfig[D_SENSE::DI_A].eActivationPolarity       = 
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTA_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_A_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_A].u16ActivationDelaySeconds = 
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTA_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_A_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_B].eType                     = 
-                                        prvGetDigitalSensor(ID_DIG_INPUTB_SOURCE, D_SENSE::DI_B);
+                                        prvGetDigitalSensor(ID_DIG_IN_B_SOURCE, D_SENSE::DI_B);
     cfg.stDIConfig[D_SENSE::DI_B].eActivationPolarity       = 
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTB_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_B_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_B].u16ActivationDelaySeconds = 
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTB_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_B_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_C].eType                     = 
-                                        prvGetDigitalSensor(ID_DIG_INPUTC_SOURCE, D_SENSE::DI_C);
+                                        prvGetDigitalSensor(ID_DIG_IN_C_SOURCE, D_SENSE::DI_C);
     cfg.stDIConfig[D_SENSE::DI_C].eActivationPolarity       = 
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTC_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_C_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_C].u16ActivationDelaySeconds = 
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTC_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_C_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_D].eType                     = 
-                                        prvGetDigitalSensor(ID_DIG_INPUTD_SOURCE, D_SENSE::DI_D);
+                                        prvGetDigitalSensor(ID_DIG_IN_D_SOURCE, D_SENSE::DI_D);
     cfg.stDIConfig[D_SENSE::DI_D].eActivationPolarity       = 
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTD_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_D_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_D].u16ActivationDelaySeconds = 
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTD_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_D_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_E].eType                     = 
-                                        prvGetDigitalSensor(ID_DIG_INPUTE_SOURCE, D_SENSE::DI_E);
+                                        prvGetDigitalSensor(ID_DIG_IN_E_SOURCE, D_SENSE::DI_E);
     cfg.stDIConfig[D_SENSE::DI_E].eActivationPolarity       = 
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTE_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_E_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_E].u16ActivationDelaySeconds = 
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTE_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_E_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_F].eType                     = 
-                                        prvGetDigitalSensor(ID_DIG_INPUTF_SOURCE, D_SENSE::DI_F);
+                                        prvGetDigitalSensor(ID_DIG_IN_F_SOURCE, D_SENSE::DI_F);
     cfg.stDIConfig[D_SENSE::DI_F].eActivationPolarity       = 
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTF_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_F_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_F].u16ActivationDelaySeconds = 
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTF_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_F_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_G].eType                     = 
-                                        prvGetDigitalSensor(ID_DIG_INPUTG_SOURCE, D_SENSE::DI_G);
+                                        prvGetDigitalSensor(ID_DIG_IN_G_SOURCE, D_SENSE::DI_G);
     cfg.stDIConfig[D_SENSE::DI_G].eActivationPolarity       = 
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTG_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_G_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_G].u16ActivationDelaySeconds = 
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTG_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_G_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_H].eType                     = 
-                                        prvGetDigitalSensor(ID_DIG_INPUTH_SOURCE, D_SENSE::DI_H);
+                                        prvGetDigitalSensor(ID_DIG_IN_H_SOURCE, D_SENSE::DI_H);
     cfg.stDIConfig[D_SENSE::DI_H].eActivationPolarity       = 
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTH_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_H_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_H].u16ActivationDelaySeconds = 
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTH_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_H_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_I].eType                     =
-                                        prvGetDigitalSensor(ID_DIG_INPUTI_SOURCE, D_SENSE::DI_I);
+                                        prvGetDigitalSensor(ID_DIG_IN_I_SOURCE, D_SENSE::DI_I);
     cfg.stDIConfig[D_SENSE::DI_I].eActivationPolarity       =
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTI_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_I_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_I].u16ActivationDelaySeconds =
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTI_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_I_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_J].eType                     =
                                         prvGetDigitalSensor(ID_DIG_INPUTJ_SOURCE, D_SENSE::DI_J);
@@ -690,7 +690,7 @@ void CFGZ::prvConfigureMODBUS()
 {   
     bool bModbusEnable;
 
-    if(_All_Param.u8ArrParam[ID_COMMUNICATION_EN_MB] == CFGZ_DISABLE)
+    if(_All_Param.u8ArrParam[ID_MODBUS_COMM_COMM_MODE] == CFGZ_DISABLE)
     {
         bModbusEnable = false;
     }
@@ -699,7 +699,7 @@ void CFGZ::prvConfigureMODBUS()
         bModbusEnable = true;
     }
 
-    uint8_t u8MBSlaveID = _All_Param.u8ArrParam[ID_SLAVEID_MB];
+    uint8_t u8MBSlaveID = _All_Param.u8ArrParam[ID_MODBUS_COMM_MODBUS_SLAVE_ID];
 
 
 
@@ -730,7 +730,7 @@ RS485::BAUD_t CFGZ::prvGetRS485Baud()
 #if (AUTOMATION==1)
     CFGZ_MODBUS_BAUD_t eBaud = (CFGZ_MODBUS_BAUD_t)3;
 #else
-    CFGZ_MODBUS_BAUD_t eBaud = (CFGZ_MODBUS_BAUD_t)_All_Param.u8ArrParam[ID_BAUDRATE_MB];
+    CFGZ_MODBUS_BAUD_t eBaud = (CFGZ_MODBUS_BAUD_t)_All_Param.u8ArrParam[ID_MODBUS_COMM_MODBUS_BAUDRATE];
 #endif
 
 
@@ -747,7 +747,7 @@ RS485::BAUD_t CFGZ::prvGetRS485Baud()
 
 RS485::PARITY_t CFGZ::prvGetRS485Parity()
 {
-    RS485::PARITY_t eParity = (RS485::PARITY_t)_All_Param.u8ArrParam[ID_PARITYBIT_MB];
+    RS485::PARITY_t eParity = (RS485::PARITY_t)_All_Param.u8ArrParam[ID_MODBUS_COMM_PARITY];
     return eParity;
 }
 

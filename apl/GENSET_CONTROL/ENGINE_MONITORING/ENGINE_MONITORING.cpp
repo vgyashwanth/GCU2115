@@ -142,7 +142,7 @@ void ENGINE_MONITORING::Update(bool bDeviceInConfigMode)
              UTILS_DisableTimer(&_MainsRunTimeBaseTimer);
         }
 
-        if((_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN) == CFGZ::CFGZ_ENABLE)
+        if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
                 &&(!BASE_MODES::IsGenContactorClosed())
                 && (((!BASE_MODES::IsMainsContactorClosed())&&(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
                         || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE) && (_u8EngineOn == 0U))))

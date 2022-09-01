@@ -735,8 +735,8 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case VBTS_UV:
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = _cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN);
-            prvUpdateMonParams(u8AlarmIndex, &_u8DummyOne, false, _u8Dummy255, _cfgz.GetCFGZ_Param(CFGZ::ID_LOW_VOLT_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC*_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_DELAY));
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = _cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON);
+            prvUpdateMonParams(u8AlarmIndex, &_u8DummyOne, false, _u8Dummy255, _cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_LOW_BATT_THRESHOLD), NO_OF_50MSEC_TICKS_FOR_1SEC*_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_LOW_BATT_MON_DELAY));
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[BTS_VOLTAGE];
             break;
 
@@ -1349,83 +1349,83 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case DIGITAL_INPUT_A:
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTA_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTA_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTA_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTA_ACTION), GCU_ALARMS::Auxilary_Input_A_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTA_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_ACTION), GCU_ALARMS::Auxilary_Input_A_id);
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_A];
-                prvSetAlarmAction(DIGITAL_INPUT_A, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTA_ACTION));
+                prvSetAlarmAction(DIGITAL_INPUT_A, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_ACTION));
             }
             break;
 
         case DIGITAL_INPUT_B:
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTB_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTB_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTB_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTB_ACTION), GCU_ALARMS::Auxilary_Input_B_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTB_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_B_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_B_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_B_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_B_ACTION), GCU_ALARMS::Auxilary_Input_B_id);
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_B_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_B];
-                prvSetAlarmAction(DIGITAL_INPUT_B, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTB_ACTION));
+                prvSetAlarmAction(DIGITAL_INPUT_B, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_B_ACTION));
             }
             break;
 
         case DIGITAL_INPUT_C:
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTC_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTC_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTC_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTC_ACTION), GCU_ALARMS::Auxilary_Input_C_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTC_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_C_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_C_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_C_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_C_ACTION), GCU_ALARMS::Auxilary_Input_C_id);
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_C_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_C];
-                prvSetAlarmAction(DIGITAL_INPUT_C, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTC_ACTION));
+                prvSetAlarmAction(DIGITAL_INPUT_C, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_C_ACTION));
             }
             break;
 
         case DIGITAL_INPUT_D:
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTD_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTD_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTD_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTD_ACTION), GCU_ALARMS::Auxilary_Input_D_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTD_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_D_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_D_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_D_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_D_ACTION), GCU_ALARMS::Auxilary_Input_D_id);
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_D_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_D];
-                prvSetAlarmAction(DIGITAL_INPUT_D, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTD_ACTION));
+                prvSetAlarmAction(DIGITAL_INPUT_D, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_D_ACTION));
             }
             break;
 
         case DIGITAL_INPUT_E:
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTE_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTE_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTE_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTE_ACTION), GCU_ALARMS::Auxilary_Input_E_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTE_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_E_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_E_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_E_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_E_ACTION), GCU_ALARMS::Auxilary_Input_E_id);
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_E_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_E];
-                prvSetAlarmAction(DIGITAL_INPUT_E, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTE_ACTION));
+                prvSetAlarmAction(DIGITAL_INPUT_E, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_E_ACTION));
             }
             break;
 
         case DIG_IN_F:
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTF_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTF_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTF_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTF_ACTION), GCU_ALARMS::Auxilary_Input_F_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTF_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_F_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_F_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_F_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_F_ACTION), GCU_ALARMS::Auxilary_Input_F_id);
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_F_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_F];
-                prvSetAlarmAction(DIG_IN_F, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTF_ACTION));
+                prvSetAlarmAction(DIG_IN_F, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_F_ACTION));
             }
             break;
 
         case DIG_IN_G:
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTG_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTG_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTG_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTG_ACTION), GCU_ALARMS::Auxilary_Input_G_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTG_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_G_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_G_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_G_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_G_ACTION), GCU_ALARMS::Auxilary_Input_G_id);
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_G_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_G];
-                prvSetAlarmAction(DIG_IN_G, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTG_ACTION));
+                prvSetAlarmAction(DIG_IN_G, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_G_ACTION));
             }
             break;
 
         case DIG_IN_H:
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTH_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTH_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTH_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTH_ACTION), GCU_ALARMS::Auxilary_Input_H_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTH_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_H_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_H_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_H_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_H_ACTION), GCU_ALARMS::Auxilary_Input_H_id);
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_H_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_H];
-                prvSetAlarmAction(DIG_IN_H, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTH_ACTION));
+                prvSetAlarmAction(DIG_IN_H, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_H_ACTION));
             }
             break;
 
         case DIG_IN_I:
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTI_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTI_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTI_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTI_ACTION), GCU_ALARMS::Auxilary_Input_I_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTI_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_I_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_I_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_I_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_I_ACTION), GCU_ALARMS::Auxilary_Input_I_id);
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_I_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_I];
-                prvSetAlarmAction(DIG_IN_I, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTI_ACTION));
+                prvSetAlarmAction(DIG_IN_I, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_I_ACTION));
             }
             break;
 
@@ -2209,55 +2209,55 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[OVERLOAD].bAlarmActive;
         break;
         case Auxilary_Input_A_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTA_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIGITAL_INPUT_A].bAlarmActive;
             }
         break;
         case Auxilary_Input_B_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTB_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_B_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
              {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIGITAL_INPUT_B].bAlarmActive;
              }
         break;
         case Auxilary_Input_C_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTC_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_C_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIGITAL_INPUT_C].bAlarmActive;
             }
         break;
         case Auxilary_Input_D_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTD_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_D_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIGITAL_INPUT_D].bAlarmActive;
             }
         break;
         case Auxilary_Input_E_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTE_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_E_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIGITAL_INPUT_E].bAlarmActive;
             }
         break;
         case Auxilary_Input_F_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTF_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_F_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_F].bAlarmActive;
             }
         break;
         case Auxilary_Input_G_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTG_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_G_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_G].bAlarmActive;
             }
         break;
         case Auxilary_Input_H_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTH_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_H_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_H].bAlarmActive;
             }
         break;
         case Auxilary_Input_I_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTI_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_I_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_I].bAlarmActive;
             }

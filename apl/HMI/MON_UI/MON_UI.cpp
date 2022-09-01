@@ -81,7 +81,7 @@ void MON_UI::Init()
    }
    else
    {
-       if((_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN) == CFGZ::CFGZ_ENABLE)
+       if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
                ||(_cfgz.GetCFGZ_Param(CFGZ::ID_S1_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
        {
            _eOpMode = BASE_MODES::BTS_MODE;
@@ -98,7 +98,7 @@ void MON_UI::Init()
    }
    _manualMode.SetGCUOperatingMode(_eOpMode);
 
-   _hal.ObjGlcd.AdjustContrast(_cfgz.GetCFGZ_Param(CFGZ::ID_PERCENT_CONTRAST));
+   _hal.ObjGlcd.AdjustContrast(_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_CONTRAST));
 }
 
 void MON_UI::Update(bool bRefresh)
@@ -511,14 +511,14 @@ void MON_UI::prvConfigureScreenEnable()
                 break;
 
             case DISP_SITE_BATT :
-                if((_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN) == CFGZ::CFGZ_ENABLE))
+                if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE))
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
                 break;
 
             case DISP_BTS_RUN_TIME :
-                if((_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN) == CFGZ::CFGZ_ENABLE))
+                if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE))
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }

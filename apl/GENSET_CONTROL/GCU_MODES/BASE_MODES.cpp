@@ -190,7 +190,7 @@ void BASE_MODES::prvUpdateBTSBattHybrdModeStatus(void)
 {
     // If site is on BTS battery as it is healthy hence DG is in OFF state with no alarm condition,
     // then need to manipulate output - BTS battery hybrid mode
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN) == CFGZ::CFGZ_ENABLE)
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
             && (!_EngineMon.IsGenReady())
             && (!_bCloseGenContactor)
             && (!_bCloseMainsContactor)
@@ -752,7 +752,7 @@ void BASE_MODES::AssignModechangeParameters()
     switch(_eManualState)
     {
          case BASE_MODES::STATE_MANUAL_GEN_OFF:
-             if(_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN) == CFGZ::CFGZ_ENABLE)
+             if(_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
              {
                  _eOperatingMode =BTS_MODE;
                  _eBTSState = STATE_BTS_GEN_OFF_MAINS_OFF;
@@ -776,7 +776,7 @@ void BASE_MODES::AssignModechangeParameters()
         break;
         case BASE_MODES::STATE_MANUAL_GEN_READY:
 //            _GCUAlarms.ResetMainsMonParams();
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN) == CFGZ::CFGZ_ENABLE)
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
                 || (_cfgz.GetCFGZ_Param(CFGZ::ID_S1_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
             {
                 _eOperatingMode =BTS_MODE;

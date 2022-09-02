@@ -163,7 +163,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
 
 //        A_SENSE::SENSOR_RET_t sensVal = _GCUAlarms.GetSelectedTempSensVal() ;
 //        if(((CFGZ::CFGZ_ENABLE == _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TEMP_LIMIT_EN))
-//                && ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| IS_ENG_TEMP_J1939_CONFIGURED())
+//                && ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| IS_ENG_TEMP_J1939_CONFIGURED())
 //                && (stEngTemp.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)
 //                    && (sensVal.stValAndStatus.f32InstSensorVal>=
 //                        _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TEMP_LIMIT_THREH)))

@@ -139,7 +139,6 @@ public:
         DG_B_UV_WARNING,
         OVERFREQ_WARNING,
         UNDERFREQ_WARNING,
-        OPEN_LOP_RES_SENS_CKT,
         LOP_CURR_SENS_OVER_CURR,
         OPEN_AN_SEN_S1_CKT,
         OPEN_AN_SEN_S2_CKT,

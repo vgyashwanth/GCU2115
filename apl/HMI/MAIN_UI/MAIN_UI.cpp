@@ -228,14 +228,14 @@ bool MAIN_UI::Update()
             &&(_hal.DigitalSensors.GetDigitalSensorState(
                     DigitalSensor::DI_REMOTE_START_STOP)
                    != DigitalSensor::SENSOR_NOT_CONFIGRUED))
-        ||_cfgz.GetCFGZ_Param(CFGZ::ID_COMMUNICATION_EN_MB)
+        ||_cfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_COMM_MODE)
       )
     {
         _sleep.KickSleepTimer();
     }
 
     //Turn off Back light after Power save delay over
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_POWER_SAVE_MODE_EN)== CFGZ::CFGZ_ENABLE)
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_POWER_SAVE_MODE)== CFGZ::CFGZ_ENABLE)
                  &&(UTILS_GetElapsedTimeInSec(&_PoweSaveModeTimer)
                       >= _cfgz.GetCFGZ_Param(CFGZ::ID_POWER_SAVE_MODE_DELAY)))
     {

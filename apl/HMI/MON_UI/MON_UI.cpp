@@ -81,12 +81,12 @@ void MON_UI::Init()
    }
    else
    {
-       if((_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN) == CFGZ::CFGZ_ENABLE)
+       if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
                ||(_cfgz.GetCFGZ_Param(CFGZ::ID_S1_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
        {
            _eOpMode = BASE_MODES::BTS_MODE;
        }
-       else if(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_MODE_EN) == CFGZ::CFGZ_ENABLE)
+       else if(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_CYCLIC_MODE) == CFGZ::CFGZ_ENABLE)
        {
            _eOpMode = BASE_MODES::CYCLIC_MODE;
        }
@@ -98,7 +98,7 @@ void MON_UI::Init()
    }
    _manualMode.SetGCUOperatingMode(_eOpMode);
 
-   _hal.ObjGlcd.AdjustContrast(_cfgz.GetCFGZ_Param(CFGZ::ID_PERCENT_CONTRAST));
+   _hal.ObjGlcd.AdjustContrast(_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_CONTRAST));
 }
 
 void MON_UI::Update(bool bRefresh)
@@ -511,14 +511,14 @@ void MON_UI::prvConfigureScreenEnable()
                 break;
 
             case DISP_SITE_BATT :
-                if((_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN) == CFGZ::CFGZ_ENABLE))
+                if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE))
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
                 break;
 
             case DISP_BTS_RUN_TIME :
-                if((_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN) == CFGZ::CFGZ_ENABLE))
+                if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE))
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
@@ -567,7 +567,7 @@ void MON_UI::prvConfigureScreenEnable()
                 break;
 
             case DISP_OIL_PRESSURE     :
-                if(((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                if(((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                         ||((_cfgz.GetCFGZ_Param(CFGZ::ID_S3_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)))
                         || IS_ENG_LOP_J1939_CONFIGURED())
                 {
@@ -2975,7 +2975,7 @@ void MON_UI::prvDigIOStatus()
     sprintf(arrTemp,"DO:");
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
-    for(uint8_t u8Local =CFGZ::ID_DIG_OP_SOURCE_A , x =0; u8Local<= CFGZ::ID_DIG_OP_SOURCE_G; u8Local=u8Local+2, x++)
+    for(uint8_t u8Local =CFGZ::ID_OUT_A_SOURCE , x =0; u8Local<= CFGZ::ID_OUT_G_SOURCE; u8Local=u8Local+2, x++)
     {
        sprintf(arrTemp , "%d", (uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u8Local))
                == ACT_Manager::ACT_LATCHED));

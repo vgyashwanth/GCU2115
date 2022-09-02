@@ -60,7 +60,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
         if(_bBattChargingOn)
         {
             _u32BattChargingCount++;
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_GEN_RUN_DURATION)*60U*20) <= _u32BattChargingCount)
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_DG_RUN_DURATION)*60U*20) <= _u32BattChargingCount)
             {
                 _bBattChargTmrExpired = 1;
             }
@@ -281,7 +281,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                 break;
 
             case STATE_BTS_GEN_ON_LOAD:
-                if((_bBattChargingOn)&&((_cfgz.GetCFGZ_Param(CFGZ::ID_GEN_RUN_DURATION))!= 0))
+                if((_bBattChargingOn)&&((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_DG_RUN_DURATION))!= 0))
                 {
                     _vars.TimerState = BATT_CHARGE_TIMER;
                 }
@@ -590,7 +590,7 @@ uint32_t BTS_MODE::GetBTSModeTime(BASE_MODES::TIMER_STATE_t eTimer)
     switch(eTimer)
     {
        case BASE_MODES::BATT_CHARGE_TIMER:
-           RemainingTimeInSec = ((((_cfgz.GetCFGZ_Param(CFGZ::ID_GEN_RUN_DURATION)*1200) - _u32BattChargingCount) /1200) + 1);
+           RemainingTimeInSec = ((((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_DG_RUN_DURATION)*1200) - _u32BattChargingCount) /1200) + 1);
            break;
 
        case BASE_MODES::SHELTER_TEMP_TIMER:

@@ -142,7 +142,7 @@ void ENGINE_MONITORING::Update(bool bDeviceInConfigMode)
              UTILS_DisableTimer(&_MainsRunTimeBaseTimer);
         }
 
-        if((_cfgz.GetCFGZ_Param(CFGZ::ID_BATT_MON_EN) == CFGZ::CFGZ_ENABLE)
+        if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
                 &&(!BASE_MODES::IsGenContactorClosed())
                 && (((!BASE_MODES::IsMainsContactorClosed())&&(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
                         || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE) && (_u8EngineOn == 0U))))
@@ -473,7 +473,7 @@ void ENGINE_MONITORING::prvUpdateEngineCranked()
     }
 
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_DISCON_ON_LOP_SENS_EN)  == CFGZ::CFGZ_ENABLE) &&
-            ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) || (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)==CFGZ::CFGZ_ENABLE)
+            ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) || (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)==CFGZ::CFGZ_ENABLE)
             ||((_cfgz.GetCFGZ_Param(CFGZ::ID_S4_SENS_SELECTION) == CFGZ::CFGZ_ANLG_LOP_CURR_SENSOR))) &&
             (_stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT) &&
             (_stLOP.stValAndStatus.f32InstSensorVal > _cfgz.GetCFGZ_Param(CFGZ::ID_DISCONNECT_PRESURE_THRESH)))

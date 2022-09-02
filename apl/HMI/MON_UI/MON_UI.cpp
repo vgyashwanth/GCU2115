@@ -479,7 +479,7 @@ void MON_UI::prvConfigureScreenEnable()
                 break;
 
             case DISP_SCREEN_AUX_2:
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
@@ -559,7 +559,7 @@ void MON_UI::prvConfigureScreenEnable()
                 break;
 
             case DISP_COOLENT_TEMP     :
-                if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                         || IS_ENG_TEMP_J1939_CONFIGURED())
                 {
                     _ArrScreenEnDs[u8Screen] = true;

@@ -602,9 +602,9 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case HIGH_ENG_TEMP_SHUTDOWN:
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG)))
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG)))
             && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG))) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG))) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_THRESH_TYPE) == CFGZ::CFGZ_LESS_THAN_THRESHOLD)
             {
                 prvUpdateMonParams(u8AlarmIndex, &_u8TempSensMon, false, GCU_ALARMS::Low_Water_Temperature_id,(float) _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CLNT_TEMP_SHUTDOWN_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
@@ -617,9 +617,9 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case HIGH_ENG_TEMP_WARNING:
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_SELECTION)== CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG)))
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_SENSOR_SELECTION)== CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG)))
             && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_SELECTION)== CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG))) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_SENSOR_SELECTION)== CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG))) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_THRESH_TYPE) == CFGZ::CFGZ_LESS_THAN_THRESHOLD)
             {
                 prvUpdateMonParams(u8AlarmIndex, &_u8TempSensMon, false, GCU_ALARMS::Low_Water_Temperature_id,(float) _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CLNT_TEMP_WARNING_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
@@ -839,9 +839,9 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case OPEN_ENG_TEMP_CKT:
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_SELECTION)== CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) && _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_FAULT_ACTION));
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_SENSOR_SELECTION)== CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) && _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_ACTION));
             prvUpdateMonParams(u8AlarmIndex, &_u8DummyOne, true, GCU_ALARMS::Engine_Temperature_Ckt_Open_id , (uint8_t)0U, 30U);
-            prvSetAlarmAction(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_FAULT_ACTION));
+            prvSetAlarmAction(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_ACTION));
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[ENG_TEMP_OPEN_CKT];
             break;
 
@@ -928,10 +928,10 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case OPEN_ANLG_SENS_S2_CKT:
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1);
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1);
             prvUpdateMonParams(u8AlarmIndex, &_u8DummyOne, true, Aux_S2_Sens_Open_Ckt_id,(uint8_t)0, 10);
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[AUX_SENS_S2_OPEN_CKT];
-            prvSetAlarmAction(OPEN_ANLG_SENS_S2_CKT, _cfgz.GetCFGZ_Param(CFGZ::ID_S2_SENS_FAULT_ACTION));
+            prvSetAlarmAction(OPEN_ANLG_SENS_S2_CKT, _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_ACTION));
             break;
 
         case OPEN_ANLG_SENS_S3_CKT:
@@ -1009,16 +1009,16 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case ANLG_SENS_S2_MON_SHUTDOWN:
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SHUT_DN_EN) == CFGZ::CFGZ_ENABLE));
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = ((_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SHUT_DN_EN) == CFGZ::CFGZ_ENABLE));
-            prvUpdateMonParams(u8AlarmIndex, &_u8AuxSensS2, (bool)(_cfgz.GetCFGZ_Param(CFGZ::ID_S2_THRESH_TYPE)), Aux_S2_id, _cfgz.GetCFGZ_Param(CFGZ::ID_S2_SHUTDOWN_THRESH), 40);
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SHUT_DN_EN) == CFGZ::CFGZ_ENABLE));
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = ((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SHUT_DN_EN) == CFGZ::CFGZ_ENABLE));
+            prvUpdateMonParams(u8AlarmIndex, &_u8AuxSensS2, (bool)(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_THRESHOLD_TYPE)), Aux_S2_id, _cfgz.GetCFGZ_Param(CFGZ::ID_S2_SHUTDOWN_THRESH), 40);
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[ANLG_SENS_S2_VAL];
             break;
 
         case ANLG_SENS_S2_MON_WARNING:
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_S2_WARN_EN) == CFGZ::CFGZ_ENABLE));
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = ((_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_S2_WARN_EN) == CFGZ::CFGZ_ENABLE));
-            prvUpdateMonParams(u8AlarmIndex, &_u8AuxSensS2, (bool)(_cfgz.GetCFGZ_Param(CFGZ::ID_S2_THRESH_TYPE)), Aux_S2_id, _cfgz.GetCFGZ_Param(CFGZ::ID_S2_WARNING_THRESH), 40);
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_OPEN_CKT_WARNING) == CFGZ::CFGZ_ENABLE));
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = ((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_OPEN_CKT_WARNING) == CFGZ::CFGZ_ENABLE));
+            prvUpdateMonParams(u8AlarmIndex, &_u8AuxSensS2, (bool)(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_THRESHOLD_TYPE)), Aux_S2_id, _cfgz.GetCFGZ_Param(CFGZ::ID_S2_WARNING_THRESH), 40);
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[ANLG_SENS_S2_VAL];
             break;
 
@@ -1454,13 +1454,13 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case DIG_IN_L:
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_DIG_IN)
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_DIG_IN)
             {
-                prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTL_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTL_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTL_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTL_ACTION), GCU_ALARMS::Auxilary_Input_L_id);
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTL_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+                prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_DIG_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_DIG_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_DIG_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_DIG_ACTION), GCU_ALARMS::Auxilary_Input_L_id);
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_DIG_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
                 {
                     ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_L];
-                    prvSetAlarmAction(DIG_IN_L, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTL_ACTION));
+                    prvSetAlarmAction(DIG_IN_L, _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_DIG_ACTION));
                 }
             }
             break;
@@ -1478,13 +1478,13 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case DIG_IN_N:
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SENS_SELECTION) == CFGZ::CFGZ_ANLG_DIG_IN)
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_DIG_IN)
             {
-                prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTN_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTN_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTN_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTN_ACTION), GCU_ALARMS::Auxilary_Input_N_id);
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTN_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+                prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_DIG_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_DIG_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_DIG_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_DIG_ACTION), GCU_ALARMS::Auxilary_Input_N_id);
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_DIG_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
                 {
                     ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_N];
-                    prvSetAlarmAction(DIG_IN_N, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTN_ACTION));
+                    prvSetAlarmAction(DIG_IN_N, _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_DIG_ACTION));
                 }
             }
             break;
@@ -2275,7 +2275,7 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
             }
         break;
         case Auxilary_Input_L_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTL_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_DIG_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_L].bAlarmActive;
             }
@@ -2287,7 +2287,7 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
             }
         break;
         case Auxilary_Input_N_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTN_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_DIG_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_N].bAlarmActive;
             }
@@ -3586,7 +3586,7 @@ void GCU_ALARMS::prvCoolantTempCtrlFunction(void)
 {
     A_SENSE::SENSOR_RET_t stTemp = GetSelectedTempSensVal();
 
-    if((((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    if((((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
            &&(stTemp.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT))
             || ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) > CFGZ::ENG_CONVENTIONAL)
                     &&(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE)))&& (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_CTRL_EN) == CFGZ::CFGZ_ENABLE))

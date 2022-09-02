@@ -67,7 +67,7 @@ public:
 
      #define IS_GCU_PREHEAT_TEMP_ENABLED()       ( _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TEMP_LIMIT_EN) == 1)
 
-     #define IS_GCU_TEMP_CONFIGURED()             ( _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+     #define IS_GCU_TEMP_CONFIGURED()             ( _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
 
      #define IS_PRHEAT_RELAY_CONFIGURED()       ( ACT_Manager::ACT_NOT_CONFIGURED != _hal.actuators.GetActStatus(ACTUATOR::ACT_PREHEAT))
 

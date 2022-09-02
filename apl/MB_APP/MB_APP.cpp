@@ -540,7 +540,7 @@ void MB_APP::prvUpdateAUXSensorVal()
 
 //S2
     u16AuxSensorVal = 0;
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_S2_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
         // S2 as s2 analog sensor
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_S2_SENSOR);

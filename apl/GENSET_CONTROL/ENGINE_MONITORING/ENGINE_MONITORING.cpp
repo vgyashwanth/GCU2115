@@ -221,21 +221,13 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::getAssumedLoadStatus(CO
         //feedback not available:
         if (ci.bGensetContactorOutputAssigned)
         {
-            if (!ci.bGensetContactorOutputIsPulseType)
+            //output is assigned and is not pulse type
+            if (ci.bGensetContactorOutputStatus)
             {
-                //output is assigned and is not pulse type
-                if (ci.bGensetContactorOutputStatus)
-                {
-                    return LOAD_CONT_STATUS_t::LOAD_ON_GEN;
-                }
-                //else is not necessary
-                bCertainlyNotOnGenset = true;
+                return LOAD_CONT_STATUS_t::LOAD_ON_GEN;
             }
-            else
-            {
-                //output is assigned but it is pulse type
-                //do nothing here, we will anyway default to Genset
-            }
+            //else is not necessary
+            bCertainlyNotOnGenset = true;
         }
         else
         {
@@ -249,8 +241,6 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::getAssumedLoadStatus(CO
         //feedback not available:
         if (ci.bMainsContactorOutputAssigned)
         {
-            if (!ci.bMainsContactorOutputIsPulseType)
-            {
                 //output is assigned and is not pulse type
                 if (ci.bMainsContactorOutputStatus)
                 {
@@ -258,12 +248,6 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::getAssumedLoadStatus(CO
                 }
                 //else is not necessary
                 bCertainlyNotOnMains = true;
-            }
-            else
-            {
-                //output is assigned but it is pulse type
-                //do nothing here, we will anyway default to Genset
-            }
         }
         else
         {
@@ -299,39 +283,16 @@ bool ENGINE_MONITORING::mainsContactorFeedbackInputStatus()
 }
 bool ENGINE_MONITORING::isMainsContactorOutputAssigned()
 {
-    //returns true if one output is assigned as ON/OFF
-    //or if two outputs are assigned as pulse type;
-    //otherwise returns false.
-    if(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED)
-    {
+
         //not equal to not_configured, means it must be assigned!
-        return true;
-    }
-    return isMainsContactorOutputPulseType();
+        return(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED);
 }
 bool ENGINE_MONITORING::isGensetContactorOutputAssigned()
 {
-    //returns true if one output is assigned as ON/OFF
-    //or if two outputs are assigned as pulse type;
-    //otherwise returns false.
-    if(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED)
-    {
-        //not equal to not_configured, means it must be assigned!
-        return true;
-    }
-    return isGensetContactorOutputPulseType();
-}
-bool ENGINE_MONITORING::isMainsContactorOutputPulseType()
-{
-    return((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED));
-}
-bool ENGINE_MONITORING::isGensetContactorOutputPulseType()
-{
-    return((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED));
 
+    return (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED);
 }
+
 bool ENGINE_MONITORING::haveWeTriedToCloseGensetContactor()
 {
     return BASE_MODES::IsGenContactorClosed();
@@ -362,11 +323,11 @@ void ENGINE_MONITORING::UpdateContactorLoadStatus()
     ci.bGensetContactorFeedbackInputStatus = gensetContactorFeedbackInputStatus();
     ci.bGensetContactorFeedbackIsAssigned = isGensetContactorFeedbackAssigned();
     ci.bGensetContactorOutputAssigned = isGensetContactorOutputAssigned();
-    ci.bGensetContactorOutputIsPulseType = isGensetContactorOutputPulseType();
+
     ci.bMainsContactorFeedbackInputStatus = mainsContactorFeedbackInputStatus();
     ci.bMainsContactorFeedbackIsAssigned = isMainsContactorFeedbackAssigned();
     ci.bMainsContactorOutputAssigned = isMainsContactorOutputAssigned();
-    ci.bMainsContactorOutputIsPulseType = isMainsContactorOutputPulseType();
+
     ci.bGensetContactorOutputStatus = haveWeTriedToCloseGensetContactor();
     ci.bMainsContactorOutputStatus = haveWeTriedToCloseMainsContactor();
     _eLoadStatusCurrent = getAssumedLoadStatus(ci);

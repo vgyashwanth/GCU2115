@@ -83,15 +83,19 @@ bool BASE_MODES::_bLoadTransferEn = false;
 bool BASE_MODES::_bSchGenStart = false;
 bool BASE_MODES::_bIsHealthyPhCntIncr = false;
 
-#define IS_GEN_LOAD_INHIBIT_IP_ENABLED()        _GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::GEN_LOAD_INHIBIT)
-#define IS_GEN_LOAD_INHIBIT_IP_ACTIVATED()      _GCUAlarms.IsAlarmActive(GCU_ALARMS::GEN_LOAD_INHIBIT)
+//#define IS_GEN_LOAD_INHIBIT_IP_ENABLED()        _GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::GEN_LOAD_INHIBIT)
+#define IS_GEN_LOAD_INHIBIT_IP_ENABLED() 1
+//#define IS_GEN_LOAD_INHIBIT_IP_ACTIVATED()      _GCUAlarms.IsAlarmActive(GCU_ALARMS::GEN_LOAD_INHIBIT)
+#define IS_GEN_LOAD_INHIBIT_IP_ACTIVATED() 1
 #define GEN_CONTACTOR_IS_ABOUT_TO_LATCH()       ((_bContTransferToGenOn) || (_bSwitchLoadToGen))
 #define IS_GEN_CONTACTOR_LATCHED()              ((_bCloseGenContactor) || GEN_CONTACTOR_IS_ABOUT_TO_LATCH())
 #define GEN_CONTACTOR_NOT_LATCHED()             (!_bCloseGenContactor)
 #define LOAD_XFER_TO_GEN_NOT_INITIATED()        (!_bContTransferToGenOn)
 
-#define IS_MAINS_LOAD_INHIBIT_IP_ENABLED()      _GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::MAINS_LOAD_INHIBIT)
-#define IS_MAINS_LOAD_INHIBIT_IP_ACTIVATED()    _GCUAlarms.IsAlarmActive(GCU_ALARMS::MAINS_LOAD_INHIBIT)
+//#define IS_MAINS_LOAD_INHIBIT_IP_ENABLED()      _GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::MAINS_LOAD_INHIBIT)
+#define IS_MAINS_LOAD_INHIBIT_IP_ENABLED()      1
+//#define IS_MAINS_LOAD_INHIBIT_IP_ACTIVATED()    _GCUAlarms.IsAlarmActive(GCU_ALARMS::MAINS_LOAD_INHIBIT)
+#define IS_MAINS_LOAD_INHIBIT_IP_ACTIVATED()  1
 #define MAINS_CONTACTOR_IS_ABOUT_TO_LATCH()     ((_bContTransferToMainsOn) || (_bSwitchLoadToMains))
 #define IS_MAINS_CONTACTOR_LATCHED()            ((_bCloseMainsContactor) || MAINS_CONTACTOR_IS_ABOUT_TO_LATCH())
 #define MAINS_CONTACTOR_NOT_LATCHED()           (!_bCloseMainsContactor)
@@ -170,7 +174,7 @@ void BASE_MODES::Update()
         prvUpdateNightModeRestrictStatus();
         UpdateMainsStatus();
         prvUpdateContactorOutputs();
-        prvUpdateBreakerPulseState();
+//        prvUpdateBreakerPulseState();
         prvUpdateBTSBattHybrdModeStatus();
         if(_hal.DigitalSensors.GetDigitalSensorState(
                 DigitalSensor::DI_EMERGENCY_STOP) == DigitalSensor::SENSOR_LATCHED)
@@ -311,189 +315,14 @@ void BASE_MODES::UpdateMainsStatus()
     {
         _MainsStatus = MAINS_HELATHY;
     }
-    else
-    {
-        _bMainsPartialHealthy = false;
-
-        if(_bRPhasHealthyStatus  == false)
-        {
-            _bRPhasHealthyStatus =   (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_UNDERVOLT_TRIP))
-                                  && (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_OVERVOLT_TRIP))
-                                  && (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_UNDERFREQ_TRIP))
-                                  && (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_OVERFREQ_TRIP));
-        }
-        else
-        {
-            _bRPhasHealthyStatus =   !(( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_UNDERVOLT_TRIP))
-                                  || ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_OVERVOLT_TRIP))
-                                  || ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_UNDERFREQ_TRIP))
-                                  || ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_OVERFREQ_TRIP)));
-        }
-
-        if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) != CFGZ::CFGZ_1_PHASE_SYSTEM)
-        {
-            if(_bYPhasHealthyStatus  == false)
-            {
-                _bYPhasHealthyStatus =   (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_UNDERVOLT_TRIP))
-                                      && (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_OVERVOLT_TRIP))
-                                      && (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_UNDERFREQ_TRIP))
-                                      && (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_OVERFREQ_TRIP));
-            }
-            else
-            {
-                _bYPhasHealthyStatus =   !(( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_UNDERVOLT_TRIP))
-                                        || ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_OVERVOLT_TRIP))
-                                        || ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_UNDERFREQ_TRIP))
-                                        || ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_OVERFREQ_TRIP)));
-            }
-
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) == CFGZ::CFGZ_3_PHASE_SYSTEM)
-            {
-                if(_bBPhasHealthyStatus  == false)
-                {
-                    _bBPhasHealthyStatus =   (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_B_UNDERVOLT_TRIP))
-                                          && (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_B_OVERVOLT_TRIP))
-                                          && (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_B_UNDERFREQ_TRIP))
-                                          && (! _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_B_OVERFREQ_TRIP));
-                }
-                else
-                {
-                    _bBPhasHealthyStatus =   !(( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_B_UNDERVOLT_TRIP))
-                                          || (   _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_B_OVERVOLT_TRIP))
-                                          || (   _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_B_UNDERFREQ_TRIP))
-                                          || (   _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_B_OVERFREQ_TRIP)));
-                }
-            }
-        }
-
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) == CFGZ::CFGZ_1_PHASE_SYSTEM)
-            {
-                if( _bRPhasHealthyStatus)
-                {
-                _MainsStatus = MAINS_HELATHY;
-                }
-                else
-                {
-                    _MainsStatus = MAINS_UNHELATHY;
-                }
-            }
-            else if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) == CFGZ::CFGZ_SPLIT_PHASE)
-            {
-                if(_bRPhasHealthyStatus && _bYPhasHealthyStatus)
-                {
-                    _MainsStatus = MAINS_HELATHY;
-                }
-                else
-                {
-                    _MainsStatus = MAINS_UNHELATHY;
-                }
-            }
-            else
-            {
-                if(_bRPhasHealthyStatus && _bYPhasHealthyStatus && _bBPhasHealthyStatus
-                    &&((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_PH_REVERS_DETECT_EN) == CFGZ::CFGZ_DISABLE) ||
-                            ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_PH_REVERS_DETECT_EN) == CFGZ::CFGZ_ENABLE) && (!_hal.AcSensors.MAINS_GetPhaseRotStatus())))   )
-                {
-                    _MainsStatus = MAINS_HELATHY;
-                }
-                else
-                {
-                    _MainsStatus = MAINS_UNHELATHY;
-                }
-            }
-        }
 
 
 
-        if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) != CFGZ::CFGZ_1_PHASE_SYSTEM)
-         && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_PARTIAL_HEALTHY_DETECT_EN) == CFGZ::CFGZ_ENABLE)
-         && ((_eOperatingMode == BTS_MODE))
-         && (_MainsStatus == MAINS_UNHELATHY))
-        {
-          if(((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) == CFGZ::CFGZ_3_PHASE_SYSTEM)
-                  &&(_bRPhasHealthyStatus || _bYPhasHealthyStatus || _bBPhasHealthyStatus))
-              || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) == CFGZ::CFGZ_SPLIT_PHASE)
-                    &&(_bRPhasHealthyStatus || _bYPhasHealthyStatus )))
           {
               _MainsStatus = MAINS_HELATHY;
               _bMainsPartialHealthy = true;
           }
-        }
-          if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) == CFGZ::CFGZ_3_PHASE_SYSTEM)
-         {
-             if(    _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_UNDERVOLT_TRIP)
-                 || _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_UNDERVOLT_TRIP)
-                 || _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_B_UNDERVOLT_TRIP) )
-             {
-                _bMainsLow = true;
-             }
-             else
-             {
-                 _bMainsLow = false;
-             }
-         }
-         else if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) == CFGZ::CFGZ_SPLIT_PHASE)
-         {
-             if(    _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_UNDERVOLT_TRIP)
-                  || _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_UNDERVOLT_TRIP) )
-              {
-                 _bMainsLow = true;
-              }
-              else
-              {
-                  _bMainsLow = false;
-              }
 
-         }
-         else
-         {
-             if(_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_UNDERVOLT_TRIP))
-             {
-                 _bMainsLow = true;
-             }
-             else
-             {
-                 _bMainsLow = false;
-             }
-         }
-
-        if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) == CFGZ::CFGZ_3_PHASE_SYSTEM)
-        {
-            if(    _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_OVERVOLT_TRIP)
-             || _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_OVERVOLT_TRIP)
-             || _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_B_OVERVOLT_TRIP) )
-            {
-                _bMainsHigh = true;
-            }
-            else
-            {
-                _bMainsHigh = false;
-            }
-        }
-        else if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) == CFGZ::CFGZ_SPLIT_PHASE)
-        {
-            if(    _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_OVERVOLT_TRIP)
-                 || _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_Y_OVERVOLT_TRIP) )
-             {
-                _bMainsHigh = true;
-             }
-             else
-             {
-                 _bMainsHigh = false;
-             }
-
-        }
-        else
-        {
-            if(_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_R_OVERVOLT_TRIP))
-            {
-                _bMainsHigh = true;
-            }
-            else
-            {
-                _bMainsHigh = false;
-            }
-        }
 
 }
 void BASE_MODES::prvHandleInhibitInputs(void)
@@ -900,10 +729,7 @@ bool BASE_MODES::GetPressureSensorStatusBeforeStart()
     A_SENSE::SENSOR_RET_t stVal;
     stVal = _GCUAlarms.GetLOPSensorVal();
 
-    if((_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::OIL_PRESS_DETECTED].bResultInstant
-            &&( stVal.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT))
-     ||_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::LLOP_SWITCH_AT_ENG_OFF].bResultInstant
-     )
+    if(1)
     {
         _GCUAlarms.ActivateHighOilPressAlarmSens();
         return false;
@@ -1116,97 +942,6 @@ bool BASE_MODES::IsNightModeRestrictOn()
     return _bNightModeRestrict;
 }
 
-void BASE_MODES::prvUpdateBreakerPulseState()
-{
-/* Gen */
-    if(true == _bOpenGenStatus)
-    {
-        if((_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE)== ACT_Manager::ACT_NOT_LATCHED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE) != ACT_Manager::ACT_LATCHED))
-        {
-            _hal.actuators.Activate(ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE);
-            _hal.actuators.Deactivate(ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE);
-            UTILS_ResetTimer(&_GenPulseTimer);
-        }
-        _bOpenGenStatus = false;
-        _bOpenGenReceived = true;
-    }
-    else if(true == _bCloseGenStatus )
-    {
-        if((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE)== ACT_Manager::ACT_NOT_LATCHED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE) != ACT_Manager::ACT_LATCHED))
-        {
-            _hal.actuators.Activate(ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE);
-            _hal.actuators.Deactivate(ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE);
-            UTILS_ResetTimer(&_GenPulseTimer);
-        }
-        _bCloseGenStatus = false;
-        _bOpenGenReceived = false;
-
-    }
-    else
-    {
-        //_bOpenGenReceived = false;
-    }
-
-    if(UTILS_GetElapsedTimeInSec(&_GenPulseTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_GEN_BREAKER_PULS_TIMER))
-    {
-        if(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE) == ACT_Manager::ACT_LATCHED)
-        {
-            _hal.actuators.Deactivate(ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE);
-        }
-        if(_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE) == ACT_Manager::ACT_LATCHED)
-        {
-            _hal.actuators.Deactivate(ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE);
-        }
-        UTILS_DisableTimer(&_GenPulseTimer);
-    }
-
-/* Mains */
-    if(true == _bOpenMainsStatus)
-    {
-        if((_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE)== ACT_Manager::ACT_NOT_LATCHED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE) != ACT_Manager::ACT_LATCHED))
-        {
-            _hal.actuators.Activate(ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE);
-            _hal.actuators.Deactivate(ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE);
-            UTILS_ResetTimer(&_MainsPulseTimer);
-        }
-        _bOpenMainsStatus = false;
-        _bOpenMainsReceived = true;
-    }
-    else if(true == _bCloseMainsStatus)
-    {
-        if((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE)== ACT_Manager::ACT_NOT_LATCHED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE) != ACT_Manager::ACT_LATCHED))
-        {
-            _hal.actuators.Activate(ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE);
-            _hal.actuators.Deactivate(ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE);
-            UTILS_ResetTimer(&_MainsPulseTimer);
-        }
-        _bCloseMainsStatus = false;
-        _bOpenMainsReceived =false;
-    }
-    else
-    {
-       // _bOpenMainsReceived =false;
-    }
-
-    if(UTILS_GetElapsedTimeInSec(&_MainsPulseTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_BREAKER_PULS_TIMER))
-    {
-        if(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE) == ACT_Manager::ACT_LATCHED)
-        {
-            _hal.actuators.Deactivate(ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE);
-        }
-        if(_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE) == ACT_Manager::ACT_LATCHED)
-        {
-            _hal.actuators.Deactivate(ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE);
-        }
-        UTILS_DisableTimer(&_MainsPulseTimer);
-    }
-}
+//void BASE_MODES::prvUpdateBreakerPulseState()
+//{}
 

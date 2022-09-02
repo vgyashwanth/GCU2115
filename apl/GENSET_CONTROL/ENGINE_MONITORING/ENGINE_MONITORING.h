@@ -139,8 +139,6 @@ public:
         bool bGensetContactorFeedbackInputStatus;   // true means contactor is latched so as to connect load to Genset
         bool bMainsContactorFeedbackIsAssigned; // to some input
         bool bMainsContactorFeedbackInputStatus;   // true means contactor is latched so as to connect load to Mains
-        bool bGensetContactorOutputIsPulseType;   // true means output is pulse type, false means it is ON/OFF type
-        bool bMainsContactorOutputIsPulseType;   // true means output is pulse type, false means it is ON/OFF type
         bool bGensetContactorOutputAssigned;
         bool bMainsContactorOutputAssigned;
         bool bGensetContactorOutputStatus;  // can be on or off; only meaningful if assigned AND is not pulse type
@@ -153,8 +151,7 @@ public:
     bool mainsContactorFeedbackInputStatus();
     bool isMainsContactorOutputAssigned();
     bool isGensetContactorOutputAssigned();
-    bool isMainsContactorOutputPulseType();
-    bool isGensetContactorOutputPulseType();
+
     bool haveWeTriedToCloseGensetContactor();
     bool haveWeTriedToCloseMainsContactor();
 

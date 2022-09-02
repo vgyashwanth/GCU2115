@@ -744,13 +744,7 @@ void J1939APP::prvUpdatePGN65385Data(void)
 }
 void J1939APP::prvUpdatePGN57344Data(void)
 {/* PGN-57344(CM1) : KUBOTA Engine */
-    if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor:: DI_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL)
-            != DigitalSensor:: SENSOR_NOT_CONFIGRUED )
-    {
-        _f32Pgn57344Data[PGN_57344_REGEN_SW_INHIBIT] = (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor:: DI_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL)== DigitalSensor::SENSOR_LATCHED);
-                //*GCU_DIG_IN_SOURCE[ID_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL];
-    }
-    else
+
     {
         _f32Pgn57344Data[PGN_57344_REGEN_SW_INHIBIT] = 3;
     }
@@ -789,7 +783,7 @@ void J1939APP::prvUpdatePGN65219Data(void)
     if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor:: DI_GEN_CONTACTOR_LATCHED)
             != DigitalSensor:: SENSOR_NOT_CONFIGRUED )
     {
-        _f32Pgn65219Data[PGN_65219_TRANS_NEUTRAL_SW] = _gcuAlarm.IsAlarmActive(GCU_ALARMS::FAIL_TO_LATCH_GEN_CONT);
+        _f32Pgn65219Data[PGN_65219_TRANS_NEUTRAL_SW] = 0;
     }
     else
     {
@@ -853,7 +847,7 @@ void J1939APP::prvUpdatePGN65265Data(void)
         if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor:: DI_GEN_CONTACTOR_LATCHED)
                 != DigitalSensor:: SENSOR_NOT_CONFIGRUED )
         {
-            if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::FAIL_TO_LATCH_GEN_CONT))//(*GCU_DIG_IN_SOURCE[ID_SOURCE_NEUTRAL_SW_SIGNAL])
+            if(1)
             {
                 _f32Pgn65265Data[PGN_65265_PARKING_BRAKE_SW] = 1;
             }

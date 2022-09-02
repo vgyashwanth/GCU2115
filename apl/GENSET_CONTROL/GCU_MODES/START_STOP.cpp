@@ -180,10 +180,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
         bPreheatTempLimitReached = CheckPreheatTempCondition();
 
 
-
-        prvHandleKeyPressForIdleMode();
-        prvUpdateIdleMode();
-
         switch(_State)
         {
             case ID_STATE_SS_ENG_OFF_OK:
@@ -506,8 +502,9 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     _EngineMon.DisableEngWarmUpTimer();
                     _bEngStoppingComplete = false;
                     _bKeySwitchOutput = false;
-                    if(_GCUAlarms.IsAlarmActive(GCU_ALARMS::OVERSPEED)||
-                            _GCUAlarms.IsAlarmActive(GCU_ALARMS::GROSS_OVERSPEED)||_GCUAlarms.IsAlarmActive(GCU_ALARMS::EMERGENCY_STOP))
+//                    if(_GCUAlarms.IsAlarmActive(GCU_ALARMS::OVERSPEED)||
+//                            _GCUAlarms.IsAlarmActive(GCU_ALARMS::GROSS_OVERSPEED)||_GCUAlarms.IsAlarmActive(GCU_ALARMS::EMERGENCY_STOP))
+                    if(0)
                     {
                         _bActivateHoldSolenoid = false;
                     }
@@ -619,29 +616,29 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = BASE_MODES::ENGINE_STOPPING;
                     _vars.TimerState = BASE_MODES::STOP_ACTION_TIMER;
                 }
-                else if(ACT_Manager::ACT_NOT_CONFIGURED !=
-                        _hal.actuators. GetActStatus(ACTUATOR::ACT_ISV_PULL_SIGNAL))
-                {
-                    if(_PullSolenoidState == PULL_SOLENOID_OFF)
-                    {
-                        _PullSolenoidState = PULL_SOLENOID_PULSE_ON ;
-                        UTILS_ResetTimer(&_ISVPullSolenoidTimer);
-                    }
-                    else if(_PullSolenoidState == PULL_SOLENOID_PULSE_OVER)
-                    {
-                        UTILS_ResetTimer(&_EngCrankingTimer);
-                        _State = ID_STATE_SS_CRANKING;
-                        _hal.ObjGlcd.TurnOffBackLight();
-                        _u8NoOfCrankAttempts++;
-                        _ChargeAlt.StartExcitation();
-                        _bChargAltStopLatched = false;
-                        _vars.GCUState = BASE_MODES::ENGINE_STARTING;
-                        _vars.TimerState = BASE_MODES::CRANK_START_TIMER;
-                        /* Reset the value here, so to ignore the first 10 pulses at Engine Cranking state */
-                        _hal.AnalogSensors.SkipPulses(PULSES_TO_IGNORE);
-
-                    }
-                }
+//                else if(ACT_Manager::ACT_NOT_CONFIGURED !=
+//                        _hal.actuators. GetActStatus(ACTUATOR::ACT_ISV_PULL_SIGNAL))
+//                {
+//                    if(_PullSolenoidState == PULL_SOLENOID_OFF)
+//                    {
+//                        _PullSolenoidState = PULL_SOLENOID_PULSE_ON ;
+//                        UTILS_ResetTimer(&_ISVPullSolenoidTimer);
+//                    }
+//                    else if(_PullSolenoidState == PULL_SOLENOID_PULSE_OVER)
+//                    {
+//                        UTILS_ResetTimer(&_EngCrankingTimer);
+//                        _State = ID_STATE_SS_CRANKING;
+//                        _hal.ObjGlcd.TurnOffBackLight();
+//                        _u8NoOfCrankAttempts++;
+//                        _ChargeAlt.StartExcitation();
+//                        _bChargAltStopLatched = false;
+//                        _vars.GCUState = BASE_MODES::ENGINE_STARTING;
+//                        _vars.TimerState = BASE_MODES::CRANK_START_TIMER;
+//                        /* Reset the value here, so to ignore the first 10 pulses at Engine Cranking state */
+//                        _hal.AnalogSensors.SkipPulses(PULSES_TO_IGNORE);
+//
+//                    }
+//                }
                 else
                 {
                     UTILS_ResetTimer(&_EngCrankingTimer);
@@ -697,7 +694,7 @@ bool START_STOP::IsGenStarted()
 void START_STOP::prvStopCommandAction()
 {
 
-    if((_bStopIdleExecuted) || (IsIdleModeInputConfigured()))
+    if(true)
     {
         _bStopIdleExecuted = false;
         /*LDRA_INSPECTED 62 S */
@@ -756,20 +753,6 @@ void START_STOP::prvStopCommandAction()
         }
     }
 
-    if((!IsIdleModeInputConfigured()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_STOPPING_IDLE_TIME) > 0)&&(_EngineMon.IsEngineCranked())
-            &&((IsIdleModeContiniousOutputConfigured()) || (IsIdleModePulseOutputConfigured()))
-            )
-    {
-        if((!_IdleModeStopTimer.bEnabled) && (!_bStopIdleEnabled) && (_bStopCommand) && (!_bStopIdleExecuted))
-        {
-            _IdleModeState = STOP_IDLE_OPR;
-            _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
-        }
-    }
-    else
-    {
-        _bStopIdleExecuted = true;
-    }
 }
 
 void START_STOP::prvSetOutputVariables(bool bStartRelayStatus, bool bStopSolenoidStatus, 
@@ -818,62 +801,6 @@ void START_STOP::prvTurnOnOffOutputs()
     {
         _hal.actuators.Deactivate(ACTUATOR::ACT_PREHEAT);
     }
-
-
-    if(_bActivatePullSolenoid)
-    {
-        _hal.actuators.Activate(ACTUATOR::ACT_ISV_PULL_SIGNAL);
-    }
-    else
-    {
-        _hal.actuators.Deactivate(ACTUATOR::ACT_ISV_PULL_SIGNAL);
-    }
-
-    if(_bActivateHoldSolenoid)
-    {
-        _hal.actuators.Activate(ACTUATOR::ACT_ISV_HOLD_SIGNAL);
-    }
-    else
-    {
-        _hal.actuators.Deactivate(ACTUATOR::ACT_ISV_HOLD_SIGNAL);
-    }
-
-    if(_bLowIdleOp)
-    {
-        _hal.actuators.Activate(ACTUATOR::ACT_LOW_IDLE_MODE);
-    }
-    else
-    {
-        _hal.actuators.Deactivate(ACTUATOR::ACT_LOW_IDLE_MODE);
-    }
-
-    if(_bIdleModeOnPulse)
-    {
-        _hal.actuators.Activate(ACTUATOR::ACT_IDLE_MODE_ON_PULSE);
-    }
-    else
-    {
-        _hal.actuators.Deactivate(ACTUATOR::ACT_IDLE_MODE_ON_PULSE);
-    }
-
-    if(_bIdleModeOffPulse)
-    {
-        _hal.actuators.Activate(ACTUATOR::ACT_IDLE_MODE_OFF_PULSE);
-    }
-    else
-    {
-        _hal.actuators.Deactivate(ACTUATOR::ACT_IDLE_MODE_OFF_PULSE);
-    }
-
-    if(_bKeySwitchOutput)
-    {
-        _hal.actuators.Activate(ACTUATOR::ACT_KEY_SWITCH);
-    }
-    else
-    {
-        _hal.actuators.Deactivate(ACTUATOR::ACT_KEY_SWITCH);
-    }
-
 }
 
 void START_STOP::StartCommand()
@@ -1157,74 +1084,7 @@ void START_STOP::prvUpdateSimStartStopStatus()
             _bSimAutoLatched = false;
         }
     }
-    if(!_bAlarmMutePressed && !_bAlarmMuteReleased)
-    {
-        if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_REMOTE_ALARM_MUTE) == DigitalSensor::SENSOR_UNLATCHED)
-        {
-            _bAlarmMuteReleased = 1;
-        }
-        else
-        {
-            _bAckAudblAlrmRecd = 0;
-        }
-    }
-    else if(_bAlarmMuteReleased)
-    {
-        if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_REMOTE_ALARM_MUTE) == DigitalSensor::SENSOR_LATCHED)
-        {
-            _bAlarmMutePressed = 1;
-            _bAlarmMuteReleased = 0;
-        }
-    }
-    else if(_bAlarmMutePressed)
-    {
-        _bAlarmMutePressed = 0;
-        _bAckAudblAlrmRecd = 1;
-    }
-    else
-    {
-        _bAlarmMutePressed = 0;
-        _bAlarmMuteReleased = 0;
-    }
 
-    if(_bAckAudblAlrmRecd)
-    {
-        _GCUAlarms.TurnOffSounderAlarm();
-    }
-
-    if(!_bAlarmAckPressed && !_bAlarmAckReleased)
-    {
-        if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_REMOTE_ALARM_ACK) == DigitalSensor::SENSOR_UNLATCHED)
-        {
-            _bAlarmAckReleased = 1;
-        }
-        else
-        {
-            _bSimAckRecd = 0;
-        }
-    }
-    else if(_bAlarmAckReleased)
-    {
-        if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_REMOTE_ALARM_ACK) == DigitalSensor::SENSOR_LATCHED)
-        {
-            _bAlarmAckPressed = 1;
-            _bAlarmAckReleased = 0;
-        }
-    }
-    else if(_bAlarmAckPressed)
-    {
-        _bAlarmAckPressed = 0;
-        _bSimAckRecd = 1;
-    }
-    else
-    {
-        _bAlarmAckPressed = 0;
-        _bAlarmAckReleased = 0;
-    }
-    if(_bSimAckRecd)
-    {
-        _GCUAlarms.ClearAllAlarms();
-    }
 }
 
 bool START_STOP::IsSimAutoReceived()
@@ -1312,279 +1172,14 @@ bool START_STOP::IsJ1939PreheatFaultPresent()
 
 bool START_STOP::IsIdleModeInputConfigured()
 {
-    return (DigitalSensor::SENSOR_NOT_CONFIGRUED != _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_IDLE_MODE_ENABLE));
-}
-bool START_STOP::IsIdleModeContiniousOutputConfigured()
-{
-    return (ACT_Manager::ACT_NOT_CONFIGURED != _hal.actuators.GetActStatus(ACTUATOR::ACT_LOW_IDLE_MODE));
-}
-bool START_STOP::IsIdleModePulseOutputConfigured()
-{
-    return ((ACT_Manager::ACT_NOT_CONFIGURED != _hal.actuators.GetActStatus(ACTUATOR::ACT_IDLE_MODE_ON_PULSE) &&
-                            ACT_Manager::ACT_NOT_CONFIGURED != _hal.actuators.GetActStatus(ACTUATOR::ACT_IDLE_MODE_OFF_PULSE)));
+    return false;
 }
 
 void START_STOP::prvDisableStartIdle()
-{
-    _bLowIdleOp = false;
-    _bStartIdleEnabled = false;
-    if(IsIdleModePulseOutputConfigured())
-    {
-        _bIdleModeOnPulse = false;
-        _bIdleModeOffPulse = true;
-        UTILS_ResetTimer(&_IdleModePulseTimer);
-    }
-    else
-    {
-        _bIdleModeOnPulse = false;
-        _bIdleModeOffPulse = false;
-        UTILS_DisableTimer(&_IdleModePulseTimer);
-    }
-    UTILS_DisableTimer(&_LowSpeedTimer);
-    UTILS_DisableTimer(&_IdleToRatedTimer);
-}
+{}
 void START_STOP::prvDisableStopIdle()
-{
-    _bLowIdleOp = false;
-    if(IsIdleModePulseOutputConfigured())
-    {
-        _bIdleModeOnPulse = false;
-        _bIdleModeOffPulse = true;
-        UTILS_ResetTimer(&_IdleModePulseTimer);
-    }
-    else
-    {
-        _bIdleModeOnPulse = false;
-        _bIdleModeOffPulse = false;
-        UTILS_DisableTimer(&_IdleModePulseTimer);
-    }
-    _bStopIdleEnabled = false;
+{}
 
-    _bStopIdleExecuted = true;
-
-    UTILS_DisableTimer(&_IdleModeStopTimer);
-}
-
-void START_STOP::prvUpdateIdleMode()
-{
-    switch(_IdleModeState)
-    {
-        case NO_IDLE_OPR:
-            if(IsIdleModeInputConfigured() || (!_EngineMon.IsEngineOn()))
-            {
-                _IdleModeState = START_IDLE_OPR;
-            }
-            break;
-        case START_IDLE_OPR:
-            if(_bStopIdleEnabled)
-            {
-                prvDisableStopIdle();
-            }
-            if(IsIdleModeInputConfigured())
-            {
-                if(DigitalSensor::SENSOR_LATCHED == _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_IDLE_MODE_ENABLE))
-                {
-
-                    if(IsIdleModeContiniousOutputConfigured())
-                    {
-                        _bLowIdleOp = true;
-                        _bStartIdleEnabled = true;
-                        _IdleModeState = PROCESS_IDLE_OPR;
-                        _bActiveAlarms = false;
-                    }
-                    else if (IsIdleModePulseOutputConfigured())
-                    {
-                        _bIdleModeOnPulse = true;
-                        _bIdleModeOffPulse = false;
-                        _bStartIdleEnabled = true;
-                        UTILS_ResetTimer(&_IdleModePulseTimer);
-                        _IdleModeState = PROCESS_IDLE_OPR;
-                        _bActiveAlarms = false;
-                    }
-                }
-            }
-            else if ((_bOPFuelRelay) && (_cfgz.GetCFGZ_Param(CFGZ::ID_STARTUP_IDLE_TIME) != 0))
-            {
-                    if(IsIdleModeContiniousOutputConfigured())
-                    {
-                        _bLowIdleOp = true;
-                        _bStartIdleEnabled = true;
-                        _IdleModeState = PROCESS_IDLE_OPR;
-                        _bActiveAlarms = false;
-                    }
-                    else if (IsIdleModePulseOutputConfigured())
-                    {
-                        _bIdleModeOnPulse = true;
-                        _bIdleModeOffPulse = false;
-                        _bStartIdleEnabled = true;
-                        UTILS_ResetTimer(&_IdleModePulseTimer);
-                        _IdleModeState = PROCESS_IDLE_OPR;
-                        _bActiveAlarms = false;
-                    }
-            }
-            break;
-
-        case PROCESS_IDLE_OPR:
-            if(_bStartIdleEnabled)
-            {
-                if(IsIdleModeInputConfigured())
-                {
-                    if(DigitalSensor::SENSOR_UNLATCHED == _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_IDLE_MODE_ENABLE))
-                    {
-                        _bLowIdleOp = false;
-                        _bIdleModeOnPulse = false;
-                        _bIdleModeOffPulse = true;
-                        _bStartIdleEnabled = false;
-                        UTILS_ResetTimer(&_IdleModePulseTimer);
-                        UTILS_ResetTimer(&_IdleToRatedTimer);
-                        _IdleModeState = IDLE_TO_RATED_OPR;
-                    }
-                }
-                else
-                {
-/* Shubham Wader 12.08.2022
-   If the engine speed is selected as input from ECU, and then if comm failure occurs then we are forcefully assigning 0 to Engine speed and
-   hence the idle mode start timer execution will hold till exact speed value from ECU is received.
-   Confirmed with SysE  */
-
-                    if((!_LowSpeedTimer.bEnabled) && (_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_INITIAL_LOW_SPEED)))
-                    {
-                        UTILS_ResetTimer(&_LowSpeedTimer);
-                    }
-
-                    if(UTILS_GetElapsedTimeInSec(&_LowSpeedTimer) > _cfgz.GetCFGZ_Param(CFGZ::ID_STARTUP_IDLE_TIME))
-                    {
-                        UTILS_DisableTimer(&_LowSpeedTimer);
-                        _bLowIdleOp = false;
-                        _bIdleModeOnPulse = false;
-                        _bIdleModeOffPulse = true;
-                        _bStartIdleEnabled = false;
-                        UTILS_ResetTimer(&_IdleModePulseTimer);
-                        UTILS_ResetTimer(&_IdleToRatedTimer);
-                        _IdleModeState = IDLE_TO_RATED_OPR;
-                    }
-                }
-            }
-            else if (_bStopIdleEnabled)
-            {
-                if(UTILS_GetElapsedTimeInSec(&_IdleModeStopTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_STOPPING_IDLE_TIME))
-                {
-                    UTILS_DisableTimer(&_IdleModeStopTimer);
-                    _bLowIdleOp = false;
-                    _bIdleModeOnPulse = false;
-                    _bIdleModeOffPulse = true;
-                    _bStopIdleEnabled = false;
-                    _bStopIdleExecuted = true;
-                    UTILS_ResetTimer(&_IdleModePulseTimer);
-                }
-            }
-            else
-            {
-                _IdleModeState = NO_IDLE_OPR;
-            }
-            break;
-
-        case STOP_IDLE_OPR:
-            if(_bStartIdleEnabled)
-            {
-                prvDisableStartIdle();
-            }
-
-            if(IsIdleModeContiniousOutputConfigured())
-            {
-                _bLowIdleOp = true;
-            }
-            else if(IsIdleModePulseOutputConfigured())
-            {
-                _bIdleModeOnPulse = true;
-                _bIdleModeOffPulse = false;
-                UTILS_ResetTimer(&_IdleModePulseTimer);
-            }
-            _bStopIdleEnabled = true;
-            _IdleModeState = PROCESS_IDLE_OPR;
-            UTILS_ResetTimer(&_IdleModeStopTimer);
-            break;
-
-        case IDLE_TO_RATED_OPR:
-            if(UTILS_GetElapsedTimeInSec(&_IdleToRatedTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_IDLE_TO_RATED_DELAY))
-            {
-                _bActiveAlarms = true;
-                UTILS_DisableTimer(&_IdleToRatedTimer);
-                _IdleModeState = NO_IDLE_OPR;
-            }
-            break;
-
-        case RESET_IDLE_OPR:
-            /* This state is made for the future modifications point of view. Program execution will never come to this state */
-            _bLowIdleOp = false;
-            _bIdleModeOnPulse = false;
-            _bIdleModeOffPulse = false;
-
-            _bStartIdleEnabled = false;
-            _bStopIdleEnabled = false;
-            _bStopIdleExecuted = false;
-
-            UTILS_DisableTimer(&_LowSpeedTimer);
-            UTILS_DisableTimer(&_IdleModeStopTimer);
-            UTILS_DisableTimer(&_IdleModePulseTimer);
-            UTILS_DisableTimer(&_IdleToRatedTimer);
-
-            _IdleModeState = NO_IDLE_OPR;
-
-            break;
-        default:
-            break;
-    }
-
-    if(UTILS_GetElapsedTimeInSec(&_IdleModePulseTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_IDLE_MODE_PULSE_TIME))
-    {
-        if(_bIdleModeOnPulse)
-        {
-            _bIdleModeOnPulse = false;
-        }
-        if(_bIdleModeOffPulse)
-        {
-            _bIdleModeOffPulse = false;
-        }
-        UTILS_DisableTimer(&_IdleModePulseTimer);
-    }
-
-    if((_GCUAlarms.IsCommonShutdown() || _GCUAlarms.IsCommonElectricTrip()))
-    {
-        if(_bStartIdleEnabled)
-        {
-            prvDisableStartIdle();
-        }
-        if(_bStopIdleEnabled)
-        {
-            prvDisableStopIdle();
-        }
-    }
-
-}
-
-void START_STOP::prvHandleKeyPressForIdleMode()
-{
-    if(_bStartIdleEnabled && (_bStartKeyPressed || _bStopKeyPressed))
-    {
-        _bStartKeyPressed = false;
-        prvDisableStartIdle();
-    }
-    else
-    {
-        _bStartKeyPressed = false;
-    }
-
-    if(_bStopIdleEnabled && (_bStopKeyPressed || _bStartKeyPressed))
-    {
-        prvDisableStopIdle();
-        _bStopKeyPressed = false;
-    }
-    else
-    {
-        _bStopKeyPressed = false;
-    }
-}
 
 
 

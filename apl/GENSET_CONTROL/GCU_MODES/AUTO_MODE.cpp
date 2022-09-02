@@ -44,12 +44,9 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
     {
         BASE_MODES::Update();
         UTILS_ResetTimer(&_GCUSMUpdateTimer);
-        _bRemoteStartRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE) &&
-                                _GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bEnableMonitoring
-                                    && _GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bResultInstant;
-        _bRemoteStopRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE) &&
-                                (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bEnableMonitoring)
-                                    && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bResultInstant);
+        _bRemoteStartRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE) ;
+
+        _bRemoteStopRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE) ;
         _bStartRequest = false;
         _bStopRequest = false;
 

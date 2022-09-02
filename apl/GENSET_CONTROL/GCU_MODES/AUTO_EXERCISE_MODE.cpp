@@ -65,12 +65,8 @@ void AUTO_EXERCISE_MODE::Update(bool bDeviceInConfigMode)
        BASE_MODES::Update();
        UTILS_ResetTimer(&_GCUSMUpdateTimer);
 
-       _bRemoteStartRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE) &&
-                                    _GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bEnableMonitoring
-                                        && _GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bResultInstant;
-       _bRemoteStopRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE) &&
-                                    (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bEnableMonitoring)
-                                        && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bResultInstant);
+       _bRemoteStartRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE);
+       _bRemoteStopRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE);
 
        _bStartRequest = false;
        _bStopRequest = false;
@@ -1055,15 +1051,7 @@ uint8_t  AUTO_EXERCISE_MODE::GetRunningExeType(void)
 
 void AUTO_EXERCISE_MODE::prvUpdateCallingForSchedulerRunOp()
 {
-      if(_bSchGenStart && (_eOperatingMode == BASE_MODES::AUTO_EXERCISE_MODE)&&(_EngineMon.IsEngineOn()))
-      {
 
-          _hal.actuators.Activate(ACTUATOR::ACT_CALLING_FOR_SCHEDULER_RUN);
-      }
-      else
-      {
-          _hal.actuators.Deactivate(ACTUATOR::ACT_CALLING_FOR_SCHEDULER_RUN);
-      }
 }
 
 

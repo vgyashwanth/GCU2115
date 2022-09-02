@@ -616,26 +616,13 @@ void MB_APP::prvUpadateDIGInOut()
 
     uint8_t u8LocalCnt=15,u8Local = 0;
     _u16TempAlarmVal =0;
-    for(u8Local=GCU_ALARMS::DIGITAL_INPUT_A; u8Local <=GCU_ALARMS::DIG_IN_P; u8Local++)
-    {
-        _u16TempAlarmVal |= ((uint16_t)_gcuAlarm.ArrAlarmMonitoring[u8Local].bAlarmActive << u8LocalCnt);
-        u8LocalCnt--;
-    }
 
     SetReadRegisterValue(MB_DIG_IP_STATUS, _u16TempAlarmVal);
 
     //Output Diagnostic Status
     _u16TempAlarmVal =0;
     u8LocalCnt = 15;
-    for(u8Local=CFGZ::ID_DIG_OP_SOURCE_A; u8Local <=CFGZ::ID_DIG_OP_SOURCE_G; u8Local=u8Local+2)
-    {
-        if(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u8Local))
-                == ACT_Manager::ACT_LATCHED)
-        {
-            _u16TempAlarmVal |= (uint16_t)(1U << u8LocalCnt);
-        }
-        u8LocalCnt--;
-    }
+
     SetReadRegisterValue(MB_DIG_OP_STATUS, _u16TempAlarmVal);
 }
 
@@ -644,34 +631,19 @@ void MB_APP::prvUpdateGCUAlarms()
 {
     // Alarm 1
     _u16TempAlarmVal =0;
-    UpdateEngSensorAlarms(MB_ALARM_1, GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN,
-            GCU_ALARMS::LOW_OIL_PRESS_WARNING, GCU_ALARMS::LLOP_SWITCH, FOURTH_NIBBLE);
 
-    UpdateEngSensorAlarms(MB_ALARM_1, GCU_ALARMS::HIGH_ENG_TEMP_SHUTDOWN,
-            GCU_ALARMS::HIGH_ENG_TEMP_WARNING, GCU_ALARMS::HWT_SWITCH, THIRD_NIBBLE);
-
-    UpdateEngSensorAlarms(MB_ALARM_1, GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN,
-            GCU_ALARMS::LOW_FUEL_LEVEL_WARNING, GCU_ALARMS::LOW_FUEL_LVL_SWITCH, SECOND_NIBBLE);
-
-    UpdateAlarmRegValue(GCU_ALARMS::RWL_SWITCH, MB_ALARM_1, FIRST_NIBBLE);
 
     SetReadRegisterValue(MB_ALARM_1, _u16TempAlarmVal);
 
     //Alarm 2
     _u16TempAlarmVal =0;
-    UpdateAlarmRegValue(GCU_ALARMS::UNDERSPEED, MB_ALARM_2, FOURTH_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::OVERSPEED, MB_ALARM_2, THIRD_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::FAIL_TO_START, MB_ALARM_2, SECOND_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::FAIL_TO_STOP, MB_ALARM_2, FIRST_NIBBLE);
+
     SetReadRegisterValue(MB_ALARM_2, _u16TempAlarmVal);
 
     // Alarm 3
     _u16TempAlarmVal = 0;
 
-    UpdateAlarmRegValue(GCU_ALARMS::SHELTER_TEMP_OPEN_CKT, MB_ALARM_3, FOURTH_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::SHELTER_TEMP_START_GEN, MB_ALARM_3, THIRD_NIBBLE);
-    UpdateDGVoltAlarms(MB_ALARM_3, GCU_ALARMS::UNDERFREQ_WARNING,GCU_ALARMS::UNDERFREQ_SHUTDOWN, SECOND_NIBBLE);
-    UpdateDGVoltAlarms(MB_ALARM_3, GCU_ALARMS::OVERFREQ_WARNING, GCU_ALARMS::OVERFREQ_SHUTDOWN, FIRST_NIBBLE);
+
 
 
 //     UpdateAlarmRegValue(GCU_ALARMS::LOW_LOAD_TRIP, MB_ALARM_3, THIRD_NIBBLE);
@@ -682,133 +654,58 @@ void MB_APP::prvUpdateGCUAlarms()
 
     //Alarm 4
     _u16TempAlarmVal = 0;
-    UpdateAlarmRegValue(GCU_ALARMS::OVERCURRENT, MB_ALARM_4, FOURTH_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::OVERLOAD, MB_ALARM_4, THIRD_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::LOAD_UNBALANCE, MB_ALARM_4, SECOND_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::EMERGENCY_STOP, MB_ALARM_4, FIRST_NIBBLE);
+
     SetReadRegisterValue(MB_ALARM_4, _u16TempAlarmVal);
 
     //Alarm 5
     _u16TempAlarmVal = 0;
-    UpdateAlarmRegValue(GCU_ALARMS::CHARG_ALT_FAIL, MB_ALARM_5, FOURTH_NIBBLE);
-    if(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FILT_MAINTENANCE].bEnableMonitoring)
-    {
-        if(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FILT_MAINTENANCE].bAlarmActive ||
-                _gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::ID_FILT_MAINTENANCE_BY_DATE].bAlarmActive)
-        {
-            if((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FILT_MAINTENANCE].bEnableWarning) ||
-                    (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::ID_FILT_MAINTENANCE_BY_DATE].bEnableWarning))
-            {
-                _u16TempAlarmVal |=  (uint16_t)(ALARM_WARNING << 8U);
-            }
-            else if((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FILT_MAINTENANCE].bEnableNotification) ||
-                    (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::ID_FILT_MAINTENANCE_BY_DATE].bEnableNotification))
-            {
-                _u16TempAlarmVal |=   (uint16_t)(ALARM_NOTIFICATION << 8);
-            }
-        }
-        else
-        {
-            _u16TempAlarmVal |=   (uint16_t)(ALARM_INACTIVE << 8);
-        }
-
-    }
-    else
-    {
-        _u16TempAlarmVal |=   (uint16_t)(ALARM_DISABLED << 8);
-    }
-#if (AUTOMATION == 1)
-    UpdateAlarmRegValue(GCU_ALARMS::J1939_MIL_LAMP, MB_ALARM_5, SECOND_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::J1939_RED_LAMP, MB_ALARM_5, FIRST_NIBBLE);
-#else
-    _u16TempAlarmVal |= 0x00FF;
-#endif
     SetReadRegisterValue(MB_ALARM_5, _u16TempAlarmVal);
 
     // Alarm 6
     _u16TempAlarmVal =0;
-    UpdateAlarmRegValue(GCU_ALARMS::VBAT_UV, MB_ALARM_6, FOURTH_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::VBAT_OV, MB_ALARM_6, THIRD_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::OPEN_ENG_TEMP_CKT, MB_ALARM_6, SECOND_NIBBLE);
-#if (AUTOMATION==1)
-    UpdateAlarmRegValue(GCU_ALARMS::J1939_ECU_PREHEAT_FAIL, MB_ALARM_6, FIRST_NIBBLE);
-#else
-    _u16TempAlarmVal |= 0x000FU;
-#endif
-
- //   UpdateAlarmRegValue(GCU_ALARMS::LOP_CURR_SENS_STB, MB_ALARM_6, FIRST_NIBBLE);
-
     SetReadRegisterValue(MB_ALARM_6, _u16TempAlarmVal);
 
     //Alarm 7
     _u16TempAlarmVal =0;
-    UpdateAlarmRegValue(GCU_ALARMS::FUEL_THEFT, MB_ALARM_7, FOURTH_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::MPU_LOSS, MB_ALARM_7, THIRD_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::LOP_RES_SENS_OPEN_CKT, MB_ALARM_7, SECOND_NIBBLE);
-#if (AUTOMATION == 1)
-    UpdateAlarmRegValue(GCU_ALARMS::SMOKE_FIRE, MB_ALARM_7, FIRST_NIBBLE);
-#else
-    _u16TempAlarmVal |= 0x000FU;
-#endif
+
 //    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_I, MB_ALARM_7, FIRST_NIBBLE);
 
     SetReadRegisterValue(MB_ALARM_7, _u16TempAlarmVal);
 
     //Alarm 8
     _u16TempAlarmVal =0;
-    UpdateAlarmRegValue(GCU_ALARMS::DIGITAL_INPUT_A, MB_ALARM_8, FOURTH_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIGITAL_INPUT_B, MB_ALARM_8, THIRD_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIGITAL_INPUT_C, MB_ALARM_8, SECOND_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIGITAL_INPUT_D, MB_ALARM_8, FIRST_NIBBLE);
+
     SetReadRegisterValue(MB_ALARM_8, _u16TempAlarmVal);
 
     //Alarm 9
     _u16TempAlarmVal =0;
-    UpdateAlarmRegValue(GCU_ALARMS::DIGITAL_INPUT_E, MB_ALARM_9, FOURTH_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_F, MB_ALARM_9, THIRD_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_G, MB_ALARM_9, SECOND_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_H, MB_ALARM_9, FIRST_NIBBLE);
+
     SetReadRegisterValue(MB_ALARM_9, _u16TempAlarmVal);
 
 
     //Alarm 10
     _u16TempAlarmVal =0;
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_I, MB_ALARM_10, FOURTH_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_J, MB_ALARM_10, THIRD_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_K, MB_ALARM_10, SECOND_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_L, MB_ALARM_10, FIRST_NIBBLE);
+
     SetReadRegisterValue(MB_ALARM_10, _u16TempAlarmVal);
 
     //Alarm 11
     _u16TempAlarmVal =0;
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_M, MB_ALARM_11, FOURTH_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_N, MB_ALARM_11, THIRD_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_O, MB_ALARM_11, SECOND_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_P, MB_ALARM_11, FIRST_NIBBLE);
+
     SetReadRegisterValue(MB_ALARM_11, _u16TempAlarmVal);
 
     // Alarm 12
     _u16TempAlarmVal =0;
-    UpdateDGVoltAlarms(MB_ALARM_12, GCU_ALARMS::GEN_R_UV_WARNING, GCU_ALARMS::GEN_R_UV_SHUTDOWN, FOURTH_NIBBLE);
-    UpdateDGVoltAlarms(MB_ALARM_12, GCU_ALARMS::GEN_R_OV_WARNING, GCU_ALARMS::GEN_R_OV_SHUTDOWN, THIRD_NIBBLE);
-    UpdateDGVoltAlarms(MB_ALARM_12, GCU_ALARMS::GEN_Y_UV_WARNING, GCU_ALARMS::GEN_Y_UV_SHUTDOWN, SECOND_NIBBLE);
-    UpdateDGVoltAlarms(MB_ALARM_12, GCU_ALARMS::GEN_Y_OV_WARNING, GCU_ALARMS::GEN_Y_OV_SHUTDOWN, FIRST_NIBBLE);
+
     SetReadRegisterValue(MB_ALARM_12, _u16TempAlarmVal);
 
     // Alarm 13
     _u16TempAlarmVal =0;
-    UpdateDGVoltAlarms(MB_ALARM_13, GCU_ALARMS::GEN_B_UV_WARNING, GCU_ALARMS::GEN_B_UV_SHUTDOWN, FOURTH_NIBBLE);
-    UpdateDGVoltAlarms(MB_ALARM_13, GCU_ALARMS::GEN_B_OV_WARNING, GCU_ALARMS::GEN_B_OV_SHUTDOWN, THIRD_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::GEN_PHASE_ROTATION, MB_ALARM_13, SECOND_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::MAINS_PHASE_ROTATION, MB_ALARM_13, FIRST_NIBBLE);
+
     SetReadRegisterValue(MB_ALARM_13, _u16TempAlarmVal);
 
     // Alarm 14
     _u16TempAlarmVal =0;
-    UpdateAlarmRegValue(GCU_ALARMS::LOW_LOAD_TRIP, MB_ALARM_14, FOURTH_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::V_BELT_BROKEN_SWITCH, MB_ALARM_14, THIRD_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::OPEN_FUEL_CKT, MB_ALARM_14, SECOND_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::HIGH_OIL_PRESSHURE, MB_ALARM_14, FIRST_NIBBLE);
+
 
 //#if (AUTOMATION==1)
 //    UpdateAlarmRegValue(GCU_ALARMS::J1939_ECU_PREHEAT_FAIL, MB_ALARM_12, SECOND_NIBBLE);
@@ -820,41 +717,17 @@ void MB_APP::prvUpdateGCUAlarms()
 
     //Alarm 15
     _u16TempAlarmVal =0;
-    prvUpdateAUXReg(GCU_ALARMS::ANLG_SENS_S4_MON_SHUTDOWN, GCU_ALARMS::ANLG_SENS_S4_MON_WARNING, FOURTH_NIBBLE);
-    prvUpdateAUXReg(GCU_ALARMS::ANLG_SENS_S3_MON_SHUTDOWN, GCU_ALARMS::ANLG_SENS_S3_MON_WARNING, THIRD_NIBBLE);
-    prvUpdateAUXReg(GCU_ALARMS::ANLG_SENS_S2_MON_SHUTDOWN, GCU_ALARMS::ANLG_SENS_S2_MON_WARNING, SECOND_NIBBLE );
-    prvUpdateAUXReg(GCU_ALARMS::ANLG_SENS_S1_MON_SHUTDOWN, GCU_ALARMS::ANLG_SENS_S1_MON_WARNING, FIRST_NIBBLE );
+
 
     SetReadRegisterValue(MB_ALARM_15, _u16TempAlarmVal);
 
     //Alarm 16
     _u16TempAlarmVal = 0;
-    UpdateAlarmRegValue(GCU_ALARMS::OPEN_ANLG_SENS_S4_CKT, MB_ALARM_16, FOURTH_NIBBLE);
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_S3_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
-    {
-        UpdateAlarmRegValue(GCU_ALARMS::LOP_CURR_OPEN_CKT, MB_ALARM_16,THIRD_NIBBLE);
-    }
-    else
-    {
-        UpdateAlarmRegValue(GCU_ALARMS::OPEN_ANLG_SENS_S3_CKT, MB_ALARM_16, THIRD_NIBBLE);
-    }
-    UpdateAlarmRegValue(GCU_ALARMS::OPEN_ANLG_SENS_S2_CKT , MB_ALARM_16, SECOND_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS:: OPEN_ANLG_SENS_S1_CKT , MB_ALARM_16, FIRST_NIBBLE);
+
     SetReadRegisterValue(MB_ALARM_16, _u16TempAlarmVal);
 
     //Alarm 17
     _u16TempAlarmVal = 0;
-    UpdateAlarmRegValue(GCU_ALARMS::STB_ANLG_SENS_S4_CKT, MB_ALARM_17,FOURTH_NIBBLE);
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_S3_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
-    {
-        UpdateAlarmRegValue(GCU_ALARMS::LOP_CURR_SENS_STB, MB_ALARM_17,THIRD_NIBBLE);
-    }
-    else
-    {
-        UpdateAlarmRegValue(GCU_ALARMS::STB_ANLG_SENS_S3_CKT, MB_ALARM_17,THIRD_NIBBLE);
-    }
-    UpdateAlarmRegValue(GCU_ALARMS::AFT_ACTIVATION_TIMEOUT, MB_ALARM_17,SECOND_NIBBLE);
-    UpdateAlarmRegValue(GCU_ALARMS::ASH_LOAD_MAINTAINANCE, MB_ALARM_17,FIRST_NIBBLE);
     SetReadRegisterValue(MB_ALARM_17, _u16TempAlarmVal);
 
 

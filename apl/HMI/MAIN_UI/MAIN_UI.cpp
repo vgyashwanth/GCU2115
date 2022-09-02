@@ -120,57 +120,10 @@ void MAIN_UI::prvExitFromConfigMode()
     }
     if(CEditableItem::IsAnyConfigValueEdited())
     {
-      _GCUAlarms.LogEvent(GCU_ALARMS::Config_Modified_id,GCU_ALARMS::ID_NONE);
+      _GCUAlarms.LogEvent(GCU_ALARMS::Config_Modified_By_User_id,GCU_ALARMS::ID_NONE);
     }
     MON_UI::eDisplayMode = DISP_MON_MODE;
     _MonUI.GoToHomeScreen();
-}
-void MAIN_UI::prvHandlePanelLockInputs(void)
-{
-    if(_GCUAlarms.IsAlarmActive(GCU_ALARMS::PANEL_LOCK))/// Panel lock input.
-    {
-        _sbKeyEventAvailable = false;
-        if(!_bPanelLockOnce)      /// Panel lock input received
-        {
-            _bPanelLockOnce = true;
-            if((_ManualMode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
-                    &&(_ManualMode.GetManualModeState() == BASE_MODES::STATE_MANUAL_GEN_OFF))
-            {
-                /// Do nothing
-            }
-            else
-            {
-                _sbKeyEventAvailable = true;
-                _sKeyEvent = STOP_KEY_SHORT_PRESS;
-            }
-        }
-    }
-    else
-    {
-        _bPanelLockOnce = false;
-    }
-
-    if(_GCUAlarms.IsAlarmActive(GCU_ALARMS::EX_AUTO_PANEL_LOCK))/// external panel lock input active.
-    {
-        _sbKeyEventAvailable = false;
-        if(!_bExternalPanelLockOnce)      /// external Panel lock input received
-        {
-
-            if((_ManualMode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE))
-            {
-                _sbKeyEventAvailable = true;
-                _sKeyEvent = AUTO_KEY_SHORT_PRESS;
-            }
-            else
-            {
-                _bExternalPanelLockOnce = true;
-            }
-        }
-    }
-    else
-    {
-        _bExternalPanelLockOnce = false;
-    }
 }
 
 bool MAIN_UI::Update()
@@ -317,7 +270,6 @@ bool MAIN_UI::Update()
         UTILS_ResetTimer(&_AutoExitTimer);
     }
 
-    prvHandlePanelLockInputs();  /// Stop and Auto Panel lock inputs handling
 
     if(_ManualMode.IsGCUStateChanged())
     {
@@ -468,7 +420,7 @@ bool MAIN_UI::Update()
                if(IS_GCU_MANUAL_MODE() ||IS_GCU_TEST_MODE())
                {
 
-                   if((!_GCUAlarms.IsAlarmActive(GCU_ALARMS::PANEL_LOCK)) && (!_GCUAlarms.IsAlarmActive(GCU_ALARMS::EX_AUTO_PANEL_LOCK)))
+                   if(1)
                    {
                        if((!_ManualMode.IsGenContactorClosed())&& (_EngMon.IsGenAvailable()))
                        {
@@ -487,7 +439,7 @@ bool MAIN_UI::Update()
            {
                if(IS_GCU_MANUAL_MODE() || IS_GCU_TEST_MODE())
                {
-                   if((_ManualMode.IsMainsContactorConfigured()) &&(!_GCUAlarms.IsAlarmActive(GCU_ALARMS::PANEL_LOCK)) && (!_GCUAlarms.IsAlarmActive(GCU_ALARMS::EX_AUTO_PANEL_LOCK)))
+                   if((_ManualMode.IsMainsContactorConfigured()))
                    {
                        if((!_ManualMode.IsMainsContactorClosed()) && (_ManualMode.GetMainsStatus() == BASE_MODES:: MAINS_HELATHY ))
                        {
@@ -735,8 +687,7 @@ void MAIN_UI::prvLEDHandling()
        }
 
        if(((_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-               || ((_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bEnableMonitoring)
-                       && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bResultInstant) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+               && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE))
        {
            _hal.ledManager.led8.TurnOn();
        }

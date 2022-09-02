@@ -108,8 +108,8 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                                 || (_bMainsPartialHealthy && (!_bGenOnDuetoBTS)&&(!_bGenOnDueToSheltTemp) &&((GetMainsHealthyPhaseCnt()==1)||(GetMainsHealthyPhaseCnt() == 2)))
                             )
                    )
-                ||(_GCUAlarms.IsBTSBattHealthy() && (!_bGenOnDuetoBTS)&&(!_GCUAlarms.IsShelterTempHigh())
-                        &&_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::SHELTER_TEMP_STOP_GEN)&&_bMainsPartialHealthy)
+                ||(_GCUAlarms.IsBTSBattHealthy() && (!_bGenOnDuetoBTS)&&(!_GCUAlarms.IsShelterTempHigh()))
+//                        &&_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::SHELTER_TEMP_STOP_GEN)&&_bMainsPartialHealthy)
            )
         {
             SetMainsPartialLEDstatus();

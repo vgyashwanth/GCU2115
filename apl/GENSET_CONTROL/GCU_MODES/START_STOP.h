@@ -202,8 +202,6 @@ public:
 
 
     bool IsIdleModeInputConfigured();
-    bool IsIdleModeContiniousOutputConfigured();
-    bool IsIdleModePulseOutputConfigured();
     void StartKeyPressed();
     void StopKeyPressed();
     static bool IsIdleModeActive();
@@ -305,8 +303,6 @@ private:
     void prvSMDInletShutoffValve();
     void prvTurnOffPreheatStartCranking();
 
-    void prvUpdateIdleMode();
-    void prvHandleKeyPressForIdleMode();
     void prvDisableStartIdle();
     void prvDisableStopIdle();
 };

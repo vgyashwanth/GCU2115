@@ -3977,6 +3977,8 @@ void UI::DigitalInputMenuVisiblity(uint16_t u16SourceIndex)
             case CFGZ::CFGZ_LOW_WATER_LVL_SWITCH:
             case CFGZ::CFGZ_BATTERY_CHARGER_FAIL:
             case CFGZ::CFGZ_SMOKE_FIRE:
+            case CFGZ::CFGZ_MODE_SELECT:
+            case CFGZ::CFGZ_AMB_TEMP_SELECT:
             {
                //Do nothing
             }
@@ -3998,8 +4000,8 @@ void UI::DigitalInputMenuVisiblity(uint16_t u16SourceIndex)
             case CFGZ::CFGZ_CLOSE_GEN_OPEN_MAINS_SWITCH:
             case CFGZ::CFGZ_CLOSE_MAINS_OPEN_GEN_SWITCH:
             case CFGZ::CFGZ_SIMULATE_MAINS:
-            case CFGZ::CFGZ_REMOTE_ALARM_MUTE:
-            case CFGZ::CFGZ_REMOTE_ALARM_ACK:
+           // case CFGZ::CFGZ_REMOTE_ALARM_MUTE:
+         //   case CFGZ::CFGZ_REMOTE_ALARM_ACK:
             {
                 menuItemsLowestLevel[u16SourceIndex + 2].isEnabled =false;
                 menuItemsLowestLevel[u16SourceIndex + 3].isEnabled =false;
@@ -4009,30 +4011,11 @@ void UI::DigitalInputMenuVisiblity(uint16_t u16SourceIndex)
             break;
 
             case CFGZ::CFGZ_REMOTE_START_STOP:
-            case CFGZ::CFGZ_STOP_PANEL_LOCK:
-            case CFGZ::CFGZ_EXT_PANEL_LOCK:
-            case CFGZ::CFGZ_GENERATOR_LOAD_INITHIBIT:
-            case CFGZ::CFGZ_MAINS_LOAD_INHIBIT:
             {
                 menuItemsLowestLevel[u16SourceIndex + 2].isEnabled =false;
                 menuItemsLowestLevel[u16SourceIndex + 3].isEnabled =false;
                // TurnOFFActionActivation(u16SourceIndex);
             }
-            break;
-
-
-//todo TBD            case CFGZ::CFGZ_SOURCE_NEUTRAL_SW_SIGNAL:
-            case CFGZ::CFGZ_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL:
-                menuItemsLowestLevel[u16SourceIndex + 2].isEnabled =false;
-                menuItemsLowestLevel[u16SourceIndex + 3].isEnabled =false;
-                menuItemsLowestLevel[u16SourceIndex + 4].isEnabled =false;
-                if(!CFGC::IsSGC120())
-                {
-                    menuItemsLowestLevel[u16SourceIndex + 1].isEnabled =false;
-                }
-                TurnOFFActionActivation(u16SourceIndex);
-
-
             break;
             default: break;
         }
@@ -4956,24 +4939,6 @@ void UI::HandleMenuVisibility(void)
         menuItemsMidLevel[ID_PREHEAT].isEnabled = false;
         ArrEditableItem[INDEX_OF_PH_TEMP_EN].value.u8Val = 0;
         ArrEditableItem[INDEX_OF_PH_TEMP_EN].tempValue.u8Val = 0;
-    }
-
-    if(!IsOutputConfigured(CFGZ::CFGZ_CLNT_TEMP_CTRL))
-    {
-        menuItemsLowestLevel[INDEX_OF_CLNT_TEMP_CTRL_EN].isEnabled =false;
-        menuItemsLowestLevel[INDEX_OF_CLNT_TEMP_CTRL].isEnabled =false;
-        menuItemsLowestLevel[INDEX_OF_CLNT_TEMP_ON_THRESH].isEnabled =false;
-        menuItemsLowestLevel[INDEX_OF_CLNT_TEMP_OFF_THRESH].isEnabled =false;
-        menuItemsMidLevel[ID_CLNT_TEMP_CONTROL].isEnabled = false;
-    }
-    else
-    {
-        menuItemsMidLevel[ID_CLNT_TEMP_CONTROL].isEnabled = (ArrEditableItem[INDEX_OF_ENG_CLNT_DIG_L_SENSOR].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-                                    ||(ArrEditableItem[INDEX_OF_COOLANT_TEMP_FROM_ECU].value.u8Val == CFGZ::CFGZ_ENABLE);
-        menuItemsLowestLevel[INDEX_OF_CLNT_TEMP_CTRL_EN].isEnabled = menuItemsMidLevel[ID_CLNT_TEMP_CONTROL].isEnabled;
-        menuItemsLowestLevel[INDEX_OF_CLNT_TEMP_CTRL].isEnabled = (menuItemsLowestLevel[INDEX_OF_CLNT_TEMP_CTRL_EN].isEnabled)&&(ArrEditableItem[INDEX_OF_CLNT_TEMP_CTRL_EN].value.u8Val == CFGZ::CFGZ_ENABLE);
-        menuItemsLowestLevel[INDEX_OF_CLNT_TEMP_ON_THRESH].isEnabled = (menuItemsLowestLevel[INDEX_OF_CLNT_TEMP_CTRL_EN].isEnabled)&&(ArrEditableItem[INDEX_OF_CLNT_TEMP_CTRL_EN].value.u8Val == CFGZ::CFGZ_ENABLE);
-        menuItemsLowestLevel[INDEX_OF_CLNT_TEMP_OFF_THRESH].isEnabled =(menuItemsLowestLevel[INDEX_OF_CLNT_TEMP_CTRL_EN].isEnabled)&&(ArrEditableItem[INDEX_OF_CLNT_TEMP_CTRL_EN].value.u8Val == CFGZ::CFGZ_ENABLE);
     }
 
 

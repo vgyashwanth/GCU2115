@@ -2124,10 +2124,6 @@ void MON_UI::prvNormalMonScreens()
                              {
                                  _Disp.printStringLeftAligned((char *)StrAutoAMF[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
                              }
-                             else if(_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::REMOTE_START_STOP))
-                             {
-                                 _Disp.printStringLeftAligned((char *)StrAutoRemoteCmd[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
-                             }
                              else
                              {
                                  _Disp.printStringLeftAligned((char *)strGCUMode[_cfgz.GetArrLanguageIndex()][ BASE_MODES::AUTO_MODE],FONT_ARIAL);

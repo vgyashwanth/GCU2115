@@ -166,11 +166,6 @@ private:
      */
     bool prvIsEnginNotInONstate(void);
 
-    /** Stop and Auto Panel lock inputs handling
-     * @param None
-     * @return None
-     */
-    void prvHandlePanelLockInputs(void);
 
     void prvExitFromConfigMode(void);
 

@@ -757,7 +757,7 @@ void BASE_MODES::AssignModechangeParameters()
                  _eOperatingMode =BTS_MODE;
                  _eBTSState = STATE_BTS_GEN_OFF_MAINS_OFF;
              }
-             else if(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_MODE_EN) == CFGZ::CFGZ_ENABLE)
+             else if(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_CYCLIC_MODE) == CFGZ::CFGZ_ENABLE)
              {
                  _eOperatingMode = BASE_MODES::CYCLIC_MODE;
                  _eCyclicState = STATE_CYCLIC_GEN_OFF_MAINS_OFF;
@@ -782,7 +782,7 @@ void BASE_MODES::AssignModechangeParameters()
                 _eOperatingMode =BTS_MODE;
                 _eBTSState = STATE_BTS_GEN_ON_LOAD;
             }
-            else if(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_MODE_EN) == CFGZ::CFGZ_ENABLE)
+            else if(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_CYCLIC_MODE) == CFGZ::CFGZ_ENABLE)
             {
                 _eOperatingMode = BASE_MODES::CYCLIC_MODE;
                 _eCyclicState = STATE_CYCLIC_GEN_ON_LOAD;
@@ -1034,12 +1034,12 @@ void BASE_MODES::InitNightModeParam()
 {
     uint16_t u16RequiredHours = 0, u16RequiredMins = 0, u16IncrementReqHours = 0;
 
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_EN) == CFGZ::CFGZ_ENABLE)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFIG_NIGHT_MODE) == CFGZ::CFGZ_ENABLE)
     {
-        _u16NightModeStartTime = _cfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_START_TIME);
+        _u16NightModeStartTime = _cfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFIG_START_TIME);
 
-        _u16NightModeDurationHrsMin = (uint16_t)(((_cfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_OFF_DURATION))/60)*100)
-                + (uint16_t)((_cfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_OFF_DURATION))%60);
+        _u16NightModeDurationHrsMin = (uint16_t)(((_cfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFIG_OFF_DURATION))/60)*100)
+                + (uint16_t)((_cfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFIG_OFF_DURATION))%60);
 
         u16RequiredMins = (_u16NightModeStartTime%100 ) + (_u16NightModeDurationHrsMin%100);
 
@@ -1070,7 +1070,7 @@ void BASE_MODES::prvUpdateNightModeRestrictStatus()
 {
       RTC::TIME_t stCurrentTime;
 
-      if(_cfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_EN) == CFGZ::CFGZ_ENABLE)
+      if(_cfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFIG_NIGHT_MODE) == CFGZ::CFGZ_ENABLE)
       {
           _hal.ObjRTC.GetTime(&stCurrentTime);
            if(_u16NightModeStopTime < _u16NightModeStartTime)

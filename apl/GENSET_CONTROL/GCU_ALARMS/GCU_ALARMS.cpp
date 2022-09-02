@@ -564,7 +564,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
     switch(u8AlarmIndex)
     {
         case LOW_OIL_PRESS_SHUTDOWN:
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                     || (_cfgz.GetCFGZ_Param(CFGZ::ID_S3_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
                     || (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)))
             {
@@ -576,7 +576,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case LOW_OIL_PRESS_WARNING:
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                     || (_cfgz.GetCFGZ_Param(CFGZ::ID_S3_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
                     || (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)))
             {
@@ -902,9 +902,9 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case LOP_RES_SENS_OPEN_CKT:
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION)== CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) && (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_FAULT_ACTION));
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION)== CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) && (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION));
             prvUpdateMonParams(u8AlarmIndex, &_u8DummyOne, true, GCU_ALARMS::Oil_Pressure_Ckt_Open_id , (uint8_t)0, 30U);
-            prvSetAlarmAction(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_FAULT_ACTION));
+            prvSetAlarmAction(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION));
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LOP_RES_OPEN_CKT];
             break;
 
@@ -1067,7 +1067,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case OIL_PRESS_DETECTED:
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                     || (_cfgz.GetCFGZ_Param(CFGZ::ID_S3_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
                     || ( _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)))
             {
@@ -1430,13 +1430,13 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
 
         case DIG_IN_J:
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_DIG_IN)
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_DIG_IN)
             {
-                prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_ACTIVATION_DLY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_ACTION), GCU_ALARMS::Auxilary_Input_J_id);
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+                prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_ACTION), GCU_ALARMS::Auxilary_Input_J_id);
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
                 {
                     ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_J];
-                    prvSetAlarmAction(DIG_IN_J, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_ACTION));
+                    prvSetAlarmAction(DIG_IN_J, _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_ACTION));
                 }
             }
             break;
@@ -2263,7 +2263,7 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
             }
         break;
         case Auxilary_Input_J_id :
-            if( _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+            if( _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_SOURCE) == CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_J].bAlarmActive;
             }
@@ -3176,7 +3176,7 @@ void GCU_ALARMS::prvUpdateOutputs()
 
     prvActDeactOutput(_u8LowFuelLevelAlarm, ACTUATOR::ACT_LOW_FUEL);
     prvActDeactOutput(_u8LowOilPressAlarm, ACTUATOR::ACT_LOW_PRES);
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION)==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
         prvActDeactOutput((ArrAlarmMonitoring[LOP_RES_SENS_OPEN_CKT].bResultInstant), ACTUATOR::ACT_OIL_CKT_OPEN);
     }
@@ -3798,7 +3798,7 @@ A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLOPSensorVal()
         stLOP.stValAndStatus.eState = ANLG_IP:: BSP_STATE_NORMAL;
         stLOP.eStatus = A_SENSE::SENSOR_READ_SUCCESS;
      }
-     else  if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+     else  if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
          stLOP = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE);
     }

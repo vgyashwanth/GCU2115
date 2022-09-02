@@ -368,7 +368,7 @@ void MB_APP::prvUpdateAnalogParams()
         u16Tmp = (uint16_t)(sensorVal.stValAndStatus.f32InstSensorVal*10);
         SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
     }
-    else if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) &&
+    else if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) &&
         (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
         (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
     {
@@ -627,7 +627,7 @@ void MB_APP::prvUpadateDIGInOut()
     //Output Diagnostic Status
     _u16TempAlarmVal =0;
     u8LocalCnt = 15;
-    for(u8Local=CFGZ::ID_DIG_OP_SOURCE_A; u8Local <=CFGZ::ID_DIG_OP_SOURCE_G; u8Local=u8Local+2)
+    for(u8Local=CFGZ::ID_OUT_A_SOURCE; u8Local <=CFGZ::ID_OUT_G_SOURCE; u8Local=u8Local+2)
     {
         if(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u8Local))
                 == ACT_Manager::ACT_LATCHED)
@@ -866,7 +866,7 @@ void MB_APP::prvUpdateGCUAlarms()
     //     u8LocalCnt--;
     // }
     // u8LocalCnt = 6;
-    // for(u8Local=CFGZ::ID_DIG_OP_SOURCE_A; u8Local <=CFGZ::ID_DIG_OP_SOURCE_F; u8Local=u8Local+2)
+    // for(u8Local=CFGZ::ID_OUT_A_SOURCE; u8Local <=CFGZ::ID_OUT_F_SOURCE; u8Local=u8Local+2)
     // {
     //     if(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u8Local))
     //             == ACT_Manager::ACT_LATCHED)

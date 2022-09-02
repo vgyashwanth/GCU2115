@@ -512,7 +512,7 @@ void ENGINE_MONITORING::prvUpdateEngineCranked()
     }
 
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_DISCON_ON_LOP_SENS_EN)  == CFGZ::CFGZ_ENABLE) &&
-            ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) || (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)==CFGZ::CFGZ_ENABLE)
+            ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) || (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)==CFGZ::CFGZ_ENABLE)
             ||((_cfgz.GetCFGZ_Param(CFGZ::ID_S4_SENS_SELECTION) == CFGZ::CFGZ_ANLG_LOP_CURR_SENSOR))) &&
             (_stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT) &&
             (_stLOP.stValAndStatus.f32InstSensorVal > _cfgz.GetCFGZ_Param(CFGZ::ID_DISCONNECT_PRESURE_THRESH)))

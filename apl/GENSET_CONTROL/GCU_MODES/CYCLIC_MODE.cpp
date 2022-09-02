@@ -57,7 +57,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
         if(_bCyclicModeGenOnStatus)
         {
             _u32CyclicOnCount++;
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_GEN_ON_TIME)*60*20) <= _u32CyclicOnCount)
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION)*60*20) <= _u32CyclicOnCount)
             {
                 _bCyclicOnTimerExpired= 1;
             }
@@ -69,7 +69,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
         if(_bCyclicModeGenOffStatus)
         {
             _u32CyclicOffCount++;
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_GEN_OFF_TIME)*60*20) <= _u32CyclicOffCount)
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60*20) <= _u32CyclicOffCount)
             {
                 _bCyclicOffTimerExpired= 1;
             }
@@ -582,11 +582,11 @@ uint32_t CYCLIC_MODE::GetCyclicModeTime(BASE_MODES::TIMER_STATE_t eTimer)
     switch(eTimer)
     {
        case BASE_MODES::CYCLIC_ON_TIMER:
-           RemainingTimeInSec = ((((_cfgz.GetCFGZ_Param(CFGZ::ID_GEN_ON_TIME)*1200) - _u32CyclicOnCount) /1200) + 1);
+           RemainingTimeInSec = ((((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION)*1200) - _u32CyclicOnCount) /1200) + 1);
            break;
 
        case BASE_MODES::CYCLIC_OFF_TIMER:
-           RemainingTimeInSec = ((((_cfgz.GetCFGZ_Param(CFGZ::ID_GEN_OFF_TIME)*1200) - _u32CyclicOffCount) /1200) + 1);
+           RemainingTimeInSec = ((((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*1200) - _u32CyclicOffCount) /1200) + 1);
            break;
 
        default:

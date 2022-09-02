@@ -24,9 +24,9 @@ CMenuItem UI::menuItemsMidLevel[NUM_OF_MENU_ITEMS_AT_MID_LEVEL];
 CMenuItem UI::menuItemsTopLevel[NUM_OF_MENU_ITEMS_AT_TOP_LEVEL];
 uint16_t u16IndexOfEditableItems=0,u16NumberofEditableItems=0;
 //NewUI
-uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] = {4,2,4,4,3,3,5,5,5,5,5,5,5,5,5,31,35,29,31,30,31,22,2,2,2,2,2,2,2,4,14,\
-                                             6,3,3,6,6,3,27,35,27,36,32,32,32,2,2,2,2,2,2,2,4,7,11,12,12,12,5,7,7,5,8,7,7,11,13,6,3,3,4,4,9,20,4,5,3,1,3,4,10,1,3,6,4,1,2};
-uint8_t SubmenusInMenus[ID_MAIN_MENU_LAST] = {6,16,7,2,5,7,7,3,6,3,10,2,4,3,2,1,1};
+uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] = {4,2,4,4,3,3,5,5,5,5,5,5,5,5,5,31,35,29,31,30,31,22,2,2,2,2,2,2,2,4,14,9,8,8,6,7,9,\
+                                             6,6,6,20,35,27,36,32,32,32,4,7,11,12,12,12,5,7,7,5,8,7,7,11,13,6,3,3,4,4,9,20,4,5,3,1,3,4,10,1,3,6,4,1,2};
+uint8_t SubmenusInMenus[ID_MAIN_MENU_LAST] = {6,16,7,2,6,3,7,3,6,3,10,2,4,3,2,1,1};
 //End
 //All editable option string screens
 enum
@@ -840,11 +840,11 @@ static const char* strMainMenu[2][ID_MAIN_MENU_LAST]
         "INPUTS",
         "OUTPUTS",
         "TIMERS",
-       // "GENERATOR",
+        "GENERATOR",
         //RushiEnd
         "MODULE",
     //    "INPUTS",
-        "OUTPUTS",
+   //     "OUTPUTS",
         "TIMERS",
         "GENERATOR",
         "MAINS",
@@ -862,11 +862,11 @@ static const char* strMainMenu[2][ID_MAIN_MENU_LAST]
      "INPUTS",
      "OUTPUTS",
      "TIMERS",
-    // "GENERATOR",
+     "GENERATOR",
      //RushiEnd
        	"MODULO",
   //     	"ENTRADAS",
-       	"SALIDAS",
+   //    	"SALIDAS",
        	"TEMPORIZADORES",
         "GENERADOR",
         "RED",
@@ -916,22 +916,22 @@ static const char* strSubMenu[2][ID_SUB_MENU_LAST]
           "ID_OUT_G",
           "ID_CRANKING_TIMER",
           "ID_GENERAL_TIMER",
-   /*       "ID_ALT_CONFIG",
+          "ID_ALT_CONFIG",
           "ID_VOLT_MONITOR",
           "ID_FREQ_MONITOR",
           "ID_CURRENT_MONITOR",
           "ID_FAN_CURR_MONITOR",
-          "ID_LOAD_MONITOR",   */
+          "ID_LOAD_MONITOR",
         //RushiEnd
         //Module
          "GENERAL",
  //        "DISPLAY",
   //       "COMMUNICATION",
   //       "SITE BAT CONFIG",
-         "CYCLIC CONFIG",
+    //     "CYCLIC CONFIG",
          "AUTO EXERCISE 1",
          "AUTO EXERCISE 2",
-         "NIGHT MODE",
+   //      "NIGHT MODE",
        //Inputs
     /*     "DIG IN A",
          "DIG IN B",
@@ -950,13 +950,13 @@ static const char* strSubMenu[2][ID_SUB_MENU_LAST]
          "AUX S3/DIG O",
          "AUX S4/DIG P",
        //Outputs
-         "OUTPUT A",
-         "OUTPUT B",
-         "OUTPUT C",
-         "OUTPUT D",
-         "OUTPUT E",
-         "OUTPUT F",
-         "OUTPUT G",
+     //    "OUTPUT A",
+     //    "OUTPUT B",
+     //    "OUTPUT C",
+    //     "OUTPUT D",
+    //     "OUTPUT E",
+    //     "OUTPUT F",
+    //     "OUTPUT G",
        //Timers
          "CRANKING TIMER",
          "START/STOP TIMER",
@@ -1042,12 +1042,12 @@ static const char* strSubMenu[2][ID_SUB_MENU_LAST]
        "ID_OUT_G",
        "ID_CRANKING_TIMER",
        "ID_GENERAL_TIMER",
-   /*    "ID_ALT_CONFIG",
+       "ID_ALT_CONFIG",
        "ID_VOLT_MONITOR",
        "ID_FREQ_MONITOR",
        "ID_CURRENT_MONITOR",
        "ID_FAN_CURR_MONITOR",
-       "ID_LOAD_MONITOR",   */
+       "ID_LOAD_MONITOR",
 
      //RushiEnd
      //Module
@@ -1055,10 +1055,10 @@ static const char* strSubMenu[2][ID_SUB_MENU_LAST]
   //   "PANTALLA",
   //   "COMUNICACION",
   //   "CONFIG BATERIA",
-     "CONFIG CICLICA",
+  //   "CONFIG CICLICA",
      "ARRAN PROGRAM 1",
      "ARRAN PROGRAM 2",
-     "MODO NOCTURNO",
+  //   "MODO NOCTURNO",
      //Inputs
   /*   "ENT DIG A",
      "ENT DIG B",
@@ -1077,13 +1077,13 @@ static const char* strSubMenu[2][ID_SUB_MENU_LAST]
      "AUX S3 RES/DIG O",
   /*   "AUX S4 RES/DIG P", */
      //Outputs
-     "SALIDA A",
-     "SALIDA B",
-     "SALIDA C",
-     "SALIDA D",
-     "SALIDA E",
-     "SALIDA F",
-     "SALIDA G",
+    // "SALIDA A",
+  //   "SALIDA B",
+   //  "SALIDA C",
+   //  "SALIDA D",
+   //  "SALIDA E",
+   //  "SALIDA F",
+  //   "SALIDA G",
      //Timers
      "TEMPO MARCHA",
      "TEMP ARRAN/PARO",
@@ -1479,7 +1479,7 @@ static const char* strLeafNode[2][SID_LEAF_NODE_STRING]
          "SID_GENERAL_TIMER_SOUNDER_ALARM_TIMER",
          "SID_GENERAL_TIMER_TEST_MODE_TIMER",
          /*Generator*/
-   /*      "SID_ALT_CONFIG_ALT_PRESENT",
+         "SID_ALT_CONFIG_ALT_PRESENT",
          "SID_ALT_CONFIG_NUMBER_OF_POLES",
          "SID_ALT_CONFIG_ALT_AC_SYSTEM",
          "SID_ALT_CONFIG_MIN_HEALTHY_VOLT",
@@ -1530,7 +1530,7 @@ static const char* strLeafNode[2][SID_LEAF_NODE_STRING]
          "SID_LOAD_MONITOR_UNBAL_LOAD_ACTION",
          "SID_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD",
          "SID_LOAD_MONITOR_UNBAL_LOAD_DELAY",
-         "SID_LOAD_MONITOR_UNBAL_LOAD_ACT_THRESH",   */
+         "SID_LOAD_MONITOR_UNBAL_LOAD_ACT_THRESH",
         //RushiEnd
         "PROFILE NAME",
         "POWER ON MODE",
@@ -2190,7 +2190,7 @@ static const char* strLeafNode[2][SID_LEAF_NODE_STRING]
       "SID_GENERAL_TIMER_SOUNDER_ALARM_TIMER",
       "SID_GENERAL_TIMER_TEST_MODE_TIMER",
       /*Generator*/
-  /*    "SID_ALT_CONFIG_ALT_PRESENT",
+      "SID_ALT_CONFIG_ALT_PRESENT",
       "SID_ALT_CONFIG_NUMBER_OF_POLES",
       "SID_ALT_CONFIG_ALT_AC_SYSTEM",
       "SID_ALT_CONFIG_MIN_HEALTHY_VOLT",
@@ -2241,7 +2241,7 @@ static const char* strLeafNode[2][SID_LEAF_NODE_STRING]
       "SID_LOAD_MONITOR_UNBAL_LOAD_ACTION",
       "SID_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD",
       "SID_LOAD_MONITOR_UNBAL_LOAD_DELAY",
-      "SID_LOAD_MONITOR_UNBAL_LOAD_ACT_THRESH",   */
+      "SID_LOAD_MONITOR_UNBAL_LOAD_ACT_THRESH",
      //RushiEnd
      "PERFIL",
      "MODO ENCENDIDO",
@@ -2942,7 +2942,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_GENERAL_TIMER_SOUNDER_ALARM_TIMER] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SOUNDER_ALARM_TIMER),strLeafNode[_u8LanguageArrayIndex][SID_GENERAL_TIMER_SOUNDER_ALARM_TIMER], arrUnit[ID_SEC], "%u", (uint16_t)1, (uint16_t)300, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_GENERAL_TIMER_TEST_MODE_TIMER] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_TEST_MODE_TIMER),strLeafNode[_u8LanguageArrayIndex][SID_GENERAL_TIMER_TEST_MODE_TIMER], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)720, CEditableItem::PIN1_ALLOWED );
 
- /*   ArrEditableItem[INDEX_OF_ALT_CONFIG_ALT_PRESENT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT),strLeafNode[_u8LanguageArrayIndex][SID_ALT_CONFIG_ALT_PRESENT], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO], 2, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_ALT_CONFIG_ALT_PRESENT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT),strLeafNode[_u8LanguageArrayIndex][SID_ALT_CONFIG_ALT_PRESENT], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO], 2, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_ALT_CONFIG_NUMBER_OF_POLES] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_NUMBER_OF_POLES),strLeafNode[_u8LanguageArrayIndex][SID_ALT_CONFIG_NUMBER_OF_POLES], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ALT_POLES], 4, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_ALT_CONFIG_ALT_AC_SYSTEM] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM),strLeafNode[_u8LanguageArrayIndex][SID_ALT_CONFIG_ALT_AC_SYSTEM], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_NO_OF_PHASES], 3, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_ALT_CONFIG_MIN_HEALTHY_VOLT] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_VOLT), strLeafNode[_u8LanguageArrayIndex][SID_ALT_CONFIG_MIN_HEALTHY_VOLT], arrUnit[ID_V_PH_N], "%f", (uint16_t)50, (uint16_t)350, CEditableItem::PIN1_ALLOWED );
@@ -2994,7 +2994,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD),strLeafNode[_u8LanguageArrayIndex][SID_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD], arrUnit[ID_PERCENT], "%u", (uint16_t)5, (uint16_t)200, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_DELAY] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_LOAD_MONITOR_UNBAL_LOAD_DELAY], arrUnit[ID_SEC], "%u", (float)1, (float)600,(float)0.1, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_ACT_THRESH] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_ACT_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_LOAD_MONITOR_UNBAL_LOAD_ACT_THRESH], arrUnit[ID_PERCENT], "%u", (uint16_t)5, (uint16_t)200, CEditableItem::PIN1_PIN2_ALLOWED );
-*/
+
     //RushiEnd
     ArrEditableItem[INDEX_OF_POWER_ON_MODE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_POWER_ON_MODE), strLeafNode[_u8LanguageArrayIndex][SID_POWER_ON_MODE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_MANUAL_AUTO], 2  , CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_POWER_ON_LAMP_TEST] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_POWER_ON_LAMP_TEST_EN),strLeafNode[_u8LanguageArrayIndex][SID_POWER_ON_LAMP_TEST], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
@@ -3016,9 +3016,9 @@ void UI::InitEditableItems()
  //   ArrEditableItem[INDEX_OF_BTS_CONFIG_LOW_BATT_MON_DELAY] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_LOW_BATT_MON_DELAY),strLeafNode[_u8LanguageArrayIndex][SID_BTS_LOW_BATT_MON_DELAY], arrUnit[ID_SEC], "%u", (uint16_t)5, (uint16_t)300, CEditableItem::PIN1_PIN2_ALLOWED );
  //   ArrEditableItem[INDEX_OF_BTS_CONFIG_DG_RUN_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_DG_RUN_DURATION),strLeafNode[_u8LanguageArrayIndex][SID_BTS_GEN_RUN_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)720, CEditableItem::PIN1_PIN2_ALLOWED );
 
-    ArrEditableItem[INDEX_OF_CYCLIC_MODE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_MODE_EN),strLeafNode[_u8LanguageArrayIndex][SID_CYCLIC_MODE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO], 2, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_CYCLIC_GEN_OFF_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_GEN_OFF_TIME),strLeafNode[_u8LanguageArrayIndex][SID_CYCLIC_GEN_OFF_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)720, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_CYCLIC_GEN_ON_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_GEN_ON_TIME),strLeafNode[_u8LanguageArrayIndex][SID_CYCLIC_GEN_ON_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)720, CEditableItem::PIN1_PIN2_ALLOWED );
+ //   ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_CYCLIC_MODE),strLeafNode[_u8LanguageArrayIndex][SID_CYCLIC_MODE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+//    ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_DG_OFF_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION),strLeafNode[_u8LanguageArrayIndex][SID_CYCLIC_GEN_OFF_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)720, CEditableItem::PIN1_PIN2_ALLOWED );
+//    ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_DG_ON_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION),strLeafNode[_u8LanguageArrayIndex][SID_CYCLIC_GEN_ON_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)720, CEditableItem::PIN1_PIN2_ALLOWED );
 
     ArrEditableItem[INDEX_OF_EXERCISER_EVENT_1] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_1_EN), strLeafNode[_u8LanguageArrayIndex][SID_EVENT_1], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_EXERCISER_EVENT_OCCURENCE_1] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_1_OCCURENCE), strLeafNode[_u8LanguageArrayIndex][SID_EVENT_OCCURANCE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_EVENT_OCCURENCE], 3, CEditableItem::PIN1_PIN2_ALLOWED );
@@ -3034,9 +3034,9 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_EXERCISER_DG_ON_DURATION_2] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_2_ON_DURATION), strLeafNode[_u8LanguageArrayIndex][SID_EVENT_GEN_ON_DURATION], arrUnit[ID_HRS], "%u", (uint16_t)1, (uint16_t)9959,true, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_EXERCISER_LOAD_TRANSFER_2] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_2_LOAD_TRANSFER), strLeafNode[_u8LanguageArrayIndex][SID_LOAD_TRANSFER], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
 
-    ArrEditableItem[INDEX_OF_NIGHT_MODE_RESTRICT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_EN),strLeafNode[_u8LanguageArrayIndex][SID_NIGHT_MODE_RESTRICT], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_NIGHT_START_TIME] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_START_TIME),strLeafNode[_u8LanguageArrayIndex][SID_START_TIME],arrUnit[ID_HRS], "%u", (uint16_t)0, (uint16_t)2359,true, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_NIGHT_GEN_OFF_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_OFF_DURATION),strLeafNode[_u8LanguageArrayIndex][SID_NIGHT_GEN_OFF_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)1440, CEditableItem::PIN1_PIN2_ALLOWED );
+  //  ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFIG_NIGHT_MODE),strLeafNode[_u8LanguageArrayIndex][SID_NIGHT_MODE_RESTRICT], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+  //  ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_START_TIME] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFIG_START_TIME),strLeafNode[_u8LanguageArrayIndex][SID_START_TIME],arrUnit[ID_HRS], "%u", (uint16_t)0, (uint16_t)2359,true, CEditableItem::PIN1_PIN2_ALLOWED );
+ //   ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_OFF_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFIG_OFF_DURATION),strLeafNode[_u8LanguageArrayIndex][SID_NIGHT_GEN_OFF_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)1440, CEditableItem::PIN1_PIN2_ALLOWED );
 
   /*  ArrEditableItem[INDEX_OF_DIG_IN_A_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s",  strInputSources[_u8LanguageArrayIndex], 27, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_DIG_IN_A_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_POLARITY),strLeafNode[_u8LanguageArrayIndex][SID_POLARITY], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
@@ -3092,13 +3092,13 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_DIG_IN_I_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_I_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_DIG_IN_I_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_I_ACTIVATION_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_ACTIVATION_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)0, (uint8_t)60, CEditableItem::PIN1_PIN2_ALLOWED );
 */
-    ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_SELECTION), strLeafNode[_u8LanguageArrayIndex][SID_SENSOR_SELECTION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_LOP_DIG_J_SENS_SEL], 3, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_J_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_SOURCE), strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s",  strInputSources[_u8LanguageArrayIndex], 27, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_J_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_POLARITY), strLeafNode[_u8LanguageArrayIndex][SID_POLARITY], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_J_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_ACTION), strLeafNode[_u8LanguageArrayIndex][SID_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTION], 5, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_J_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_ACTIVATION), strLeafNode[_u8LanguageArrayIndex][SID_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_J_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_INPUTJ_ACTIVATION_DLY), strLeafNode[_u8LanguageArrayIndex][SID_ACTIVATION_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)0, (uint8_t)60, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_LOP_CKT_FAULT_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_SENS_FAULT_ACTION), strLeafNode[_u8LanguageArrayIndex][SID_CKT_FAULT_ACTION],"", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTION], 5, CEditableItem::PIN1_PIN2_ALLOWED );
+ //   ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION), strLeafNode[_u8LanguageArrayIndex][SID_SENSOR_SELECTION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_LOP_DIG_J_SENS_SEL], 3, CEditableItem::PIN1_PIN2_ALLOWED );
+ //   ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_SOURCE), strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s",  strInputSources[_u8LanguageArrayIndex], 27, CEditableItem::PIN1_PIN2_ALLOWED );
+ //   ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_POLARITY), strLeafNode[_u8LanguageArrayIndex][SID_POLARITY], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+ //   ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_ACTION), strLeafNode[_u8LanguageArrayIndex][SID_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTION], 5, CEditableItem::PIN1_PIN2_ALLOWED );
+//    ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_ACTIVATION), strLeafNode[_u8LanguageArrayIndex][SID_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::PIN1_PIN2_ALLOWED );
+//    ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_ACTIVATION_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)0, (uint8_t)60, CEditableItem::PIN1_PIN2_ALLOWED );
+ //   ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION), strLeafNode[_u8LanguageArrayIndex][SID_CKT_FAULT_ACTION],"", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTION], 5, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_SENS_R1] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_CALIB_R1), strLeafNode[_u8LanguageArrayIndex][SID_R1], arrUnit[ID_OHM], "%f", (uint16_t)0, (uint16_t)5000.0, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_SENS_V1] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_CALIB_V1), strLeafNode[_u8LanguageArrayIndex][SID_V1], "Bar", "%f", (float)0, (float)10.0, (float)0.1, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_SENS_R2] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_CALIB_R2), strLeafNode[_u8LanguageArrayIndex][SID_R2], arrUnit[ID_OHM], "%f", (uint16_t)0, (uint16_t)5000.0, CEditableItem::PIN1_ALLOWED );
@@ -3395,26 +3395,26 @@ void UI::InitEditableItems()
         ArrEditableItem[INDEX_OF_AUX_S4_SENS_I10_V10] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_S4_CALIB_I10), strLeafNode[_u8LanguageArrayIndex][SID_I10_V10], "",  "%f", (uint8_t)4, (uint8_t)20,  CEditableItem::PIN1_ALLOWED );
         ArrEditableItem[INDEX_OF_AUX_S4_SENS_VAL10] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_S4_CALIB_V10), strLeafNode[_u8LanguageArrayIndex][SID_VAL10], "",  "%f", (float)0, (float)1000.0, (float)0.1, CEditableItem::PIN1_ALLOWED );
         }
-    ArrEditableItem[INDEX_OF_DIG_OUT_A_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_SOURCE_A),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_OUT_A_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_ACTIVATION_A),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+  /*  ArrEditableItem[INDEX_OF_OUT_A_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_A_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_A_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_A_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
 
-    ArrEditableItem[INDEX_OF_DIG_OUT_B_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_SOURCE_B),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_OUT_B_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_ACTIVATION_B),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_B_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_B_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_B_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_B_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
 
-    ArrEditableItem[INDEX_OF_DIG_OUT_C_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_SOURCE_C),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_OUT_C_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_ACTIVATION_C),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_C_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_C_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_C_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_C_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
 
-    ArrEditableItem[INDEX_OF_DIG_OUT_D_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_SOURCE_D),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_OUT_D_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_ACTIVATION_D),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_D_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_D_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_D_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_D_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
 
-    ArrEditableItem[INDEX_OF_DIG_OUT_E_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_SOURCE_E),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_OUT_E_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_ACTIVATION_E),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_E_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_E_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_E_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_E_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
 
-    ArrEditableItem[INDEX_OF_DIG_OUT_F_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_SOURCE_F),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_OUT_F_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_ACTIVATION_F),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_OUT_G_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_SOURCE_G),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_OUT_G_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_OP_ACTIVATION_G),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
-
+    ArrEditableItem[INDEX_OF_OUT_F_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_F_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_F_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_F_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_G_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_G_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], 84, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_G_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_G_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+*/
     ArrEditableItem[INDEX_OF_TMR_OF_CRANKING] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CRANK_HOLD_TIME), strLeafNode[_u8LanguageArrayIndex][SID_CRANK_HOLD_TIME], arrUnit[ID_SEC], "%u", (uint16_t)1, (uint16_t)15, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_TMR_OF_CRANK_REST] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CRANK_REST_TIME), strLeafNode[_u8LanguageArrayIndex][SID_CRANK_REST_TIME], arrUnit[ID_SEC], "%u", (uint16_t)2, (uint16_t)60, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_TMR_OF_MANUAL_START] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MANUAL_CRANK_START_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_MANUAL_START_DELAY], arrUnit[ID_SEC], "%u", (uint16_t)0, (uint16_t)300, CEditableItem::PIN1_ALLOWED );
@@ -4083,14 +4083,14 @@ void UI::SaveConfigFile()
 //RushiEnd*/
             AllParam.u16ArrParam[CFGZ::ID_BTS_CONFIG_LOW_BATT_MON_DELAY] = (uint16_t)ArrEditableItem[INDEX_OF_BTS_CONFIG_LOW_BATT_MON_DELAY].value.u16Val;
             AllParam.u16ArrParam[CFGZ::ID_BTS_CONFIG_DG_RUN_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_BTS_CONFIG_DG_RUN_DURATION].value.u16Val;
-            AllParam.u16ArrParam[CFGZ::ID_GEN_OFF_TIME] = (uint16_t)ArrEditableItem[INDEX_OF_CYCLIC_GEN_OFF_DURATION].value.u16Val;
-            AllParam.u16ArrParam[CFGZ::ID_GEN_ON_TIME] = (uint16_t)ArrEditableItem[INDEX_OF_CYCLIC_GEN_ON_DURATION].value.u16Val;
+            AllParam.u16ArrParam[CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_DG_OFF_DURATION].value.u16Val;
+            AllParam.u16ArrParam[CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_DG_ON_DURATION].value.u16Val;
             AllParam.u16ArrParam[CFGZ::ID_EXERCISE_1_START_TIME] = (uint16_t)ArrEditableItem[INDEX_OF_EXERCISER_START_TIME_1].value.u16Val;
             AllParam.u16ArrParam[CFGZ::ID_EXERCISE_1_ON_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_EXERCISER_DG_ON_DURATION_1].value.u16Val;
             AllParam.u16ArrParam[CFGZ::ID_EXERCISE_2_START_TIME] = (uint16_t)ArrEditableItem[INDEX_OF_EXERCISER_START_TIME_2].value.u16Val;
             AllParam.u16ArrParam[CFGZ::ID_EXERCISE_2_ON_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_EXERCISER_DG_ON_DURATION_2].value.u16Val;
-            AllParam.u16ArrParam[CFGZ::ID_NIGHT_START_TIME] = (uint16_t)ArrEditableItem[INDEX_OF_NIGHT_START_TIME].value.u16Val;
-            AllParam.u16ArrParam[CFGZ::ID_NIGHT_OFF_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_NIGHT_GEN_OFF_DURATION].value.u16Val;
+            AllParam.u16ArrParam[CFGZ::ID_NIGHT_MODE_CONFIG_START_TIME] = (uint16_t)ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_START_TIME].value.u16Val;
+            AllParam.u16ArrParam[CFGZ::ID_NIGHT_MODE_CONFIG_OFF_DURATION] = (uint16_t)ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_OFF_DURATION].value.u16Val;
             AllParam.u16ArrParam[CFGZ::ID_FUEL_TANK_CAPACITY] = (uint16_t)ArrEditableItem[INDEX_OF_FUEL_TANK_CAPACITY].value.u16Val;
             AllParam.u16ArrParam[CFGZ::ID_SHELT_TEMP_THRESH] = (uint16_t)ArrEditableItem[INDEX_OF_SHELT_TEMP_THRESHOLD].value.u16Val;
             AllParam.u16ArrParam[CFGZ::ID_SHELT_TEMP_HYST] = (uint16_t)ArrEditableItem[INDEX_OF_SHELT_TEMP_HYSTERISIS].value.u16Val;
@@ -4232,7 +4232,7 @@ void UI::SaveConfigFile()
   //          AllParam.u8ArrParam[CFGZ::ID_MODBUS_COMM_MODBUS_BAUDRATE] = (uint8_t)ArrEditableItem[INDEX_OF_MODBUS_BAUDRATE].value.u8Val;
   //          AllParam.u8ArrParam[CFGZ::ID_MODBUS_COMM_PARITY] = (uint8_t)ArrEditableItem[INDEX_OF_MODBUS_PARITYBIT].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_BTS_CONFIG_BATTERY_MON] = (uint8_t)ArrEditableItem[INDEX_OF_BTS_CONFIG_BATTERY_MON].value.u8Val;
-            AllParam.u8ArrParam[CFGZ::ID_CYCLIC_MODE_EN] = (uint8_t)ArrEditableItem[INDEX_OF_CYCLIC_MODE].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_CYCLIC_CONFIG_CYCLIC_MODE] = (uint8_t)ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_EXERCISE_1_EN] = (uint8_t)ArrEditableItem[INDEX_OF_EXERCISER_EVENT_1].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_EXERCISE_1_OCCURENCE] = (uint8_t)ArrEditableItem[INDEX_OF_EXERCISER_EVENT_OCCURENCE_1].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_EXERCISE_1_START_DAY] = (uint8_t)ArrEditableItem[INDEX_OF_EXERCISER_EVENT_DAY_1].value.u8Val;
@@ -4241,7 +4241,7 @@ void UI::SaveConfigFile()
             AllParam.u8ArrParam[CFGZ::ID_EXERCISE_2_OCCURENCE] = (uint8_t)ArrEditableItem[INDEX_OF_EXERCISER_EVENT_OCCURENCE_2].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_EXERCISE_2_START_DAY] = (uint8_t)ArrEditableItem[INDEX_OF_EXERCISER_EVENT_DAY_2].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_EXERCISE_2_LOAD_TRANSFER] = (uint8_t)ArrEditableItem[INDEX_OF_EXERCISER_LOAD_TRANSFER_2].value.u8Val;
-            AllParam.u8ArrParam[CFGZ::ID_NIGHT_MODE_EN] = (uint8_t)ArrEditableItem[INDEX_OF_NIGHT_MODE_RESTRICT].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_NIGHT_MODE_CONFIG_NIGHT_MODE] = (uint8_t)ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE].value.u8Val;
 
    /*         for(int i = CFGZ::ID_DIG_IN_A_SOURCE, j = INDEX_OF_DIG_IN_A_SOURCE; i <= CFGZ::ID_DIG_IN_I_ACTIVATION_DELAY;i++ ,j++)
             {
@@ -4249,13 +4249,13 @@ void UI::SaveConfigFile()
 
             }
 */
-            AllParam.u8ArrParam[CFGZ::ID_LOP_SENS_SELECTION] = (uint8_t)ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].value.u8Val;
-            AllParam.u8ArrParam[CFGZ::ID_DIG_INPUTJ_SOURCE] = (uint8_t)ArrEditableItem[INDEX_OF_DIG_IN_J_SOURCE].value.u8Val;
-            AllParam.u8ArrParam[CFGZ::ID_DIG_INPUTJ_POLARITY] = (uint8_t)ArrEditableItem[INDEX_OF_DIG_IN_J_POLARITY].value.u8Val;
-            AllParam.u8ArrParam[CFGZ::ID_DIG_INPUTJ_ACTION] = (uint8_t)ArrEditableItem[INDEX_OF_DIG_IN_J_ACTION].value.u8Val;
-            AllParam.u8ArrParam[CFGZ::ID_DIG_INPUTJ_ACTIVATION] = (uint8_t)ArrEditableItem[INDEX_OF_DIG_IN_J_ACTIVATION].value.u8Val;
-            AllParam.u8ArrParam[CFGZ::ID_DIG_INPUTJ_ACTIVATION_DLY] = (uint8_t)ArrEditableItem[INDEX_OF_DIG_IN_J_DELAY].value.u8Val;
-            AllParam.u8ArrParam[CFGZ::ID_LOP_SENS_FAULT_ACTION] = (uint8_t)ArrEditableItem[INDEX_OF_LOP_CKT_FAULT_ACTION].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION] = (uint8_t)ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_LOP_RES_DIG_J_DIG_SOURCE] = (uint8_t)ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_LOP_RES_DIG_J_DIG_POLARITY] = (uint8_t)ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_POLARITY].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_LOP_RES_DIG_J_DIG_ACTION] = (uint8_t)ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_ACTION].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_LOP_RES_DIG_J_DIG_ACTIVATION] = (uint8_t)ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY] = (uint8_t)ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY].value.u8Val;
+            AllParam.u8ArrParam[CFGZ::ID_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION] = (uint8_t)ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_FUEL_SENS_SELECTION] = (uint8_t)ArrEditableItem[INDEX_OF_FUEL_DIG_K_SENSOR].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_DIG_INPUTK_SOURCE] = (uint8_t)ArrEditableItem[INDEX_OF_DIG_IN_K_SOURCE].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_DIG_INPUTK_POLARITY] = (uint8_t)ArrEditableItem[INDEX_OF_DIG_IN_K_POLARITY].value.u8Val;
@@ -4318,7 +4318,7 @@ void UI::SaveConfigFile()
             AllParam.u8ArrParam[CFGZ::ID_S4_WARN_EN] = (uint8_t)ArrEditableItem[INDEX_OF_AUX_S4_WARNING_EN].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_S4_SENS_FAULT_ACTION] = (uint8_t)ArrEditableItem[INDEX_OF_AUX_S4_CKT_FAULT_ACTION].value.u8Val;
 
-            for(int i =CFGZ::ID_DIG_OP_SOURCE_A , j=INDEX_OF_DIG_OUT_A_SOURCE ;i <=CFGZ::ID_DIG_OP_ACTIVATION_G;i++,j++)
+            for(int i =CFGZ::ID_OUT_A_SOURCE , j=INDEX_OF_OUT_A_SOURCE ;i <=CFGZ::ID_OUT_G_ON_ACTIVATION;i++,j++)
             {
                 AllParam.u8ArrParam[i] = (uint8_t)ArrEditableItem[j].value.u8Val;
 
@@ -4674,7 +4674,7 @@ void UI::TurnOFFActionActivation(uint16_t u16Index)
 }
 bool UI::IsOutputConfigured(uint8_t u8Source)
 {
-    for(uint16_t i = INDEX_OF_DIG_OUT_A_SOURCE ; i<=INDEX_OF_DIG_OUT_G_SOURCE; i = i+2)
+    for(uint16_t i = INDEX_OF_OUT_A_SOURCE ; i<=INDEX_OF_OUT_G_SOURCE; i = i+2)
     {
         if(ArrEditableItem[i].value.u8Val == u8Source)
         {
@@ -4734,8 +4734,8 @@ void UI::HandleMenuVisibility(void)
     bEn_Ds  = (ArrEditableItem[INDEX_OF_BTS_CONFIG_BATTERY_MON].value.u8Val ==  CFGZ::CFGZ_ENABLE );
     LowestLevelMenuEnDis(INDEX_OF_BTS_CONFIG_LOW_BATT_THRESHOLD,INDEX_OF_BTS_CONFIG_DG_RUN_DURATION,bEn_Ds);
 
-    bEn_Ds  = (ArrEditableItem[INDEX_OF_CYCLIC_MODE].value.u8Val ==  CFGZ::CFGZ_ENABLE );
-    LowestLevelMenuEnDis(INDEX_OF_CYCLIC_GEN_OFF_DURATION,INDEX_OF_CYCLIC_GEN_ON_DURATION,bEn_Ds);
+    bEn_Ds  = (ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE].value.u8Val ==  CFGZ::CFGZ_ENABLE );
+    LowestLevelMenuEnDis(INDEX_OF_CYCLIC_CONFIG_DG_OFF_DURATION,INDEX_OF_CYCLIC_CONFIG_DG_ON_DURATION,bEn_Ds);
 
     bEn_Ds  = (ArrEditableItem[INDEX_OF_EXERCISER_EVENT_1].value.u8Val ==  CFGZ::CFGZ_ENABLE );
     LowestLevelMenuEnDis(INDEX_OF_EXERCISER_EVENT_OCCURENCE_1,INDEX_OF_EXERCISER_LOAD_TRANSFER_1,bEn_Ds);
@@ -4825,8 +4825,8 @@ void UI::HandleMenuVisibility(void)
     }
     previousEvent2Occr = ArrEditableItem[INDEX_OF_EXERCISER_EVENT_OCCURENCE_2].value.u8Val;
 
-    bEn_Ds  = (ArrEditableItem[INDEX_OF_NIGHT_MODE_RESTRICT].value.u8Val ==  CFGZ::CFGZ_ENABLE );
-    LowestLevelMenuEnDis(INDEX_OF_NIGHT_START_TIME,INDEX_OF_NIGHT_GEN_OFF_DURATION,bEn_Ds);
+    bEn_Ds  = (ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE].value.u8Val ==  CFGZ::CFGZ_ENABLE );
+    LowestLevelMenuEnDis(INDEX_OF_NIGHT_MODE_CONFIG_START_TIME,INDEX_OF_NIGHT_MODE_CONFIG_OFF_DURATION,bEn_Ds);
 
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_A_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_B_SOURCE);
@@ -4963,21 +4963,21 @@ void UI::HandleMenuVisibility(void)
     }
     PrevEngineType = ArrEditableItem[INDEX_OF_ENGINE_TYPE].value.u8Val;
 
-    if(ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
+    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
     {
-        LowestLevelMenuEnDis(INDEX_OF_DIG_IN_J_SOURCE,INDEX_OF_LOP_SENS_V10,false);
+        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE,INDEX_OF_LOP_SENS_V10,false);
     }
-    else if(ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN)
+    else if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN)
     {
-        LowestLevelMenuEnDis(INDEX_OF_LOP_CKT_FAULT_ACTION,INDEX_OF_LOP_SENS_V10,false);
-        menuItemsLowestLevel[INDEX_OF_DIG_IN_J_SOURCE     ].isEnabled = true;
-        bEn_Ds = (ArrEditableItem[INDEX_OF_DIG_IN_J_SOURCE].value.u8Val!=CFGZ::CFGZ_SENSOR_NOT_USED);
-        LowestLevelMenuEnDis(INDEX_OF_DIG_IN_J_POLARITY,INDEX_OF_DIG_IN_J_DELAY,bEn_Ds);
+        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION,INDEX_OF_LOP_SENS_V10,false);
+        menuItemsLowestLevel[INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE     ].isEnabled = true;
+        bEn_Ds = (ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE].value.u8Val!=CFGZ::CFGZ_SENSOR_NOT_USED);
+        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_DIG_POLARITY,INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY,bEn_Ds);
     }
     else
     {
-        LowestLevelMenuEnDis(INDEX_OF_LOP_CKT_FAULT_ACTION,INDEX_OF_LOP_SENS_V10,true);
-        LowestLevelMenuEnDis(INDEX_OF_DIG_IN_J_SOURCE,INDEX_OF_DIG_IN_J_DELAY, false);
+        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION,INDEX_OF_LOP_SENS_V10,true);
+        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE,INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY, false);
     }
 
     if(ArrEditableItem[INDEX_OF_FUEL_DIG_K_SENSOR].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
@@ -5236,7 +5236,7 @@ void UI::HandleMenuVisibility(void)
         }
     }
 
-    ResetDigitalInputSource(INDEX_OF_LOP_DIG_J_SENSOR);
+    ResetDigitalInputSource(INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION);
     ResetDigitalInputSource(INDEX_OF_FUEL_DIG_K_SENSOR);
     ResetDigitalInputSource(INDEX_OF_ENG_CLNT_DIG_L_SENSOR);
     ResetDigitalInputSource(INDEX_OF_AUX_S1_DIG_M_SENSOR);
@@ -5245,17 +5245,17 @@ void UI::HandleMenuVisibility(void)
     ResetDigitalInputSource(INDEX_OF_AUX_S4_DIG_P_SENSOR);
 
     //Digital O/P
-    for(uint16_t i = INDEX_OF_DIG_OUT_A_SOURCE;i<=INDEX_OF_DIG_OUT_G_SOURCE;i=i+2)
+    for(uint16_t i = INDEX_OF_OUT_A_SOURCE;i<=INDEX_OF_OUT_G_SOURCE;i=i+2)
     {
         DigitalOutputMenuVisiblity(i);
     }
-//    DigitalOutputMenuVisiblity(INDEX_OF_DIG_OUT_A_SOURCE);
-//    DigitalOutputMenuVisiblity(INDEX_OF_DIG_OUT_B_SOURCE);
-//    DigitalOutputMenuVisiblity(INDEX_OF_DIG_OUT_C_SOURCE);
-//    DigitalOutputMenuVisiblity(INDEX_OF_DIG_OUT_D_SOURCE);
-//    DigitalOutputMenuVisiblity(INDEX_OF_DIG_OUT_E_SOURCE);
-//    DigitalOutputMenuVisiblity(INDEX_OF_DIG_OUT_F_SOURCE);
-//    DigitalOutputMenuVisiblity(INDEX_OF_DIG_OUT_G_SOURCE);
+//    DigitalOutputMenuVisiblity(INDEX_OF_OUT_A_SOURCE);
+//    DigitalOutputMenuVisiblity(INDEX_OF_OUT_B_SOURCE);
+//    DigitalOutputMenuVisiblity(INDEX_OF_OUT_C_SOURCE);
+//    DigitalOutputMenuVisiblity(INDEX_OF_OUT_D_SOURCE);
+//    DigitalOutputMenuVisiblity(INDEX_OF_OUT_E_SOURCE);
+//    DigitalOutputMenuVisiblity(INDEX_OF_OUT_F_SOURCE);
+//    DigitalOutputMenuVisiblity(INDEX_OF_OUT_G_SOURCE);
 
     //Generator
     if(ArrEditableItem[INDEX_OF_ALT_PRESENT].value.u8Val == CFGZ::CFGZ_DISABLE)
@@ -5602,12 +5602,12 @@ void UI::HandleMenuVisibility(void)
 
     if(ArrEditableItem[INDEX_OF_LOP_FROM_ECU].value.u8Val)
     {
-        ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].numOfStringFixedOptions = 2;
+        ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].numOfStringFixedOptions = 2;
         ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR].numOfStringFixedOptions = 4;
-        if(ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].value.u32Val == CFGZ:: CFGZ_ANLG_CUSTOM_SENSOR1)
+        if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u32Val == CFGZ:: CFGZ_ANLG_CUSTOM_SENSOR1)
         {
-            ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].value.u32Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
-            ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].tempValue.u32Val =  CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+            ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u32Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+            ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].tempValue.u32Val =  CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
         }
         if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR].value.u32Val ==CFGZ:: CFGZ_ANLG_CUSTOM_SENSOR3)
         {
@@ -5617,12 +5617,12 @@ void UI::HandleMenuVisibility(void)
     }
     else
     {
-        ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].numOfStringFixedOptions = 3;
+        ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].numOfStringFixedOptions = 3;
         ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR].numOfStringFixedOptions = 5;
     }
 
 
-    menuItemsMidLevel[ID_LOP].isEnabled = ((ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    menuItemsMidLevel[ID_LOP].isEnabled = ((ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                         ||(ArrEditableItem[INDEX_OF_LOP_FROM_ECU].value.u8Val == CFGZ::CFGZ_ENABLE) || (ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3) );
 
     menuItemsLowestLevel[INDEX_OF_LOP_SHUTDOWN_EN].isEnabled = menuItemsMidLevel[ID_LOP].isEnabled;
@@ -6061,10 +6061,10 @@ void UI::InitialiseCustomSensor()
         }
     }
     //If LOP resistive is selected then disable the 4-20mA sensor if it is selected as LOP.
-    if(ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].value.u8Val != ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].tempValue.u8Val)
+    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val != ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].tempValue.u8Val)
     {
         if((ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR].value.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
-                &&(ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].tempValue.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
+                &&(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].tempValue.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
         {
             ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR].value.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
             ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR].tempValue.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
@@ -6073,11 +6073,11 @@ void UI::InitialiseCustomSensor()
     //If LOP resistive is selected then disable the 4-20mA sensor if it is selected as LOP.
     if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR].value.u8Val != ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR].tempValue.u8Val)
     {
-        if((ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].value.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+        if((ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                 &&(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR].tempValue.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3))
         {
-            ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].value.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
-            ArrEditableItem[INDEX_OF_LOP_DIG_J_SENSOR].tempValue.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+            ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+            ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].tempValue.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
         }
     }
 

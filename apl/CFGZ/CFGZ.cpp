@@ -260,11 +260,11 @@ void CFGZ::prvConfigureDSENSE()
                                         (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_I_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_J].eType                     =
-                                        prvGetDigitalSensor(ID_DIG_INPUTJ_SOURCE, D_SENSE::DI_J);
+                                        prvGetDigitalSensor(ID_LOP_RES_DIG_J_DIG_SOURCE, D_SENSE::DI_J);
     cfg.stDIConfig[D_SENSE::DI_J].eActivationPolarity       =
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTJ_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_LOP_RES_DIG_J_DIG_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_J].u16ActivationDelaySeconds =
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTJ_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY];
 
 
     cfg.stDIConfig[D_SENSE::DI_K].eType                     =
@@ -396,7 +396,7 @@ void CFGZ::prvConfigureASENSE()
                                             {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE}};
 
     uint8_t u8MapSize = sizeof(aPIN11MAP)/sizeof(ASENSOR_MAP_ROW_t);
-    cfg.stAIConfig[A_SENSE::HAL_PIN_11].eSensor = prGetAnalogSensor(ID_LOP_SENS_SELECTION, aPIN11MAP, u8MapSize);
+    cfg.stAIConfig[A_SENSE::HAL_PIN_11].eSensor = prGetAnalogSensor(ID_LOP_RES_DIG_J_SENSOR_SELECTION, aPIN11MAP, u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_11].eRef    = ANLG_IP::REF_ENGINE_BODY;
     prvCpyInterpolationTable(ID_LOP_CALIB_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_11].stTable);
     cfg.stAIConfig[A_SENSE::HAL_PIN_11].stTable.u8InterPolationPoints = 10;
@@ -557,7 +557,7 @@ bool CFGZ::IsDigOutputConfigured(UINT8_PARAMS_t eDigitalOutput)
 void CFGZ::prvConfigureACT()
 {
     ACT_Manager::CFG_t cfg;
-    uint8_t u8SourceIdx     = ID_DIG_OP_SOURCE_A;
+    uint8_t u8SourceIdx     = ID_OUT_A_SOURCE;
     for(uint8_t u8Idx=0; u8Idx<ACT_Manager::OP_END; u8Idx++)
     {
         cfg.properties[u8Idx].eType       = prvGetACTType(u8SourceIdx);

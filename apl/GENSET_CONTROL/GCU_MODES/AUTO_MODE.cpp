@@ -44,9 +44,9 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
     {
         BASE_MODES::Update();
         UTILS_ResetTimer(&_GCUSMUpdateTimer);
-        _bRemoteStartRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE) ;
+        _bRemoteStartRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE) ;
 
-        _bRemoteStopRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE) ;
+        _bRemoteStopRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE) ;
         _bStartRequest = false;
         _bStopRequest = false;
 
@@ -64,12 +64,12 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                     _StartStop.StopCommand();
                 }
                 else if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                            CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)) || (_bRemoteStopRCVD &&
-                                (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+                            CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) || (_bRemoteStopRCVD &&
+                                (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                 {
                     _eAutoState = STATE_AMF_GEN_OFF_MAINS_ON;
 
-//                    if(_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE))
+//                    if(_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
                     {
                         UTILS_ResetTimer(&_ReturnToMainsTimer);
                     }
@@ -119,8 +119,8 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 break;
             case STATE_AMF_GEN_START:
                 if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                        CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)) || (_bRemoteStopRCVD &&
-                        (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE))
+                        CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) || (_bRemoteStopRCVD &&
+                        (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
                         || (_GCUAlarms.IsCommonShutdown())
                         || IsNightModeRestrictOn())
                 {
@@ -199,8 +199,8 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                     UTILS_ResetTimer(&_EngCoolDownTimer);
                     _eAutoState = STATE_AMF_ENGINE_COOLING;
                 }
-                else if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)) ||
-                        (_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+                else if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) ||
+                        (_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                 {
                     _eAutoState = STATE_AMF_RETURN_DELAY;
                     UTILS_ResetTimer(&_ReturnToMainsTimer);
@@ -227,8 +227,8 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                     }
                 }
 
-                if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-                        || (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+                if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                        || (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                         && (!_bCloseGenContactor) && (!_bContactorTransferOn))
                 {
                     SwitchLoadToGen();
@@ -260,8 +260,8 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                     _eAutoState = STATE_AMF_ENGINE_COOLING;
                 }
                 else if(((_MainsStatus == MAINS_UNHELATHY) && 
-                        (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)) ||
-                        (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+                        (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) ||
+                        (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                 {
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                     _eAutoState = STATE_AMF_GEN_ON_LOAD;
@@ -291,7 +291,7 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
             case STATE_AMF_ENGINE_COOLING:
                 _hal.actuators.Activate(ACTUATOR::ACT_COOLING_ON);
                 if((UTILS_GetElapsedTimeInSec(&_EngCoolDownTimer) >=
-                        _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_COOL_DELAY))
+                        _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_ENG_COOL_TIME))
                         || (_GCUAlarms.IsCommonShutdown())
                         || (IsNightModeRestrictOn()))
                 {
@@ -309,8 +309,8 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 {
                     _vars.GCUState = ELECTRIC_TRIP;
                 }
-                else if(((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-                        || (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+                else if(((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                        || (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                 {
                     SwitchLoadToGen();
                     _bOpenMainsLoad = true;
@@ -368,8 +368,8 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
 
 bool AUTO_MODE::prvIsMainsFailedAndOpenMainsCont()
 {
-    if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-            || (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+    if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+            || (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
             && (_bCloseMainsContactor) && (!_bContactorTransferOn))
     {
         return true;
@@ -382,8 +382,8 @@ bool AUTO_MODE::prvIsMainsFailedAndOpenMainsCont()
 
 bool AUTO_MODE::prvIsMainsHealthyAndCloseMainsCont()
 {
-    if((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-            || (_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+    if((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+            || (_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
             && (!_bCloseMainsContactor) && (!_bContactorTransferOn))
     {
         return true;

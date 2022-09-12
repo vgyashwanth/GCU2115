@@ -97,7 +97,7 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                         _bTestMode = true;
                         UTILS_ResetTimer(&_TestModeTimer);
                     }
-                    else if(CFGZ::CFGZ_ENABLE == _cfgz.GetCFGZ_Param(CFGZ::ID_AUTOLOAD_TRANSFER))
+                    else if(CFGZ::CFGZ_ENABLE == _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_AUTO_LOAD_TRANSFER))
                     {
                         SwitchLoadToGen();
                     }
@@ -180,7 +180,7 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
 
 
                 if(((UTILS_GetElapsedTimeInSec(&_EngCoolDownTimer)) >=
-                        _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_COOL_DELAY)) ||
+                        _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_ENG_COOL_TIME)) ||
                         (_bStopRequest) || (_GCUAlarms.IsCommonShutdown())
                         || (IsNightModeRestrictOn()))
                 {
@@ -281,7 +281,7 @@ bool MANUAL_MODE::IsGenRunTimersInProcess()
 
 uint32_t MANUAL_MODE::GetEngCoolDownRemTime()
 {
-    return (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_COOL_DELAY) -
+    return (_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_ENG_COOL_TIME) -
                     UTILS_GetElapsedTimeInSec(&_EngCoolDownTimer));
 }
 
@@ -302,11 +302,11 @@ void MANUAL_MODE::DisableTestModeTimer()
 bool MANUAL_MODE::IsTestModeTimerExpired()
 {
     return ((UTILS_GetElapsedTimeInSec(&_TestModeTimer) >=
-                (_cfgz.GetCFGZ_Param(CFGZ::ID_TEST_MODE_TIMER_MIN)*60)));
+                (_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_TEST_MODE_TIMER)*60)));
 }
 
 uint32_t MANUAL_MODE::GetTestModeRemTime()
 {
-    return ((_cfgz.GetCFGZ_Param(CFGZ::ID_TEST_MODE_TIMER_MIN)*60) -
+    return ((_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_TEST_MODE_TIMER)*60) -
                     UTILS_GetElapsedTimeInSec(&_TestModeTimer));
 }

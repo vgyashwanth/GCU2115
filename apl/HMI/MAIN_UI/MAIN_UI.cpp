@@ -55,7 +55,7 @@ _bExternalPanelLockOnce(false)
     UTILS_ResetTimer(&_BootTimer);
     _hal.ObjKeypad.RegisterKeyEventCB(prvKeypad_callback);
 
-    _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_SCREEN_CHANG_TIME);
+    _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
 
     //Copy all Auxilary strings
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_AUX_INPUT_A, strAuxAString);
@@ -114,7 +114,7 @@ void MAIN_UI::prvExitFromConfigMode()
 
 
 
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)
     {
       _ManualMode.OpenMainsLoad();
     }
@@ -220,7 +220,7 @@ bool MAIN_UI::Update()
                 != START_STOP::ID_STATE_SS_ENG_OFF_ERR)
             &&(_StartStop.GetStartStopSMDState()
                     != START_STOP::ID_STATE_SS_ENG_OFF_OK))
-        ||(((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN))
+        ||(((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING))
                 == CFGZ::CFGZ_ENABLE) &&
                 (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)
                       != ACT_Manager:: ACT_NOT_CONFIGURED))
@@ -237,7 +237,7 @@ bool MAIN_UI::Update()
     //Turn off Back light after Power save delay over
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_POWER_SAVE_MODE)== CFGZ::CFGZ_ENABLE)
                  &&(UTILS_GetElapsedTimeInSec(&_PoweSaveModeTimer)
-                      >= _cfgz.GetCFGZ_Param(CFGZ::ID_POWER_SAVE_MODE_DELAY)))
+                      >= _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_PWR_SAVE_MODE_DELAY)))
     {
         _hal.ObjGlcd.TurnOffBackLight();
         UTILS_ResetTimer(&_PoweSaveModeTimer);
@@ -297,9 +297,9 @@ bool MAIN_UI::Update()
              _hal.ObjGlcd.TurnOnBackLight();
          }
          UTILS_ResetTimer(&_ScreenChangeOverTimer);
-        if ( _cfgz.GetCFGZ_Param(CFGZ::ID_SCREEN_CHANG_TIME) > SCREEN_CHANGE_OVER_PAUSE)
+        if ( _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME) > SCREEN_CHANGE_OVER_PAUSE)
         {
-            _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_SCREEN_CHANG_TIME);
+            _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
         }
         else
         {
@@ -553,11 +553,11 @@ bool MAIN_UI::Update()
        }
     }
 
-    if((UTILS_GetElapsedTimeInSec(&_ScreenChangeOverTimer) >= _u16ScreenChangeTime)&& (_cfgz.GetCFGZ_Param(CFGZ::ID_SCREEN_CHANG_TIME)>0))
+    if((UTILS_GetElapsedTimeInSec(&_ScreenChangeOverTimer) >= _u16ScreenChangeTime)&& (_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME)>0))
     {
         _hal.ObjGlcd.AutoReInitGCLDScreen();
        UTILS_ResetTimer(&_ScreenChangeOverTimer);
-       _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_SCREEN_CHANG_TIME);
+       _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
        if(IS_DISP_MON_MODE())
        {
             _MonUI.CheckKeyPress(DN_SHORT_PRESS);
@@ -686,8 +686,8 @@ void MAIN_UI::prvLEDHandling()
            _hal.ledManager.led5.TurnOff();
        }
 
-       if(((_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-               && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE))
+       if(((_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+               && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
        {
            _hal.ledManager.led8.TurnOn();
        }
@@ -705,7 +705,7 @@ void MAIN_UI::prvLEDHandling()
            _hal.ledManager.led6.TurnOff();
        }
 
-       if((_ManualMode.IsMainsContactorConfigured())&& (_ManualMode.IsMainsContactorClosed()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
+       if((_ManualMode.IsMainsContactorConfigured())&& (_ManualMode.IsMainsContactorClosed()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
        {
            _hal.ledManager.led7.TurnOn();
        }

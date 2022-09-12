@@ -198,16 +198,12 @@ void PASSWORD_ENTRY_UI::prvDisplayPassEditScreen()
    _Disp.drawRectangle();
    _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(19), GLCD_Y(128));
    _Disp.gotoxy(GLCD_X(64),GLCD_Y(5));
-   if((_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_ENGLISH)
-           || (_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_SPANISH))
+
    {
        _Disp.printStringCenterAligned((char *)StrPassword[_cfgz.GetArrLanguageIndex()],
                                   FONT_VERDANA);
    }
-   else
-   {
-       _Disp.printImage((uint8_t *)gau8ChinesePassword, 4, 13, 4, 50);
-   }
+
    _Disp.gotoxy(GLCD_X(64),GLCD_Y(35));
    sprintf(arrTemp,"%c %c %c %c",ArrChar[CHAR1],
            ArrChar[CHAR2], ArrChar[CHAR3], ArrChar[CHAR4]);
@@ -220,8 +216,7 @@ void PASSWORD_ENTRY_UI::prvDisplayEntryScreen()
     _Disp.ClearScreen();
     _Disp.drawRectangle();
     _Disp.gotoxy(GLCD_X(64),GLCD_Y(5));
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_ENGLISH)
-            || (_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_SPANISH))
+
     {
         _Disp.printStringCenterAligned((char *)StrForReadMode[_cfgz.GetArrLanguageIndex()],
                 FONT_VERDANA);
@@ -235,14 +230,6 @@ void PASSWORD_ENTRY_UI::prvDisplayEntryScreen()
         _Disp.printStringCenterAligned((char *)StrPressStart[_cfgz.GetArrLanguageIndex()],
                 FONT_VERDANA);
     }
-    else
-    {
-        _Disp.printImage((uint8_t *)gau8ChineseForReadMode, 8, 14, 2, 35);
-        _Disp.printImage((uint8_t *)gau8ChinesePresStop, 8, 14, 17, 35);
-        _Disp.printImage((uint8_t *)gau8ChineseForWriteMode, 8, 13, 33, 35);
-        _Disp.printImage((uint8_t *)gau8ChinesePressStart, 8, 14, 48, 35);
-    }
-
 }
 
 char PASSWORD_ENTRY_UI::prvIncrementChar(char ch)

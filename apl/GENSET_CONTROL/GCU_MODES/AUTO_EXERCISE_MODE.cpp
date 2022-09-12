@@ -65,8 +65,8 @@ void AUTO_EXERCISE_MODE::Update(bool bDeviceInConfigMode)
        BASE_MODES::Update();
        UTILS_ResetTimer(&_GCUSMUpdateTimer);
 
-       _bRemoteStartRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE);
-       _bRemoteStopRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE);
+       _bRemoteStartRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE);
+       _bRemoteStopRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE);
 
        _bStartRequest = false;
        _bStopRequest = false;
@@ -159,8 +159,8 @@ void AUTO_EXERCISE_MODE::Update(bool bDeviceInConfigMode)
                }
                else if((UTILS_GetElapsedTimeInSec(&_ExeDnCntTmr) >= _u32SchRemTime_sec) ||(!UTILS_IsTimerEnabled(&_ExeDnCntTmr)))
                {
-                   if(((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)) ||
-                           (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+                   if(((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) ||
+                           (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                    {
                        SwitchLoadToGen();
                        _eAutoExeState = ID_AUTO_EXE_DG_OFF;
@@ -204,15 +204,15 @@ void AUTO_EXERCISE_MODE::Update(bool bDeviceInConfigMode)
 
                if(!_bLoadTransferEn)
                {
-                   if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)) ||
-                      (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+                   if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) ||
+                      (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                       && (!_bContactorTransferOn) &&((!_bCloseGenContactor) ||_bCloseMainsContactor)
                     )
                    {
                        SwitchLoadToGen();
                    }
-                   else if ((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-                           ||(_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+                   else if ((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                           ||(_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                            && (!_bCloseMainsContactor) && (!_bContactorTransferOn))
                    {
                        SwitchLoadToMains();
@@ -227,7 +227,7 @@ void AUTO_EXERCISE_MODE::Update(bool bDeviceInConfigMode)
            case ID_AUTO_EXE_ENGINE_COOLING:
                _hal.actuators.Activate(ACTUATOR::ACT_COOLING_ON);
                if((UTILS_GetElapsedTimeInSec(&_EngCoolDownTimer) >=
-                      _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_COOL_DELAY)) || _GCUAlarms.IsCommonShutdown()
+                      _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_ENG_COOL_TIME)) || _GCUAlarms.IsCommonShutdown()
                        || (IsNightModeRestrictOn()))
               {
                    UTILS_DisableTimer(&_EngCoolDownTimer);
@@ -256,8 +256,8 @@ void AUTO_EXERCISE_MODE::Update(bool bDeviceInConfigMode)
               {
                   _vars.GCUState = ELECTRIC_TRIP;
               }
-              else if(((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)) ||
-                      (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+              else if(((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) ||
+                      (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
               {
                   SwitchLoadToGen();
                   UTILS_DisableTimer(&_EngCoolDownTimer);
@@ -284,14 +284,14 @@ void AUTO_EXERCISE_MODE::Update(bool bDeviceInConfigMode)
                break;
            case ID_AUTO_EXE_FAULT:
 
-               if ((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-                                              ||(_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+               if ((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                                              ||(_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                                               && (!_bCloseMainsContactor) && (!_bContactorTransferOn))
                {
                     SwitchLoadToMains();
                }
-               else if ((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-                       ||(_bRemoteStartRCVD  && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+               else if ((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                       ||(_bRemoteStartRCVD  && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                        && (_bCloseMainsContactor) && (!_bContactorTransferOn))
 
                {
@@ -324,14 +324,14 @@ void AUTO_EXERCISE_MODE::Update(bool bDeviceInConfigMode)
                    prvSetExercise();
                    bPrevCoolState = false;
                }
-               else if((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)) ||
-                   (_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+               else if((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) ||
+                   (_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                    && (!_bContactorTransferOn) &&(!_bCloseMainsContactor)
                  )
                 {
                    SwitchLoadToMains();
                 }
-                else if (((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
+                else if (((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
                         && (_bCloseMainsContactor) && (!_bContactorTransferOn))
                 {
                    OpenMainsLoad();
@@ -353,48 +353,7 @@ void AUTO_EXERCISE_MODE::Update(bool bDeviceInConfigMode)
 
 void  AUTO_EXERCISE_MODE::Init()
 {
-    _stEvent1.u8Enable = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_1_EN);
-    _stEvent1.u8Occurence =_cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_1_OCCURENCE);
-    if(WEEKLY == (_stEvent1.u8Occurence))
-    {
-        (_stEvent1.u8DayOfWeek) = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_1_START_DAY) ;
     }
-    else if (MONTHLY == (_stEvent1.u8Occurence))
-    {
-        (_stEvent1.u8Day) = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_1_START_DAY);
-    }
-    _stEvent1.u32StartTime = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_1_START_TIME);
-    _stEvent1.u32OnDuration = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_1_ON_DURATION);
-    _stEvent1.u8LoadTrans = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_1_LOAD_TRANSFER);
-
-    _stEvent2.u8Enable = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_2_EN);
-    _stEvent2.u8Occurence =_cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_2_OCCURENCE);
-
-    if(WEEKLY == (_stEvent2.u8Occurence))
-    {
-      (_stEvent2.u8DayOfWeek) = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_2_START_DAY) ;
-    }
-    else if (MONTHLY == (_stEvent2.u8Occurence))
-    {
-      (_stEvent2.u8Day) = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_2_START_DAY);
-    }
-    _stEvent2.u32StartTime = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_2_START_TIME);
-    _stEvent2.u32OnDuration = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_2_ON_DURATION);
-    _stEvent2.u8LoadTrans = _cfgz.GetCFGZ_Param(CFGZ::ID_EXERCISE_2_LOAD_TRANSFER);
-
-
-    if(1 == _stEvent1.u8Enable)
-    {
-        prvSetValidDateAndTimeExercise(&_stEvent1);
-    }
-
-    if(1 == _stEvent2.u8Enable)
-    {
-        prvSetValidDateAndTimeExercise(&_stEvent2);
-    }
-
-    prvSetExercise();
-}
 
 
 void AUTO_EXERCISE_MODE::EnableAutoExerciser(void)

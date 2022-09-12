@@ -75,7 +75,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
         if(_bShelterTempTmrOn)
         {
             _u32ShelterTempTimerCount++;
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_SHELT_TEMP_RUN_DURATION_MIN)*60U*20) <= _u32ShelterTempTimerCount)
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_DG_RUN_DURATION)*60U*20) <= _u32ShelterTempTimerCount)
             {
                 _bShelterTempTmrExpired = 1;
             }
@@ -87,8 +87,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
         /***END: GEN ON timer count in fuel saver mode for high shelter temp ***/
 
 
-        if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_PARTIAL_HEALTHY_DETECT_EN) == CFGZ::CFGZ_ENABLE)
-                && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) != CFGZ::CFGZ_1_PHASE_SYSTEM))
+        if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) != CFGZ::CFGZ_1_PHASE_SYSTEM))
         {
              if(GetMainsHealthyPhaseCnt() > _u8PrevMainsHealthyPhCnt)
              {
@@ -102,7 +101,6 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
         }
 
         if((_bIsHealthyPhCntIncr)
-                ||((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_PARTIAL_HEALTHY_DETECT_EN) == CFGZ::CFGZ_DISABLE)&& (_MainsStatus == MAINS_HELATHY))
                 ||((_MainsStatus == MAINS_HELATHY)
                         && ((!_bMainsPartialHealthy)
                                 || (_bMainsPartialHealthy && (!_bGenOnDuetoBTS)&&(!_bGenOnDueToSheltTemp) &&((GetMainsHealthyPhaseCnt()==1)||(GetMainsHealthyPhaseCnt() == 2)))
@@ -186,7 +184,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     {
                         prvGenStartAction();
                     }
-                    else if((_bMainsPartialHealthy)||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE))
+                    else if((_bMainsPartialHealthy)||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
                     {
                         if(!_bCloseMainsContactor)
                         {
@@ -225,7 +223,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                 break;
 
             case STATE_BTS_GEN_START:
-                if((((_MainsStatus == MAINS_HELATHY)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)
+                if((((_MainsStatus == MAINS_HELATHY)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
                         && (!_bMainsPartialHealthy))|| _bIsHealthyPhCntIncr)
                     || (_GCUAlarms.IsCommonElectricTrip()) || (_GCUAlarms.IsCommonShutdown())
                     || (_GCUAlarms.IsBTSBattHealthy() && (!_GCUAlarms.IsShelterTempHigh()))
@@ -285,7 +283,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                 {
                     _vars.TimerState = BATT_CHARGE_TIMER;
                 }
-                else if(_bShelterTempTmrOn && ((_cfgz.GetCFGZ_Param(CFGZ::ID_SHELT_TEMP_RUN_DURATION_MIN))!= 0))
+                else if(_bShelterTempTmrOn && ((_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_DG_RUN_DURATION))!= 0))
                 {
                     _vars.TimerState = SHELTER_TEMP_TIMER;
                 }
@@ -333,7 +331,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                     _eBTSState = STATE_BTS_ENGINE_COOLING;
                 }
-                else if(((_MainsStatus == MAINS_HELATHY)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)
+                else if(((_MainsStatus == MAINS_HELATHY)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
                         && (!_bMainsPartialHealthy))|| _bIsHealthyPhCntIncr)
                 {
                     _eBTSState = STATE_BTS_RETURN_DELAY;
@@ -403,7 +401,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                         _bGenOnDueToSheltTemp = false;
                     }
                 }
-                else if(((_MainsStatus == MAINS_UNHELATHY)|| _bMainsPartialHealthy||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE))
+                else if(((_MainsStatus == MAINS_UNHELATHY)|| _bMainsPartialHealthy||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
                         &&(!_bIsHealthyPhCntIncr) && (!_GCUAlarms.IsBTSBattHealthy()))
                 {
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
@@ -434,7 +432,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
             case STATE_BTS_ENGINE_COOLING:
                 _hal.actuators.Activate(ACTUATOR::ACT_COOLING_ON);
                 if((UTILS_GetElapsedTimeInSec(&_EngCoolDownTimer) >=
-                       _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_COOL_DELAY)) || _GCUAlarms.IsCommonShutdown())
+                       _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_ENG_COOL_TIME)) || _GCUAlarms.IsCommonShutdown())
                 {
                     if(_GCUAlarms.IsCommonShutdown())
                     {
@@ -490,14 +488,14 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = ENGINE_STOPPING;
                 }
 
-                if((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-                                               ||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE))
+                if((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                                               ||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
                                                && (!_bCloseMainsContactor) && (!_bContactorTransferOn))
                 {
                      SwitchLoadToMains();
                 }
-//                else if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-//                        ||(_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+//                else if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+//                        ||(_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
 //                        && (_bCloseMainsContactor) && (!_bContactorTransferOn))
 //
 //                {
@@ -517,14 +515,14 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                 }
                 else
                 {
-                    if(((((_MainsStatus == MAINS_HELATHY)|| _bMainsPartialHealthy) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-                                                   ||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE))
+                    if(((((_MainsStatus == MAINS_HELATHY)|| _bMainsPartialHealthy) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                                                   ||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
                                                    && (!_bCloseMainsContactor) && (!_bContactorTransferOn))
                     {
                          SwitchLoadToMains();
                     }
-//                    else if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-//                            ||(_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+//                    else if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+//                            ||(_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
 //                            && (_bCloseMainsContactor) && (!_bContactorTransferOn))
 //
 //                    {
@@ -551,7 +549,7 @@ bool BTS_MODE::prvGenStartCondition()
 {
     /* Start the GEN when BTS is unhealthy or shelter temperature is high even if mains monitoring is disabled.*/
     if(((((_MainsStatus == MAINS_UNHELATHY)|| _bMainsPartialHealthy)&& (!_bIsHealthyPhCntIncr))
-           || (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)
+           || (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)
         )&&(!_GCUAlarms.IsBTSBattHealthy() || (_GCUAlarms.IsShelterTempHigh())))
     {
         return true;
@@ -594,7 +592,7 @@ uint32_t BTS_MODE::GetBTSModeTime(BASE_MODES::TIMER_STATE_t eTimer)
            break;
 
        case BASE_MODES::SHELTER_TEMP_TIMER:
-           RemainingTimeInSec = ((((_cfgz.GetCFGZ_Param(CFGZ::ID_SHELT_TEMP_RUN_DURATION_MIN)*1200) - _u32ShelterTempTimerCount) /1200) + 1);
+           RemainingTimeInSec = ((((_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_DG_RUN_DURATION)*1200) - _u32ShelterTempTimerCount) /1200) + 1);
            break;
 
     }

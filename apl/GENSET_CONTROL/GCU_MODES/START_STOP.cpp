@@ -95,13 +95,13 @@ _IdleModeStopTimer{0}
     UTILS_DisableTimer(&_IdleToRatedTimer);
     UTILS_DisableTimer(&_IdleModeStopTimer);
 
-    _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_SAFETY_MON_DELAY);
+    _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY);
 }
 
 void START_STOP::Init()
 {
     UTILS_ResetTimer(&_StartStopSMUpdateTimer);
-    _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_SAFETY_MON_DELAY);
+    _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY);
 }
 void START_STOP::prvSMDInletShutoffValve()
 {
@@ -114,14 +114,14 @@ void START_STOP::prvSMDInletShutoffValve()
             UTILS_ResetTimer(&_ISVPullSolenoidTimer);
         break;
 
-        case PULL_SOLENOID_PULSE_STARTED:
-            if((UTILS_GetElapsedTimeInMs(&_ISVPullSolenoidTimer) >=
-                    (uint64_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_ISV_PULL_SIGNAL_TIME)*1000))||(_State==ID_STATE_SS_STOPPING))
-            {
-                _bActivatePullSolenoid = false;
-                _PullSolenoidState = PULL_SOLENOID_PULSE_OVER;
-            }
-        break;
+//        case PULL_SOLENOID_PULSE_STARTED:
+//            if((UTILS_GetElapsedTimeInMs(&_ISVPullSolenoidTimer) >=
+//                    (uint64_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_ISV_PULL_SIGNAL_TIME)*1000))||(_State==ID_STATE_SS_STOPPING))
+//            {
+//                _bActivatePullSolenoid = false;
+//                _PullSolenoidState = PULL_SOLENOID_PULSE_OVER;
+//            }
+//        break;
 
         case PULL_SOLENOID_PULSE_OVER:
         default:
@@ -163,7 +163,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
 
 //        A_SENSE::SENSOR_RET_t sensVal = _GCUAlarms.GetSelectedTempSensVal() ;
 //        if(((CFGZ::CFGZ_ENABLE == _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TEMP_LIMIT_EN))
-//                && ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| IS_ENG_TEMP_J1939_CONFIGURED())
+//                && ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)|| IS_ENG_TEMP_J1939_CONFIGURED())
 //                && (stEngTemp.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)
 //                    && (sensVal.stValAndStatus.f32InstSensorVal>=
 //                        _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TEMP_LIMIT_THREH)))
@@ -192,7 +192,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 _bJ1939PrheatFaultPresent = false;
                 _bKeySwitchOutput = true;
 
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_WAVE_DETECT_EN) == CFGZ::CFGZ_ENABLE)
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
                 {
                     _EngineStartValidity.InitInvalidDgDetectionStateMachine();
                     ENGINE_START_VALIDITY::SetEngineStartInvalidity(false);
@@ -311,8 +311,8 @@ void START_STOP::Update(bool bDeviceInConfigMode)
 
                 if((_cfgz.GetEngType()==CFGZ::ENG_CONVENTIONAL))
                 {
-                    if(((UTILS_GetElapsedTimeInSec(&_EngStartTimer)>= _cfgz.GetCFGZ_Param(CFGZ::ID_MANUAL_CRANK_START_DELAY)) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE))
-                            ||((UTILS_GetElapsedTimeInSec(&_EngStartTimer)>= _cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_CRANK_START_DELAY)) && (BASE_MODES::GetGCUOperatingMode() > BASE_MODES::MANUAL_MODE)))
+                    if(((UTILS_GetElapsedTimeInSec(&_EngStartTimer)>= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_MANUAL_START_DELAY)) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE))
+                            ||((UTILS_GetElapsedTimeInSec(&_EngStartTimer)>= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_AUTO_START_DELAY)) && (BASE_MODES::GetGCUOperatingMode() > BASE_MODES::MANUAL_MODE)))
                     {
                         _bOPFuelRelay = true;
                     }
@@ -325,8 +325,8 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 if((_bStopCommand)
                         ||
                         ((CFGZ::ENG_DEUTZ_EMR == _cfgz.GetEngType())&&(_cfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_TO_ECU) )&& (0 != (uint8_t)gpJ1939->GetReadData(RX_PGN_EMR_PREHEAT_65284, 0))
-                                &&(((UTILS_GetElapsedTimeInSec(&_EngStartTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_MANUAL_CRANK_START_DELAY)) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE) )
-                                        || ((UTILS_GetElapsedTimeInSec(&_EngStartTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_CRANK_START_DELAY))&& (BASE_MODES::GetGCUOperatingMode() > BASE_MODES::MANUAL_MODE) )
+                                &&(((UTILS_GetElapsedTimeInSec(&_EngStartTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_MANUAL_START_DELAY)) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE) )
+                                        || ((UTILS_GetElapsedTimeInSec(&_EngStartTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_AUTO_START_DELAY))&& (BASE_MODES::GetGCUOperatingMode() > BASE_MODES::MANUAL_MODE) )
                                 )
                         )
                 )
@@ -361,9 +361,9 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                    }
                 }
                 else if(((UTILS_GetElapsedTimeInSec(&_EngStartTimer)) >=
-                        _cfgz.GetCFGZ_Param(CFGZ::ID_MANUAL_CRANK_START_DELAY) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)) ||
+                        _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_MANUAL_START_DELAY) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)) ||
                         ((UTILS_GetElapsedTimeInSec(&_EngStartTimer)) >=
-                                _cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_CRANK_START_DELAY) && (BASE_MODES::GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE)))
+                                _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_AUTO_START_DELAY) && (BASE_MODES::GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE)))
                 {
                     UTILS_DisableTimer(&_EngStartTimer);
 
@@ -400,9 +400,9 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     _hal.ObjGlcd.TurnOnBackLight();
                 }
                 else if((UTILS_GetElapsedTimeInSec(&_EngCrankingTimer)) >= 
-                        _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_HOLD_TIME))
+                        _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME))
                 {
-                    if(_u8NoOfCrankAttempts >= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_ATTEMPTS))
+                    if(_u8NoOfCrankAttempts >= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_START_ATTEMPTS))
                     {
                         _hal.ObjGlcd.TurnOnBackLight();
                         _GCUAlarms.UpdateFailToStart();
@@ -433,7 +433,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 _hal.ObjGlcd.TurnOnBackLight();
                 if((_cfgz.GetEngType() == CFGZ::ENG_CONVENTIONAL))
                 {
-                    if(UTILS_GetElapsedTimeInSec(&_EngCrankRestTimer) >= (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_REST_TIME)-1U))
+                    if(UTILS_GetElapsedTimeInSec(&_EngCrankRestTimer) >= (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_REST_TIME)-1U))
                     {
                         _bOPFuelRelay = true;
                     }
@@ -455,7 +455,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     prvHandleEngineCranked();
                 }
                 else if((UTILS_GetElapsedTimeInSec(&_EngCrankRestTimer)) >= 
-                        _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_REST_TIME))
+                        _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_REST_TIME))
                 {
                     UTILS_DisableTimer(&_EngCrankRestTimer);
                     _State = ID_STATE_PULL_SOLENOID_ON;
@@ -480,7 +480,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 }
 
                 if(((UTILS_GetElapsedTimeInSec(&_SafetyMonTimer)) >= 
-                        _cfgz.GetCFGZ_Param(CFGZ::ID_SAFETY_MON_DELAY))
+                        _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY))
                         && (_vars.TimerState == BASE_MODES::SAFETY_MON_TIMER))
                 {
                     _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
@@ -524,7 +524,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                             _vars.TimerState = BASE_MODES::ADDTIONAL_STOP_TIMER;
                         }
                         if((UTILS_GetElapsedTimeInSec(&_EngStoppingTimer)) >=
-                                _cfgz.GetCFGZ_Param(CFGZ::ID_STOP_ACTION_TIME))
+                                _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_STOP_ACTION_TIME))
                         {
                             _bStartCommand = false;
                             _bEngStoppingComplete = true;
@@ -552,7 +552,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     _bEmergencyStopLatched = true;
                 }
                 if((UTILS_GetElapsedTimeInSec(&_StopHoldTimer)) >=
-                        _cfgz.GetCFGZ_Param(CFGZ::ID_ADDN_STOP_TIME))
+                        _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_ADDN_STOPPING_TIME))
                 {
 
                     UTILS_DisableTimer(&_StopHoldTimer);
@@ -852,33 +852,21 @@ bool START_STOP::IsIdleModeActive()
 }
 uint16_t START_STOP::GetStartIdleRemTime()
 {
-    if(UTILS_GetElapsedTimeInSec(&_LowSpeedTimer) <= _cfgz.GetCFGZ_Param(CFGZ::ID_STARTUP_IDLE_TIME))
-    {
-        return (_cfgz.GetCFGZ_Param(CFGZ::ID_STARTUP_IDLE_TIME) - UTILS_GetElapsedTimeInSec(&_LowSpeedTimer));
-    }
-    else
+
     {
         return 0;
     }
 }
 uint16_t START_STOP::GetStopIdleRemTime()
 {
-    if(UTILS_GetElapsedTimeInSec(&_IdleModeStopTimer) <= _cfgz.GetCFGZ_Param(CFGZ::ID_STOPPING_IDLE_TIME))
-    {
-        return (_cfgz.GetCFGZ_Param(CFGZ::ID_STOPPING_IDLE_TIME) - UTILS_GetElapsedTimeInSec(&_IdleModeStopTimer));
-    }
-    else
+
     {
         return 0;
     }
 }
  uint16_t START_STOP::GetIdleToRatedRemTime()
 {
-    if(UTILS_GetElapsedTimeInSec(&_IdleToRatedTimer) <= _cfgz.GetCFGZ_Param(CFGZ::ID_IDLE_TO_RATED_DELAY))
-    {
-        return (_cfgz.GetCFGZ_Param(CFGZ::ID_IDLE_TO_RATED_DELAY) - UTILS_GetElapsedTimeInSec(&_IdleToRatedTimer));
-    }
-    else
+
     {
         return 0;
     }
@@ -911,7 +899,7 @@ bool START_STOP::IsIdleToRatedDelayActive()
 
 uint32_t START_STOP::GetStopLowIdleTime()
 {
-     uint32_t RemainingTimeInSec =  _cfgz.GetCFGZ_Param(CFGZ::ID_STOPPING_IDLE_TIME) - UTILS_GetElapsedTimeInSec(&_IdleModeStopTimer);
+     uint32_t RemainingTimeInSec =  0;
 
     return RemainingTimeInSec;
 }
@@ -934,7 +922,7 @@ uint32_t START_STOP::GetTimersRemainingTime(BASE_MODES::TIMER_STATE_t eTimer)
         case BASE_MODES::START_DELAY_TIMER:
             if(BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
             {
-                RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_MANUAL_CRANK_START_DELAY) -
+                RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_MANUAL_START_DELAY) -
                                                     UTILS_GetElapsedTimeInSec(&_EngStartTimer));
             }
             else if((BASE_MODES::GetGCUOperatingMode() == BASE_MODES::AUTO_MODE)||
@@ -942,33 +930,33 @@ uint32_t START_STOP::GetTimersRemainingTime(BASE_MODES::TIMER_STATE_t eTimer)
                     (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::BTS_MODE)||
                     (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::CYCLIC_MODE))
             {
-                RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_CRANK_START_DELAY) -
+                RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_AUTO_START_DELAY) -
                                                     UTILS_GetElapsedTimeInSec(&_EngStartTimer));
             }
             break;
 
         case BASE_MODES::CRANK_START_TIMER:
-            RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_HOLD_TIME) -
+            RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME) -
                                     UTILS_GetElapsedTimeInSec(&_EngCrankingTimer));
             break;
 
         case BASE_MODES::CRANK_REST_TIMER:
-            RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_REST_TIME) -
+            RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_REST_TIME) -
                                     UTILS_GetElapsedTimeInSec(&_EngCrankRestTimer));
             break;
 
         case BASE_MODES::STOP_ACTION_TIMER:
-            RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_STOP_ACTION_TIME) -
+            RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_STOP_ACTION_TIME) -
                                     UTILS_GetElapsedTimeInSec(&_EngStoppingTimer));
             break;
 
         case BASE_MODES::ADDTIONAL_STOP_TIMER:
-            RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_ADDN_STOP_TIME) -
+            RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_ADDN_STOPPING_TIME) -
                                     UTILS_GetElapsedTimeInSec(&_StopHoldTimer));
             break;
 
         case BASE_MODES::SAFETY_MON_TIMER:
-            RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_SAFETY_MON_DELAY) -
+            RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY) -
                                     UTILS_GetElapsedTimeInSec(&_SafetyMonTimer));
             break;
 

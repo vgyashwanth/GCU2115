@@ -360,7 +360,7 @@ void MB_APP::prvUpdateAnalogParams()
 
     A_SENSE::SENSOR_RET_t sensorVal = _gcuAlarm.GetLOPSensorVal();
 
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_S3_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
             && (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS)
             && (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL))
     {
@@ -406,7 +406,7 @@ void MB_APP::prvUpdateAnalogParams()
         u16Tmp = (uint16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal));
         SetReadRegisterValue(MB_FUEL_LEVEL, u16Tmp);
 
-        u16Tmp = (uint16_t)round(sensorVal.stValAndStatus.f32InstSensorVal *_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_TANK_CAPACITY)/10);
+        u16Tmp = (uint16_t)round(sensorVal.stValAndStatus.f32InstSensorVal *_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)/10);
         SetReadRegisterValue(MB_FUEL_IN_LIT, u16Tmp);
     }
 
@@ -518,7 +518,7 @@ void MB_APP::prvUpdateAUXSensorVal()
     A_SENSE::SENSOR_RET_t  stTemp;
     uint16_t u16AuxSensorVal = 0;
 //S1
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_S1_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
     {
         // S1 as shelter tempreture
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_SHELTER_TEMPERATURE);
@@ -527,7 +527,7 @@ void MB_APP::prvUpdateAUXSensorVal()
             u16AuxSensorVal = (int16_t)(round(stTemp.stValAndStatus.f32InstSensorVal*10));
         }
     }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_S1_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
         // S1 as s1 Analog sensor
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_S1_SENSOR);
@@ -553,7 +553,7 @@ void MB_APP::prvUpdateAUXSensorVal()
 
 //S3
     u16AuxSensorVal = 0;
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_S3_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
         // S3 as 4-20 mA sensor
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_S3_4_20_SENSOR);
@@ -562,7 +562,7 @@ void MB_APP::prvUpdateAUXSensorVal()
             u16AuxSensorVal = (uint16_t)(stTemp.stValAndStatus.f32InstSensorVal*10);
         }
     }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_S3_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
     {
         // S3 as 0-5 V Sensor
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_S3_0_5_SENSOR);
@@ -571,7 +571,7 @@ void MB_APP::prvUpdateAUXSensorVal()
             u16AuxSensorVal = (uint16_t)(stTemp.stValAndStatus.f32InstSensorVal*10);
         }
     }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_S3_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
     {
         // S3 as Lube Oil Pressure
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE_4_20);
@@ -584,7 +584,7 @@ void MB_APP::prvUpdateAUXSensorVal()
 
 //S4
     u16AuxSensorVal = 0;
-        if(_cfgz.GetCFGZ_Param(CFGZ::ID_S4_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
         // S4 as 4-20 mA sensor
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_S4_4_20_SENSOR);
@@ -593,7 +593,7 @@ void MB_APP::prvUpdateAUXSensorVal()
             u16AuxSensorVal = (uint16_t)(stTemp.stValAndStatus.f32InstSensorVal*10);
         }
     }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_S4_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
     {
         // S4 as 0-5 V Sensor
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_S4_0_5_SENSOR);
@@ -772,7 +772,7 @@ void MB_APP::prvUpdateGCUAlarms()
         _u16TempAlarmVal |= ((uint16_t)1U << 15U);
     }
 
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) ==CFGZ::CFGZ_ENABLE)
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) ==CFGZ::CFGZ_ENABLE)
                 &&(_Automode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY))
     {
         _u16TempAlarmVal |= ((uint16_t)1U << 14U);

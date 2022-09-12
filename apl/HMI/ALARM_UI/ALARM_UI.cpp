@@ -223,8 +223,6 @@ void ALARM_UI::prvDisplayAlarmScreen()
     _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(19), GLCD_Y(128));
 
     _Disp.drawVerticalLine(GLCD_X(100),GLCD_Y(0),GLCD_Y(19));
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_ENGLISH)
-            || (_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_SPANISH))
     {
         _Disp.drawVerticalLine(GLCD_X(22), GLCD_Y(0), GLCD_Y(19));
         _Disp.printImage((uint8_t *)u8ArrAlarmLogo, 3,20,0, 0);
@@ -234,10 +232,7 @@ void ALARM_UI::prvDisplayAlarmScreen()
         _Disp.printStringCenterAligned((char *)strAlarms[_cfgz.GetArrLanguageIndex()],
                     FONT_ARIAL);
     }
-    else
-    {
-        _Disp.printImage((uint8_t *)&u8ChiniAlarmScreen[0][0], 4,14,5,35);
-    }
+
 
     _Disp.gotoxy(GLCD_X(126),GLCD_Y(5));
     if(u8PrevAlarmCount != _u8NumberOfAlarms)
@@ -260,10 +255,6 @@ void ALARM_UI::prvDisplayAlarmScreen()
     }
     _Disp.printStringRightAligned((char *)arrTemp, FONT_VERDANA);
 
-    bool _bAlarminEnglish=false;
-
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_ENGLISH)||_bAlarminEnglish
-            || (_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_SPANISH))
     {
         _Disp.gotoxy(GLCD_X(64),GLCD_Y(37));
         _Disp.printStringCenterAligned(

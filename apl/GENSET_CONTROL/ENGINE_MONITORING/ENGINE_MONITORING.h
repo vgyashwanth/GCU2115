@@ -208,8 +208,8 @@ private:
         float f32GenKVARH;
     }GEN_t;
 
-    #define CHECK_GEN_MIN_HEALTHY_FREQ()  (_hal.AnalogSensors.GetGensetFreqThruCompartor() > _cfgz.GetCFGZ_Param(CFGZ::ID_MIN_HEALTHY_FREQ))
-    #define CHECK_GEN_MIN_HEALTHY_VTG()   (_GCUAlarms.GetMinGensetVoltage() > _cfgz.GetCFGZ_Param(CFGZ::ID_MIN_HEALTHY_VTG))
+    #define CHECK_GEN_MIN_HEALTHY_FREQ()  (_hal.AnalogSensors.GetGensetFreqThruCompartor() > _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_FREQ))
+    #define CHECK_GEN_MIN_HEALTHY_VTG()   (_GCUAlarms.GetMinGensetVoltage() > _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_VOLT))
     #define KW_TO_WATT_CONVERSION       1000U
     #define ENGINE_OFF_TMR_THRESHOLD    1U
     #define FIFTY_MSEC                  50U

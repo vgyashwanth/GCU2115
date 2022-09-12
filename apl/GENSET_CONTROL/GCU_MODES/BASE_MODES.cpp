@@ -110,7 +110,7 @@ bool BASE_MODES::_bIsHealthyPhCntIncr = false;
 #define IS_DEV_IN_SCH_MODE()                    (_eOperatingMode == AUTO_EXERCISE_MODE)
 #define IS_DEV_IN_AUTO_MODE()                   (_eOperatingMode != MANUAL_MODE)
 
-#define IS_AUTO_LOAD_XFER_ENABLED()             (IS_DEV_IN_MANUAL_MODE() && (CFGZ::CFGZ_ENABLE == _cfgz.GetCFGZ_Param(CFGZ::ID_AUTOLOAD_TRANSFER)))
+#define IS_AUTO_LOAD_XFER_ENABLED()             (IS_DEV_IN_MANUAL_MODE() && (CFGZ::CFGZ_ENABLE == _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_AUTO_LOAD_TRANSFER)))
 #define IS_SCH_LOAD_XFER_ENABLED()              ((IS_DEV_IN_SCH_MODE() && (_bLoadTransferEn))|| (!IS_DEV_IN_SCH_MODE()))
 #define IS_SCH_LOAD_XFER_INITIATED()            ((_bLoadTransferEn) && (_bSchGenStart))
 
@@ -119,12 +119,12 @@ bool BASE_MODES::_bIsHealthyPhCntIncr = false;
 #define CHK_RET_TO_MAINS()                      ((IS_RET_TO_MAINS_STARTED() && IS_RET_TO_MAINS_EXPIRED()) \
                                                     || !IS_RET_TO_MAINS_STARTED())
 
-#define MAINS_MONITORING_ENABLED()              (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)
+#define MAINS_MONITORING_ENABLED()              (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
 #define IS_MAINS_HEALTHY()                      (MAINS_MONITORING_ENABLED() && (_MainsStatus == MAINS_HELATHY))
 #define IS_REMORE_SS_ENABLED()                  ((!MAINS_MONITORING_ENABLED()) && (_bRemoteStopRCVD))
 
-#define IS_MAINS_PARTIAL_HEALTHY_CONFIGURED()   (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_PARTIAL_HEALTHY_DETECT_EN) == CFGZ::CFGZ_ENABLE)
-#define IS_MAINS_PH_RECOVERED_IN_3_PHASE()      ((_bIsHealthyPhCntIncr &&_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) != CFGZ::CFGZ_1_PHASE_SYSTEM && IS_MAINS_PARTIAL_HEALTHY_CONFIGURED()) \
+#define IS_MAINS_PARTIAL_HEALTHY_CONFIGURED()   (0)
+#define IS_MAINS_PH_RECOVERED_IN_3_PHASE()      ((_bIsHealthyPhCntIncr &&_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) != CFGZ::CFGZ_1_PHASE_SYSTEM && IS_MAINS_PARTIAL_HEALTHY_CONFIGURED()) \
                                                     || (!IS_MAINS_PARTIAL_HEALTHY_CONFIGURED()))
 
 #define MAINS_HEALTHY_COND_FULFILLED()          (IS_MAINS_HEALTHY() || IS_REMORE_SS_ENABLED())
@@ -306,7 +306,7 @@ void BASE_MODES::prvSetGCUState()
 
 void BASE_MODES::UpdateMainsStatus()
 {
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)
     {
         _MainsStatus = MAINS_HELATHY;
     }
@@ -464,7 +464,7 @@ void BASE_MODES::prvUpdateContactorOutputs()
     }
 
     if(UTILS_GetElapsedTimeInSec(&_ContactorTransferTimer) >= 
-            _cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_TRANS_DELAY))
+            _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_LOAD_TRANSFER_DELAY))
     {
         _bContactorTransferOn = false;
         UTILS_DisableTimer(&_ContactorTransferTimer);
@@ -606,7 +606,7 @@ void BASE_MODES::AssignModechangeParameters()
         case BASE_MODES::STATE_MANUAL_GEN_READY:
 //            _GCUAlarms.ResetMainsMonParams();
             if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
-                || (_cfgz.GetCFGZ_Param(CFGZ::ID_S1_SENS_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
+                || (_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
             {
                 _eOperatingMode =BTS_MODE;
                 _eBTSState = STATE_BTS_GEN_ON_LOAD;
@@ -686,8 +686,8 @@ void BASE_MODES::SetMainsStatusHealthy()
 
 bool BASE_MODES::GenStartCondition()
 {
-    if((_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE))
-        || ((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
+    if((_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
+        || ((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
         )
     {
         return true;
@@ -829,11 +829,11 @@ bool BASE_MODES::GetIndividualPhaseStatus(PHASE_t ePhase)
 
 uint8_t BASE_MODES::GetMainsHealthyPhaseCnt(void)
 {
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) == CFGZ::CFGZ_1_PHASE_SYSTEM)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) == CFGZ::CFGZ_1_PHASE_SYSTEM)
     {
         return 0;
     }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_AC_SYTEM_TYPE) == CFGZ::CFGZ_3_PHASE_SYSTEM)
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
     {
         return ((uint8_t)(_bRPhasHealthyStatus)
                 + (uint8_t)(_bYPhasHealthyStatus) + (uint8_t)(_bBPhasHealthyStatus));

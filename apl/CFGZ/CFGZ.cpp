@@ -398,7 +398,7 @@ void CFGZ::prvConfigureASENSE()
     uint8_t u8MapSize = sizeof(aPIN11MAP)/sizeof(ASENSOR_MAP_ROW_t);
     cfg.stAIConfig[A_SENSE::HAL_PIN_11].eSensor = prGetAnalogSensor(ID_LOP_RES_DIG_J_SENSOR_SELECTION, aPIN11MAP, u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_11].eRef    = ANLG_IP::REF_ENGINE_BODY;
-    prvCpyInterpolationTable(ID_LOP_CALIB_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_11].stTable);
+    prvCpyInterpolationTable(ID_LOP_RES_DIG_J_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_11].stTable);
     cfg.stAIConfig[A_SENSE::HAL_PIN_11].stTable.u8InterPolationPoints = 10;
 
 
@@ -418,7 +418,7 @@ void CFGZ::prvConfigureASENSE()
     {
         cfg.stAIConfig[A_SENSE::HAL_PIN_12].eRef    = ANLG_IP::REF_ENGINE_BODY;
     }
-    prvCpyInterpolationTable(ID_FUEL_CALIB_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_12].stTable);
+    prvCpyInterpolationTable(ID_FUEL_LVL_DIG_K_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_12].stTable);
     cfg.stAIConfig[A_SENSE::HAL_PIN_12].stTable.u8InterPolationPoints = 10;
 
     /*Map between the sensor names defined in A_SENSE and CFGZ*/
@@ -430,7 +430,7 @@ void CFGZ::prvConfigureASENSE()
     u8MapSize = sizeof(aPIN13MAP)/sizeof(ASENSOR_MAP_ROW_t);
     cfg.stAIConfig[A_SENSE::HAL_PIN_13].eSensor = prGetAnalogSensor(ID_ENG_TEMP_DIG_M_SENSOR_SELECTION, aPIN13MAP,u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_13].eRef    = ANLG_IP::REF_ENGINE_BODY;
-    prvCpyInterpolationTable(ID_ENG_CLNT_CALIB_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_13].stTable);
+    prvCpyInterpolationTable(ID_ENG_TEMP_DIG_M_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_13].stTable);
 
     cfg.stAIConfig[A_SENSE::HAL_PIN_13].stTable.u8InterPolationPoints = 10;
 

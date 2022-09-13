@@ -318,7 +318,8 @@ void J1939APP::GetPGN(uint8_t ubyPGN, uint8_t u8RxOrTx, J1939_PGN_DB_t *pstGetPG
     */
         if(u8RxOrTx == CALC_FOR_TRANSMIT)
         {
-            pstGetPGN->ubyPDU_SA = _cfgz.GetCFGZ_Param(CFGZ::ID_SGC_SOURCE_ADDRESS);
+           // pstGetPGN->ubyPDU_SA = _cfgz.GetCFGZ_Param(CFGZ::ID_SGC_SOURCE_ADDRESS);
+            pstGetPGN->ubyPDU_SA = 0x3;
            /* For HATZ Engine, the Source Address should for TSC1 should be "3" always */
            if(CFGZ::ENG_HATZ == _cfgz.GetEngType())
             {
@@ -567,18 +568,18 @@ void J1939APP::prvUpdatePGN0Data(void)
         _f32Pgn0Data[PGN_0_ENG_REQ_SPEED_CONTROL] = 0;
         _f32Pgn0Data[PGN_0_OVERRIDE_CONTROL_MODE_PRIORITY] = 3;
         _f32Pgn0Data[PGN_0_HARDCODE_VALUE] = 3;
-        if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_TO_ECU))
-        {
-            if(START_STOP::IsIdleModeActive())
-            {
-                _f32Pgn0Data[PGN_0_ENG_REQ_SPEED] =_cfgz.GetCFGZ_Param(CFGZ::ID_INITIAL_LOW_SPEED);
-            }
-            else
-            {
-                _f32Pgn0Data[PGN_0_ENG_REQ_SPEED] =_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_REQUESTED_SPEED_TO_ECU);
-            }
-        }
-        else
+//        if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_TO_ECU))
+//        {
+//            if(START_STOP::IsIdleModeActive())
+//            {
+//                _f32Pgn0Data[PGN_0_ENG_REQ_SPEED] =_cfgz.GetCFGZ_Param(CFGZ::ID_INITIAL_LOW_SPEED);
+//            }
+//            else
+//            {
+//                _f32Pgn0Data[PGN_0_ENG_REQ_SPEED] =_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_REQUESTED_SPEED_TO_ECU);
+//            }
+//        }
+//        else
         {
             _f32Pgn0Data[PGN_0_ENG_REQ_SPEED] = 0xFFFF;
         }
@@ -689,18 +690,18 @@ void J1939APP::prvUpdatePGN65527Data(void)
     _f32Pgn65527Data[PGN_0_ENG_REQ_SPEED_CONTROL] = 0;
     _f32Pgn65527Data[PGN_0_OVERRIDE_CONTROL_MODE_PRIORITY] = 3;
     _f32Pgn65527Data[PGN_0_HARDCODE_VALUE] = 3;
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_TO_ECU))
-    {
-        if(START_STOP::IsIdleModeActive())
-        {
-            _f32Pgn65527Data[PGN_0_ENG_REQ_SPEED] = _cfgz.GetCFGZ_Param(CFGZ::ID_INITIAL_LOW_SPEED);
-        }
-        else
-        {
-            _f32Pgn65527Data[PGN_0_ENG_REQ_SPEED] = _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_REQUESTED_SPEED_TO_ECU);
-        }
-    }
-    else
+//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_TO_ECU))
+//    {
+//        if(START_STOP::IsIdleModeActive())
+//        {
+//            _f32Pgn65527Data[PGN_0_ENG_REQ_SPEED] = _cfgz.GetCFGZ_Param(CFGZ::ID_INITIAL_LOW_SPEED);
+//        }
+//        else
+//        {
+//            _f32Pgn65527Data[PGN_0_ENG_REQ_SPEED] = _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_REQUESTED_SPEED_TO_ECU);
+//        }
+//    }
+//    else
     {
         _f32Pgn65527Data[PGN_0_ENG_REQ_SPEED] = 0xFFFF;
     }
@@ -744,13 +745,7 @@ void J1939APP::prvUpdatePGN65385Data(void)
 }
 void J1939APP::prvUpdatePGN57344Data(void)
 {/* PGN-57344(CM1) : KUBOTA Engine */
-    if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor:: DI_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL)
-            != DigitalSensor:: SENSOR_NOT_CONFIGRUED )
-    {
-        _f32Pgn57344Data[PGN_57344_REGEN_SW_INHIBIT] = (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor:: DI_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL)== DigitalSensor::SENSOR_LATCHED);
-                //*GCU_DIG_IN_SOURCE[ID_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL];
-    }
-    else
+
     {
         _f32Pgn57344Data[PGN_57344_REGEN_SW_INHIBIT] = 3;
     }
@@ -789,7 +784,7 @@ void J1939APP::prvUpdatePGN65219Data(void)
     if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor:: DI_GEN_CONTACTOR_LATCHED)
             != DigitalSensor:: SENSOR_NOT_CONFIGRUED )
     {
-        _f32Pgn65219Data[PGN_65219_TRANS_NEUTRAL_SW] = _gcuAlarm.IsAlarmActive(GCU_ALARMS::FAIL_TO_LATCH_GEN_CONT);
+        _f32Pgn65219Data[PGN_65219_TRANS_NEUTRAL_SW] = 0;
     }
     else
     {
@@ -806,18 +801,18 @@ void J1939APP::prvUpdatePGN65219Data(void)
 void J1939APP::prvUpdatePGN65363Data(void)
 {
   /* PGN-65363(KBT PROPB_53 GEN4) : KUBOTA Engine */
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_TO_ECU))
-    {
-        if(START_STOP::IsIdleModeActive())
-        {
-            _f32Pgn65363Data[PGN_65363_TARGET_ENG_SPEED] = _cfgz.GetCFGZ_Param(CFGZ::ID_INITIAL_LOW_SPEED);;
-        }
-        else
-        {
-            _f32Pgn65363Data[PGN_65363_TARGET_ENG_SPEED] =_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_REQUESTED_SPEED_TO_ECU);
-        }
-    }
-    else
+//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_TO_ECU))
+//    {
+//        if(START_STOP::IsIdleModeActive())
+//        {
+//            _f32Pgn65363Data[PGN_65363_TARGET_ENG_SPEED] = _cfgz.GetCFGZ_Param(CFGZ::ID_INITIAL_LOW_SPEED);;
+//        }
+//        else
+//        {
+//            _f32Pgn65363Data[PGN_65363_TARGET_ENG_SPEED] =_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_REQUESTED_SPEED_TO_ECU);
+//        }
+//    }
+//    else
     {
         _f32Pgn65363Data[PGN_65363_TARGET_ENG_SPEED] = 0xFFFF;
     }
@@ -853,7 +848,7 @@ void J1939APP::prvUpdatePGN65265Data(void)
         if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor:: DI_GEN_CONTACTOR_LATCHED)
                 != DigitalSensor:: SENSOR_NOT_CONFIGRUED )
         {
-            if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::FAIL_TO_LATCH_GEN_CONT))//(*GCU_DIG_IN_SOURCE[ID_SOURCE_NEUTRAL_SW_SIGNAL])
+            if(1)
             {
                 _f32Pgn65265Data[PGN_65265_PARKING_BRAKE_SW] = 1;
             }
@@ -1001,7 +996,7 @@ void J1939APP::ExtractReadFrame(void)
 
         u8SourceAddress = (uint8_t) (uPDU_ID_Data.tPDUIdFrame.ubyPDU_SA);
         /* If the received source address is same as the configured ECU Source address then only received the data.  */
-        if(u8SourceAddress == _cfgz.GetCFGZ_Param(CFGZ::ID_ECU_SOURCE_ADDRESS))
+//        if(u8SourceAddress == _cfgz.GetCFGZ_Param(CFGZ::ID_ECU_SOURCE_ADDRESS))
         {
             bECUSourceAddressMatched = true;
         }
@@ -1841,19 +1836,19 @@ void J1939APP::Update(bool bDeviceInconfig)
 
     }
 
-    if(UTILS_GetElapsedTimeInSec(&_CommFailTimeout) > _cfgz.GetCFGZ_Param(CFGZ::ID_ECU_COMM_FAILURE_ACT_DELAY))
-    {
-        _bIsCANJ1939CommFail = true;
-        ResetLampsStatus();
-        _ArrPgnReadData[RX_PGN_EFL_P1_65263][2] = 0;
-        _ArrPgnReadData[RX_PGN_ET1_65262][0] = 0;
-        _ArrPgnReadData[RX_PGN_LFE_65266][0] = 0;
-        _ArrPgnReadData[RX_PGN_HOURS_65253][0] = 0;
-        _ArrPgnReadData[RX_PGN_VEP1_65271][0] = 0;
-        _ArrPgnReadData[RX_PGN_VEP1_65271][1] = 0;
-        _ArrPgnReadData[RX_PGN_EEC1_61444][2] = 0;
-
-    }
+//    if(UTILS_GetElapsedTimeInSec(&_CommFailTimeout) > _cfgz.GetCFGZ_Param(CFGZ::ID_ECU_COMM_FAILURE_ACT_DELAY))
+//    {
+//        _bIsCANJ1939CommFail = true;
+//        ResetLampsStatus();
+//        _ArrPgnReadData[RX_PGN_EFL_P1_65263][2] = 0;
+//        _ArrPgnReadData[RX_PGN_ET1_65262][0] = 0;
+//        _ArrPgnReadData[RX_PGN_LFE_65266][0] = 0;
+//        _ArrPgnReadData[RX_PGN_HOURS_65253][0] = 0;
+//        _ArrPgnReadData[RX_PGN_VEP1_65271][0] = 0;
+//        _ArrPgnReadData[RX_PGN_VEP1_65271][1] = 0;
+//        _ArrPgnReadData[RX_PGN_EEC1_61444][2] = 0;
+//
+//    }
 
 }
 
@@ -2394,7 +2389,7 @@ void J1939APP::ResetLampsStatus(void)
    /*As per DEIF's requirement we should have drop down menu in ECU submenu to select the frequency(50Hz or 60Hz) Since we dont have it.
     * Here we consider if Eng requested speed is more than 1650 then 60Hz else 50Hz. Needs to be reviewed.*/
 
-   _f32Pgn65395Data[PGN_65395_CUMMINS_FREQUENCY_RANGE] = _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_FRQ);
+   _f32Pgn65395Data[PGN_65395_CUMMINS_FREQUENCY_RANGE] = 0;//_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_FRQ);
 
 
    _f32Pgn65395Data[PGN_65395_UNUSED_SPN_2] = 32768;
@@ -2408,7 +2403,7 @@ void J1939APP::ResetLampsStatus(void)
    _f32Pgn65406Data[PGN_65406_CUMMINS_DROOP] = 0;
    _f32Pgn65406Data[PGN_65406_CUMMINS_RES] = 0;
    _f32Pgn65406Data[PGN_65406_CUMMINS_FREQ_ADJUSTMENT] = 0;
-   _f32Pgn65406Data[PGN_65406_CUMMINS_GAIN] = _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_GAIN);
+   _f32Pgn65406Data[PGN_65406_CUMMINS_GAIN] = 0;//_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_GAIN);
 }
 
  /* PGN-61441 : EBC1 Engine Brake Controller*/

@@ -194,7 +194,7 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
        case DN_LONG_PRESS:
        {
-           if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE))
+//           if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE))
            {
                if(((_eAlarmType == DM2)||(_eAlarmType == PCD)||(_eAlarmType == NCD)))
                {
@@ -223,8 +223,6 @@ void ALARM_UI::prvDisplayAlarmScreen()
     _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(19), GLCD_Y(128));
 
     _Disp.drawVerticalLine(GLCD_X(100),GLCD_Y(0),GLCD_Y(19));
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_ENGLISH)
-            || (_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_SPANISH))
     {
         _Disp.drawVerticalLine(GLCD_X(22), GLCD_Y(0), GLCD_Y(19));
         _Disp.printImage((uint8_t *)u8ArrAlarmLogo, 3,20,0, 0);
@@ -234,10 +232,7 @@ void ALARM_UI::prvDisplayAlarmScreen()
         _Disp.printStringCenterAligned((char *)strAlarms[_cfgz.GetArrLanguageIndex()],
                     FONT_ARIAL);
     }
-    else
-    {
-        _Disp.printImage((uint8_t *)&u8ChiniAlarmScreen[0][0], 4,14,5,35);
-    }
+
 
     _Disp.gotoxy(GLCD_X(126),GLCD_Y(5));
     if(u8PrevAlarmCount != _u8NumberOfAlarms)
@@ -260,270 +255,6 @@ void ALARM_UI::prvDisplayAlarmScreen()
     }
     _Disp.printStringRightAligned((char *)arrTemp, FONT_VERDANA);
 
-    bool _bAlarminEnglish=false;
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_CHINSESE)
-    {
-        switch(_alarm.GetAlarmId(u8AlarmScreenNum))
-          {
-              case GCU_ALARMS::NoAlarm_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_NoAlarms, 7, 16, 33, 36);
-                  break;
-              }
-              case GCU_ALARMS::Low_Oil_Pressure_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_LOP, 7, 16, 24, 30);
-                  if(_alarm.IsAlarmActive(GCU_ALARMS::LLOP_SWITCH))
-                  {
-                       _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_Switch, 6, 15, 46, 80);
-                  }
-                  if(_alarm.IsAlarmActive(GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN)
-                   ||_alarm.IsAlarmActive(GCU_ALARMS::LOW_OIL_PRESS_WARNING))
-                  {
-                       _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_Sensor, 6, 16, 46, 5);
-                  }
-                  break;
-              }
-              case GCU_ALARMS::fuel_level_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_LowFuelLevel, 10, 17, 24, 27);
-                  if(_alarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LVL_SWITCH) )
-                  {
-                       _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_Switch, 6, 15, 46, 80);
-                  }
-                  if(_alarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN)
-                   ||_alarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_WARNING))
-                  {
-                       _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_Sensor, 6, 16, 46, 5);
-                  }
-                  break;
-              }
-              case GCU_ALARMS::High_Water_Temperature_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_HighEngTemp, 7, 16, 24, 38);
-                  if(_alarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH))
-                  {
-                       _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_Switch, 6, 15, 46, 80);
-                  }
-                  if(_alarm.IsAlarmActive(GCU_ALARMS::HIGH_ENG_TEMP_SHUTDOWN)
-                   ||_alarm.IsAlarmActive(GCU_ALARMS::HIGH_ENG_TEMP_WARNING))
-                  {
-                       _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_Sensor, 6, 16, 46, 5);
-                  }
-                  break;
-              }
-              case GCU_ALARMS::Radiator_Water_Level_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_LowWaterLevelSwitch, 11, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::Over_Speed_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_OverSpeed, 9, 16, 33, 30);
-                  break;
-              }
-              case GCU_ALARMS::Gross_Over_Speed_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_GrossOverSpeed, 9, 16, 33, 30);
-                  break;
-              }
-              case GCU_ALARMS::Under_Speed_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_UnderSpeed, 5, 16, 33, 46);
-                  break;
-              }
-              case GCU_ALARMS::R_Over_Voltage_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_L1_PhaseOverVoltage, 11, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::R_Under_Voltage_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_L1_PhaseUnderVoltage, 11, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::Y_Over_Voltage_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_L2_PhaseOverVoltage, 11, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::Y_Under_Voltage_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_L2_PhaseUnderVoltage, 11, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::B_Over_Voltage_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_L3_PhaseOverVoltage, 11, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::B_Under_Voltage_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_L3_PhaseUnderVoltage, 11, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::Over_Frequency_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_OverFrequency, 5, 16, 33, 42);
-                  break;
-              }
-              case GCU_ALARMS::Under_Frequency_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_UnderFrequency, 5, 16, 33, 42);
-                  break;
-              }
-              case GCU_ALARMS::Emergency_Stop_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_EmergencyStop, 9, 16, 33, 30);
-                  break;
-              }
-              case GCU_ALARMS::Charge_Fail_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_ChargeFail, 9, 16, 33, 28);
-                  break;
-              }
-              case GCU_ALARMS::Battery_Over_Voltage_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_BatteryOverVoltage, 11, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::Battery_Under_Voltage_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_BatteryUnderVoltage, 11, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::Filter_maintenance_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_MaintenanceDue, 9, 16, 33, 30);
-                  break;
-              }
-              case GCU_ALARMS::Fail_To_Stop_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_FailToStop, 9, 16, 33, 26);
-                  break;
-              }
-              case GCU_ALARMS::Fuel_Theft_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_FuelTheft, 9, 16, 33, 30);
-                  break;
-              }
-              case GCU_ALARMS::Fail_To_Start_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_FailToStart, 9, 16, 33, 30);
-                  break;
-              }
-              case GCU_ALARMS::Gen_Phase_Rotation_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_DGPhaseReversed, 12, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::Phase_EB_Rotation_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_MainsPhaseReversed, 11, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::Over_Load_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_OverLoad, 5, 16, 33, 46);
-                  break;
-              }
-              case GCU_ALARMS::V_Belt_Broken_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_VBeltBroken, 12, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::Over_Current_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_OverCurrent, 7, 16, 33, 36);
-                  break;
-              }
-              case GCU_ALARMS::MPU_Loss_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_NoSpeedSignal, 12, 16, 33, 20);
-                  break;
-              }
-              case GCU_ALARMS::Oil_Press_Detected_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_HighOilPressure, 11, 16, 24, 20);
-                  if(_alarm.AlarmResultLatched(GCU_ALARMS::LLOP_SWITCH_AT_ENG_OFF))
-                  {
-                       _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_Switch, 6, 15, 46, 80);
-                  }
-
-                  if(_alarm.AlarmResultLatched(GCU_ALARMS::OIL_PRESS_DETECTED))
-                  {
-                       _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_Sensor, 6, 16, 46, 5);
-                  }
-                  break;
-              }
-              case GCU_ALARMS::Engine_Temperature_Ckt_Open_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_Pin24CktOpen, 13, 16, 33, 16);
-                  break;
-              }
-              case GCU_ALARMS::Oil_Pressure_Ckt_Open_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_Pin26CktOpen, 13, 16, 33, 16);
-                  break;
-              }
-              case GCU_ALARMS::Fuel_Level_Ckt_Open_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_FuelLevelCktOpen, 13, 16, 33, 18);
-                  break;
-              }
-              case GCU_ALARMS::Load_Unbalance_id:
-              {    _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_UnbalancedLoad, 11, 16, 33, 26);
-                  break;
-              }
-              case GCU_ALARMS::Lop_Curr_Sens_Open_Ckt_id:
-              {    _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_Pin23CktOpen, 14, 16, 33, 9);
-                  break;
-              }
-              case GCU_ALARMS::LOP_CURR_SENS_STB_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_ShrtToBatt, 14, 14, 33, 7);
-                  break;
-              }
-#ifdef CAN_J1939
-              case GCU_ALARMS::J1939_com_fail_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_CommFail, 8, 15, 34, 33);
-                  break;
-              }
-              case GCU_ALARMS::J1939_Protect_Lamp_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_ProtectionLampOn, 7, 14, 35, 33);
-                  break;
-              }
-              case GCU_ALARMS::J1939_Amber_Lamp_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_AmberLampOn, 9, 15, 35, 27);
-                  break;
-              }
-              case GCU_ALARMS::J1939_Red_Lamp_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_RedLampOn, 7, 14, 35, 40);
-                  break;
-              }
-              case GCU_ALARMS::J1939_Mil_Lamp_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChAlarm_MalfunctionLampOn, 7, 16, 34, 33);
-                  break;
-              }
-              case GCU_ALARMS::J1939_Preheat_fail_id:
-              {
-                   _Disp.printImage((uint8_t *)stChiniAlarm.gau8ChinesePreheatFailedAlarm, 12, 14, 33, 20);
-                  break;
-              }
-#endif
-              default:
-                  _bAlarminEnglish = true;
-                  break;
-          }
-    }
-
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_ENGLISH)||_bAlarminEnglish
-            || (_cfgz.GetCFGZ_Param(CFGZ::ID_LANGUAGE)== CFGZ::LANGUAGE_SPANISH))
     {
         _Disp.gotoxy(GLCD_X(64),GLCD_Y(37));
         _Disp.printStringCenterAligned(
@@ -535,73 +266,27 @@ void ALARM_UI::prvDisplayAlarmScreen()
         {
             case GCU_ALARMS::Low_Oil_Pressure_id:
             {
-                if(_alarm.IsAlarmActive(GCU_ALARMS::LOW_OIL_PRESS_WARNING)
-                   ||_alarm.IsAlarmActive(GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN))
-                {
-                    strcpy(arrTemp, "Sensor");
-                }
 
-                if(_alarm.IsAlarmActive(GCU_ALARMS::LLOP_SWITCH))
-                {
-                    strcpy(arrTemp1, "Switch");
-                }
                 break;
             }
 
             case GCU_ALARMS::fuel_level_id:
             {
-                if(_alarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN)
-                   ||_alarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_WARNING))
-                {
-                    strcpy(arrTemp, "Sensor");
-                }
 
-                if(_alarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LVL_SWITCH))
-                {
-                    strcpy(arrTemp1, "Switch");
-                }
                 break;
             }
 
             case GCU_ALARMS::High_Water_Temperature_id:
             {
-                if((_alarm.IsAlarmActive(GCU_ALARMS::HIGH_ENG_TEMP_SHUTDOWN)
-                     ||_alarm.IsAlarmActive(GCU_ALARMS::HIGH_ENG_TEMP_WARNING))
-                        && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_THRESH_TYPE) == CFGZ::CFGZ_GREATER_THAN_THRESHOLD))
-                {
-                    strcpy(arrTemp, "Sensor");
-                }
-
-                if(_alarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH))
-                {
-                    strcpy(arrTemp1, "Switch");
-                }
 
                 break;
             }
 
-            case GCU_ALARMS::Low_Water_Temperature_id:
-             {
-                 if((_alarm.IsAlarmActive(GCU_ALARMS::HIGH_ENG_TEMP_SHUTDOWN)
-                      ||_alarm.IsAlarmActive(GCU_ALARMS::HIGH_ENG_TEMP_WARNING))
-                         && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_THRESH_TYPE) == CFGZ::CFGZ_LESS_THAN_THRESHOLD))
-                 {
-                     strcpy(arrTemp, "Sensor");
-                 }
-                 break;
-             }
 
-            case GCU_ALARMS::Oil_Press_Detected_id:
+
+            case GCU_ALARMS::High_Oil_Press_Detected_id:
             {
-                if(_alarm.AlarmResultLatched(GCU_ALARMS::OIL_PRESS_DETECTED))
-                {
-                    strcpy(arrTemp, "Sensor");
-                }
 
-                if(_alarm.AlarmResultLatched(GCU_ALARMS::LLOP_SWITCH_AT_ENG_OFF))
-                {
-                    strcpy(arrTemp1, "Switch");
-                }
                 break;
             }
         }

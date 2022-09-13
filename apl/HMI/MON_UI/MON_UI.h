@@ -1221,7 +1221,7 @@ private:
     void prvDisplayError();
 
     void prvGetMonImageCoordicates( uint8_t *pu8SizeX, uint8_t *pu8SizeY, uint8_t *pu8CordinateX, uint8_t *pu8CordinateY);
-    void prvChiniHomScreen();
+
     void prvPrintExerciser(uint8_t _ScreenNo);
     void prvBuildLampIconScreen(void);
     void prvBuildExhaustIconScreen(void);

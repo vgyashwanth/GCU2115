@@ -403,7 +403,7 @@ private:
      */
     bool prvEngineNotInCoolingStage();
 
-    void prvUpdateBreakerPulseState();
+//    void prvUpdateBreakerPulseState();
 };
 
 #endif

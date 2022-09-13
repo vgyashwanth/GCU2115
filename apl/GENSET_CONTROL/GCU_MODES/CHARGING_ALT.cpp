@@ -73,12 +73,12 @@ void CHARGING_ALT::Update(bool bDeviceInConfigMode)
                     UTILS_DisableTimer(&_ChargAltPulseTimer);
                     _StateCA = STATE_CHG_ALT_OFF;
                 }
-                else if(_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::CHARG_ALT_UV].bResultLatched)
-                {
-                    _ChargAltFail = true;
-                    UTILS_DisableTimer(&_ChargAltPulseTimer);
-                    _StateCA = STATE_CHG_ALT_ERR;
-                }
+//                else if(_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::CHARG_ALT_UV].bResultLatched)
+//                {
+//                    _ChargAltFail = true;
+//                    UTILS_DisableTimer(&_ChargAltPulseTimer);
+//                    _StateCA = STATE_CHG_ALT_ERR;
+//                }
                 else if(UTILS_GetElapsedTimeInSec(&_ChargAltPulseTimer) >=  
                                                             CA_PULSE_TIME_SEC)
                 {
@@ -104,12 +104,12 @@ void CHARGING_ALT::Update(bool bDeviceInConfigMode)
                     UTILS_DisableTimer(&_ChargAltWaitTimer);
                     _StateCA = STATE_CHG_ALT_OFF;
                 }
-                else if(_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::CHARG_ALT_UV].bResultLatched)
-                {
-                    _ChargAltFail = true;
-                    UTILS_DisableTimer(&_ChargAltWaitTimer);
-                    _StateCA = STATE_CHG_ALT_ERR;
-                }
+//                else if(_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::CHARG_ALT_UV].bResultLatched)
+//                {
+//                    _ChargAltFail = true;
+//                    UTILS_DisableTimer(&_ChargAltWaitTimer);
+//                    _StateCA = STATE_CHG_ALT_ERR;
+//                }
                 else if(UTILS_GetElapsedTimeInSec(&_ChargAltWaitTimer) >= 
                                                         CA_WAIT_TIME_SEC)
                 {
@@ -128,15 +128,15 @@ void CHARGING_ALT::Update(bool bDeviceInConfigMode)
                     UTILS_DisableTimer(&_ChargAltMonTimer);
                     _StateCA = STATE_CHG_ALT_OFF;
                 }
-                else if(_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::CHARG_ALT_UV].bResultLatched)
-                {
-                    _ChargAltFail = true;
-                    UTILS_DisableTimer(&_ChargAltMonTimer);
-                    _StateCA = STATE_CHG_ALT_ERR;
-                }
+//                else if(_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::CHARG_ALT_UV].bResultLatched)
+//                {
+//                    _ChargAltFail = true;
+//                    UTILS_DisableTimer(&_ChargAltMonTimer);
+//                    _StateCA = STATE_CHG_ALT_ERR;
+//                }
                 else if((UTILS_GetElapsedTimeInSec(&_ChargAltMonTimer) >= 
-                            _cfgz.GetCFGZ_Param(CFGZ::ID_CHARG_ALT_FAIL_DELAY))
-                                || (_cfgz.GetCFGZ_Param(CFGZ::ID_CHARG_ALT_FAIL_ACTION) == CFGZ::CFGZ_ACTION_NONE)
+                            _cfgz.GetCFGZ_Param(CFGZ::ID_CHARGE_ALT_MON_FAIL_DELAY))
+                                || (_cfgz.GetCFGZ_Param(CFGZ::ID_CHARGE_ALT_MON_FAIL_ACTION) == CFGZ::CFGZ_ACTION_NONE)
                                 || _bStartChargAltPulse)
                 {
                     _bStartChargAltPulse = false;
@@ -153,12 +153,12 @@ void CHARGING_ALT::Update(bool bDeviceInConfigMode)
                     _ChargAltFail = false;
                     _StateCA = STATE_CHG_ALT_OFF;
                 }
-                else if(!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::CHARG_ALT_UV].bResultInstant)
-                {
-                    _ChargAltFail = false;
-                    _StateCA = STATE_CHG_ALT_CMD_OFF;
-                    _GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::CHARG_ALT_UV].bResultLatched = 0;
-                }
+//                else if(!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::CHARG_ALT_UV].bResultInstant)
+//                {
+//                    _ChargAltFail = false;
+//                    _StateCA = STATE_CHG_ALT_CMD_OFF;
+//                    _GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::CHARG_ALT_UV].bResultLatched = 0;
+//                }
                 break;
             default:
                 break;

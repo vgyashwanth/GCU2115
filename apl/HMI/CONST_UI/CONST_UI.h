@@ -36,7 +36,7 @@ extern const uint8_t u8ArrEngineHours[4][32];
 extern const uint8_t u8ArrEngineSpeed[4][32];
 extern const uint8_t u8ArrAlarmLogo[3][20];
 extern const uint8_t gau8LIShelterTemp[4][32];
-extern const char *StrMonth[2][12];
+extern const char *StrMonth[1][12];
 extern const char *strPhase[];
 extern const char *strPh_Ph[];
 extern const char *strPower[];
@@ -70,7 +70,7 @@ typedef enum
     STR_AUTO_EXERCISER_MONTHLY,
     STR_AUTO_EXERCISER_LAST
 }STR_AUTO_EXERCISER_t;
-extern const char *StrAutoExerciser[2][STR_AUTO_EXERCISER_LAST];
+extern const char *StrAutoExerciser[1][STR_AUTO_EXERCISER_LAST];
 typedef enum
 {
     STR_MAINS_NOT_READ,
@@ -81,10 +81,10 @@ typedef enum
     STR_MAINS_STATUS_LAST
 }MAINS_STATUS_t;
 
-extern const char *StrMainsStatus[2][STR_MAINS_STATUS_LAST];
+extern const char *StrMainsStatus[1][STR_MAINS_STATUS_LAST];
 extern const char *StrEICViewMessage[2];
 extern const char *StrOpnGndckt[2];
-extern const char *StrEngineType[2][21];
+extern const char *StrEngineType[1][21];
 extern const char *strCANMsgRcvError[2];
 extern const char *strAlaram[][GCU_ALARMS::ID_ALL_ALARMS_LAST];
 extern const char *strHystogram[];
@@ -124,103 +124,7 @@ extern char strAuxS1String[MAX_AUX_STRING_SIZE], strAuxS2String[MAX_AUX_STRING_S
             strAuxS3String[MAX_AUX_STRING_SIZE], strAuxS4String[MAX_AUX_STRING_SIZE];
 extern char strProfile[MAX_AUX_STRING_SIZE];
 
-
-extern const uint8_t u8ImagesChiniMonScreen[][14][16];
-extern const uint8_t u8ChiniAlarmScreen[4][14];
-extern const uint8_t gau8ChineseMainsAbnormal[9][16] ;
-extern const uint8_t  gau8ChineseMainsSequenceFailed[12][16];
-extern const uint8_t gau8ChineseMainsHealthy[9][16];
-extern const uint8_t gau8ChineseMainsFailed[9][16];
-extern const uint8_t gau8ChineseMainsNotRead[10][14];
-
-typedef struct
-{
-    uint8_t gau8ChAlarm_Pin24CktOpen[13][16];       /// 168 Bytes
-    uint8_t gau8ChAlarm_HighEngTemp[7][16];         /// 252 Bytes
-    uint8_t gau8ChAlarm_FuelLevelCktOpen[13][16];   /// 221 Bytes
-    uint8_t gau8ChAlarm_Switch[6][15];              /// 090 Bytes
-    uint8_t gau8ChAlarm_LOP[7][16];                 /// 209 Bytes
-    uint8_t gau8ChAlarm_LowFuelLevel[10][17];       /// 170 Bytes
-    uint8_t gau8ChAlarm_Pin26CktOpen[13][16];       /// 224 Bytes
-    uint8_t gau8ChAlarm_MainsPhaseReversed[11][16]; /// 084 Bytes
-    uint8_t gau8ChAlarm_LowWaterLevelSwitch[11][16];/// 135 Bytes
-    uint8_t gau8ChAlarm_UnderSpeed[5][16];          /// 042 Bytes
-    uint8_t gau8ChAlarm_OverSpeed[9][16];           /// 056 Bytes
-    uint8_t gau8ChAlarm_GrossOverSpeed[9][16];      /// 112 Bytes
-    uint8_t gau8ChAlarm_L1_PhaseOverVoltage[11][16]; ///126 Bytes
-    uint8_t gau8ChAlarm_L1_PhaseUnderVoltage[11][16];///154 Bytes
-    uint8_t gau8ChAlarm_L2_PhaseOverVoltage[11][16]; ///126 Bytes
-    uint8_t gau8ChAlarm_L2_PhaseUnderVoltage[11][16];///154 Bytes
-    uint8_t gau8ChAlarm_L3_PhaseOverVoltage[11][16]; ///126 Bytes
-    uint8_t gau8ChAlarm_L3_PhaseUnderVoltage[11][16];///154 Bytes
-    uint8_t gau8ChAlarm_BatteryOverVoltage[11][16]; /// 112 Bytes
-    uint8_t gau8ChAlarm_BatteryUnderVoltage[11][16];/// 112 Bytes
-    uint8_t gau8ChAlarm_UnderFrequency[5][16];      /// 060 Bytes
-    uint8_t gau8ChAlarm_OverFrequency[5][16];       /// 060 Bytes
-    uint8_t gau8ChAlarm_EmergencyStop[9][16];       /// 140 Bytes
-    uint8_t gau8ChAlarm_ChargeFail[9][16];          /// 112 Bytes
-    uint8_t gau8ChAlarm_MaintenanceDue[9][16];      /// 112 Bytes
-    uint8_t gau8ChAlarm_FailToStop[9][16];          /// 153 Bytes
-    uint8_t gau8ChAlarm_FailToStart[9][16];         /// 170 Bytes
-    uint8_t gau8ChAlarm_FuelTheft[9][16];           /// 208 Bytes
-    uint8_t gau8ChAlarm_HighOilPressure[11][16];    /// 176 Bytes
-    uint8_t gau8ChAlarm_DGPhaseReversed[12][16];    /// 195 Bytes
-    uint8_t gau8ChAlarm_Sensor[6][16];              /// 096 Bytes
-    uint8_t gau8ChAlarm_NoAlarms[7][16];            /// 160 Bytes
-    uint8_t gau8ChAlarm_OverCurrent[7][16];         /// 070 Bytes
-    uint8_t gau8ChAlarm_OverLoad[5][16];            /// 060 Bytes
-    uint8_t gau8ChAlarm_NoSpeedSignal[12][16];      /// 126 Bytes
-    uint8_t gau8ChAlarm_UnbalancedLoad[11][16];     /// 187 Bytes
-    uint8_t gau8ChAlarm_VBeltBroken[12][16];        /// 238 Bytes
-    uint8_t gau8ChAlarm_Pin23CktOpen[14][16];       /// 224 Bytes
-    uint8_t gau8ChAlarm_ShrtToBatt[14][14];         /// 196 Bytes
-}CHINI_ALARM_st;
-
-
-extern const CHINI_ALARM_st stChiniAlarm;
-
-
-typedef struct
-{
-    uint8_t gau8ChineseEngineOffReady[14][14];
-    uint8_t gau8ChineseStartingAttempts[12][16];
-    uint8_t gau8ChineseEngineOnHealthy[10][14];
-    uint8_t gau8ChineseEngineStopping[10][14];
-    uint8_t gau8ChineseNotificationAlarm[12][14];
-    uint8_t gau8ChineseWarningAlarm[11][14];
-    uint8_t gau8ChineseElectricalTripAlarm[11][14];
-    uint8_t gau8ChineseShutdownAlarm[15][13];
-}CHINI_ENG_STATE_st;
-typedef struct
-{
-    uint8_t gau8ChineseCranking[6][12];
-    uint8_t gau8ChineseSafetyMonitoring[7][12];
-    uint8_t gau8ChineseAdditionalStop[8][12];
-    uint8_t gau8ChineseCrankRest[6][13];
-    uint8_t gau8ChineseCoolDown[7][11];
-    uint8_t gau8ChineseStopAction[4][11];
-    uint8_t gau8ChineseStartDelay[6][12];
-    uint8_t gau8ChinesePreheating[6][12];
-}CHINI_TMR_st;
-
-extern const uint8_t gau8ChineseNone[3][12];
-extern const CHINI_ENG_STATE_st stChiniEngStatus;
-extern const CHINI_TMR_st stChiniTmr;
-extern const uint8_t u8bmpChiniManualMode[6][12];
-extern const uint8_t  gau8ChineseAutoAMFMode[4][12];
-extern const uint8_t gau8ChineseEngineBattery[8][14];
-extern const uint8_t gau8ChineseSiteBattery[8][13];
-extern const uint8_t  gau8ChineseNumOfTrips[8][14];
-extern const uint8_t  gau8ChineseNumOfStarts[8][14];
-extern const uint8_t gau8ChineseCirucitOpen[4][13];
-extern const uint8_t gau8ChineseCirucitOpenOrGround[9][13];
-extern const uint8_t gau8ChineseForReadMode[8][14] ;
-extern const uint8_t gau8ChinesePresStop[8][14];
-extern const uint8_t gau8ChineseForWriteMode[8][13];
-extern const uint8_t gau8ChinesePressStart[8][14];
-extern const uint8_t gau8ChinesePassword[4][13];
-extern const char *StrDays[2][7];
-
+extern const char *StrDays[1][7];
 
 extern uint8_t gau8Icon0[4][24] ;
 extern uint8_t gau8Icon1[5][22] ;
@@ -242,12 +146,12 @@ typedef struct
 extern const J1939_SPN_NAME_STRING gstDmNoString[NO_OF_SPNS_IN_DM];
 extern const char SPNStringTable[SPN_LAST][SPN_NAME_MAX_LEN];
 extern const char SpanishSPNStringTable[SPN_LAST][SPN_NAME_MAX_LEN];
-extern const PGN_SUB_HEADINGS_t  gstPgnSubHeadings[2][MAX_NUM_OF_PGN_SUB_HEADINGS];
-extern const  ENG_OPERATION_STATES_t   gstEngOperatingState[2][MAX_NUM_OF_ENG_OPER_STATES];
-extern const DM01_FMI_STRINGS_t gstDM1FmiData[2][MAX_NUM_OF_FMIS];
-extern const PCD_NCD_ALARMS_DATA_t    gstPcdNcdData[2][MAX_NUM_OF_PCD_NCD_ALARMS];
-extern const NCD_INDUCE_STRATEGTY_t   gstNcdInduceData[2][MAX_NUM_OF_NCD_INDUCE_STRAT];
-extern const char* arrPGNAbbreviations[2][NUMBER_OF_PGN_SCREENS];
+extern const PGN_SUB_HEADINGS_t  gstPgnSubHeadings[1][MAX_NUM_OF_PGN_SUB_HEADINGS];
+extern const  ENG_OPERATION_STATES_t   gstEngOperatingState[1][MAX_NUM_OF_ENG_OPER_STATES];
+extern const DM01_FMI_STRINGS_t gstDM1FmiData[1][MAX_NUM_OF_FMIS];
+extern const PCD_NCD_ALARMS_DATA_t    gstPcdNcdData[1][MAX_NUM_OF_PCD_NCD_ALARMS];
+extern const NCD_INDUCE_STRATEGTY_t   gstNcdInduceData[1][MAX_NUM_OF_NCD_INDUCE_STRAT];
+extern const char* arrPGNAbbreviations[1][NUMBER_OF_PGN_SCREENS];
 
 extern const char *Error;
 extern const char * const array_units[];

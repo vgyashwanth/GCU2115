@@ -74,11 +74,11 @@ void ENGINE_MONITORING::Update(bool bDeviceInConfigMode)
             {
                 prvLoadHistogram();
             }
-            if((_u8EngineOn == 1U) && (GetRawEngSpeed() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCON_ENG_SPEED_THRESH))
+            if((_u8EngineOn == 1U) && (GetRawEngSpeed() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
                 && (true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus())
                 && (false == ENGINE_START_VALIDITY::GetEngineStartInvalidity()))
             {
-                if(!_cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ENG))
+//                if(!_cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ENG))
                 {
                     _stCummulativeCnt.u32EngineRunTime_min++;
                 }
@@ -96,7 +96,7 @@ void ENGINE_MONITORING::Update(bool bDeviceInConfigMode)
             }
             else if((_u8EngineOn == 1U) && (true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus()) &&
                     (true == ENGINE_START_VALIDITY::GetEngineStartInvalidity()) &&
-                    (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_WAVE_DETECT_EN) == CFGZ::CFGZ_ENABLE))
+                    (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE))
             {
                 _stCummulativeCnt.u32TamperedRunTime_min++;
                 if(_TimerUpdateTamperedCumulative.bEnabled == false)
@@ -117,7 +117,7 @@ void ENGINE_MONITORING::Update(bool bDeviceInConfigMode)
 
         if(((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED)
                ||(_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_OUT)!=ACT_Manager::ACT_NOT_CONFIGURED))
-               &&(_cfgz.GetCFGZ_Param(CFGZ::ID_CT_LOCATION) == CFGZ::ON_LOAD_CABLE) && BASE_MODES::IsMainsContactorClosed()
+               &&(_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE) && BASE_MODES::IsMainsContactorClosed()
             )
         {
             if(_MainsRunTimeBaseTimer.bEnabled == false)
@@ -144,8 +144,8 @@ void ENGINE_MONITORING::Update(bool bDeviceInConfigMode)
 
         if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
                 &&(!BASE_MODES::IsGenContactorClosed())
-                && (((!BASE_MODES::IsMainsContactorClosed())&&(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-                        || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE) && (_u8EngineOn == 0U))))
+                && (((!BASE_MODES::IsMainsContactorClosed())&&(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                        || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE) && (_u8EngineOn == 0U))))
         {
             if(_BTSRunTimeBaseTimer.bEnabled == false)
             {
@@ -221,21 +221,13 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::getAssumedLoadStatus(CO
         //feedback not available:
         if (ci.bGensetContactorOutputAssigned)
         {
-            if (!ci.bGensetContactorOutputIsPulseType)
+            //output is assigned and is not pulse type
+            if (ci.bGensetContactorOutputStatus)
             {
-                //output is assigned and is not pulse type
-                if (ci.bGensetContactorOutputStatus)
-                {
-                    return LOAD_CONT_STATUS_t::LOAD_ON_GEN;
-                }
-                //else is not necessary
-                bCertainlyNotOnGenset = true;
+                return LOAD_CONT_STATUS_t::LOAD_ON_GEN;
             }
-            else
-            {
-                //output is assigned but it is pulse type
-                //do nothing here, we will anyway default to Genset
-            }
+            //else is not necessary
+            bCertainlyNotOnGenset = true;
         }
         else
         {
@@ -249,8 +241,6 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::getAssumedLoadStatus(CO
         //feedback not available:
         if (ci.bMainsContactorOutputAssigned)
         {
-            if (!ci.bMainsContactorOutputIsPulseType)
-            {
                 //output is assigned and is not pulse type
                 if (ci.bMainsContactorOutputStatus)
                 {
@@ -258,12 +248,6 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::getAssumedLoadStatus(CO
                 }
                 //else is not necessary
                 bCertainlyNotOnMains = true;
-            }
-            else
-            {
-                //output is assigned but it is pulse type
-                //do nothing here, we will anyway default to Genset
-            }
         }
         else
         {
@@ -299,39 +283,16 @@ bool ENGINE_MONITORING::mainsContactorFeedbackInputStatus()
 }
 bool ENGINE_MONITORING::isMainsContactorOutputAssigned()
 {
-    //returns true if one output is assigned as ON/OFF
-    //or if two outputs are assigned as pulse type;
-    //otherwise returns false.
-    if(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED)
-    {
+
         //not equal to not_configured, means it must be assigned!
-        return true;
-    }
-    return isMainsContactorOutputPulseType();
+        return(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED);
 }
 bool ENGINE_MONITORING::isGensetContactorOutputAssigned()
 {
-    //returns true if one output is assigned as ON/OFF
-    //or if two outputs are assigned as pulse type;
-    //otherwise returns false.
-    if(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED)
-    {
-        //not equal to not_configured, means it must be assigned!
-        return true;
-    }
-    return isGensetContactorOutputPulseType();
-}
-bool ENGINE_MONITORING::isMainsContactorOutputPulseType()
-{
-    return((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED));
-}
-bool ENGINE_MONITORING::isGensetContactorOutputPulseType()
-{
-    return((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED)
-            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED));
 
+    return (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED);
 }
+
 bool ENGINE_MONITORING::haveWeTriedToCloseGensetContactor()
 {
     return BASE_MODES::IsGenContactorClosed();
@@ -349,7 +310,7 @@ void ENGINE_MONITORING::UpdateContactorLoadStatus()
     bool eTampStatusCurrent = eTampStatusPrv;
 
     eTampStatusCurrent = (true == ENGINE_START_VALIDITY::GetEngineStartInvalidity())
-                                              && (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_WAVE_DETECT_EN) == CFGZ::CFGZ_ENABLE)
+                                              && (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
                                               &&  (true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus());
     if(eTampStatusCurrent != eTampStatusPrv)
     {
@@ -358,15 +319,15 @@ void ENGINE_MONITORING::UpdateContactorLoadStatus()
     }
     eTampStatusPrv = eTampStatusCurrent;
     CONTACTOR_INFO_t ci;
-    ci.bCtOnLoadCable = (_cfgz.GetCFGZ_Param(CFGZ::ID_CT_LOCATION) == CFGZ::ON_LOAD_CABLE);
+    ci.bCtOnLoadCable = (_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE);
     ci.bGensetContactorFeedbackInputStatus = gensetContactorFeedbackInputStatus();
     ci.bGensetContactorFeedbackIsAssigned = isGensetContactorFeedbackAssigned();
     ci.bGensetContactorOutputAssigned = isGensetContactorOutputAssigned();
-    ci.bGensetContactorOutputIsPulseType = isGensetContactorOutputPulseType();
+
     ci.bMainsContactorFeedbackInputStatus = mainsContactorFeedbackInputStatus();
     ci.bMainsContactorFeedbackIsAssigned = isMainsContactorFeedbackAssigned();
     ci.bMainsContactorOutputAssigned = isMainsContactorOutputAssigned();
-    ci.bMainsContactorOutputIsPulseType = isMainsContactorOutputPulseType();
+
     ci.bGensetContactorOutputStatus = haveWeTriedToCloseGensetContactor();
     ci.bMainsContactorOutputStatus = haveWeTriedToCloseMainsContactor();
     _eLoadStatusCurrent = getAssumedLoadStatus(ci);
@@ -473,8 +434,8 @@ uint16_t ENGINE_MONITORING::prvCheckTimeSlot(uint32_t u32RunTime)
 
 void ENGINE_MONITORING::prvUpdateEngineOn()
 {
-    if((GetRawEngSpeed() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCON_ENG_SPEED_THRESH))
-        ||(_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCON_ALT_FREQ_THRESH)))
+    if((GetRawEngSpeed() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
+        ||(_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ALT_FREQUENCY)))
     {
         UpdateEngineOnStatus();
     }
@@ -500,8 +461,8 @@ void ENGINE_MONITORING::prvUpdateEngineCranked()
 
     /* prvUpdateEngineCranked() function is called every 50ms hence the _u8ChargAltMonCount
      * corresponds to 2 seconds will be 2000ms/50ms = 40*/
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCON_CHARG_ALT_EN) == CFGZ::CFGZ_ENABLE)
-        && (_hal.AnalogSensors.GetFilteredChargingAltVolts() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCON_CHARG_ALT_THRESH))
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_CHG_ALT_VOLT) == CFGZ::CFGZ_ENABLE)
+        && (_hal.AnalogSensors.GetFilteredChargingAltVolts() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_CHG_ALT_THRESHOLD))
         && (u16CAMonCount >= TMR_COUNT_FOR_TWO_SECS))
     {
         bChargAltCranked = true;
@@ -511,11 +472,11 @@ void ENGINE_MONITORING::prvUpdateEngineCranked()
         bChargAltCranked = false;
     }
 
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_DISCON_ON_LOP_SENS_EN)  == CFGZ::CFGZ_ENABLE) &&
-            ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) || (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)==CFGZ::CFGZ_ENABLE)
-            ||((_cfgz.GetCFGZ_Param(CFGZ::ID_S4_SENS_SELECTION) == CFGZ::CFGZ_ANLG_LOP_CURR_SENSOR))) &&
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LOP_SENS)  == CFGZ::CFGZ_ENABLE) &&
+            ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+            ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_LOP_CURR_SENSOR))) &&
             (_stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT) &&
-            (_stLOP.stValAndStatus.f32InstSensorVal > _cfgz.GetCFGZ_Param(CFGZ::ID_DISCONNECT_PRESURE_THRESH)))
+            (_stLOP.stValAndStatus.f32InstSensorVal > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_LOP_SENS)))
 
     {
         if(UTILS_GetElapsedTimeInSec(&_LOPSensMonTimer) >= 1)
@@ -533,7 +494,7 @@ void ENGINE_MONITORING::prvUpdateEngineCranked()
         UTILS_ResetTimer(&_LOPSensMonTimer);
     }
 
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DISCON_ON_LOP_SW_EN) == CFGZ::CFGZ_ENABLE)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_ENABLE)
     {
         if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
         {
@@ -549,7 +510,7 @@ void ENGINE_MONITORING::prvUpdateEngineCranked()
                 }
             }
 
-            if(UTILS_GetElapsedTimeInMs(&_LLOPCrankingTimer) >= (uint64_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SW_TRANSIENT_TIME)*1000))
+            if(UTILS_GetElapsedTimeInMs(&_LLOPCrankingTimer) >= (uint64_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_LLOP_SW_TRANS_TIME)*1000))
             {
                 bLLOPCranked = true;
                 UTILS_DisableTimer(&_LLOPCrankingTimer);
@@ -568,8 +529,8 @@ void ENGINE_MONITORING::prvUpdateEngineCranked()
     if((!_bEngineCranked) && ((_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANKING)
             || (_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANK_REST)))
     {
-        if((GetRawEngSpeed() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCON_ENG_SPEED_THRESH))
-            ||(_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCON_ALT_FREQ_THRESH))
+        if((GetRawEngSpeed() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
+            ||(_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ALT_FREQUENCY))
             ||(bLOPCranked) ||(bLLOPCranked) || (bChargAltCranked))
         {
             _bEngineCranked = true;
@@ -599,8 +560,8 @@ void ENGINE_MONITORING::prvUpdateGenReady()
             _u8GenReady = true;
             if(((true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus()) &&
                                 (false == ENGINE_START_VALIDITY::GetEngineStartInvalidity()) &&
-                                (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_WAVE_DETECT_EN) == CFGZ::CFGZ_ENABLE))
-                || (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_WAVE_DETECT_EN) == CFGZ::CFGZ_DISABLE))
+                                (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE))
+                || (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_DISABLE))
             {
                 _stCummulativeCnt.u32GenNumberOfStarts++;
             }
@@ -619,7 +580,7 @@ void ENGINE_MONITORING::prvUpdateGenReady()
         UTILS_DisableTimer(&_GenWarmUpTimer);
     }
 
-    if(_u8GenReady && (UTILS_GetElapsedTimeInSec(&_GenWarmUpTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_WARMUP_DELAY)))
+    if(_u8GenReady && (UTILS_GetElapsedTimeInSec(&_GenWarmUpTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_WARM_UP_DELAY)))
     {
         _hal.actuators.Activate(ACTUATOR::ACT_GEN_AVLBL);
         _u8GenAvailable = 1;
@@ -639,10 +600,10 @@ void ENGINE_MONITORING::prvCheckEngineOff()
         if((_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) <= 0)
             && (GetRawEngSpeed() <= 0)
             && (_hal.AnalogSensors.GetGensetFreqThruCompartor() <= 0)
-            && ((_cfgz.GetCFGZ_Param(CFGZ::ID_DISCON_ON_LOP_SW_EN) == CFGZ::CFGZ_DISABLE)
+            && ((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_DISABLE)
             || ((_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) ==  DigitalSensor::SENSOR_NOT_CONFIGRUED
-            || (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) ==  DigitalSensor::SENSOR_LATCHED)) && (_cfgz.GetCFGZ_Param(CFGZ::ID_DISCON_ON_LOP_SW_EN) == CFGZ::CFGZ_ENABLE)))
-            && ((_cfgz.GetCFGZ_Param(CFGZ::ID_DISCON_ON_LOP_SENS_EN) == CFGZ::CFGZ_DISABLE) || (_stLOP.stValAndStatus.f32InstSensorVal < _cfgz.GetCFGZ_Param(CFGZ::ID_DISCONNECT_PRESURE_THRESH))
+            || (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) ==  DigitalSensor::SENSOR_LATCHED)) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_ENABLE)))
+            && ((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LOP_SENS) == CFGZ::CFGZ_DISABLE) || (_stLOP.stValAndStatus.f32InstSensorVal < _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_LOP_SENS))
             || (_stLOP.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT)))
         {
             _u8EngineOn = false;
@@ -711,7 +672,7 @@ bool ENGINE_MONITORING::IsEngineCranked()
 bool ENGINE_MONITORING::IsWarmUpTimeExpired()
 {
     if(UTILS_GetElapsedTimeInSec(&_GenWarmUpTimer) >=
-                                _cfgz.GetCFGZ_Param(CFGZ::ID_WARMUP_DELAY))
+                                _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_WARM_UP_DELAY))
     {
         return true;
     }
@@ -829,7 +790,7 @@ void ENGINE_MONITORING::DisableGenWarmUpTimer()
 
 bool ENGINE_MONITORING::IsGenWarmUpEnabledAndNotExpired()
 {
-    return ((_GenWarmUpTimer.bEnabled) && (UTILS_GetElapsedTimeInSec(&_GenWarmUpTimer) < _cfgz.GetCFGZ_Param(CFGZ::ID_WARMUP_DELAY)));
+    return ((_GenWarmUpTimer.bEnabled) && (UTILS_GetElapsedTimeInSec(&_GenWarmUpTimer) < _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_WARM_UP_DELAY)));
 }
 
 void ENGINE_MONITORING::UpdateStartStopState(uint8_t u8StartStopState)
@@ -878,8 +839,7 @@ void ENGINE_MONITORING::ReadEnergySetEnergyOffset(bool bFromEeprom)
 
 float ENGINE_MONITORING::GetFilteredEngSpeed()
 {
-    if((_cfgz.GetEngType()!=CFGZ::ENG_CONVENTIONAL)
-                && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG) == CFGZ::CFGZ_ENABLE))
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP))
     {
         if(!gpJ1939->IsCommunicationFail())
         {
@@ -890,12 +850,12 @@ float ENGINE_MONITORING::GetFilteredEngSpeed()
             return 0;
         }
     }
-    else if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_SPEED_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP)
-        ||(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_SPEED_SOURCE) == CFGZ::CFGZ_W_POINT_FREQ))
+    else if((_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP)
+        ||(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_W_POINT_FREQ))
     {
         return _hal.AnalogSensors.GetFilteredPulseInpuRPM();
     }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_SPEED_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
     {
         return _hal.AnalogSensors.GetFiltRPMThruCompartor();
     }
@@ -907,9 +867,7 @@ float ENGINE_MONITORING::GetFilteredEngSpeed()
 
 float ENGINE_MONITORING::GetRawEngSpeed()
 {
-    if((_cfgz.GetEngType()!=CFGZ::ENG_CONVENTIONAL)
-                && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG) == CFGZ::CFGZ_ENABLE)
-                )
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP))
     {
         if(!gpJ1939->IsCommunicationFail())
         {
@@ -918,12 +876,12 @@ float ENGINE_MONITORING::GetRawEngSpeed()
         return 0;
     }
     else
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_SPEED_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP)
-            ||(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_SPEED_SOURCE) == CFGZ::CFGZ_W_POINT_FREQ))
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP)
+            ||(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_W_POINT_FREQ))
     {
        return _hal.AnalogSensors.GetPulseInpuRPM();
     }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_SPEED_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
     {
        return _hal.AnalogSensors.GetRPMThruCompartor();
     }

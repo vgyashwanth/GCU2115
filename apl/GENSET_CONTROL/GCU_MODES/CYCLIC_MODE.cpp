@@ -170,7 +170,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _StartStop.StopCommand();
                 }
                 else if((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                        CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
+                        CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
                 {
                     _eCyclicState = STATE_CYCLIC_GEN_OFF_MAINS_ON;
                     UTILS_ResetTimer(&_ReturnToMainsTimer);
@@ -230,7 +230,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
 
             case STATE_CYCLIC_GEN_START:
                 if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                                        CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
+                                        CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
                   || (_GCUAlarms.IsCommonShutdown())
                   || (_GCUAlarms.IsCommonElectricTrip())
                   || (IsNightModeRestrictOn()))
@@ -305,7 +305,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 else if((_GCUAlarms.IsCommonElectricTrip())
                         ||(_bCyclicOnTimerExpired && _bCyclicModeGenOnStatus)
                         || ((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                                        CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE)))
+                                        CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)))
                 {
                     if(_bCyclicOnTimerExpired && _bCyclicModeGenOnStatus)
                     {
@@ -320,7 +320,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                         _eCyclicState = STATE_CYCLIC_ENGINE_COOLING;
                     }
                     else if((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                            CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
+                            CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
                     {
                         _bStartOffTimer = false;
                         _eCyclicState = STATE_CYCLIC_RETURN_DELAY;
@@ -356,8 +356,8 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _vars.TimerState = CYCLIC_ON_TIMER;
                 }
 
-                if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-                        || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+                if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                        || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                         && (!_bCloseGenContactor) && (!_bContactorTransferOn))
                 {
                     SwitchLoadToGen();
@@ -435,7 +435,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
 
             case STATE_CYCLIC_ENGINE_COOLING:
                 if((UTILS_GetElapsedTimeInSec(&_EngCoolDownTimer) >=
-                        _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_COOL_DELAY))
+                        _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_ENG_COOL_TIME))
                         || (_GCUAlarms.IsCommonShutdown())
                         || (IsNightModeRestrictOn()))
                 {
@@ -497,14 +497,14 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = ENGINE_STOPPING;
                 }
 
-                if((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-                                               ||((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+                if((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                                               ||((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                                                && (!_bCloseMainsContactor) && (!_bContactorTransferOn))
                 {
                      SwitchLoadToMains();
                 }
-                else if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-                        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+                else if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
                         && (_bCloseMainsContactor) && (!_bContactorTransferOn))
 
                 {
@@ -552,7 +552,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     {
                          SwitchLoadToMains();
                     }
-                    else if(((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
+                    else if(((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
                             && (_bCloseMainsContactor) && (!_bContactorTransferOn))
 
                     {

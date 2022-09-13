@@ -268,27 +268,27 @@ void CFGZ::prvConfigureDSENSE()
 
 
     cfg.stDIConfig[D_SENSE::DI_K].eType                     =
-                                        prvGetDigitalSensor(ID_DIG_INPUTK_SOURCE, D_SENSE::DI_K);
+                                        prvGetDigitalSensor(ID_FUEL_LVL_DIG_K_DIG_SOURCE, D_SENSE::DI_K);
     cfg.stDIConfig[D_SENSE::DI_K].eActivationPolarity       =
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTK_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_FUEL_LVL_DIG_K_DIG_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_K].u16ActivationDelaySeconds =
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTK_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_FUEL_LVL_DIG_K_DIG_ACTIVATION_DELAY];
 
 
     cfg.stDIConfig[D_SENSE::DI_L].eType                     =
-                                        prvGetDigitalSensor(ID_ENG_TEMP_DIG_M_DIG_SOURCE, D_SENSE::DI_L);
+                                        prvGetDigitalSensor(ID_ENG_TEMP_DIG_L_DIG_SOURCE, D_SENSE::DI_L);
     cfg.stDIConfig[D_SENSE::DI_L].eActivationPolarity       =
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_ENG_TEMP_DIG_M_DIG_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_ENG_TEMP_DIG_L_DIG_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_L].u16ActivationDelaySeconds =
-                                        (uint8_t)_All_Param.u8ArrParam[ID_ENG_TEMP_DIG_M_DIG_ACTIVATION_DELAY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_ENG_TEMP_DIG_L_DIG_ACTIVATION_DELAY];
 
 
     cfg.stDIConfig[D_SENSE::DI_M].eType                     =
-                                        prvGetDigitalSensor(ID_DIG_INPUTM_SOURCE, D_SENSE::DI_M);
+                                        prvGetDigitalSensor(ID_SHEL_TEMP_DIG_M_DIG_SOURCE, D_SENSE::DI_M);
     cfg.stDIConfig[D_SENSE::DI_M].eActivationPolarity       =
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTM_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_SHEL_TEMP_DIG_M_DIG_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_M].u16ActivationDelaySeconds =
-                                        (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTM_ACTIVATION_DLY];
+                                        (uint8_t)_All_Param.u8ArrParam[ID_SHEL_TEMP_DIG_M_DIG_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_N].eType                     =
                                         prvGetDigitalSensor(ID_AUX_S2_RES_DIG_N_DIG_SOURCE, D_SENSE::DI_N);
@@ -298,18 +298,18 @@ void CFGZ::prvConfigureDSENSE()
                                         (uint8_t)_All_Param.u8ArrParam[ID_AUX_S2_RES_DIG_N_DIG_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_O].eType                     =
-                                            prvGetDigitalSensor(ID_DIG_INPUTO_SOURCE, D_SENSE::DI_O);
+                                            prvGetDigitalSensor(ID_AUX_S3_DIG_O_DIG_SOURCE, D_SENSE::DI_O);
     cfg.stDIConfig[D_SENSE::DI_O].eActivationPolarity       =
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTO_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_AUX_S3_DIG_O_DIG_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_O].u16ActivationDelaySeconds =
-                                            (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTO_ACTIVATION_DLY];
+                                            (uint8_t)_All_Param.u8ArrParam[ID_AUX_S3_DIG_O_DIG_ACTIVATION_DELAY];
 
     cfg.stDIConfig[D_SENSE::DI_P].eType                     =
-                                                prvGetDigitalSensor(ID_DIG_INPUTP_SOURCE, D_SENSE::DI_P);
+                                                prvGetDigitalSensor(ID_AUX_S4_DIG_P_DIG_SOURCE, D_SENSE::DI_P);
     cfg.stDIConfig[D_SENSE::DI_P].eActivationPolarity       =
-                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_INPUTP_POLARITY];
+                                        (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_AUX_S4_DIG_P_DIG_POLARITY];
     cfg.stDIConfig[D_SENSE::DI_P].u16ActivationDelaySeconds =
-                                                (uint8_t)_All_Param.u8ArrParam[ID_DIG_INPUTP_ACTIVATION_DLY];
+                                                (uint8_t)_All_Param.u8ArrParam[ID_AUX_S4_DIG_P_DIG_ACTIVATION_DELAY];
 
     _hal.DigitalSensors.ConfigureSensor(cfg);
 }
@@ -322,7 +322,7 @@ DigitalSensor::D_SENSOR_TYPS_t CFGZ::prvGetDigitalSensor(uint8_t u8CfgSensorIdx,
     } DSENSOR_MAP_ROW_t;
 
     const DSENSOR_MAP_ROW_t stSensorMap[] = {
-        { CFGZ_SENSOR_NOT_USED         ,                  DigitalSensor::DI_NOT_CONFIGURED               },
+        { CFGZ_SENSOR_NOT_USED         ,                  DigitalSensor:: DI_NOT_CONFIGURED              },
         { CFGZ_LOW_FUEL_LEVEL_SWITCH,                     DigitalSensor:: DI_LOW_FUEL_LEVEL_SWITCH       },
         { CFGZ_LOW_LUBE_OIL_PRESS_SWITCH,                 DigitalSensor:: DI_LOW_LUBE_OIL_PRESSURE_SWITCH},
         { CFGZ_HIGH_ENGINE_TEMP_SWITCH,                   DigitalSensor:: DI_HIGH_ENGINE_TEMP_SWITCH     },
@@ -340,15 +340,16 @@ DigitalSensor::D_SENSOR_TYPS_t CFGZ::prvGetDigitalSensor(uint8_t u8CfgSensorIdx,
         { CFGZ_GEN_CONTACTOR_LATCHED,                     DigitalSensor:: DI_GEN_CONTACTOR_LATCHED       },
         { CFGZ_BATTERY_CHARGER_FAIL,                      DigitalSensor:: DI_BATTERY_CHARGER_FAIL        },
         { CFGZ_SMOKE_FIRE,                                DigitalSensor:: DI_SMOKE_FIRE                  },
-        { CFGZ_REMOTE_ALARM_MUTE,                         DigitalSensor:: DI_REMOTE_ALARM_MUTE           },
-        { CFGZ_REMOTE_ALARM_ACK,                          DigitalSensor:: DI_REMOTE_ALARM_ACK            },
-        { CFGZ_STOP_PANEL_LOCK,                           DigitalSensor:: DI_STOP_PANEL_LOCK             },
-        { CFGZ_EXT_PANEL_LOCK,                            DigitalSensor:: DI_EXT_PANEL_LOCK              },
-        { CFGZ_GENERATOR_LOAD_INITHIBIT,                  DigitalSensor:: DI_GENERATOR_LOAD_INITHIBIT    },
-        { CFGZ_MAINS_LOAD_INHIBIT,                        DigitalSensor:: DI_MAINS_LOAD_INHIBIT          },
-     //   { CFGZ_SOURCE_NEUTRAL_SW_SIGNAL,                  DigitalSensor:: DI_SOURCE_NEUTRAL_SW_SIGNAL    },
-        { CFGZ_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL,     DigitalSensor:: DI_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL},
-        {CFGZ_IDLE_MODE_ENABLE                      ,     DigitalSensor:: DI_IDLE_MODE_ENABLE            },
+        { CFGZ_MODE_SELECT,                               DigitalSensor:: DI_MODE_SELECT                 },
+        { CFGZ_AMB_TEMP_SELECT,                           DigitalSensor:: DI_AMB_TEMP_SELECT             },
+//        { CFGZ_REMOTE_ALARM_MUTE,                         DigitalSensor:: DI_REMOTE_ALARM_MUTE           },
+//        { CFGZ_REMOTE_ALARM_ACK,                          DigitalSensor:: DI_REMOTE_ALARM_ACK            },
+//        { CFGZ_STOP_PANEL_LOCK,                           DigitalSensor:: DI_STOP_PANEL_LOCK             },
+//        { CFGZ_EXT_PANEL_LOCK,                            DigitalSensor:: DI_EXT_PANEL_LOCK              },
+//        { CFGZ_GENERATOR_LOAD_INITHIBIT,                  DigitalSensor:: DI_GENERATOR_LOAD_INITHIBIT    },
+//        { CFGZ_MAINS_LOAD_INHIBIT,                        DigitalSensor:: DI_MAINS_LOAD_INHIBIT          },
+//        { CFGZ_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL,     DigitalSensor:: DI_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL},
+//        {CFGZ_IDLE_MODE_ENABLE                      ,     DigitalSensor:: DI_IDLE_MODE_ENABLE            },
 
       };
     /*Configurable input types*/
@@ -409,12 +410,8 @@ void CFGZ::prvConfigureASENSE()
                                             {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE}};
 
     u8MapSize = sizeof(aPIN12MAP)/sizeof(ASENSOR_MAP_ROW_t);
-    cfg.stAIConfig[A_SENSE::HAL_PIN_12].eSensor = prGetAnalogSensor(ID_FUEL_SENS_SELECTION, aPIN12MAP,u8MapSize);
-    if(_All_Param.u8ArrParam[ID_FUEL_SENSOR_REFERENCE] == ANLG_IP::REF_BATT_NEGATIVE)
-    {
-        cfg.stAIConfig[A_SENSE::HAL_PIN_12].eRef    = ANLG_IP::REF_BATT_NEGATIVE;
-    }
-    else
+    cfg.stAIConfig[A_SENSE::HAL_PIN_12].eSensor = prGetAnalogSensor(ID_FUEL_LVL_DIG_K_SENSOR_SELECTION, aPIN12MAP,u8MapSize);
+
     {
         cfg.stAIConfig[A_SENSE::HAL_PIN_12].eRef    = ANLG_IP::REF_ENGINE_BODY;
     }
@@ -428,9 +425,10 @@ void CFGZ::prvConfigureASENSE()
                                             {CFGZ_ANLG_CUSTOM_SENSOR1 , AnalogSensor::A_SENSE_ENG_TEMPERATURE}};
 
     u8MapSize = sizeof(aPIN13MAP)/sizeof(ASENSOR_MAP_ROW_t);
-    cfg.stAIConfig[A_SENSE::HAL_PIN_13].eSensor = prGetAnalogSensor(ID_ENG_TEMP_DIG_M_SENSOR_SELECTION, aPIN13MAP,u8MapSize);
+    cfg.stAIConfig[A_SENSE::HAL_PIN_13].eSensor = prGetAnalogSensor(ID_ENG_TEMP_DIG_L_SENSOR_SELECTION, aPIN13MAP,u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_13].eRef    = ANLG_IP::REF_ENGINE_BODY;
-    prvCpyInterpolationTable(ID_ENG_TEMP_DIG_M_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_13].stTable);
+
+    prvCpyInterpolationTable(ID_ENG_TEMP_DIG_L_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_13].stTable);
 
     cfg.stAIConfig[A_SENSE::HAL_PIN_13].stTable.u8InterPolationPoints = 10;
 
@@ -442,9 +440,9 @@ void CFGZ::prvConfigureASENSE()
                                             {CFGZ_ANLG_CUSTOM_SENSOR2  , AnalogSensor::A_SENSE_SHELTER_TEMPERATURE}};
 
     u8MapSize = sizeof(aPIN14MAP)/sizeof(ASENSOR_MAP_ROW_t);
-    cfg.stAIConfig[A_SENSE::HAL_PIN_14].eSensor = prGetAnalogSensor(ID_S1_SENS_SELECTION, aPIN14MAP,u8MapSize);
+    cfg.stAIConfig[A_SENSE::HAL_PIN_14].eSensor = prGetAnalogSensor(ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION, aPIN14MAP,u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_14].eRef    = ANLG_IP::REF_ENGINE_BODY;
-    prvCpyInterpolationTable(ID_S1_CALIB_I1, cfg.stAIConfig[A_SENSE::HAL_PIN_14].stTable);
+    prvCpyInterpolationTable(ID_SHEL_TEMP_DIG_M_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_14].stTable);
     cfg.stAIConfig[A_SENSE::HAL_PIN_14].stTable.u8InterPolationPoints = 10;
 
 
@@ -456,7 +454,7 @@ void CFGZ::prvConfigureASENSE()
    u8MapSize = sizeof(aPIN15MAP)/sizeof(ASENSOR_MAP_ROW_t);
    cfg.stAIConfig[A_SENSE::HAL_PIN_15].eSensor = prGetAnalogSensor(ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION, aPIN15MAP,u8MapSize);
    cfg.stAIConfig[A_SENSE::HAL_PIN_15].eRef    = ANLG_IP::REF_ENGINE_BODY;
-   prvCpyInterpolationTable(ID_S2_CALIB_I1, cfg.stAIConfig[A_SENSE::HAL_PIN_15].stTable);
+   prvCpyInterpolationTable(ID_AUX_S2_RES_DIG_N_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_15].stTable);
    cfg.stAIConfig[A_SENSE::HAL_PIN_15].stTable.u8InterPolationPoints = 10;
 
 
@@ -468,9 +466,9 @@ void CFGZ::prvConfigureASENSE()
                                            {CFGZ_ANLG_CUSTOM_SENSOR3 , AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE_4_20}};
 
    u8MapSize = sizeof(aPIN21MAP)/sizeof(ASENSOR_MAP_ROW_t);
-   cfg.stAIConfig[A_SENSE::HAL_PIN_21].eSensor = prGetAnalogSensor(ID_S3_SENS_SELECTION, aPIN21MAP,u8MapSize);
+   cfg.stAIConfig[A_SENSE::HAL_PIN_21].eSensor = prGetAnalogSensor(ID_AUX_S3_DIG_O_SENSOR_SELECTION, aPIN21MAP,u8MapSize);
    cfg.stAIConfig[A_SENSE::HAL_PIN_21].eRef    = ANLG_IP::REF_ENGINE_BODY;
-   prvCpyInterpolationTable(ID_S3_CALIB_I1, cfg.stAIConfig[A_SENSE::HAL_PIN_21].stTable);
+   prvCpyInterpolationTable(ID_AUX_S3_DIG_O_I1_V1, cfg.stAIConfig[A_SENSE::HAL_PIN_21].stTable);
    cfg.stAIConfig[A_SENSE::HAL_PIN_21].stTable.u8InterPolationPoints = 10;
 
 
@@ -483,28 +481,24 @@ void CFGZ::prvConfigureASENSE()
    };
 
 u8MapSize = sizeof(aPIN23MAP)/sizeof(ASENSOR_MAP_ROW_t);
-cfg.stAIConfig[A_SENSE::HAL_PIN_23].eSensor = prGetAnalogSensor(ID_S4_SENS_SELECTION, aPIN23MAP,u8MapSize);
+cfg.stAIConfig[A_SENSE::HAL_PIN_23].eSensor = prGetAnalogSensor(ID_AUX_S4_DIG_P_SENSOR_SELECTION, aPIN23MAP,u8MapSize);
 cfg.stAIConfig[A_SENSE::HAL_PIN_23].eRef    = ANLG_IP::REF_ENGINE_BODY;
-prvCpyInterpolationTable(ID_S4_CALIB_I1, cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable);
+prvCpyInterpolationTable(ID_AUX_S4_DIG_P_TANK_LENGTH_1, cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable);
 cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.u8InterPolationPoints = 10;
 
 
-    if(_All_Param.u8ArrParam[ID_EGOV_SET_POINT_SELECTION] == EGOV::ID_PID_PARALLELING)
-   {
-       cfg.stAIConfig[A_SENSE::HAL_PIN_23].eSensor = AnalogSensor::A_SENSE_NOT_USED;
-       cfg.stAIConfig[A_SENSE::HAL_PIN_23].eRef    = ANLG_IP::REF_BATT_NEGATIVE;
-   }
+
 
     _hal.AnalogSensors.ConfigureSensor(cfg);
     //Following calculation is for config value enum to the number.
-    _hal.AnalogSensors.ConfigureNumberOfPoles((uint8_t)((_All_Param.u8ArrParam[ID_NUMBER_OF_POLES] * 2) + 2));
-    if(_All_Param.u8ArrParam[ID_ENG_SPEED_SOURCE] == CFGZ_MAGNETIC_PICKUP)
+    _hal.AnalogSensors.ConfigureNumberOfPoles((uint8_t)((_All_Param.u8ArrParam[ID_ALT_CONFIG_NUMBER_OF_POLES] * 2) + 2));
+    if(_All_Param.u8ArrParam[ID_SPEED_MONITOR_SPEED_SENSE_SOURCE] == CFGZ_MAGNETIC_PICKUP)
     {
-        _hal.AnalogSensors.ConfigPulseInput(_All_Param.u16ArrParam[ID_MPU_TEETH_W_POINT_FREQ],PULSE_IP_SENSOR);
+        _hal.AnalogSensors.ConfigPulseInput(_All_Param.u16ArrParam[ID_SPEED_MONITOR_RESERVED],PULSE_IP_SENSOR);
     }
-    else if(_All_Param.u8ArrParam[ID_ENG_SPEED_SOURCE] == CFGZ_W_POINT_FREQ)
+    else if(_All_Param.u8ArrParam[ID_SPEED_MONITOR_SPEED_SENSE_SOURCE] == CFGZ_W_POINT_FREQ)
     {
-        _hal.AnalogSensors.ConfigPulseInput(_All_Param.u16ArrParam[ID_MPU_TEETH_W_POINT_FREQ], A_SENSE::PULSE_IP_TYPE_t(PULSE_IP_SENSOR + 1));
+        _hal.AnalogSensors.ConfigPulseInput(_All_Param.u16ArrParam[ID_SPEED_MONITOR_RESERVED], A_SENSE::PULSE_IP_TYPE_t(PULSE_IP_SENSOR + 1));
     }
 }
 
@@ -577,10 +571,7 @@ void CFGZ::prvConfigureACT()
     }
     _hal.actuators.Configure(cfg);
 
-    if(_cfgc.IsSGC421())
-    {
-        _hal.actuators.STPR_ConfigDirection((STPR_DRV::DRV_DIR_t)_All_Param.u8ArrParam[ID_EGOV_ACT_DIRECTION]);
-    }
+
 }
 
 ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
@@ -632,6 +623,7 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
         { CFGZ_GEN_OC                            , ACTUATOR::ACT_GEN_OC                     },
         { CFGZ_HIGH_TEMP                         , ACTUATOR::ACT_HIGH_TEMP                  },
         { CFGZ_LOW_FUEL                          , ACTUATOR::ACT_LOW_FUEL                   },
+        { CFGZ_LOW_FUEL_NOTIFICATION             , ACTUATOR::ACT_LOW_FUEL_NOTIFICATION      },
         { CFGZ_LOW_PRES                          , ACTUATOR::ACT_LOW_PRES                   },
         { CFGZ_MAINS_HIGH                        , ACTUATOR::ACT_MAINS_HIGH                 },
         { CFGZ_MAINS_LOW                         , ACTUATOR::ACT_MAINS_LOW                  },
@@ -649,31 +641,34 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
         { CFGZ_MODE_STOP                         , ACTUATOR::ACT_MODE_STOP                  },
         { CFGZ_MODE_AUTO                         , ACTUATOR::ACT_MODE_AUTO                  },
         { CFGZ_MODE_MANUAL                       , ACTUATOR::ACT_MODE_MANUAL                },
-        { CFGZ_PREHEAT                           , ACTUATOR::ACT_PREHEAT                    },
-        { CFGZ_CALLING_FOR_SCHEDULER_RUN         , ACTUATOR::ACT_CALLING_FOR_SCHEDULER_RUN  },
-        { CFGZ_STOP_PANEL_LOCK_OP                , ACTUATOR::ACT_STOP_PANEL_LOCK            },
-        { CFGZ_EXTERNAL_PANEL_LOCK               , ACTUATOR::ACT_EXTERNAL_PANEL_LOCK        },
-        { CFGZ_FAIL_TO_CLOSE_GEN_CONT            , ACTUATOR::ACT_FAIL_TO_CLOSE_GEN_CONT     },
-        { CFGZ_FAIL_TO_CLOSE_MAINS_CONT          , ACTUATOR::ACT_FAIL_TO_CLOSE_MAINS_CONT   },
-        { CFGZ_LOADING_VTG_NOT_REACHED           , ACTUATOR::ACT_LOADING_VTG_NOT_REACHED    },
-        { CFGZ_LOADING_FREQ_NOT_REACHED          , ACTUATOR::ACT_LOADING_FREQ_NOT_REACHED   },
-        { CFGZ_MPU_LOSS                          , ACTUATOR::ACT_MPU_LOSS                   },
         { CFGZ_BTS_BATTERY_HYBRID_MODE           , ACTUATOR::ACT_BTS_BATTERY_HYBRID_MODE    },
-        { CFGZ_AUTOMATIC_FUEL_TRANSFER           , ACTUATOR::ACT_AUTOMATIC_FUEL_TRANSFER    },
-        { CFGZ_ISV_PULL_SIGNAL                   , ACTUATOR::ACT_ISV_PULL_SIGNAL            },
-        { CFGZ_ISV_HOLD_SIGNAL                   , ACTUATOR::ACT_ISV_HOLD_SIGNAL            },
-        { CFGZ_LOW_IDLE_MODE                     , ACTUATOR::ACT_LOW_IDLE_MODE              },
+        { CFGZ_PREHEAT                           , ACTUATOR::ACT_PREHEAT                    },
+        { CFGZ_ECU_START                         , ACTUATOR::ACT_ECU_START                  },
+        { CFGZ_MIL                               , ACTUATOR::ACT_MIL                        },
+//        { CFGZ_CALLING_FOR_SCHEDULER_RUN         , ACTUATOR::ACT_CALLING_FOR_SCHEDULER_RUN  },
+//        { CFGZ_STOP_PANEL_LOCK_OP                , ACTUATOR::ACT_STOP_PANEL_LOCK            },
+//        { CFGZ_EXTERNAL_PANEL_LOCK               , ACTUATOR::ACT_EXTERNAL_PANEL_LOCK        },
+//        { CFGZ_FAIL_TO_CLOSE_GEN_CONT            , ACTUATOR::ACT_FAIL_TO_CLOSE_GEN_CONT     },
+//        { CFGZ_FAIL_TO_CLOSE_MAINS_CONT          , ACTUATOR::ACT_FAIL_TO_CLOSE_MAINS_CONT   },
+//        { CFGZ_LOADING_VTG_NOT_REACHED           , ACTUATOR::ACT_LOADING_VTG_NOT_REACHED    },
+//        { CFGZ_LOADING_FREQ_NOT_REACHED          , ACTUATOR::ACT_LOADING_FREQ_NOT_REACHED   },
+//        { CFGZ_MPU_LOSS                          , ACTUATOR::ACT_MPU_LOSS                   },
 
-        { CFGZ_CLNT_TEMP_CTRL                    , ACTUATOR::ACT_CLNT_TEMP_CTRL             },
-        { CFGZ_KEY_SWITCH                        , ACTUATOR::ACT_KEY_SWITCH                 },
-
-        { CFGZ_OPEN_GEN_BREAKER_PULSE             , ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE     },
-        { CFGZ_CLOSE_GEN_BREAKER_PULSE            , ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE    },
-        { CFGZ_OPEN_MAINS_BREAKER_PULSE           , ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE   },
-        { CFGZ_CLOSE_MAINS_BREAKER_PULSE          , ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE  },
-
-        { CFGZ_IDLE_MODE_ON_PULSE                , ACTUATOR::ACT_IDLE_MODE_ON_PULSE         },
-        {CFGZ_IDLE_MODE_OFF_PULSE                , ACTUATOR::ACT_IDLE_MODE_OFF_PULSE        }
+//        { CFGZ_AUTOMATIC_FUEL_TRANSFER           , ACTUATOR::ACT_AUTOMATIC_FUEL_TRANSFER    },
+//        { CFGZ_ISV_PULL_SIGNAL                   , ACTUATOR::ACT_ISV_PULL_SIGNAL            },
+//        { CFGZ_ISV_HOLD_SIGNAL                   , ACTUATOR::ACT_ISV_HOLD_SIGNAL            },
+//        { CFGZ_LOW_IDLE_MODE                     , ACTUATOR::ACT_LOW_IDLE_MODE              },
+//
+//        { CFGZ_CLNT_TEMP_CTRL                    , ACTUATOR::ACT_CLNT_TEMP_CTRL             },
+//        { CFGZ_KEY_SWITCH                        , ACTUATOR::ACT_KEY_SWITCH                 },
+//
+//        { CFGZ_OPEN_GEN_BREAKER_PULSE             , ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE     },
+//        { CFGZ_CLOSE_GEN_BREAKER_PULSE            , ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE    },
+//        { CFGZ_OPEN_MAINS_BREAKER_PULSE           , ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE   },
+//        { CFGZ_CLOSE_MAINS_BREAKER_PULSE          , ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE  },
+//
+//        { CFGZ_IDLE_MODE_ON_PULSE                , ACTUATOR::ACT_IDLE_MODE_ON_PULSE         },
+//        {CFGZ_IDLE_MODE_OFF_PULSE                , ACTUATOR::ACT_IDLE_MODE_OFF_PULSE        }
        };
 
     for(uint8_t i=0;i<(sizeof(dsenseMap)/sizeof(ACTUATOR_MAP_ROW_t));i++)
@@ -753,64 +748,34 @@ RS485::PARITY_t CFGZ::prvGetRS485Parity()
 
 void CFGZ::prvConfigureACSense()
 {
-    uint16_t u16CTRation = _All_Param.u16ArrParam[ID_CM_CT_RATIO];
+    uint16_t u16CTRation = _All_Param.u16ArrParam[ID_CURRENT_MONITOR_LOAD_CT_RATIO];
 
-    if(_All_Param.u8ArrParam[ID_DISP_VOLT_FILT_EN] == CFGZ::CFGZ_ENABLE)
-    {
-        RMS::SetRMSFilterConstForDisplay(_All_Param.u8ArrParam[ID_DISP_VOLT_FILT_VAL]);
-    }
-    else
+
     {
         RMS::SetRMSFilterConstForDisplay(0);
     }
 
 
-    _hal.AcSensors.ConfigureCTRatio(u16CTRation, _All_Param.u16ArrParam[ID_FM_CT_RATIO]);
+    _hal.AcSensors.ConfigureCTRatio(u16CTRation, _All_Param.u16ArrParam[ID_FAN_CURR_MONITOR_FAN_MON_CT_RATIO]);
 
-    if(_All_Param.u8ArrParam[CFGZ::ID_GEN_PT_ENABLE])
-    {
-    _hal.AcSensors.ConfigureGenPTRatio(_All_Param.u16ArrParam[ID_GEN_PT_PRIMARY_RATIO],_All_Param.u16ArrParam[ID_GEN_PT_SECONDARY_RATIO]);
-    }
-    else
+
     {
         _hal.AcSensors.ConfigureGenPTRatio(100,100);
     }
 
-    if(_All_Param.u8ArrParam[CFGZ::ID_MAINS_PT_ENABLE])
-    {
-    _hal.AcSensors.ConfigureMainsPTRatio(_All_Param.u16ArrParam[ID_MAINS_PT_PRIMARY_RATIO],_All_Param.u16ArrParam[ID_MAINS_PT_SECONDARY_RATIO]);
-    }
-    else
+
     {
         _hal.AcSensors.ConfigureMainsPTRatio(100,100);
     }
 
-    _hal.AcSensors.ConfigGeneratorRating(_All_Param.f32ArrParam[ID_GEN_RATING]);
+    _hal.AcSensors.ConfigGeneratorRating(_All_Param.f32ArrParam[ID_LOAD_MONITOR_GEN_RATING]);
     AC_SENSE::AC_SYSTEM_TYP_t eGenACSystem
-                = (AC_SENSE::AC_SYSTEM_TYP_t)_All_Param.u8ArrParam[ID_GEN_AC_SYSTEM_TYPE];
+                = (AC_SENSE::AC_SYSTEM_TYP_t)_All_Param.u8ArrParam[ID_ALT_CONFIG_ALT_AC_SYSTEM];
 
     AC_SENSE::AC_SYSTEM_TYP_t  eMainsACSystem
-                = (AC_SENSE::AC_SYSTEM_TYP_t)_All_Param.u8ArrParam[ID_MAINS_AC_SYTEM_TYPE];
+                = (AC_SENSE::AC_SYSTEM_TYP_t)_All_Param.u8ArrParam[ID_MAINS_CONFIG_MAINS_AC_SYSTEM];
 
     _hal.AcSensors.ConfigureACSystem(eGenACSystem, eMainsACSystem);
-
-    // if(_stMiscParam.u8MiscParam[DISP_VOLT_EN] == 1)
-    // {
-    //     _hal.AcSensors.ConfigureVoltDisplayFilt(_stMiscParam.u8MiscParam[DISP_VOLT_CONST]);
-    // }
-    // else
-    // {
-    //     _hal.AcSensors.ConfigureVoltDisplayFilt(0U);
-    // }
-
-//    if(GetCFGZ_Param(ID_DISP_VOLT_FILT_EN) == 1) // 0: NO , 1: YES
-//    {
-//        _hal.AcSensors.ConfigureVoltDisplayFilt(GetCFGZ_Param(ID_DISP_VOLT_FILT_VAL));
-//    }
-//    else
-//    {
-//        _hal.AcSensors.ConfigureVoltDisplayFilt(0U);
-//    }
 
 
 }
@@ -857,24 +822,20 @@ void CFGZ::prvSetPassword()
 }
 void CFGZ::EnableDisableMainsParam()
 {
-    if((GetCFGZ_Param(ID_MAINS_UNDER_VTG_MON_EN) == CFGZ_DISABLE) &&
-          (GetCFGZ_Param(ID_MAINS_OVER_VTG_MON_EN) == CFGZ_DISABLE) &&
-          (GetCFGZ_Param(ID_MAINS_UNDER_FREQ_MON_EN) == CFGZ_DISABLE) &&
-          (GetCFGZ_Param(ID_MAINS_OVER_FREQ_MON_EN) == CFGZ_DISABLE) &&
-          (GetCFGZ_Param(ID_MAINS_MON_EN) == CFGZ_ENABLE))
+    if((GetCFGZ_Param(ID_UNDER_VOLT_MON_ENABLE) == CFGZ_DISABLE) &&
+          (GetCFGZ_Param(ID_OVER_VOLT_MON_ENABLE) == CFGZ_DISABLE) &&
+          (GetCFGZ_Param(ID_UNDER_FREQ_MON_ENABLE) == CFGZ_DISABLE) &&
+          (GetCFGZ_Param(ID_OVER_FREQ_MON_ENABLE) == CFGZ_DISABLE) &&
+          (GetCFGZ_Param(ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ_ENABLE))
     {
-        _All_Param.u8ArrParam[ID_MAINS_MON_EN] = CFGZ_DISABLE;
+        _All_Param.u8ArrParam[ID_MAINS_CONFIG_MAINS_MONITORING] = CFGZ_DISABLE;
     }
 }
 
 CFGZ::ENGINE_TYPES_t CFGZ::GetEngType(void)
 {
-    ENGINE_TYPES_t geEngType = (ENGINE_TYPES_t)GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE);
-    if((geEngType == ENG_CUMMINS_500)||(geEngType == ENG_CUMMINS_558)||(geEngType == ENG_CUMMINS_570)||
-            (geEngType==ENG_CUMMINS_850)||(geEngType == ENG_CUMMINS_2150)||(geEngType == ENG_CUMMINS_2250))
-    {
-        geEngType = ENG_CUMMINS;
-    }
+    ENGINE_TYPES_t geEngType =(ENGINE_TYPES_t) 0;//(ENGINE_TYPES_t)GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE);
+
     return geEngType;
 }
 
@@ -889,10 +850,10 @@ void CFGZ::GetEngSrNo(char EngSrNo[])
 uint8_t CFGZ::GetArrLanguageIndex()
 {
     //If Chinese Language is selected the config UI should be displayed in English. Thus _u8LanguageArrayIndex is set to 0(English language) if Chinese Language is selected.
-    if(GetCFGZ_Param(CFGZ::ID_LANGUAGE) == CFGZ::LANGUAGE_CHINSESE )
+    if(GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_MODE) == CFGZ::LANGUAGE_CHINSESE )
     {
        return 0;
     }
-    return (uint8_t)(GetCFGZ_Param(CFGZ::ID_LANGUAGE));
+    return (uint8_t)(GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_MODE));
 }
 

@@ -32,13 +32,13 @@ void ENGINE_START_VALIDITY:: InitEngineStartValidityParams(void)
      * either - 600rpm           - when crank disconnect rpm threshold is greater than 600
      * or     - crank disconnect - when crank disconnect rpm threshold is less than 600
      */
-    if(RPM_THRESHOLD_LOW_CONST < _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCON_ENG_SPEED_THRESH))
+    if(RPM_THRESHOLD_LOW_CONST < _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
     {
         _u16LowRpmThreshold = RPM_THRESHOLD_LOW_CONST;
     }
     else
     {
-        _u16LowRpmThreshold = _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCON_ENG_SPEED_THRESH);
+        _u16LowRpmThreshold = _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED);
     }
 
     /*
@@ -46,20 +46,20 @@ void ENGINE_START_VALIDITY:: InitEngineStartValidityParams(void)
      * either - 1200rpm     - when under speed threshold is less than 1200
      * or     - under speed - when under speed threshold is greater than 1200
      */
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_UNDER_SPEED_THRESH)  < RPM_THRESHOLD_HIGH_CONST)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_THRESHOLD)  < RPM_THRESHOLD_HIGH_CONST)
     {
         _u16HighRpmThreshold = RPM_THRESHOLD_HIGH_CONST;
     }
     else
     {
-        _u16HighRpmThreshold = _cfgz.GetCFGZ_Param(CFGZ::ID_UNDER_SPEED_THRESH);
+        _u16HighRpmThreshold = _cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_THRESHOLD);
     }
 
     /*
      * Crank hold time is considered as timeout for rpm to reach from lower threshold to higher.
      * After this time, engine start is considered as valid start.
      */
-    _u32TimeoutForRpm1ToRpm2_us = (CNTS_FOR_1_SEC *_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_HOLD_TIME));
+    _u32TimeoutForRpm1ToRpm2_us = (CNTS_FOR_1_SEC *_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME));
 }
 
 
@@ -226,7 +226,7 @@ void ENGINE_START_VALIDITY::SMDToChkEngStartValidity(void)
 
 void ENGINE_START_VALIDITY::UpdateStartValidyParam()
 {
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_WAVE_DETECT_EN) == CFGZ::CFGZ_ENABLE)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
     {
         InitEngineStartValidityParams();
     }

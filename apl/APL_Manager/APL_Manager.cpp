@@ -52,11 +52,7 @@ _PowerOnUpdateTimer{0}
         AnlgIp.SetHSDKFactor(1250.0F);
     }
 
-    if(_cfgc.IsSGC421())
-    {
-        actuators.SetStepperDriveType(ACT_Manager::A5976);
-        actuators.STPR_ConfigDirection((STPR_DRV::DRV_DIR_t)_cfgz.GetCFGZ_Param(CFGZ::ID_EGOV_ACT_DIRECTION));
-    }
+
     if(_cfgc.IsSGC110())
     {
         _stFirmwareInfo.u32PLMID=12808;
@@ -76,7 +72,7 @@ void APL_Manager::Update()
     {
         if((!_cfgc.IsC02Error()) && (!_cfgz.IsC03Error()) )
         {
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_WAVE_DETECT_EN) == CFGZ::CFGZ_ENABLE)
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
             {
                 _EngineStartValidity.SMDToChkEngStartValidity();
             }

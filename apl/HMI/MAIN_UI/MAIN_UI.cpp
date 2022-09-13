@@ -55,7 +55,7 @@ _bExternalPanelLockOnce(false)
     UTILS_ResetTimer(&_BootTimer);
     _hal.ObjKeypad.RegisterKeyEventCB(prvKeypad_callback);
 
-    _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_SCREEN_CHANG_TIME);
+    _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
 
     //Copy all Auxilary strings
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_AUX_INPUT_A, strAuxAString);
@@ -114,63 +114,16 @@ void MAIN_UI::prvExitFromConfigMode()
 
 
 
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)
     {
       _ManualMode.OpenMainsLoad();
     }
     if(CEditableItem::IsAnyConfigValueEdited())
     {
-      _GCUAlarms.LogEvent(GCU_ALARMS::Config_Modified_id,GCU_ALARMS::ID_NONE);
+      _GCUAlarms.LogEvent(GCU_ALARMS::Config_Modified_By_User_id,GCU_ALARMS::ID_NONE);
     }
     MON_UI::eDisplayMode = DISP_MON_MODE;
     _MonUI.GoToHomeScreen();
-}
-void MAIN_UI::prvHandlePanelLockInputs(void)
-{
-    if(_GCUAlarms.IsAlarmActive(GCU_ALARMS::PANEL_LOCK))/// Panel lock input.
-    {
-        _sbKeyEventAvailable = false;
-        if(!_bPanelLockOnce)      /// Panel lock input received
-        {
-            _bPanelLockOnce = true;
-            if((_ManualMode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
-                    &&(_ManualMode.GetManualModeState() == BASE_MODES::STATE_MANUAL_GEN_OFF))
-            {
-                /// Do nothing
-            }
-            else
-            {
-                _sbKeyEventAvailable = true;
-                _sKeyEvent = STOP_KEY_SHORT_PRESS;
-            }
-        }
-    }
-    else
-    {
-        _bPanelLockOnce = false;
-    }
-
-    if(_GCUAlarms.IsAlarmActive(GCU_ALARMS::EX_AUTO_PANEL_LOCK))/// external panel lock input active.
-    {
-        _sbKeyEventAvailable = false;
-        if(!_bExternalPanelLockOnce)      /// external Panel lock input received
-        {
-
-            if((_ManualMode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE))
-            {
-                _sbKeyEventAvailable = true;
-                _sKeyEvent = AUTO_KEY_SHORT_PRESS;
-            }
-            else
-            {
-                _bExternalPanelLockOnce = true;
-            }
-        }
-    }
-    else
-    {
-        _bExternalPanelLockOnce = false;
-    }
 }
 
 bool MAIN_UI::Update()
@@ -267,7 +220,7 @@ bool MAIN_UI::Update()
                 != START_STOP::ID_STATE_SS_ENG_OFF_ERR)
             &&(_StartStop.GetStartStopSMDState()
                     != START_STOP::ID_STATE_SS_ENG_OFF_OK))
-        ||(((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN))
+        ||(((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING))
                 == CFGZ::CFGZ_ENABLE) &&
                 (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)
                       != ACT_Manager:: ACT_NOT_CONFIGURED))
@@ -284,7 +237,7 @@ bool MAIN_UI::Update()
     //Turn off Back light after Power save delay over
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_POWER_SAVE_MODE)== CFGZ::CFGZ_ENABLE)
                  &&(UTILS_GetElapsedTimeInSec(&_PoweSaveModeTimer)
-                      >= _cfgz.GetCFGZ_Param(CFGZ::ID_POWER_SAVE_MODE_DELAY)))
+                      >= _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_PWR_SAVE_MODE_DELAY)))
     {
         _hal.ObjGlcd.TurnOffBackLight();
         UTILS_ResetTimer(&_PoweSaveModeTimer);
@@ -295,7 +248,7 @@ bool MAIN_UI::Update()
         UTILS_ResetTimer(&_PoweSaveModeTimer);
     }
 
-    if(UTILS_GetElapsedTimeInSec(&_AutoExitTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_EXIT_TIME))
+    if(UTILS_GetElapsedTimeInSec(&_AutoExitTimer) >= 200 )//_cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_EXIT_TIME))
     {
         UTILS_DisableTimer(&_AutoExitTimer);
         if(IS_DISP_CONFIG_MODE() ||IS_DISP_EVENT_LOG_MODE())
@@ -317,7 +270,6 @@ bool MAIN_UI::Update()
         UTILS_ResetTimer(&_AutoExitTimer);
     }
 
-    prvHandlePanelLockInputs();  /// Stop and Auto Panel lock inputs handling
 
     if(_ManualMode.IsGCUStateChanged())
     {
@@ -345,9 +297,9 @@ bool MAIN_UI::Update()
              _hal.ObjGlcd.TurnOnBackLight();
          }
          UTILS_ResetTimer(&_ScreenChangeOverTimer);
-        if ( _cfgz.GetCFGZ_Param(CFGZ::ID_SCREEN_CHANG_TIME) > SCREEN_CHANGE_OVER_PAUSE)
+        if ( _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME) > SCREEN_CHANGE_OVER_PAUSE)
         {
-            _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_SCREEN_CHANG_TIME);
+            _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
         }
         else
         {
@@ -468,7 +420,7 @@ bool MAIN_UI::Update()
                if(IS_GCU_MANUAL_MODE() ||IS_GCU_TEST_MODE())
                {
 
-                   if((!_GCUAlarms.IsAlarmActive(GCU_ALARMS::PANEL_LOCK)) && (!_GCUAlarms.IsAlarmActive(GCU_ALARMS::EX_AUTO_PANEL_LOCK)))
+                   if(1)
                    {
                        if((!_ManualMode.IsGenContactorClosed())&& (_EngMon.IsGenAvailable()))
                        {
@@ -487,7 +439,7 @@ bool MAIN_UI::Update()
            {
                if(IS_GCU_MANUAL_MODE() || IS_GCU_TEST_MODE())
                {
-                   if((_ManualMode.IsMainsContactorConfigured()) &&(!_GCUAlarms.IsAlarmActive(GCU_ALARMS::PANEL_LOCK)) && (!_GCUAlarms.IsAlarmActive(GCU_ALARMS::EX_AUTO_PANEL_LOCK)))
+                   if((_ManualMode.IsMainsContactorConfigured()))
                    {
                        if((!_ManualMode.IsMainsContactorClosed()) && (_ManualMode.GetMainsStatus() == BASE_MODES:: MAINS_HELATHY ))
                        {
@@ -601,11 +553,11 @@ bool MAIN_UI::Update()
        }
     }
 
-    if((UTILS_GetElapsedTimeInSec(&_ScreenChangeOverTimer) >= _u16ScreenChangeTime)&& (_cfgz.GetCFGZ_Param(CFGZ::ID_SCREEN_CHANG_TIME)>0))
+    if((UTILS_GetElapsedTimeInSec(&_ScreenChangeOverTimer) >= _u16ScreenChangeTime)&& (_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME)>0))
     {
         _hal.ObjGlcd.AutoReInitGCLDScreen();
        UTILS_ResetTimer(&_ScreenChangeOverTimer);
-       _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_SCREEN_CHANG_TIME);
+       _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
        if(IS_DISP_MON_MODE())
        {
             _MonUI.CheckKeyPress(DN_SHORT_PRESS);
@@ -734,9 +686,8 @@ void MAIN_UI::prvLEDHandling()
            _hal.ledManager.led5.TurnOff();
        }
 
-       if(((_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
-               || ((_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bEnableMonitoring)
-                       && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_START_STOP].bResultInstant) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_DISABLE)))
+       if(((_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+               && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
        {
            _hal.ledManager.led8.TurnOn();
        }
@@ -754,7 +705,7 @@ void MAIN_UI::prvLEDHandling()
            _hal.ledManager.led6.TurnOff();
        }
 
-       if((_ManualMode.IsMainsContactorConfigured())&& (_ManualMode.IsMainsContactorClosed()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_MON_EN) == CFGZ::CFGZ_ENABLE))
+       if((_ManualMode.IsMainsContactorConfigured())&& (_ManualMode.IsMainsContactorClosed()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
        {
            _hal.ledManager.led7.TurnOn();
        }

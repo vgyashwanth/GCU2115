@@ -28,10 +28,10 @@ _cfgz(cfgz)
 void SLEEP_Handler::Update()
 {
     /*Do not proceed if sleep mode is disabled*/
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DEEP_SLEEP_EN) == CFGZ::CFGZ_DISABLE)
-    {
-        return;
-    }
+//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DEEP_SLEEP_EN) == CFGZ::CFGZ_DISABLE)
+//    {
+//        return;
+//    }
     if(_hal.AmIInSleep())
     {
         /*No key press in progress, enter sleep*/
@@ -53,7 +53,7 @@ void SLEEP_Handler::Update()
     /*Enter sleep if sleep timer is expired*/
     // Avoid going in sleep mode during Dflash write operation
     else if((UTILS_GetElapsedTimeInSec(&_sleepTmr) >=
-                                _cfgz.GetCFGZ_Param(CFGZ::ID_DEEP_SLEEP_DELAY))
+                                _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_DEEP_SLP_MODE_DELAY))
              )
     {
         if(!_hal.Objeeprom.IsRquestPending())

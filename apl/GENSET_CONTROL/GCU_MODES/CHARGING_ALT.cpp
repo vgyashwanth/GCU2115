@@ -135,8 +135,8 @@ void CHARGING_ALT::Update(bool bDeviceInConfigMode)
 //                    _StateCA = STATE_CHG_ALT_ERR;
 //                }
                 else if((UTILS_GetElapsedTimeInSec(&_ChargAltMonTimer) >= 
-                            _cfgz.GetCFGZ_Param(CFGZ::ID_CHARG_ALT_FAIL_DELAY))
-                                || (_cfgz.GetCFGZ_Param(CFGZ::ID_CHARG_ALT_FAIL_ACTION) == CFGZ::CFGZ_ACTION_NONE)
+                            _cfgz.GetCFGZ_Param(CFGZ::ID_CHARGE_ALT_MON_FAIL_DELAY))
+                                || (_cfgz.GetCFGZ_Param(CFGZ::ID_CHARGE_ALT_MON_FAIL_ACTION) == CFGZ::CFGZ_ACTION_NONE)
                                 || _bStartChargAltPulse)
                 {
                     _bStartChargAltPulse = false;

@@ -833,12 +833,8 @@ void CFGZ::EnableDisableMainsParam()
 
 CFGZ::ENGINE_TYPES_t CFGZ::GetEngType(void)
 {
-    ENGINE_TYPES_t geEngType = (ENGINE_TYPES_t)GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE);
-    if((geEngType == ENG_CUMMINS_500)||(geEngType == ENG_CUMMINS_558)||(geEngType == ENG_CUMMINS_570)||
-            (geEngType==ENG_CUMMINS_850)||(geEngType == ENG_CUMMINS_2150)||(geEngType == ENG_CUMMINS_2250))
-    {
-        geEngType = ENG_CUMMINS;
-    }
+    ENGINE_TYPES_t geEngType =(ENGINE_TYPES_t) 0;//(ENGINE_TYPES_t)GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE);
+
     return geEngType;
 }
 

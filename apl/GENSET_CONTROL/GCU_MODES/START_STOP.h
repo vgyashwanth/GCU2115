@@ -65,7 +65,7 @@ public:
         IDLE_MODE_DEACTIVE
     } ;
 
-     #define IS_GCU_PREHEAT_TEMP_ENABLED()       ( _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TEMP_LIMIT_EN) == 1)
+     #define IS_GCU_PREHEAT_TEMP_ENABLED()       ( _cfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_ENG_TEMPERATURE) == 1)
 
      #define IS_GCU_TEMP_CONFIGURED()             ( _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
 

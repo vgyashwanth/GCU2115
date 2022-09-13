@@ -248,7 +248,7 @@ bool MAIN_UI::Update()
         UTILS_ResetTimer(&_PoweSaveModeTimer);
     }
 
-    if(UTILS_GetElapsedTimeInSec(&_AutoExitTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_EXIT_TIME))
+    if(UTILS_GetElapsedTimeInSec(&_AutoExitTimer) >= 200 )//_cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_EXIT_TIME))
     {
         UTILS_DisableTimer(&_AutoExitTimer);
         if(IS_DISP_CONFIG_MODE() ||IS_DISP_EVENT_LOG_MODE())

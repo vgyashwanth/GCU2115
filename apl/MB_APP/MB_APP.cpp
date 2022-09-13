@@ -376,11 +376,7 @@ void MB_APP::prvUpdateAnalogParams()
         u16Tmp = (uint16_t)(sensorVal.stValAndStatus.f32InstSensorVal*10);
         SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
     }
-    else if ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)== CFGZ::CFGZ_ENABLE)&&(_cfgz.GetEngType()!=CFGZ::ENG_CONVENTIONAL))
-    {
-        u16Tmp = (uint16_t)(sensorVal.stValAndStatus.f32InstSensorVal*10);
-                SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
-    }
+
 
     sensorVal = _gcuAlarm.GetSelectedTempSensVal();
 
@@ -391,11 +387,7 @@ void MB_APP::prvUpdateAnalogParams()
         u16Tmp = (int16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal)*10);
         SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
     }
-    else if ((_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG)== CFGZ::CFGZ_ENABLE)&&(_cfgz.GetEngType()!=CFGZ::ENG_CONVENTIONAL))
-    {
-        u16Tmp = (int16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal)*10);
-                SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
-    }
+
 
     sensorVal = sensor.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
 

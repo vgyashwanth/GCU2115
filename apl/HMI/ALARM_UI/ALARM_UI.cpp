@@ -194,7 +194,7 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
        case DN_LONG_PRESS:
        {
-           if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE))
+//           if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE))
            {
                if(((_eAlarmType == DM2)||(_eAlarmType == PCD)||(_eAlarmType == NCD)))
                {

@@ -78,7 +78,7 @@ void ENGINE_MONITORING::Update(bool bDeviceInConfigMode)
                 && (true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus())
                 && (false == ENGINE_START_VALIDITY::GetEngineStartInvalidity()))
             {
-                if(!_cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ENG))
+//                if(!_cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ENG))
                 {
                     _stCummulativeCnt.u32EngineRunTime_min++;
                 }
@@ -473,7 +473,7 @@ void ENGINE_MONITORING::prvUpdateEngineCranked()
     }
 
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LOP_SENS)  == CFGZ::CFGZ_ENABLE) &&
-            ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) || (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)==CFGZ::CFGZ_ENABLE)
+            ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
             ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_LOP_CURR_SENSOR))) &&
             (_stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT) &&
             (_stLOP.stValAndStatus.f32InstSensorVal > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_LOP_SENS)))
@@ -839,8 +839,7 @@ void ENGINE_MONITORING::ReadEnergySetEnergyOffset(bool bFromEeprom)
 
 float ENGINE_MONITORING::GetFilteredEngSpeed()
 {
-    if((_cfgz.GetEngType()!=CFGZ::ENG_CONVENTIONAL)
-                && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG) == CFGZ::CFGZ_ENABLE))
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP))
     {
         if(!gpJ1939->IsCommunicationFail())
         {
@@ -868,9 +867,7 @@ float ENGINE_MONITORING::GetFilteredEngSpeed()
 
 float ENGINE_MONITORING::GetRawEngSpeed()
 {
-    if((_cfgz.GetEngType()!=CFGZ::ENG_CONVENTIONAL)
-                && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG) == CFGZ::CFGZ_ENABLE)
-                )
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP))
     {
         if(!gpJ1939->IsCommunicationFail())
         {

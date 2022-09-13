@@ -171,13 +171,6 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                 _bStartRequest = false;
                 _bOpenGenLoad = true;
 
-                //Todo: Remove this commented part if not required.
-//                if((_cfgz.GetCFGZ_Param(CFGZ::ID_COLD_START_EN) == CFGZ::CFGZ_ENABLE)
-//                        && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TEMP_LIMIT_EN) == CFGZ::CFGZ_DISABLE))
-//                {
-//                    START_STOP::ClearPreheatOutput();
-//                }
-
 
                 if(((UTILS_GetElapsedTimeInSec(&_EngCoolDownTimer)) >=
                         _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_ENG_COOL_TIME)) ||

@@ -2383,7 +2383,7 @@ void J1939APP::ResetLampsStatus(void)
 
    _f32Pgn65395Data[PGN_65395_CUMMINS_GAIN_SELECT] = START_STOP::IsFuelRelayOn();
 
-   _f32Pgn65395Data[PGN_65395_CUMMINS_IDLE_SPEED] = START_STOP::IsIdleModeActive();
+//   _f32Pgn65395Data[PGN_65395_CUMMINS_IDLE_SPEED] = START_STOP::IsIdleModeActive();
    _f32Pgn65395Data[PGN_65395_CUMMINS_STARTER_SELECTION] = 3;
    _f32Pgn65395Data[PGN_65395_CUMMINS_SHUTDOWN_OVERRIDE] = 0;
    /*As per DEIF's requirement we should have drop down menu in ECU submenu to select the frequency(50Hz or 60Hz) Since we dont have it.
@@ -2501,15 +2501,6 @@ void J1939APP::prvHandleEngineStartStop()
 
             break;
         case START_STOP::ID_STATE_SS_FAIL_TO_STOP:
-            break;
-        case START_STOP::ID_STATE_PULL_SOLENOID_ON:
-            if(bStateChanged)
-            {
-                if((_cfgz.GetEngType() == CFGZ::ENG_IVECO) && (_ArrPgnReadData[RX_PGN_IVECO_PREHEAT_65281][6] == 0))
-                {
-                    _bEngineStartPreheatStatus = false;
-                }
-            }
             break;
 
     }

@@ -1953,7 +1953,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[MAINS_B_PHASE_FREQ].f32Value = (uint16_t)_hal.AcSensors.MAINS_GetApproxFreq(B_PHASE);
     _ArrAlarmValue[MAINS_PH_PH_MIN_VOLTAGE].u16Value = prvGetMinPhToPhMainsVoltage();
 
-    _u8LowIdleSpeedMon = _u8MonOn && !(START_STOP::IsIdleToRatedRampOver());
+//    _u8LowIdleSpeedMon = _u8MonOn && !(START_STOP::IsIdleToRatedRampOver());
     _ArrAlarmValue[CHARG_ALT_VOLTAGE].f32Value = _hal.AnalogSensors.GetFilteredChargingAltVolts();
 
     _ArrAlarmValue[CHARG_ALT_ERROR].u8Value = (uint8_t)CHARGING_ALT::IsChargAltFail();
@@ -2174,7 +2174,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[LOW_LOAD_STATUS].u8Value = (uint8_t)_hal.AcSensors.GENSET_GetPercentPower();
 
 
-    _ArrAlarmValue[J1939_COM_FAIL_STATUS].u8Value =  (uint8_t)((gpJ1939->IsCommunicationFail())&&(START_STOP::IsKeySwitchOutputActive()));
+    _ArrAlarmValue[J1939_COM_FAIL_STATUS].u8Value =  (uint8_t)(gpJ1939->IsCommunicationFail());
     _ArrAlarmValue[J1939_PROTECT_LAMP_STATUS].u8Value = gpJ1939->IsProtectLampON();
     _ArrAlarmValue[J1939_AMBER_LAMP_STATUS].u8Value = gpJ1939->IsAmberLampON();
     _ArrAlarmValue[J1939_RED_LAMP_STATUS].u8Value = gpJ1939->IsRedLampON();

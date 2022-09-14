@@ -15,8 +15,8 @@
 #include "START_STOP.h"
 #include "../EGOV/EGOV.h"
 #include "J1939_APP/J1939APP.h"
-bool START_STOP::_bEngStoppingComplete = false;
 bool START_STOP::_bChargAltStopLatched = false;
+bool START_STOP::_bMonitorChargAlt = false;
 bool START_STOP::_bOPStopSolenoid = false;
 bool START_STOP::_bOPStartRelay = false;
 uint16_t START_STOP::_u16ConfiguredSafetyMonDelay = false;
@@ -24,18 +24,8 @@ stTimer START_STOP::_SafetyMonTimer = {0};
 stTimer START_STOP::_EngStoppingTimer = {0};
 bool START_STOP::_bOPPreheat = false;
 bool START_STOP::_bOPFuelRelay= false;
-bool START_STOP::_bKeySwitchOutput = false;
-bool START_STOP::_bInIdleMode = false;
-bool START_STOP::_bActiveAlarms = false;
+
 bool START_STOP::_bStopCommand = false;
-bool START_STOP::_bSkipStartIdle = false;
-bool START_STOP::_bSkipStopIdle = false;
-bool START_STOP::_bStopIdleExec = false;
-bool START_STOP::_bIsLowIdleTimerModeExec = false;
-
-bool START_STOP:: _bStartIdleEnabled = false;
-bool START_STOP:: _bStopIdleEnabled = false;
-
 START_STOP::SS_STATE_t START_STOP::_State =ID_STATE_SS_ENG_OFF_OK;
 extern J1939APP *gpJ1939;
 bool START_STOP::_bJ1939PrheatFaultPresent= false;
@@ -48,12 +38,6 @@ _GCUAlarms(GCUAlarms),
 _vars(vars),
 _ChargeAlt(ChargeAlt),
 _EngineStartValidity(EngineStartValidity),
-_PullSolenoidState(PULL_SOLENOID_OFF),
-_IdleModeState(START_IDLE_OPR),
-_bStopIdleExecuted(false),
-_bLowIdleOp(false),
-_bIdleModeOnPulse(false),
-_bIdleModeOffPulse(false),
 _bStartKeyPressed(false),
 _bStopKeyPressed(false),
 _u8NoOfCrankAttempts(0),
@@ -73,27 +57,15 @@ _bAlarmAckPressed(false),
 _bAlarmAckReleased(false),
 _bAckAudblAlrmRecd(false),
 _bSimAckRecd(false),
-_bActivatePullSolenoid(false),
-_bActivateHoldSolenoid(false),
 _PreheatTimer{0},
 _EngStartTimer{0},
-_ISVPullSolenoidTimer{0},
 _EngCrankingTimer{0},
 _EngCrankRestTimer{0},
 _StartStopSMUpdateTimer{0},
 _StopHoldTimer{0},
-_PowerOnTimer{0},
-_LowSpeedTimer{0},
-_IdleModePulseTimer{0},
-_IdleToRatedTimer{0},
-_IdleModeStopTimer{0}
+_PowerOnTimer{0}
 {
     UTILS_ResetTimer(&_PowerOnTimer);
-    UTILS_DisableTimer(&_LowSpeedTimer);
-
-    UTILS_DisableTimer(&_IdleModePulseTimer);
-    UTILS_DisableTimer(&_IdleToRatedTimer);
-    UTILS_DisableTimer(&_IdleModeStopTimer);
 
     _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY);
 }
@@ -102,31 +74,6 @@ void START_STOP::Init()
 {
     UTILS_ResetTimer(&_StartStopSMUpdateTimer);
     _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY);
-}
-void START_STOP::prvSMDInletShutoffValve()
-{
-    switch(_PullSolenoidState)
-    {
-        case PULL_SOLENOID_PULSE_ON:
-            _bActivatePullSolenoid = true;
-            _bActivateHoldSolenoid = true;
-            _PullSolenoidState = PULL_SOLENOID_PULSE_STARTED;
-            UTILS_ResetTimer(&_ISVPullSolenoidTimer);
-        break;
-
-//        case PULL_SOLENOID_PULSE_STARTED:
-//            if((UTILS_GetElapsedTimeInMs(&_ISVPullSolenoidTimer) >=
-//                    (uint64_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_ISV_PULL_SIGNAL_TIME)*1000))||(_State==ID_STATE_SS_STOPPING))
-//            {
-//                _bActivatePullSolenoid = false;
-//                _PullSolenoidState = PULL_SOLENOID_PULSE_OVER;
-//            }
-//        break;
-
-        case PULL_SOLENOID_PULSE_OVER:
-        default:
-            break;
-    }
 }
 void START_STOP::Update(bool bDeviceInConfigMode)
 {
@@ -170,7 +117,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
 
                 prvSetOutputVariables(false, false, false, false);
                 _bJ1939PrheatFaultPresent = false;
-                _bKeySwitchOutput = true;
 
                 if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
                 {
@@ -178,6 +124,28 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     ENGINE_START_VALIDITY::SetEngineStartInvalidity(false);
                 }
 
+                if(_EngineMon.IsEngineOn() == 1U)
+                {
+                    _bGenStarted = true;
+                    /* Following statements are commented since in case of tamper proofing logic enabled
+                     * we should increase the run hours thought the key is pressed from panel
+                     */
+                //  if(1 == RAM_Calib_Data[ID_ALT_WAVE_DETECTION_EN][ID_CALIB_COL_VAL])
+                //  {
+                ////        f_Invalid_DG_Start = 1;
+                //  }
+                //  else
+                    {
+                         _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, GCU_ALARMS::ID_NONE);
+                    }
+                    _ChargeAlt.StartExcitation();
+                    UTILS_ResetTimer(&_SafetyMonTimer);
+                    _State = ID_STATE_SS_ENG_ON;
+                    _vars.TimerState = BASE_MODES::START_DELAY_TIMER;
+                    _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
+
+
+                }
 
                 if((_bStopCommand) || (_bEmergencyStop &&
                         !_bEmergencyStopLatched))
@@ -190,21 +158,14 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 {
                     _bStartCommand = false;
                     _u8NoOfCrankAttempts = 0;
-                    _bEngStoppingComplete = false;
-                    _PullSolenoidState = PULL_SOLENOID_OFF;
                     _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, GCU_ALARMS::ID_NONE);
-                   // _bOPFuelRelay = true;
                     _bOPPreheat = false;
+                    bPreheatTempLimitReached = false;
                     UTILS_DisableTimer(&_PreheatTimer);
                     UTILS_ResetTimer(&_EngStartTimer);
                     _State = ID_STATE_SS_START_WAIT;
                     _vars.TimerState = BASE_MODES::START_DELAY_TIMER;
-                    bPreheatTempLimitReached = false;
                     _vars.GCUState = BASE_MODES::ENGINE_STARTING;
-                    if(_cfgz.GetEngType() != CFGZ::ENG_CONVENTIONAL )
-                    {
-                        _bOPFuelRelay= true;
-                    }
                 }
                 break;
 
@@ -215,118 +176,51 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 break;
 
             case ID_STATE_SS_PREHEAT:
-//                if(_cfgz.GetEngType()== CFGZ::ENG_CONVENTIONAL)
-//                {
-//                    _bOPFuelRelay = false;
-//                }
-                prvSetOutputVariables(false, false, _bOPFuelRelay, true);
+                prvSetOutputVariables(false, false, false, true);
                 _bStartCommand = false;
-                if(_bStopCommand)
+
+                if(_EngineMon.IsEngineOn() == 1U)
+                {
+                    UTILS_DisableTimer(&_PreheatTimer);
+                    _bGenStarted = true;
+                    _ChargeAlt.StartExcitation();
+                    UTILS_ResetTimer(&_SafetyMonTimer);
+                    _State = ID_STATE_SS_ENG_ON;
+                    _vars.TimerState = BASE_MODES::START_DELAY_TIMER;
+                    _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
+                }
+                else if((_bStopCommand)|| (_GCUAlarms.IsCommonWarning()))
                 {
                     prvStopCommandAction();
-
                     UTILS_DisableTimer(&_PreheatTimer);
                     bPreheatTempLimitReached = false;
-                }
-                else if((CFGZ::ENG_VOLVO == _cfgz.GetEngType())&& IS_PREHEAT_J1939_CONFIGURED())
-                {
-
-                    if((uint8_t)gpJ1939->GetReadData(RX_PGN_VOLVO_PREHEAT_65351, 0) !=0)
-                    {
-                        UTILS_DisableTimer(&_PreheatTimer);
-                        UpdateGcuStatusAndTimerDisplay(BASE_MODES::ENGINE_STARTING, BASE_MODES::PREHEAT_TIMER);
-                        _hal.AnalogSensors.SkipPulses(PULSES_TO_IGNORE);
-                    }
-                    else if((uint8_t)gpJ1939->GetReadData(RX_PGN_VOLVO_PREHEAT_65351, 0) ==0)
-                    {
-                        prvTurnOffPreheatStartCranking();
-                    }
-                }
-                else if((CFGZ::ENG_IVECO == _cfgz.GetEngType()) && IS_PREHEAT_J1939_CONFIGURED())
-                {
-                    if(((uint8_t)gpJ1939->GetReadData(RX_PGN_IVECO_PREHEAT_65281, 6) == J1939APP::PREHEAT_NOT_ACTIVE)
-                            || ((uint8_t)gpJ1939->GetReadData(RX_PGN_IVECO_PREHEAT_65281, 6) == J1939APP::PREHEAT_COMPLETED))
-                    {
-                        prvTurnOffPreheatStartCranking();
-                    }
-                    else if((((uint8_t)gpJ1939->GetReadData(RX_PGN_IVECO_PREHEAT_65281, 6) == J1939APP::PREHEAT_IN_PROGRESS) &&( UTILS_GetElapsedTimeInSec(&_PreheatTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_PREHEAT_TIMER)))
-                            ||((uint8_t)gpJ1939->GetReadData(RX_PGN_IVECO_PREHEAT_65281, 6) == J1939APP::PREHEAT_FAILED))
-                    {
-                        _bStopCommand = false;
-                        _bGenStarted = false;
-                        _ChargeAlt.StopExcitation();
-                        _hal.ObjGlcd.TurnOnBackLight();
-                        _bJ1939PrheatFaultPresent = true;
-                        UTILS_DisableTimer(&_EngCrankingTimer);
-                        UTILS_DisableTimer(&_EngCrankRestTimer);
-                        bPreheatTempLimitReached = false;
-                        _bOPPreheat = false;
-                        UTILS_DisableTimer(&_PreheatTimer);
-                        BASE_MODES::Stop();
-                    }
-
-
                 }
                 else if(((UTILS_GetElapsedTimeInSec(&_PreheatTimer)) >= 
                         _cfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_PREHEAT_TIMER)) ||
                         bPreheatTempLimitReached)
                 {
                     bPreheatTempLimitReached = false;
-                    _bOPPreheat = false;
-                    UTILS_DisableTimer(&_PreheatTimer);
-                    _State = ID_STATE_PULL_SOLENOID_ON;
-                    _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
-
+                    prvTurnOffPreheatStartCranking();
                 }
                 break;
 
             case ID_STATE_SS_START_WAIT:
-                prvSetOutputVariables(false, false, _bOPFuelRelay, false);
+                prvSetOutputVariables(false, false, false, false);
                 _bStartCommand = false;
 
-                if((_cfgz.GetEngType()==CFGZ::ENG_CONVENTIONAL))
+                if(_EngineMon.IsEngineOn() == 1U)
                 {
-                    if(((UTILS_GetElapsedTimeInSec(&_EngStartTimer)>= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_MANUAL_START_DELAY)) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE))
-                            ||((UTILS_GetElapsedTimeInSec(&_EngStartTimer)>= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_AUTO_START_DELAY)) && (BASE_MODES::GetGCUOperatingMode() > BASE_MODES::MANUAL_MODE)))
-                    {
-                        _bOPFuelRelay = true;
-                    }
-                    else
-                    {
-                        _bOPFuelRelay = false;
-                    }
+                    UTILS_DisableTimer(&_EngStartTimer);
+                    _bGenStarted = true;
+                    _ChargeAlt.StartExcitation();
+                    UTILS_ResetTimer(&_SafetyMonTimer);
+                    _State = ID_STATE_SS_ENG_ON;
+                    _vars.TimerState = BASE_MODES::START_DELAY_TIMER;
+                    _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
                 }
-
-                if((_bStopCommand))
+                else if((_bStopCommand) || (_GCUAlarms.IsCommonWarning()))
                 {
-
                    prvStopCommandAction();
-                   UTILS_DisableTimer(&_EngStartTimer);
-
-                   if((CFGZ::ENG_DEUTZ_EMR == _cfgz.GetEngType()) && (0 != (uint8_t)gpJ1939->GetReadData(RX_PGN_EMR_PREHEAT_65284, 0)) )
-                   {
-                       if(BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
-                       {
-                           BASE_MODES::SetModeState(BASE_MODES::STATE_MANUAL_GEN_OFF);
-                       }
-                       else if(BASE_MODES::GetGCUOperatingMode() == BASE_MODES::AUTO_MODE )
-                       {
-                           BASE_MODES::SetModeState(BASE_MODES::STATE_AMF_GEN_OFF_MAINS_OFF);
-                       }
-                       else if(BASE_MODES::GetGCUOperatingMode() == BASE_MODES::BTS_MODE)
-                       {
-                           BASE_MODES::SetModeState(BASE_MODES::STATE_BTS_GEN_OFF_MAINS_OFF);
-                       }
-                       else if(BASE_MODES::GetGCUOperatingMode() == BASE_MODES::CYCLIC_MODE)
-                       {
-                           BASE_MODES::SetModeState(BASE_MODES::STATE_CYCLIC_GEN_OFF_MAINS_OFF);
-                       }
-                       else if(BASE_MODES::GetGCUOperatingMode() == BASE_MODES::AUTO_EXERCISE_MODE)
-                       {
-                           BASE_MODES::SetModeState(BASE_MODES::ID_AUTO_EXE_DG_OFF);
-                       }
-                       else{/* do nothing */}
-                   }
                 }
                 else if(((UTILS_GetElapsedTimeInSec(&_EngStartTimer)) >=
                         _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_MANUAL_START_DELAY) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)) ||
@@ -335,28 +229,32 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 {
                     UTILS_DisableTimer(&_EngStartTimer);
 
-                    if((((((!bPreheatTempLimitReached && IS_PRHEAT_RELAY_CONFIGURED())|| IS_PREHEAT_J1939_CONFIGURED()) && ((CFGZ::ENG_IVECO != _cfgz.GetEngType()) && (CFGZ::ENG_DEUTZ_EMR != _cfgz.GetEngType())))||
-                         (IS_PREHEAT_J1939_CONFIGURED() &&(CFGZ::ENG_IVECO == _cfgz.GetEngType())&& (J1939APP::PREHEAT_NOT_ACTIVE != (uint8_t)gpJ1939->GetReadData(RX_PGN_IVECO_PREHEAT_65281,6)))
-                       ||((!IS_PREHEAT_J1939_CONFIGURED())&& IS_PRHEAT_RELAY_CONFIGURED() &&((CFGZ::ENG_IVECO == _cfgz.GetEngType()) || (CFGZ::ENG_DEUTZ_EMR == _cfgz.GetEngType()))) )
-                      ))
+                    if((!bPreheatTempLimitReached) && IS_PRHEAT_RELAY_CONFIGURED())
                     {
+                        _bOPPreheat = true;
+                        bPreheatTempLimitReached = false;
                         UTILS_ResetTimer(&_PreheatTimer);
                         _State = ID_STATE_SS_PREHEAT;
+                        _vars.GCUState = BASE_MODES::ENGINE_STARTING;
                         _vars.TimerState = BASE_MODES::PREHEAT_TIMER;
                     }
                     else
                     {
-                        _State = ID_STATE_PULL_SOLENOID_ON;
-                        _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
+                        UTILS_ResetTimer(&_EngCrankingTimer);
+                        _State = ID_STATE_SS_CRANKING;
+                        _u8NoOfCrankAttempts++;
+                        _ChargeAlt.StartExcitation();
+                        _bChargAltStopLatched = false;
+                        _vars.GCUState = BASE_MODES::ENGINE_STARTING;
+                        _vars.TimerState = BASE_MODES::CRANK_START_TIMER;
                     }
-
                 }
                 break;
 
             case ID_STATE_SS_CRANKING:
                 prvSetOutputVariables(true, false, true, false);
                 _bStartCommand = false;
-                if(_bStopCommand)
+                if((_bStopCommand)||(_GCUAlarms.IsCommonWarning()))
                 {
                     UTILS_DisableTimer(&_EngCrankingTimer);
                     prvStopCommandAction();
@@ -374,7 +272,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     {
                         _hal.ObjGlcd.TurnOnBackLight();
                         _GCUAlarms.UpdateFailToStart();
-                        _bChargAltStopLatched = false;
                         _State = ID_STATE_SS_ENG_OFF_ERR;
                         _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
                     }
@@ -390,8 +287,13 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     UTILS_DisableTimer(&_EngCrankingTimer);
                 }
                 else if((!_bChargAltStopLatched) &&
-                        (2 <= UTILS_GetElapsedTimeInSec(&_EngCrankingTimer)))
+                        (1 >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME) -
+                                UTILS_GetElapsedTimeInSec(&_EngCrankingTimer))))
                 {
+                    /*Todo: Need to check the correctness of above if condition.
+                     * In SGC420 the Stop excitation pulse is applied after initial 2secs \
+                     * however in GC2111 it is applied 1sec before cranking timer expires.
+                     */
                     _ChargeAlt.StopExcitation();
                     _bChargAltStopLatched = true;
                 }
@@ -399,20 +301,9 @@ void START_STOP::Update(bool bDeviceInConfigMode)
 
             case ID_STATE_SS_CRANK_REST:
                 _hal.ObjGlcd.TurnOnBackLight();
-                if((_cfgz.GetEngType() == CFGZ::ENG_CONVENTIONAL))
-                {
-                    if(UTILS_GetElapsedTimeInSec(&_EngCrankRestTimer) >= (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_REST_TIME)-1U))
-                    {
-                        _bOPFuelRelay = true;
-                    }
-                    else
-                    {
-                        _bOPFuelRelay = false;
-                    }
-                }
-                prvSetOutputVariables(false, false, _bOPFuelRelay, false);
+                prvSetOutputVariables(false, false, false, false);
                 _bStartCommand = false;
-                if(_bStopCommand)
+                if((_bStopCommand)||(_GCUAlarms.IsCommonWarning()))
                 {
                     UTILS_DisableTimer(&_EngCrankRestTimer);
                     prvStopCommandAction();
@@ -426,15 +317,24 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                         _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_REST_TIME))
                 {
                     UTILS_DisableTimer(&_EngCrankRestTimer);
-                    _State = ID_STATE_PULL_SOLENOID_ON;
+                    UTILS_ResetTimer(&_EngCrankingTimer);
+                    _State = ID_STATE_SS_CRANKING;
+                    _u8NoOfCrankAttempts++;
+                    _ChargeAlt.StartExcitation();
+                    _bChargAltStopLatched = false;
                     _vars.GCUState = BASE_MODES::ENGINE_STARTING;
-                    _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
-                    _PullSolenoidState = PULL_SOLENOID_OFF;
-                    if(CFGC::IsSGC421())
-                    {
-                        EGOV::ResetEgovVars();
-                        _hal.actuators.STPR_MoveToHome();
-                    }
+                    _vars.TimerState = BASE_MODES::CRANK_START_TIMER;
+                }
+
+                //Do not monitor Chg Alt Volt for first 1 sec
+                //(1 Count == 50ms) so comparing with 20 counts to count 1 sec
+                if(1U <= UTILS_GetElapsedTimeInSec(&_EngCrankRestTimer))
+                {
+                    _bMonitorChargAlt = true;
+                }
+                else
+                {
+                    _bMonitorChargAlt = false;
                 }
                 break;
 
@@ -464,42 +364,26 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     UTILS_DisableTimer(&_SafetyMonTimer);
 
                     _EngineMon.DisableEngWarmUpTimer();
-                    _bEngStoppingComplete = false;
-                    _bKeySwitchOutput = false;
-//                    if(_GCUAlarms.IsAlarmActive(GCU_ALARMS::OVERSPEED)||
-//                            _GCUAlarms.IsAlarmActive(GCU_ALARMS::GROSS_OVERSPEED)||_GCUAlarms.IsAlarmActive(GCU_ALARMS::EMERGENCY_STOP))
-                    if(0)
+
+
+
+                    if(_EngineMon.IsEngineOn() == 0U)
                     {
-                        _bActivateHoldSolenoid = false;
+
+                        UTILS_DisableTimer(&_EngStoppingTimer);
+                        UTILS_ResetTimer(&_StopHoldTimer);
+                        _State = ID_STATE_SS_STOP_HOLD;
+                        _vars.TimerState = BASE_MODES::ADDTIONAL_STOP_TIMER;
                     }
-                    if(_bInIdleMode && _IdleModeStopTimer.bEnabled)
+                    if((UTILS_GetElapsedTimeInSec(&_EngStoppingTimer)) >=
+                            _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_STOP_ACTION_TIME))
                     {
-                        UTILS_ResetTimer(&_EngStoppingTimer);
-                    }
-                    else
-                    {
-                        _bSkipStopIdle = false;
-                        if(_EngineMon.IsEngineOn() == 0U)
-                        {
-                            _bActivateHoldSolenoid = false;
-                            UTILS_DisableTimer(&_EngStoppingTimer);
-                            UTILS_ResetTimer(&_StopHoldTimer);
-                            _State = ID_STATE_SS_STOP_HOLD;
-                            _vars.TimerState = BASE_MODES::ADDTIONAL_STOP_TIMER;
-                        }
-                        if((UTILS_GetElapsedTimeInSec(&_EngStoppingTimer)) >=
-                                _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_STOP_ACTION_TIME))
-                        {
-                            _bStartCommand = false;
-                            _bEngStoppingComplete = true;
-                            _bKeySwitchOutput = true;
-                            _bActivateHoldSolenoid = false;
-                            UTILS_DisableTimer(&_EngStoppingTimer);
-                            UTILS_ResetTimer(&_StopHoldTimer);
-                            _State = ID_STATE_SS_FAIL_TO_STOP;
-                            _GCUAlarms.UpdateFailToStop();
-                            _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
-                        }
+                        _bStartCommand = false;
+                        UTILS_DisableTimer(&_EngStoppingTimer);
+                        UTILS_ResetTimer(&_StopHoldTimer);
+                        _State = ID_STATE_SS_FAIL_TO_STOP;
+                        _GCUAlarms.UpdateFailToStop();
+                        _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
                     }
 
                 break;
@@ -528,18 +412,12 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 {
                     _bStartCommand = false;
                     _u8NoOfCrankAttempts = 0;
-                    _bKeySwitchOutput = true;
                     UTILS_DisableTimer(&_StopHoldTimer);
                     _bOPFuelRelay = true;
                     _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, GCU_ALARMS::ID_NONE);
-                    _PullSolenoidState = PULL_SOLENOID_OFF;
                     UTILS_ResetTimer(&_EngStartTimer);
                     _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
                     _State = ID_STATE_SS_START_WAIT;
-
-                    _bIsLowIdleTimerModeExec = false;
-                    _bStopIdleExec = false;
-                    _bInIdleMode = false;
 
                     _vars.TimerState = BASE_MODES::START_DELAY_TIMER;
                     _vars.GCUState = BASE_MODES::ENGINE_STARTING;
@@ -565,60 +443,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     UTILS_DisableTimer(&_StopHoldTimer);
                     _hal.AnalogSensors.SkipPulses(10);
                 }
-                break;
-
-            case ID_STATE_PULL_SOLENOID_ON:
-                if(_bStopCommand)
-                {
-                    _bStopCommand = false;
-                    _ChargeAlt.StopExcitation();
-                    _bOPPreheat = false;
-                    bPreheatTempLimitReached = false;
-                    UTILS_DisableTimer(&_PreheatTimer);
-
-                    _State = ID_STATE_SS_STOPPING;
-                    _vars.GCUState = BASE_MODES::ENGINE_STOPPING;
-                    _vars.TimerState = BASE_MODES::STOP_ACTION_TIMER;
-                }
-//                else if(ACT_Manager::ACT_NOT_CONFIGURED !=
-//                        _hal.actuators. GetActStatus(ACTUATOR::ACT_ISV_PULL_SIGNAL))
-//                {
-//                    if(_PullSolenoidState == PULL_SOLENOID_OFF)
-//                    {
-//                        _PullSolenoidState = PULL_SOLENOID_PULSE_ON ;
-//                        UTILS_ResetTimer(&_ISVPullSolenoidTimer);
-//                    }
-//                    else if(_PullSolenoidState == PULL_SOLENOID_PULSE_OVER)
-//                    {
-//                        UTILS_ResetTimer(&_EngCrankingTimer);
-//                        _State = ID_STATE_SS_CRANKING;
-//                        _hal.ObjGlcd.TurnOffBackLight();
-//                        _u8NoOfCrankAttempts++;
-//                        _ChargeAlt.StartExcitation();
-//                        _bChargAltStopLatched = false;
-//                        _vars.GCUState = BASE_MODES::ENGINE_STARTING;
-//                        _vars.TimerState = BASE_MODES::CRANK_START_TIMER;
-//                        /* Reset the value here, so to ignore the first 10 pulses at Engine Cranking state */
-//                        _hal.AnalogSensors.SkipPulses(PULSES_TO_IGNORE);
-//
-//                    }
-//                }
-                else
-                {
-                    UTILS_ResetTimer(&_EngCrankingTimer);
-                    _State = ID_STATE_SS_CRANKING;
-
-                    _hal.ObjGlcd.TurnOffBackLight();
-                    _u8NoOfCrankAttempts++;
-                    _ChargeAlt.StartExcitation();
-                    _bChargAltStopLatched = false;
-                    _vars.GCUState = BASE_MODES::ENGINE_STARTING;
-                    _vars.TimerState = BASE_MODES::CRANK_START_TIMER;
-                    /* Reset the value here, so to ignore the first 10 pulses at Engine Cranking state */
-                    _hal.AnalogSensors.SkipPulses(PULSES_TO_IGNORE);
-
-                }
-
                 break;
 
             default:
@@ -657,64 +481,52 @@ bool START_STOP::IsGenStarted()
 
 void START_STOP::prvStopCommandAction()
 {
-
-    if(true)
+    _bStopCommand = false;
+    _bGenStarted = false;
+    _ChargeAlt.StopExcitation();
+    _hal.ObjGlcd.TurnOnBackLight();
+    switch(_State)
     {
-        _bStopIdleExecuted = false;
-        /*LDRA_INSPECTED 62 S */
-        _bStopCommand = false;
-        _bGenStarted = false;
-        _ChargeAlt.StopExcitation();
-        _hal.ObjGlcd.TurnOnBackLight();
-        switch(_State)
-        {
-            case ID_STATE_SS_ENG_OFF_OK:
-                UTILS_DisableTimer(&_SafetyMonTimer);
-                _bStartCommand = false;
-                UTILS_ResetTimer(&_EngStoppingTimer);
-                _State = ID_STATE_SS_STOPPING;
-                _bOPPreheat = false;
-                UTILS_DisableTimer(&_PreheatTimer);
-                _vars.GCUState = BASE_MODES::ENGINE_STOPPING;
-                _vars.TimerState = BASE_MODES::STOP_ACTION_TIMER;
-                break;
+        case ID_STATE_SS_ENG_OFF_OK:
+            UTILS_DisableTimer(&_SafetyMonTimer);
+            _bStartCommand = false;
+            UTILS_ResetTimer(&_EngStoppingTimer);
+            _State = ID_STATE_SS_STOPPING;
+            _bOPPreheat = false;
+            UTILS_DisableTimer(&_PreheatTimer);
+            _vars.GCUState = BASE_MODES::ENGINE_STOPPING;
+            _vars.TimerState = BASE_MODES::STOP_ACTION_TIMER;
+            break;
 
-            case ID_STATE_SS_START_WAIT:
-                UTILS_DisableTimer(&_EngStartTimer);
-                _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
-                _vars.GCUState = BASE_MODES::ENGINE_OFF_READY;
-                _State = ID_STATE_SS_ENG_OFF_OK;
-                break;
+        case ID_STATE_SS_START_WAIT:
+            UTILS_DisableTimer(&_EngStartTimer);
+            _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
+            _vars.GCUState = BASE_MODES::ENGINE_OFF_READY;
+            _State = ID_STATE_SS_ENG_OFF_OK;
+            break;
 
-            case ID_STATE_SS_PREHEAT:
-                UTILS_DisableTimer(&_EngStartTimer);
-                _bActivateHoldSolenoid = false;
-                UTILS_DisableTimer(&_EngStoppingTimer);
-                UTILS_ResetTimer(&_StopHoldTimer);
-                _State = ID_STATE_SS_STOP_HOLD;
-                _vars.TimerState = BASE_MODES::ADDTIONAL_STOP_TIMER;
-                break;
+        case ID_STATE_SS_PREHEAT:
+            _State = ID_STATE_SS_ENG_OFF_OK;
+            _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
+            break;
 
-            case ID_STATE_SS_ENG_ON:
-                _EngineMon.DisableGenWarmUpTimer();
-                _EngineMon.StoreCummulativeCnt();
-                /* no break*/
-            case ID_STATE_SS_CRANKING:
-            case ID_STATE_SS_CRANK_REST:
-            case ID_STATE_SS_FAIL_TO_STOP:
-                _bOPPreheat = false;
-                UTILS_DisableTimer(&_PreheatTimer);
-                UTILS_DisableTimer(&_SafetyMonTimer);
-                UTILS_ResetTimer(&_EngStoppingTimer);
-                _State = ID_STATE_SS_STOPPING;
-                _bChargAltStopLatched = false;
-                _vars.GCUState = BASE_MODES::ENGINE_STOPPING;
-                _vars.TimerState = BASE_MODES::STOP_ACTION_TIMER;
-                break;
+        case ID_STATE_SS_ENG_ON:
+            _EngineMon.DisableGenWarmUpTimer();
+            _EngineMon.StoreCummulativeCnt();
+            /* no break*/
+        case ID_STATE_SS_CRANKING:
+        case ID_STATE_SS_CRANK_REST:
+        case ID_STATE_SS_FAIL_TO_STOP:
+            UTILS_DisableTimer(&_SafetyMonTimer);
+            UTILS_ResetTimer(&_EngStoppingTimer);
+            _State = ID_STATE_SS_STOPPING;
+//          _bChargAltStopLatched = false;  // Todo: Decide whether it should be added or removed . This was there in SGC420.
+            _vars.GCUState = BASE_MODES::ENGINE_STOPPING;
+            _vars.TimerState = BASE_MODES::STOP_ACTION_TIMER;
+            break;
 
-            default :
-                break;
-        }
+        default :
+            break;
     }
 
 }
@@ -782,10 +594,6 @@ void START_STOP::StopCommand()
   _bStopCommand = true;
 }
 
-void START_STOP::SkipStopIdleCommand()
-{
-    _bSkipStopIdle = true;
-}
 
 bool START_STOP::IsStopCommand()
 {
@@ -810,67 +618,7 @@ bool START_STOP::IsFuelRelayOn()
 {
     return _bOPFuelRelay;
 }
-bool START_STOP::IsIdleModeActive()
-{
-    return (_bStartIdleEnabled || _bStopIdleEnabled);
-}
-uint16_t START_STOP::GetStartIdleRemTime()
-{
 
-    {
-        return 0;
-    }
-}
-uint16_t START_STOP::GetStopIdleRemTime()
-{
-
-    {
-        return 0;
-    }
-}
- uint16_t START_STOP::GetIdleToRatedRemTime()
-{
-
-    {
-        return 0;
-    }
-}
-
-bool START_STOP::IsStartIdleActive()
-{
-    if(IsIdleModeInputConfigured())
-    {
-        return _bStartIdleEnabled;
-    }
-    else
-    {
-        return  _LowSpeedTimer.bEnabled;
-    }
-}
-bool START_STOP::IsStopIdleActive()
-{
-   return  _bStopIdleEnabled;
-}
-bool START_STOP:: IsLowIdleRatedDelay()
-{
-    return  _IdleToRatedTimer.bEnabled;
-}
-bool START_STOP::IsIdleToRatedDelayActive()
-{
-    return _IdleToRatedTimer.bEnabled;
-}
-
-
-uint32_t START_STOP::GetStopLowIdleTime()
-{
-     uint32_t RemainingTimeInSec =  0;
-
-    return RemainingTimeInSec;
-}
-bool START_STOP::IsKeySwitchOutputActive()
-{
-    return _bKeySwitchOutput;
-}
 
 
 uint32_t START_STOP::GetTimersRemainingTime(BASE_MODES::TIMER_STATE_t eTimer)
@@ -952,17 +700,17 @@ void START_STOP::prvHandleEngineCranked()
     _State = ID_STATE_SS_ENG_ON;
     _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
     _vars.TimerState = BASE_MODES::SAFETY_MON_TIMER;
-    _bChargAltStopLatched = false;
 }
 
-bool START_STOP::IsEngStoppingComplete()
-{
-    return _bEngStoppingComplete;
-}
 
 bool START_STOP::IsChargAltStopLtached()
 {
     return _bChargAltStopLatched;
+}
+
+bool START_STOP::IsMonitorChargAltTrue()
+{
+    return _bMonitorChargAlt;
 }
 
 void START_STOP::ClearChargAltStopLtached()
@@ -1089,10 +837,6 @@ bool START_STOP::IsStartPreheatON()
     return _bOPPreheat;
 }
 
-bool  START_STOP::IsIdleToRatedRampOver()
-{
-    return (_bActiveAlarms); /* This flag diables UV,OV,UF alarms */
-}
 
 void START_STOP::UpdateGcuStatusAndTimerDisplay(BASE_MODES::GCU_STATE_t eGcuState, BASE_MODES::TIMER_STATE_t eTimerDisplay)
 {
@@ -1102,16 +846,15 @@ void START_STOP::UpdateGcuStatusAndTimerDisplay(BASE_MODES::GCU_STATE_t eGcuStat
 
 void START_STOP::prvTurnOffPreheatStartCranking()
 {
+    _bOPPreheat = false;
+    UTILS_DisableTimer(&_PreheatTimer);
     UTILS_ResetTimer(&_EngCrankingTimer);
     _State = ID_STATE_SS_CRANKING;
     _u8NoOfCrankAttempts++;
     _ChargeAlt.StartExcitation();
     _bChargAltStopLatched = false;
-    UpdateGcuStatusAndTimerDisplay(BASE_MODES::ENGINE_STARTING, BASE_MODES::CRANK_START_TIMER);
-    _bOPPreheat = false;
-    /* Reset the value here, so to ignore the first 10 pulses at Engine Cranking state */
-    _hal.AnalogSensors.SkipPulses(PULSES_TO_IGNORE);
-
+    _vars.GCUState = BASE_MODES::ENGINE_STARTING;
+    _vars.TimerState = BASE_MODES::CRANK_START_TIMER;
 }
 
 bool START_STOP::IsJ1939PreheatFaultPresent()
@@ -1122,15 +865,9 @@ bool START_STOP::IsJ1939PreheatFaultPresent()
 
 
 
-bool START_STOP::IsIdleModeInputConfigured()
-{
-    return false;
-}
 
-void START_STOP::prvDisableStartIdle()
-{}
-void START_STOP::prvDisableStopIdle()
-{}
+
+
 
 
 

@@ -410,19 +410,37 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
     }
 }
 
+/* Shubham Wader 15.09.2022
+ Adding below macro to use while development. While release, remove that */
+#define ENABLE_ALL_MON_SCREENS     (1)
 void MON_UI::prvConfigureScreenEnable()
 {
     static uint8_t u8Screen;
     for(u8Screen = DISP_MON_HOME ; u8Screen<DISP_MON_LAST; u8Screen++)
     {
         _ArrScreenEnDs[u8Screen] = false;
+#if ENABLE_ALL_MON_SCREENS
+        _ArrScreenEnDs[u8Screen] = true;
+#endif
         switch(u8Screen)
         {
             /* todo: update screen en/dis dependencies */
             case DISP_MON_HOME :
             case DISP_MON_PRODUCT_ID :
+                _ArrScreenEnDs[u8Screen] = true;
+                break;
             case DISP_MON_CAN_COMMUNICATION_INFO :
             case DISP_MON_ENG_LINK_INFO :
+                if(true)// todo: add dependency of J1939 comm cfgz parameter
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+
             case DISP_MON_GEN_VOLTAGE :
             case DISP_MON_GEN_LOAD_KW :
             case DISP_MON_GEN_LOAD_KVA :
@@ -430,23 +448,142 @@ void MON_UI::prvConfigureScreenEnable()
             case DISP_MON_GEN_POWER_FACTOR :
             case DISP_MON_GEN_CURRENT :
             case DISP_MON_GEN_ENERGY :
+                _ArrScreenEnDs[u8Screen] = true;
+                break;
             case DISP_MON_MAINS_VOLTAGE :
+            case DISP_MON_MAINS_CURRENT :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
             case DISP_MON_MAINS_LOAD_KW :
             case DISP_MON_MAINS_LOAD_KVA :
             case DISP_MON_MAINS_LOAD_KVAR :
-            case DISP_MON_MAINS_CURRENT :
+                /* load on mains && mains mon on &&  mains contactor configured */
+                if((_EngineMon.GetContactorLoadStatus() ==ENGINE_MONITORING::LOAD_ON_MAINS) &&
+                   (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE) &&
+                   (_manualMode.IsMainsContactorConfigured()))
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+
             case DISP_MON_MAINS_ENERGY :
+                if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE) &&
+                   (_manualMode.IsMainsContactorConfigured()))
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+
             case DISP_MON_BAT_VOLTAGE :
+                _ArrScreenEnDs[u8Screen] = true;
+                break;
             case DISP_MON_CHRG_ALT_BAT_VOLTAGE :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_CHARGE_ALT_MON_CHARGE_ALT_MON_BY_J1939) == CFGZ::CFGZ_ENABLE)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
             case DISP_MON_AIR_INTAKE_TEMP :
             case DISP_MON_BOOST_PRESSURE :
+                if(true)// todo: add dependency of J1939 comm cfgz parameter
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
             case DISP_MON_SITE_BAT_RUN_HRS :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
             case DISP_MON_TAMPERED_RUN_HRS :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
             case DISP_MON_ENG_TEMP :
-            case DISP_MON_LUBE_OIL_PRESSURE :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+            case DISP_MON_LUBE_OIL_PRESSURE :/* todo: need to add J1939 dependency if added */
+                if(((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3))))
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
             case DISP_MON_FUEL :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
             case DISP_MON_SHELTER_TEMP :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
             case DISP_MON_AUX_2 :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
             case DISP_MON_ENG_SPEED :
             case DISP_MON_ENG_RUN_TIME :
                 _ArrScreenEnDs[u8Screen] = true;

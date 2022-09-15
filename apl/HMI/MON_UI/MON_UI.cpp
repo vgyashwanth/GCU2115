@@ -16,7 +16,7 @@
 #include "../CONST_UI/CONST_UI.h"
 #include "../UI_DS.h"
 bool    MON_UI::_bMBModeChnageCMDRcvd = false;
-uint8_t MON_UI::_stScreenNo           = MON_UI::DISP_HOME;
+uint8_t MON_UI::_stScreenNo           = MON_UI::DISP_MON_HOME;
 MODE_TYPE_t MON_UI::eDisplayMode      = DISP_MON_MODE;
 MON_UI::MON_SCREEN_st MON_UI::eMonScreenType = MON_SCREEN_NORMAL;
 
@@ -38,13 +38,12 @@ _cyclicMode(cyclicMode),
 _eOpMode (BASE_MODES::MANUAL_MODE),
 ExternalInputUpdateTimer{0},
 _ArrScreenEnDs{false,false,false,
-    false,false,false,false,false,false,
-    false,
-    false,false,false,false,false,false,false,false,false,false,false},
-_f32GenMinFreq(0),
-_f32MainsFreq(0),
-_u8ScreenMin(0),
-_u8ScreenMax(DISP_MON_SCREEN_LAST)
+    false,false,false,false,false,false,false,
+    false,false,false,false,false,false,false,false,false,false,false,
+    false,false,false,false,false,false,false,false,false}, /* init with all screen disabled */
+_u8LanguageIndex(_cfgz.GetArrLanguageIndex()),
+_u8ScreenMin(DISP_MON_HOME),  /* suggetion sgc4xx: can pass enum instead of hard coded 0. */
+_u8ScreenMax(DISP_MON_LAST)
 {
     UTILS_ResetTimer(&ExternalInputUpdateTimer);
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_LAMP_TEST) == CFGZ::CFGZ_ENABLE)
@@ -63,9 +62,8 @@ _u8ScreenMax(DISP_MON_SCREEN_LAST)
         _hal.ledManager.led11.TurnOn();
     }
     UTILS_ResetTimer(&_LogoTimer);
-    UTILS_ResetTimer(&_GroupSwitchingTimer);
+    UTILS_ResetTimer(&_GroupSwitchingTimer); /* todo: remove timer if not using */
 
-    //Print Boot logo
     prvDisplayBootLogo();
     Init();
 
@@ -73,9 +71,10 @@ _u8ScreenMax(DISP_MON_SCREEN_LAST)
 
 void MON_UI::Init()
 {
-   prvConfigureScreenEnable();
-   if(_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_MODE) ==
-           CFGZ::CFGZ_GENSET_MODE_MANUAL)
+   prvConfigureScreenEnable(); /* Screen enable/disbale */
+
+/* todo: think the need of getting _eOpMode here in MON_UI */
+   if(_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_MODE) == CFGZ::CFGZ_GENSET_MODE_MANUAL)
    {
        _eOpMode = BASE_MODES::MANUAL_MODE;
    }
@@ -94,11 +93,20 @@ void MON_UI::Init()
        {
            _eOpMode = BASE_MODES::AUTO_MODE;
        }
-
    }
    _manualMode.SetGCUOperatingMode(_eOpMode);
 
+/* Shubham Wader 13.09.2022
+   todo: Some of the times is observed that, due to mismatch in "CFGZ.smc" and "CFGZ.h", the contrast value gets set to some
+   random value. Sometimes the value was < 10. At that time, one may not able to go inside config -> change contrast and then check
+   what is happening. So as a precausionary measure, should we check cfgz contrast value with some hard coded threshold value here below ?
+   Will that affect/render customers requirement ?
+
+   Actually this defencive type of action should be taken inside any function.
+*/
    _hal.ObjGlcd.AdjustContrast(_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_CONTRAST));
+
+   _u8LanguageIndex = _cfgz.GetArrLanguageIndex();
 }
 
 void MON_UI::Update(bool bRefresh)
@@ -137,17 +145,18 @@ void MON_UI::Update(bool bRefresh)
         }
         case RUNNING_MODE:
         {
-            if(_EngineMon.GetAndClearIsLoadStatusChanged())
+            if(_EngineMon.GetAndClearIsLoadStatusChanged()) /* todo: not understood the need of this */
             {
                 prvConfigureScreenEnable();
             }
 
             if(bRefresh)
             {
-                if(eMonScreenType == MON_SCREEN_J1939)
-                {
-                    prvPGNScreenDataAssignment(u8ArrMatrixDispAndRXPGN[_stScreenNo-DISP_MON_SCREEN_LAST-1]);
-                }
+                /* todo: need to uncomment and modify below J1939 realted changes */
+                // if(eMonScreenType == MON_SCREEN_J1939)
+                // {
+                //     prvPGNScreenDataAssignment(u8ArrMatrixDispAndRXPGN[_stScreenNo-DISP_MON_SCREEN_LAST-1]);
+                // }
                 prvDisplayMonScreen();
             }
 
@@ -184,7 +193,7 @@ void MON_UI::Update(bool bRefresh)
 //                    &&(_manualMode.GetTimerState() != BASE_MODES::PREHEAT_TIMER)
                     &&(eMonScreenType == MON_SCREEN_NORMAL))
             {
-                _stScreenNo = DISP_HOME;
+                _stScreenNo = DISP_MON_HOME;
                 eMonScreenType = MON_SCREEN_NORMAL;
             }
 
@@ -219,20 +228,20 @@ void MON_UI::Update(bool bRefresh)
     if(eMonScreenType ==MON_SCREEN_NORMAL )
     {
         _u8ScreenMin= 0;
-        _u8ScreenMax = DISP_MON_SCREEN_LAST;
+        _u8ScreenMax = DISP_MON_LAST;
     }
+#if ENABLE_MON_J1939
     else
     {
         _u8ScreenMin= DISP_PROPB62_PGN_65378;
         _u8ScreenMax = DISP_J1939_RX_LAST;
     }
-
-
+#endif
 }
 
 void MON_UI::GoToHomeScreen()
 {
-    _stScreenNo = DISP_HOME;
+    _stScreenNo = DISP_MON_HOME;
     eMonScreenType =MON_SCREEN_NORMAL;
 }
 
@@ -242,30 +251,28 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
     {
         case AUTO_KEY_SHORT_PRESS:
         {
-            prvAutoKeyPressAction();
-            _stScreenNo = DISP_HOME;
+            prvAutoKeyPressAction(); /* todo: call GoToHomeScreen() function here in sgc4xx */
+            GoToHomeScreen();
             eDisplayMode = DISP_MON_MODE;
-            MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
         }
         break;
 
         case START_KEY_SHORT_PRESS:
         {
-            _stScreenNo = DISP_HOME;
-            eDisplayMode = DISP_MON_MODE;
-            MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
             prvStartKeyPressAction();
-           break;
+            GoToHomeScreen();
+            eDisplayMode = DISP_MON_MODE;
         }
+        break; /* suggestion sgc4xx: keep break statement either inside bracket or outside at all instances */
+
         case STOP_KEY_SHORT_PRESS:
         {
             prvStopKeyPressAction();
-            break;
         }
+        break;
 
         case UP_SHORT_PRESS:  //Up key Press
         {
-
             if(_stScreenNo == _u8ScreenMin)
             {
                 eDisplayMode = DISP_ALARM_MODE;
@@ -280,34 +287,30 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                 }
                 else if(eMonScreenType == MON_SCREEN_J1939)
                 {
-                    MON_UI::_stScreenNo = DISP_HOME;
-                    if( _cfgz.GetEngType()==CFGZ::ENG_KUBOTA)
+                /* suggestion sgc4xx: if execution is came at first sceen of J1939, on pressing UP, the execution should move to the last screen of normal mon
+                   screen. isnt it ? WHy screen number is made directly shifted to first screen of normal mon sceen ? */
+                    MON_UI::_stScreenNo = DISP_MON_HOME;
+                    if( _cfgz.GetEngType()==CFGZ::ENG_KUBOTA) /* todo: properly add the engine types */
                     {
-                        ALARM_UI::ChangeAlarmScreenType(ALARM_UI::NCD);
+                        ALARM_UI::ChangeAlarmScreenType(ALARM_UI::NCD); /* suggestion sgc4xx: its better if we keep some meaningful name for enum.(NCD)*/
                     }
                     else
                     {
                         ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
                          _j1939.RequestDM2Messages();
-
-
                     }
                 }
-
             }
-
             _stScreenNo--;
             while(_ArrScreenEnDs[_stScreenNo] == false)
             {
                 _stScreenNo--;
             }
-
-
-            break;
         }
+        break;
+
         case DN_SHORT_PRESS: //Dn key Press
         {
-
            //Note while check for _stScreenNo shall be placed immediately
            _stScreenNo++;
            while(_ArrScreenEnDs[_stScreenNo] == false)
@@ -323,14 +326,13 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
                    if(eMonScreenType == MON_SCREEN_J1939)
                    {
-                       MON_UI::_stScreenNo = DISP_HOME;
+                       MON_UI::_stScreenNo = DISP_MON_HOME;
                        ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
                        _j1939.RequestDM2Messages();
                    }
 
                }
            }
-
 
            if(MON_UI::_stScreenNo >= _u8ScreenMax)
            {
@@ -340,17 +342,17 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                ALARM_UI::ClearAlarmScreenNum();
                if(eMonScreenType == MON_SCREEN_J1939)
                {
-                  MON_UI::_stScreenNo = DISP_HOME;
+                  MON_UI::_stScreenNo = DISP_MON_HOME;
                   ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
                   _j1939.RequestDM2Messages();
                }
 
            }
-            break;
         }
+        break;
+
         case ACK_KEY_PRESS:
         {
-
             if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == true)
             {
                 _GCUAlarms.TurnOffSounderAlarm();
@@ -360,22 +362,25 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                 _GCUAlarms.ClearAllAlarms();
                 if(eMonScreenType == MON_SCREEN_NORMAL)
                 {
-                    _stScreenNo = DISP_HOME;
+                    _stScreenNo = DISP_MON_HOME;
                 }
             }
-            break;
         }
+        break;
+
         case DN_STOP_KEY_LONG_PRESS:
         {
             //software reset to go in boot loader
            NVIC_SystemReset();
 
-            break;
         }
+        break;
 
         case DN_LONG_PRESS:
         {
 //            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) && (!_manualMode.IsGenRunTimersInProcess()))
+
+            if(!_manualMode.IsGenRunTimersInProcess()) /* todo: yet to add engine type dependency. */
             {
                 if(eMonScreenType == MON_SCREEN_NORMAL)
                 {
@@ -384,335 +389,204 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                     ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
                     _j1939.RequestDM2Messages();
                 }
-
-                    eMonScreenType = MON_SCREEN_NORMAL;
-                   _stScreenNo = DISP_HOME;
+                 eMonScreenType = MON_SCREEN_NORMAL;
+                _stScreenNo = DISP_MON_HOME;
 
             }
-            break;
         }
+        break;
 
         case AUTO_KEY_LONG_PRESS:
-            if((_eOpMode == BASE_MODES::MANUAL_MODE)
-                && (_manualMode.GetManualModeState() == BASE_MODES::STATE_MANUAL_GEN_OFF))
-            {
-                _eOpMode = BASE_MODES::TEST_MODE;
-                GoToHomeScreen();
-                _manualMode.SetGCUOperatingMode(_eOpMode);
-            }
-            break;
+        if((_eOpMode == BASE_MODES::MANUAL_MODE)
+            && (_manualMode.GetManualModeState() == BASE_MODES::STATE_MANUAL_GEN_OFF))
+        {
+            GoToHomeScreen();
+            _manualMode.SetGCUOperatingMode(BASE_MODES::TEST_MODE);
+        }
+        break;
 
         default:
-            break;
+        break;
     }
 }
 
+/* Shubham Wader 15.09.2022
+ Adding below macro to use while development. While release, remove that */
+#define ENABLE_ALL_MON_SCREENS     (1)
 void MON_UI::prvConfigureScreenEnable()
 {
-    uint8_t u8Screen;
-    for(u8Screen = DISP_HOME ; u8Screen<DISP_J1939_RX_LAST; u8Screen++)
+    static uint8_t u8Screen;
+    for(u8Screen = DISP_MON_HOME ; u8Screen<DISP_MON_LAST; u8Screen++)
     {
         _ArrScreenEnDs[u8Screen] = false;
+#if ENABLE_ALL_MON_SCREENS
+        _ArrScreenEnDs[u8Screen] = true;
+#endif
         switch(u8Screen)
         {
-            case DISP_GEN_LN_VOLTAGE    :
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT)== CFGZ::CFGZ_ENABLE)
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_GEN_PF       :
-            case DISP_GEN_CUMU_POWER    :
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT)== CFGZ::CFGZ_ENABLE)
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_HISTOGRAM:
-               // if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_HISTOGRAM)== CFGZ::CFGZ_ENABLE)
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_GEN_KW       :
-            case DISP_GEN_KVA      :
-            case DISP_GEN_KVAR     :
-            case DISP_GEN_CURRENT      :
-                /*Load Screens will be enabled if Alternator present is enabled OR (when Mains Mon is enabled
-                 * AND mains contactor is configured AND CT location is on load cable.)*/
-                _ArrScreenEnDs[u8Screen] = ((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT)== CFGZ::CFGZ_ENABLE)
-                        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
-                                && ((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)!= ACT_Manager:: ACT_NOT_CONFIGURED)
-                                        || (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_OUT)!= ACT_Manager:: ACT_NOT_CONFIGURED))
-                                        && (_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE)));
-                break;
-
-            case DISP_AUTO_EXERCISE_1:
-            {
+            /* todo: update screen en/dis dependencies */
+            case DISP_MON_HOME :
+            case DISP_MON_PRODUCT_ID :
                 _ArrScreenEnDs[u8Screen] = true;
-            }
-            break;
-
-            case DISP_AUTO_EXERCISE_2:
-
+                break;
+            case DISP_MON_CAN_COMMUNICATION_INFO :
+            case DISP_MON_ENG_LINK_INFO :
+                if(true)// todo: add dependency of J1939 comm cfgz parameter
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
-                break;
-
-            case DISP_SHELTER_TEMP:
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+                else
                 {
-                    _ArrScreenEnDs[u8Screen] = true;
+                    /* do nothing */
                 }
                 break;
 
-            case DISP_SCREEN_AUX_1:
+            case DISP_MON_GEN_VOLTAGE :
+            case DISP_MON_GEN_LOAD_KW :
+            case DISP_MON_GEN_LOAD_KVA :
+            case DISP_MON_GEN_LOAD_KVAR :
+            case DISP_MON_GEN_POWER_FACTOR :
+            case DISP_MON_GEN_CURRENT :
+            case DISP_MON_GEN_ENERGY :
+                _ArrScreenEnDs[u8Screen] = true;
+                break;
+            case DISP_MON_MAINS_VOLTAGE :
+            case DISP_MON_MAINS_CURRENT :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+            case DISP_MON_MAINS_LOAD_KW :
+            case DISP_MON_MAINS_LOAD_KVA :
+            case DISP_MON_MAINS_LOAD_KVAR :
+                /* load on mains && mains mon on &&  mains contactor configured */
+                if((_EngineMon.GetContactorLoadStatus() ==ENGINE_MONITORING::LOAD_ON_MAINS) &&
+                   (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE) &&
+                   (_manualMode.IsMainsContactorConfigured()))
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+
+            case DISP_MON_MAINS_ENERGY :
+                if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE) &&
+                   (_manualMode.IsMainsContactorConfigured()))
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+
+            case DISP_MON_BAT_VOLTAGE :
+                _ArrScreenEnDs[u8Screen] = true;
+                break;
+            case DISP_MON_CHRG_ALT_BAT_VOLTAGE :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_CHARGE_ALT_MON_CHARGE_ALT_MON_BY_J1939) == CFGZ::CFGZ_ENABLE)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+            case DISP_MON_AIR_INTAKE_TEMP :
+            case DISP_MON_BOOST_PRESSURE :
+                if(true)// todo: add dependency of J1939 comm cfgz parameter
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+            case DISP_MON_SITE_BAT_RUN_HRS :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+            case DISP_MON_TAMPERED_RUN_HRS :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+            case DISP_MON_ENG_TEMP :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+            case DISP_MON_LUBE_OIL_PRESSURE :/* todo: need to add J1939 dependency if added */
+                if(((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3))))
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+            case DISP_MON_FUEL :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+                break;
+            case DISP_MON_SHELTER_TEMP :
                 if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
+                else
+                {
+                    /* do nothing */
+                }
                 break;
-
-            case DISP_SCREEN_AUX_2:
+            case DISP_MON_AUX_2 :
                 if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
-                break;
-
-            case DISP_SCREEN_AUX_3:
-                if( (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) ||
-                        (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2) )
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_SCREEN_AUX_4:
-                if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)  ||
-                        (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_SCREEN_DIG_IO_STATUS:
-            case DISP_HOME            :
-            case DISP_PRODUCT_INFO :
-            case DISP_BATTERY_VOLTAGE  :
-            case DISP_ENGINE_SPEED     :
-            case DISP_ENGINE_RUN_TIME   :
-                _ArrScreenEnDs[u8Screen] = true;
-                break;
-
-            case DISP_SITE_BATT :
-                if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_BTS_RUN_TIME :
-                if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_TAMPERED_RUNHRS :
-                if((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_CONTACTOR_STATUS :
-                if((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR)!= ACT_Manager:: ACT_NOT_CONFIGURED)
-                        ||(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)!= ACT_Manager:: ACT_NOT_CONFIGURED)
-                        ||(_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_OUT)!= ACT_Manager:: ACT_NOT_CONFIGURED)
-                        ||(_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_OUT)!= ACT_Manager:: ACT_NOT_CONFIGURED))
-                {
-                    _ArrScreenEnDs[u8Screen] = false;
-                }
                 else
                 {
-                    _ArrScreenEnDs[u8Screen] = false; /* contactor screen will be always off */
+                    /* do nothing */
                 }
                 break;
-
-            case DISP_MAINS_LN_VOLTAGE  :
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING)
-                        == CFGZ::CFGZ_ENABLE)
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_MAINS_RUN_TIME:
-            case DISP_MAINS_CUMU_POWER:
-                _ArrScreenEnDs[u8Screen] = (_EngineMon.GetContactorLoadStatus() ==ENGINE_MONITORING::LOAD_ON_MAINS);
-                break;
-
-            case DISP_COOLENT_TEMP     :
-                if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-                        || IS_ENG_TEMP_J1939_CONFIGURED())
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_OIL_PRESSURE     :
-                if(((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-                        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)))
-                        || IS_ENG_LOP_J1939_CONFIGURED())
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_BALANCE_FUEL     :
-                if((_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_ENGINE_TYPE:
+            case DISP_MON_ENG_SPEED :
+            case DISP_MON_ENG_RUN_TIME :
                 _ArrScreenEnDs[u8Screen] = true;
-                break;
-
-            case DISP_LAMP_ICONS:
-            case DISP_EXAFTERTREAT_ICONS:
-            case DISP_PROPB62_PGN_65378  :
-            case DISP_LFE_PGN_65266      :
-            case DISP_EEC2_PGN_61443     :
-            case DISP_AMB_PGN_65269      :
-            case DISP_HOURS_PGN_65253    :
-            case DISP_VEP1_PGN_65271     :
-            case DISP_DD_PGN_65276       :
-            case DISP_WFI_PGN_65279      :
-            case DISP_LFC_PGN_65257      :
-            case DISP_EEC4_PGN_65214     :
-            case DISP_LFI_PGN_65203      :
-            case DISP_IC2_PGN_64976      :
-            case DISP_EOI_PGN_64914      :
-            case DISP_ET2_PGN_65188      :
-            case DISP_EEC3_PGN_65247_1   :
-            case DISP_EEC3_PGN_65247_2   :
-            case DISP_S2_PGN_65166       :
-            case DISP_EFL_P2_PGN_65243   :
-            case DISP_SHUTDOWN_PGN_65252 :
-            case DISP_EFG1_PGN_61450     :
-            case DISP_DPF1S_PGN_64796    :
-            case DISP_ET1_PGN_65262_1    :
-            case DISP_ET1_PGN_65262_2    :
-            case DISP_EEC1_PGN_61444_1   :
-            case DISP_EEC1_PGN_61444_2   :
-            case DISP_EFL_P1_PGN_65263_1 :
-            case DISP_EFL_P1_PGN_65263_2 :
-            case DISP_IC1_PGN_65270_1    :
-            case DISP_IC1_PGN_65270_2    :
-            case DISP_AT1IG1_PGN_61454   :
-            case DISP_A1DOC_PGN_64800    :
-            case DISP_AT1IG2_PGN_64948   :
-            case DISP_AT1IMG_PGN_64946   :
-            case DISP_AT1OG1_PGN_61455   :
-            case DISP_A1SCRDSI1_PGN_61475:
-            case DISP_A1SCRDSI2_PGN_64833:
-            case DISP_A1SCRDSR1_PGN_61476:
-            case DISP_A1SCREGT1_PGN_64830:
-            case DISP_AT2IG1_PGN_61456   :
-            case DISP_AT2OG1_PGN_61457   :
-            case DISP_A2SCRDSI2_PGN_64827:
-            case DISP_A2SCRDSI1_PGN_61478:
-            case DISP_A2SCRDSR1_PGN_61479:
-            case DISP_A2SCREGT1_PGN_64824:
-            case DISP_AT1OG2_PGN_64947   :
-            case DISP_AT1S2_PGN_64697    :
-            case DISP_AT1S_PGN_64891     :
-            case DISP_AT1T1I_PGN_65110   :
-            case DISP_HATZ_CCVS_PGN_65265:
-//                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) )
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-
-            case DISP_PROPB57_PGN_65367  :
-            case DISP_PROPB32_PGN_65330  :
-            case DISP_PROPB5E_PGN_65374_1:
-            case DISP_PROPB5E_PGN_65374_2:
-            case DISP_PROPB5E_PGN_65374_3:
-            case DISP_PROPB5E_PGN_65374_4:
-            case DISP_PROPB5E_PGN_65374_5:
-            case DISP_PROPB5E_PGN_65374_6:
-//                if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) == CFGZ::ENG_KUBOTA))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_IVECO_ENGINE_STATUS:
-//                if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) == CFGZ::ENG_IVECO))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_EDC4_CAN_STATUS    :
-//                if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) == CFGZ::ENG_DEUTZ_EMR))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_HATZ_PROPB_PHYS_PGN_65280:
-            case DISP_AI_PGN_65237:
-            case DISP_ETC5_PGN_65219:
-            case DISP_OII_PGN_64554:
-            case DISP_PROSTOUT_PGN_65364_1:
-            case DISP_PROSTOUT_PGN_65364_2:
-//                if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) == CFGZ::ENG_HATZ))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_IT1_PGN_65154  :
-            case DISP_GFP_PGN_65163  :
-            case DISP_IMI1_PGN_65190 :
-//                if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) == CFGZ::ENG_YUCHAI_YCGCU))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_FD1_PGN_65213   :
-            case DISP_DLCC1_PGN_64775 :
-            case DISP_GFC_PGN_65199 :
-//                if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) == CFGZ::ENG_WECHAI))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                break;
-
-            case DISP_EPT1_PGN_65187:
-            case DISP_EPT2_PGN_65186:
-            case DISP_EPT3_PGN_65185:
-            case DISP_EPT4_PGN_65184:
-            case DISP_EPT5_PGN_65183:
-            case DISP_ET4_PGN_64870:
-            case DISP_TCI4_PGN_65176:
-            case DISP_EFL_P12_PGN_64735:
-//                if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) == CFGZ::ENG_PERKINS_ADAM4))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
                 break;
 
             default: break;
@@ -720,39 +594,17 @@ void MON_UI::prvConfigureScreenEnable()
     }
 }
 
-//extern volatile flash_event_t WriteEvent, EraseEvent;
-void MON_UI::PrintErrorScreen()
-{
-    _Disp.ClearScreen();
-    _Disp.drawRectangle();
-//    char arrTemp[32];  //Local variable for storing the sprintf output
-
-    _Disp.gotoxy(GLCD_X(64),GLCD_Y(10));
-    _Disp.printStringCenterAligned((char *)"Configuration Error",FONT_VERDANA);
-    _Disp.gotoxy(GLCD_X(64),GLCD_Y(25));
-    _Disp.printStringCenterAligned((char *)"Reset The Device",FONT_VERDANA);
-    _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
-    _Disp.printStringCenterAligned((char *)"And Reconfigure It",FONT_VERDANA);
-//    _Disp.gotoxy(GLCD_X(5),GLCD_Y(50));
-//    sprintf(arrTemp,"%s  %d     %s %d","Write:", WriteEvent, "Erase:", EraseEvent);
-//    _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-
-    while(1)
-    {
-        _hal.ObjGlcd.Update();
-        (void)R_IWDT_Refresh(&g_wdt0_ctrl);
-    }
-}
 
 void MON_UI::prvDisplayMonScreen()
 {
-    char* ArrImage;
     //Every screen need this code.
+    static char* ArrImage;
+
     _Disp.ClearScreen();
     _Disp.drawRectangle();
     _Disp.drawHorizontalLine( GLCD_X(0),   GLCD_Y(19),  GLCD_Y(128));
 
-
+/* todo: add language dependancy here in if */
     {
         _Disp.drawVerticalLine  ( GLCD_X(22),  GLCD_Y(0),   GLCD_Y(19));
         //Screen logo
@@ -782,36 +634,36 @@ void MON_UI::prvDisplayMonScreen()
         }
         _Disp.printImage((uint8_t *)ArrImage, 3,20,0, 0);
 
-        if((_stScreenNo != DISP_MAINS_LN_VOLTAGE)&&(eMonScreenType == MON_SCREEN_NORMAL))
-        {    //Print screen name
+        if(_stScreenNo != DISP_MON_MAINS_VOLTAGE)
+        {    /* Mon screen heading */
             _Disp.gotoxy(GLCD_X(75),GLCD_Y(5));
-            _Disp.printStringCenterAligned((char *)strMonScreens[_cfgz.GetArrLanguageIndex()][_stScreenNo],
-                    FONT_ARIAL);
+            _Disp.printStringCenterAligned((char *)strMonScreens[_u8LanguageIndex][_stScreenNo],FONT_ARIAL);
         }
     }
 
-    //Separate variable taken to take min value, because it has one filter inside the function.
-    //So it will act when that function is called, so to call the function in update loop
-    //two separate variables are taken/
-    _f32GenMinFreq = _GCUAlarms.GetMinGenFreq();
-    _f32MainsFreq = _GCUAlarms.GetMinMainsFreq();
-
-    if((eMonScreenType == MON_SCREEN_J1939))
+#if ENABLE_MON_J1939
+    if((eMonScreenType == MON_SCREEN_J1939)) /* todo : need to reverify this, once J1939 sceens decided */
     {
         prvJ1939MonScreens();
     }
     else
+#endif
     {
          prvNormalMonScreens();
     }
 }
 void MON_UI::prvPrintCANMsgRcvError()
 {
-    _Disp.printStringCenterAligned((char*)strCANMsgRcvError[_cfgz.GetArrLanguageIndex()], FONT_ARIAL);
-//   GLCD_PrintStringCenterAligned((char*)strCANMsgRcvError[_cfgz.GetArrLanguageIndex()], GLCD_ROW(u8RowNum), GLCD_COLUMN(u8ColStart),
-//           GLCD_COLUMN(u8ColEnd), GLCD_FONT_ARIAL_BOLD);
+    _Disp.printStringCenterAligned((char*)strCANMsgRcvError[_u8LanguageIndex], FONT_ARIAL);
 }
 
+void MON_UI::prvPrintNotAvailable(uint8_t u8RowNum, uint8_t u8ColStart)
+{
+    _Disp.gotoxy(u8ColStart, u8RowNum);
+    _Disp.printStringLeftAligned((char*)NotAvailable, FONT_ARIAL);
+}
+
+#if ENABLE_MON_J1939
 void MON_UI::prvPrintPGN65378OrPGN65367(uint8_t u8PGNReceived)
 {
     char arrTemp[32];
@@ -845,11 +697,7 @@ void MON_UI::prvPrintPGN65378OrPGN65367(uint8_t u8PGNReceived)
     }
 }
 
-void MON_UI::prvPrintNotAvailable(uint8_t u8RowNum, uint8_t u8ColStart)
-{
-    _Disp.gotoxy(u8ColStart, u8RowNum);
-    _Disp.printStringLeftAligned((char*)NotAvailable, FONT_ARIAL);
-}
+
 
 void MON_UI::prvPrintSPNErrorVal(uint8_t u8RowNum, uint8_t u8ColStart)
 {
@@ -932,12 +780,12 @@ void  MON_UI::prvPrintJ1939AfterTreatDataOnScreen(bool bIsAfterTreat1PGN, uint8_
 
     uint8_t i = 0;
     _Disp.gotoxy(64, 12);
-    _Disp.printStringCenterAligned((char *)(&(gstPgnSubHeadings[_cfgz.GetArrLanguageIndex()][u8RxATPGNNo - (DISP_AT1IG1_PGN_61454 -DISP_MON_SCREEN_LAST-1)].SubHeadings)), FONT_VERDANA);
+    _Disp.printStringCenterAligned((char *)(&(gstPgnSubHeadings[_u8LanguageIndex][u8RxATPGNNo - (DISP_AT1IG1_PGN_61454 -DISP_MON_SCREEN_LAST-1)].SubHeadings)), FONT_VERDANA);
 
     for(i = 0; i < (astJ1939Display[u8RxATPGNNo].u8NoOfSPNs); i++)
     {
         _Disp.gotoxy(2, 23 + (i * 10));
-        if(_cfgz.GetArrLanguageIndex() == CFGZ::LANGUAGE_SPANISH)
+        if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
         {
             _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxATPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
         }
@@ -976,7 +824,7 @@ void MON_UI::prvJ1939MonScreens()
     char arrTemp[32];
     char * ps8PGNNameToPrint;
     volatile uint8_t u8RxPGNNo = _stScreenNo - DISP_MON_SCREEN_LAST-1;
-    ps8PGNNameToPrint = (char*)arrPGNAbbreviations[_cfgz.GetArrLanguageIndex()][astJ1939Display[u8RxPGNNo].cu8PGNName- DISP_MON_SCREEN_LAST-1];
+    ps8PGNNameToPrint = (char*)arrPGNAbbreviations[_u8LanguageIndex][astJ1939Display[u8RxPGNNo].cu8PGNName- DISP_MON_SCREEN_LAST-1];
    // ps8PGNNameToPrint = &arrPGNAbbreviations[astJ1939Display[u8RxPGNNo].cu8PGNName- DISP_MON_SCREEN_LAST-1][0];
 
     _Disp.ClearScreen();
@@ -1017,7 +865,7 @@ void MON_UI::prvJ1939MonScreens()
 
         case DISP_WFI_PGN_65279:
             _Disp.gotoxy(3, 15 + (i * 10));
-            if(_cfgz.GetArrLanguageIndex() == CFGZ::LANGUAGE_SPANISH)
+            if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
             {
                 _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSpanishSPNName, FONT_VERDANA);
             }
@@ -1045,7 +893,7 @@ void MON_UI::prvJ1939MonScreens()
                 }
                 else if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 1 )
                 {
-                    _Disp.printStringLeftAligned((char*)Yes[_cfgz.GetArrLanguageIndex()], FONT_ARIAL);
+                    _Disp.printStringLeftAligned((char*)Yes[_u8LanguageIndex], FONT_ARIAL);
                 }
                 else if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 2 )
                 {
@@ -1074,7 +922,7 @@ void MON_UI::prvJ1939MonScreens()
             for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
             {
                 _Disp.gotoxy(3, 15 + (i * 22));
-                if(_cfgz.GetArrLanguageIndex() == CFGZ::LANGUAGE_SPANISH)
+                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
                 {
                     _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
                 }
@@ -1113,7 +961,7 @@ void MON_UI::prvJ1939MonScreens()
             for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
             {
                 _Disp.gotoxy(3, 15 + (i * 11));
-                if(_cfgz.GetArrLanguageIndex() == CFGZ::LANGUAGE_SPANISH)
+                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
                 {
                     _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
                 }
@@ -1147,7 +995,7 @@ void MON_UI::prvJ1939MonScreens()
                             }
                             else
                             {
-                                _Disp.printStringLeftAligned((char*)StrOff[_cfgz.GetArrLanguageIndex()], FONT_ARIAL);
+                                _Disp.printStringLeftAligned((char*)StrOff[_u8LanguageIndex], FONT_ARIAL);
                             }
                         }
                         else if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 1 )
@@ -1158,7 +1006,7 @@ void MON_UI::prvJ1939MonScreens()
                             }
                             else
                             {
-                                _Disp.printStringLeftAligned((char*)StrOn[_cfgz.GetArrLanguageIndex()], FONT_ARIAL);
+                                _Disp.printStringLeftAligned((char*)StrOn[_u8LanguageIndex], FONT_ARIAL);
                             }
                         }
                         else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 2) )
@@ -1179,7 +1027,7 @@ void MON_UI::prvJ1939MonScreens()
                         }
                         else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 1) )
                         {
-                            _Disp.printStringLeftAligned((char*)Yes[_cfgz.GetArrLanguageIndex()], FONT_ARIAL);
+                            _Disp.printStringLeftAligned((char*)Yes[_u8LanguageIndex], FONT_ARIAL);
                         }
                         else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 2))
                         {
@@ -1219,7 +1067,7 @@ void MON_UI::prvJ1939MonScreens()
             for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
             {
                 _Disp.gotoxy(3, 15 + (i * 11));
-                if(_cfgz.GetArrLanguageIndex() == CFGZ::LANGUAGE_SPANISH)
+                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
                 {
                     _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
                 }
@@ -1246,7 +1094,7 @@ void MON_UI::prvJ1939MonScreens()
                     if(i == 0)
                     {
                         _Disp.gotoxy(95, 15 + (i * 11));
-                        _Disp.printStringCenterAligned((char*)(gstEngOperatingState[_cfgz.GetArrLanguageIndex()][(uint8_t)_DisplayPGNScreenData[i].f64SpnVal].OperatingState), FONT_VERDANA);
+                        _Disp.printStringCenterAligned((char*)(gstEngOperatingState[_u8LanguageIndex][(uint8_t)_DisplayPGNScreenData[i].f64SpnVal].OperatingState), FONT_VERDANA);
                     }
                     else if(i == 1)
                     {
@@ -1258,11 +1106,11 @@ void MON_UI::prvJ1939MonScreens()
                         _Disp.gotoxy(83,37);
                         if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 0))
                         {
-                            _Disp.printStringLeftAligned((char*)StrOff[_cfgz.GetArrLanguageIndex()], FONT_ARIAL);
+                            _Disp.printStringLeftAligned((char*)StrOff[_u8LanguageIndex], FONT_ARIAL);
                         }
                         else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 1) )
                         {
-                            _Disp.printStringLeftAligned((char*)StrOn[_cfgz.GetArrLanguageIndex()], FONT_ARIAL);
+                            _Disp.printStringLeftAligned((char*)StrOn[_u8LanguageIndex], FONT_ARIAL);
                         }
                         else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 2))
                         {
@@ -1310,7 +1158,7 @@ void MON_UI::prvJ1939MonScreens()
             _Disp.gotoxy(64, 12);
             _Disp.printStringCenterAligned((char*)"Service 2", FONT_VERDANA);
             _Disp.gotoxy(3, 24);
-            if(_cfgz.GetArrLanguageIndex() == CFGZ::LANGUAGE_SPANISH)
+            if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
             {
                 _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSpanishSPNName, FONT_VERDANA);
             }
@@ -1368,7 +1216,7 @@ void MON_UI::prvJ1939MonScreens()
                     {
                         _Disp.gotoxy(2, 25);
 
-                        _Disp.printStringLeftAligned((char*)gstNcdInduceData[_cfgz.GetArrLanguageIndex()][(uint8_t)_DisplayPGNScreenData[i].f64SpnVal].NcdInduceStrategy, FONT_VERDANA );
+                        _Disp.printStringLeftAligned((char*)gstNcdInduceData[_u8LanguageIndex][(uint8_t)_DisplayPGNScreenData[i].f64SpnVal].NcdInduceStrategy, FONT_VERDANA );
                     }
                 }
             }
@@ -1379,7 +1227,7 @@ void MON_UI::prvJ1939MonScreens()
             for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
             {
                 _Disp.gotoxy(2, 15 + (i * 11));
-                if(_cfgz.GetArrLanguageIndex() == CFGZ::LANGUAGE_SPANISH)
+                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
                 {
                     _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
                 }
@@ -1413,7 +1261,6 @@ void MON_UI::prvJ1939MonScreens()
     }
 
 }
-
 
 void MON_UI::prvPGNScreenDataAssignment(uint8_t u8PGNEnumNo)
 {
@@ -1768,6 +1615,9 @@ void MON_UI::prvPGNScreenDataAssignment(uint8_t u8PGNEnumNo)
             break;
     }
 }
+#endif
+
+
 /************************************************************************************************/
 unsigned int  MON_UI::prvGetNoOfFractionalDigits(double dNumber)
 {
@@ -1961,7 +1811,8 @@ void MON_UI::prvNormalMonScreens()
 {
     bool bDisplayMainsLoad = false;
     char arrTemp[32] = {0};  //Local variable for storing the sprintf output
-   A_SENSE::SENSOR_RET_t  stTemp;
+
+    A_SENSE::SENSOR_RET_t  stTemp;
     uint8_t u8Position;
     uint8_t u8Local;
 
@@ -1971,217 +1822,102 @@ void MON_UI::prvNormalMonScreens()
    }
     switch(_stScreenNo)
     {
-        case DISP_HOME:
+        case DISP_MON_HOME:
         {
-
+            /* todo: have to put language dependency in if*/
             {
                 _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(35), GLCD_Y(128));
                 _Disp.gotoxy(GLCD_X(3),GLCD_Y(21));
                 if(_manualMode.GetGCUState()== MANUAL_MODE::ENGINE_STARTING)
                 {
-                    sprintf(arrTemp,"%s %d/%d",strGCUStatus[_cfgz.GetArrLanguageIndex()][_manualMode.GetGCUState()],
-                            _startStop.GetCrankAttemptNumber(),
-                            _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_START_ATTEMPTS));
+                    sprintf(arrTemp,"%s %d/%d",strGCUStatus[_u8LanguageIndex][_manualMode.GetGCUState()],
+                            _startStop.GetCrankAttemptNumber(), _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_START_ATTEMPTS));
                 }
                 else
                 {
-                    sprintf(arrTemp,"%s", strGCUStatus[_cfgz.GetArrLanguageIndex()][_manualMode.GetGCUState()]);
+                    sprintf(arrTemp,"%s", strGCUStatus[_u8LanguageIndex][_manualMode.GetGCUState()]);
                 }
+
                 _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
                 _Disp.gotoxy(GLCD_X(3),GLCD_Y(38));
-                if(_manualMode.GetTimerState() > BASE_MODES::TEST_MODE_TIMER)
-                {
-                    if(((_eOpMode == BASE_MODES::CYCLIC_MODE)
-                            &&((_manualMode.GetTimerState() == BASE_MODES::CYCLIC_ON_TIMER)||(_manualMode.GetTimerState() == BASE_MODES::CYCLIC_OFF_TIMER)))
-                       || ((_eOpMode == BASE_MODES::BTS_MODE)
-                               &&((_manualMode.GetTimerState() == BASE_MODES::BATT_CHARGE_TIMER)||(_manualMode.GetTimerState() == BASE_MODES::SHELTER_TEMP_TIMER))))
-                    {
-                        sprintf(arrTemp,"%s",strTimerStatus[_cfgz.GetArrLanguageIndex()][_manualMode.GetTimerState()]);
-                        _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-                    }
-                }
-                else
-                {
-                       sprintf(arrTemp,"%s",strTimerStatus[_cfgz.GetArrLanguageIndex()][_manualMode.GetTimerState()]);
-                       _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-                }
 
-                if(_manualMode.GetTimerState() == BASE_MODES::NO_TIMER_RUNNING)
-                {
-                    if((_startStop.IsStartIdleActive()) && (!_startStop.IsIdleModeInputConfigured()))
-                    {
-                          sprintf(arrTemp,"%s","Start Idle Time: ");
-                           _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-                    }
-                    else if(_startStop.IsStopIdleActive())
-                    {
-                          sprintf(arrTemp,"%s","Stop Idle Time: ");
-                           _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-                    }
-                }
+                sprintf(arrTemp,"%s",strTimerStatus[_u8LanguageIndex][_manualMode.GetTimerState()]);
+                _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
-                    if((_manualMode.GetTimerState() != BASE_MODES::NO_TIMER_RUNNING))
-                    {
-                        if(_manualMode.GetTimerState() == BASE_MODES::COOL_DOWN_TIMER)
-                        {
-                            sprintf(arrTemp," %d", (int)_manualMode.GetEngCoolDownRemTime());
-                        }
-                        else if(_manualMode.GetTimerState() ==
-                                BASE_MODES::TEST_MODE_TIMER)
-                        {
-                            sprintf(arrTemp," %d",
-                                    (int)((_manualMode.GetTestModeRemTime()/ 60) + 1));
-                        }
-                        else if((_manualMode.GetTimerState() > BASE_MODES::TEST_MODE_TIMER) &&
-                                (_eOpMode == BASE_MODES::CYCLIC_MODE))
-                        {
-                            sprintf(arrTemp," %d",
-                                    (int)(_cyclicMode.GetCyclicModeTime(_manualMode.GetTimerState())));
-                        }
-                        else if((_manualMode.GetTimerState() > BASE_MODES::TEST_MODE_TIMER) &&
-                                (_eOpMode == BASE_MODES::BTS_MODE))
-                        {
-                            sprintf(arrTemp," %d",
-                                    (int)(_BTSMode.GetBTSModeTime(_manualMode.GetTimerState())));
-                        }
-                        else
-                        {
-                            sprintf(arrTemp," %d",
-                                    (int)_startStop.GetTimersRemainingTime(_manualMode.GetTimerState()));
-                        }
-
-                        if ((_manualMode.GetTimerState() > BASE_MODES::TEST_MODE_TIMER)   && ( _eOpMode != BASE_MODES::BTS_MODE) &&  (_eOpMode != BASE_MODES::CYCLIC_MODE))
-                        {
-                            ;// Do nothing
-                        }
-                        else
-                        {
-                                _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-                        }
-                    }
-                    else if(_startStop.IsStartIdleActive() && (!_startStop.IsIdleModeInputConfigured()))
-                    {
-                        sprintf(arrTemp," %d",(uint16_t)_startStop.GetStartIdleRemTime());
-                        _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-                    }
-                    else if(_startStop.IsStopIdleActive())
-                    {
-                        sprintf(arrTemp," %d",(uint16_t)_startStop.GetStopIdleRemTime());
-                        _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-                    }
-
-
+                /*todo: x-y coordinates for time */
+                sprintf(arrTemp," %d",(uint16_t)_startStop.GetTimersRemainingTime(_manualMode.GetTimerState()));
+                _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
                  _Disp.gotoxy(GLCD_X(3),GLCD_Y(51));
 
-                 if(_startStop.IsStartIdleActive() || _startStop.IsStopIdleActive())
+                 if(_autoExercise.IsNightModeRestrictOn())
                  {
-                    // _Disp.gotoxy(GLCD_X(3),GLCD_Y(51));
-                     _Disp.printStringLeftAligned((char *)strIDLMode[START_STOP::IDLE_MODE_ACTIVE],FONT_ARIAL);
+                     _Disp.printStringLeftAligned((char *)StrNightModeRestrict[_u8LanguageIndex],FONT_ARIAL);
                  }
-                 else
+                 else if(_eOpMode == BASE_MODES::AUTO_MODE)
                  {
-                     if(_autoExercise.IsNightModeRestrictOn())
-                     {
-                         _Disp.printStringLeftAligned((char *)StrNightModeRestrict[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
-                     }
-                     else if(_eOpMode == BASE_MODES::AUTO_MODE)
-                     {
-                         if(START_STOP::IsIdleModeActive())
-                         {
-                             _Disp.printStringLeftAligned((char *)strIDLMode[START_STOP::IDLE_MODE_ACTIVE],FONT_ARIAL);
 
-                         }
-                         else
-                         {
-                             if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING)== CFGZ::CFGZ_ENABLE)
-                             {
-                                 _Disp.printStringLeftAligned((char *)StrAutoAMF[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
-                             }
-                             else
-                             {
-                                 _Disp.printStringLeftAligned((char *)strGCUMode[_cfgz.GetArrLanguageIndex()][ BASE_MODES::AUTO_MODE],FONT_ARIAL);
-                             }
-                         }
-                     }
-                     else if(_eOpMode == BASE_MODES::AUTO_EXERCISE_MODE)
+                     if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING)== CFGZ::CFGZ_ENABLE)
                      {
-                         if(_autoExercise.GetRunningExeType() ==1)
-                         {
-                             _Disp.printStringLeftAligned((char *)StrAutoExercise1[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
-                         }
-                         else if(_autoExercise.GetRunningExeType() ==2)
-                         {
-                             _Disp.printStringLeftAligned((char *)StrAutoExercise2[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
-                         }
-
-                         if(_autoExercise.IsExerciserStarted())
-                         {
-                             sprintf(arrTemp,"%02d:%02d", (uint8_t)(_autoExercise.GetExerciserTime()/60),
-                                     (uint8_t)(_autoExercise.GetExerciserTime()%60));
-                             _Disp.gotoxy(GLCD_X(126),GLCD_Y(51));
-                             _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                         }
+                         _Disp.printStringLeftAligned((char *)StrAutoAMF[_u8LanguageIndex],FONT_ARIAL);
                      }
                      else
                      {
-                         _Disp.printStringLeftAligned((char *)strGCUMode[_cfgz.GetArrLanguageIndex()][_eOpMode],FONT_ARIAL);
+                         _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][ BASE_MODES::AUTO_MODE],FONT_ARIAL);
                      }
                  }
+                 else if(_eOpMode == BASE_MODES::AUTO_EXERCISE_MODE)
+                 {
+                     if(_autoExercise.GetRunningExeType() ==1)
+                     {
+                         _Disp.printStringLeftAligned((char *)StrAutoExercise1[_u8LanguageIndex],FONT_ARIAL);
+                     }
+                     else if(_autoExercise.GetRunningExeType() ==2)
+                     {
+                         _Disp.printStringLeftAligned((char *)StrAutoExercise2[_u8LanguageIndex],FONT_ARIAL);
+                     }
 
+                     if(_autoExercise.IsExerciserStarted())
+                     {
+                         sprintf(arrTemp,"%02d:%02d", (uint8_t)(_autoExercise.GetExerciserTime()/60),
+                                 (uint8_t)(_autoExercise.GetExerciserTime()%60));
+                         _Disp.gotoxy(GLCD_X(126),GLCD_Y(51));
+                         _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                     }
+                 }
+                 else
+                 {
+                     _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][_eOpMode],FONT_ARIAL);/* todo: doubt*/
+                 }
 
             }
-
         }
         break;
-        case DISP_CONTACTOR_STATUS:
-        {
-            if(_manualMode.IsGenContactorClosed()&&((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR)
-                    != ACT_Manager:: ACT_NOT_CONFIGURED) || (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_OUT)
-                            != ACT_Manager:: ACT_NOT_CONFIGURED)))
-            {
-                prvPrintContactorImage(BASE_MODES::GEN_CONTACTOR_CLOSED);
-            }
-            else if(_manualMode.IsMainsContactorClosed()&&((_hal.actuators.GetActStatus(
-                    ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)
-                    != ACT_Manager:: ACT_NOT_CONFIGURED) || (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_OUT)
-                            != ACT_Manager:: ACT_NOT_CONFIGURED)))
-            {
-                prvPrintContactorImage(BASE_MODES::MAINS_CONTACTOR_CLOSED);
-            }
-            else
-            {
-                prvPrintContactorImage(BASE_MODES::BOTH_CONTACTOR_OPEN);
-            }
-        }
-        break;
 
-        case DISP_PRODUCT_INFO:
+        case DISP_MON_PRODUCT_ID:
         {
             prvProductInfo();
         }
         break;
-
-        case DISP_SCREEN_DIG_IO_STATUS:
+        case DISP_MON_CAN_COMMUNICATION_INFO:
         {
-            prvDigIOStatus();
-
+            /*todo: display screens */
+        }
+        break;
+        case DISP_MON_ENG_LINK_INFO:
+        {
+            /*todo: display screens */
         }
         break;
 
-        case DISP_AUTO_EXERCISE_1:
-        case DISP_AUTO_EXERCISE_2:
-            prvPrintExerciser(_stScreenNo);
-            break;
-
-        case DISP_GEN_LN_VOLTAGE:
+        case DISP_MON_GEN_VOLTAGE:
         {
             prvPrintVtgFreqData(GENSET,
                           _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM));
         }
         break;
 
-        case DISP_GEN_KW:
+        case DISP_MON_GEN_LOAD_KW:
         {
             if(bDisplayMainsLoad)
             {
@@ -2195,7 +1931,7 @@ void MON_UI::prvNormalMonScreens()
             }
         }
         break;
-        case DISP_GEN_KVA:
+        case DISP_MON_GEN_LOAD_KVA:
         {
             if(bDisplayMainsLoad)
             {
@@ -2210,7 +1946,7 @@ void MON_UI::prvNormalMonScreens()
 
         }
         break;
-        case DISP_GEN_KVAR:
+        case DISP_MON_GEN_LOAD_KVAR:
         {
             if(bDisplayMainsLoad)
             {
@@ -2224,7 +1960,7 @@ void MON_UI::prvNormalMonScreens()
             }
         }
         break;
-        case DISP_GEN_PF:
+        case DISP_MON_GEN_POWER_FACTOR:
         {
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) ==
                     CFGZ::CFGZ_3_PHASE_SYSTEM)
@@ -2246,25 +1982,6 @@ void MON_UI::prvNormalMonScreens()
                     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
                     u8Position = u8Position + 15;
                 }
-            }else if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) ==
-                    CFGZ::CFGZ_SPLIT_PHASE)
-            {
-                _Disp.drawVerticalLine(GLCD_X(50), GLCD_Y(19), GLCD_Y(64));
-                sprintf(arrTemp,"%0.02f",
-                       abs(_hal.AcSensors.GENSET_GetDispAveragePowerFactor()));
-                _Disp.gotoxy(GLCD_X(22),GLCD_Y(33));
-                _Disp.printStringCenterAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(23),GLCD_Y(48));
-                _Disp.printStringCenterAligned((char *)StrPF,FONT_ARIAL);
-                u8Position = 28;
-                for(u8Local = R_PHASE; u8Local < B_PHASE ; u8Local++)
-                {
-                   sprintf(arrTemp,"%s-%s    %0.2f",(char *)StrPF,(char *)strPhase[u8Local],
-                       abs(_hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)u8Local)));
-                   _Disp.gotoxy(GLCD_X(55),GLCD_Y(u8Position));
-                   _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-                   u8Position = u8Position + 18;
-                }
             }
             else
             {
@@ -2277,21 +1994,14 @@ void MON_UI::prvNormalMonScreens()
         }
         break;
 
-        case DISP_HISTOGRAM:
-            prvPrintHystogram();
-            break;
-        case DISP_GEN_CURRENT:
+        case DISP_MON_GEN_CURRENT:
         {
             u8Position = 22;
-
             SOURCE_TYPE_t eSysType=GENSET;
             _pGET_VAL_t ArrGetCurrentVal[TYPE_LAST]=
             {
-
-                      &AC_SENSE::GENSET_GetCurrentAmps,
-
-                      &AC_SENSE::MAINS_GetCurrentAmps,
-
+                  &AC_SENSE::GENSET_GetCurrentAmps,
+                  &AC_SENSE::MAINS_GetCurrentAmps,
             };
 
             if(bDisplayMainsLoad)
@@ -2301,10 +2011,8 @@ void MON_UI::prvNormalMonScreens()
 
             if(((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)
                     == CFGZ::CFGZ_3_PHASE_SYSTEM) && (!bDisplayMainsLoad))
-                    ||
-               ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM)
-                                == CFGZ::CFGZ_3_PHASE_SYSTEM) && (bDisplayMainsLoad))
-                    )
+                    || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM)
+                                == CFGZ::CFGZ_3_PHASE_SYSTEM) && (bDisplayMainsLoad)))
             {
                 for(u8Local = R_PHASE; u8Local < PHASE_END ; u8Local++)
                 {
@@ -2318,28 +2026,6 @@ void MON_UI::prvNormalMonScreens()
                     _Disp.gotoxy(GLCD_X(92),GLCD_Y(u8Position));
                     _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
                     u8Position = u8Position + 15;
-                }
-            }
-            else if(((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)
-                    == CFGZ::CFGZ_SPLIT_PHASE) && (!bDisplayMainsLoad))
-                    ||
-               ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM)
-                                == CFGZ::CFGZ_SPLIT_PHASE) && (bDisplayMainsLoad))
-                    )
-            {
-                u8Position = 28;
-                for(u8Local = R_PHASE; u8Local < B_PHASE ; u8Local++)
-                {
-                    _Disp.gotoxy(GLCD_X(25),GLCD_Y(u8Position));
-                    _Disp.printStringLeftAligned((char *)strPhase[u8Local],
-                                                 FONT_VERDANA);
-                    _Disp.gotoxy(GLCD_X(90),GLCD_Y(u8Position));
-                    sprintf(arrTemp,"%.1f",
-                            ((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)u8Local));
-                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                    _Disp.gotoxy(GLCD_X(92),GLCD_Y(u8Position));
-                    _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
-                    u8Position = u8Position + 18;
                 }
             }
             else
@@ -2356,7 +2042,7 @@ void MON_UI::prvNormalMonScreens()
             }
         }
         break;
-        case DISP_GEN_CUMU_POWER:
+        case DISP_MON_GEN_ENERGY:
         {
             _Disp.printImage((uint8_t *)u8ArrDollar, 4, 32, 26, 7);
             _pGetdoubleValCommon_t ArrGetVal[POWER_LAST]=
@@ -2366,31 +2052,9 @@ void MON_UI::prvNormalMonScreens()
                 &AC_SENSE::GENSET_GetTotalReactiveEnergySinceInitVARH
             };
 
-//            _pGetdoubleValCommon_t ArrGetVal1[POWER_LAST]=
-//            {
-//                &AC_SENSE::GetGensetTotalActiveEnergy,
-//                &AC_SENSE::GetGensetTotalApparentEnergy,
-//                &AC_SENSE::GetGensetTotalReactiveEnergy
-//            };
-//
-//            _pGetdoubleValCommon_t ArrGetVal2[POWER_LAST]=
-//            {
-//                &AC_SENSE::GetGensetkWEnergyOffset,
-//                &AC_SENSE::GetGensetkVAEnergyOffset,
-//                &AC_SENSE::GetGensetkVAREnergyOffset
-//            };
-
             u8Position = 22;
             for( u8Local = ACTIVE; u8Local < POWER_LAST ; u8Local++)
             {
-//                sprintf(arrTemp,"   %0.1lf",
-//                        ((&_hal.AcSensors)->*ArrGetVal1[u8Local])() /1000);
-//                _Disp.gotoxy(GLCD_X(28),GLCD_Y(u8Position));
-//                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-//                sprintf(arrTemp,"   %0.1lf",
-//                        ((&_hal.AcSensors)->*ArrGetVal2[u8Local])() /1000);
-//                _Disp.gotoxy(GLCD_X(65),GLCD_Y(u8Position));
-//                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                 sprintf(arrTemp,"   %0.1lf",
                         ((&_hal.AcSensors)->*ArrGetVal[u8Local])() /1000);
                 _Disp.gotoxy(GLCD_X(97),GLCD_Y(u8Position));
@@ -2399,28 +2063,41 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.printStringLeftAligned((char *)strEnergy[u8Local],
                                              FONT_VERDANA);
                 u8Position = u8Position + 15;
+                /*todo: need to verify co ordinate adjustments */
             }
         }
         break;
 
-        case DISP_MAINS_LN_VOLTAGE:
+        case DISP_MON_MAINS_VOLTAGE:
         {
             prvPrintVtgFreqData(MAINS,
                              _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM));
         }
         break;
 
-        case DISP_MAINS_RUN_TIME:
+        /* todo: implement below screen */
+        case DISP_MON_MAINS_LOAD_KW :
+        {
 
-            _Disp.gotoxy(GLCD_X(124),GLCD_Y(35));
-            sprintf(arrTemp,"%ldhrs  %dmin ",
-                    ( _EngineMon.GetMainsRunTimeMin()/60),
-                    (uint8_t)(_EngineMon.GetMainsRunTimeMin()%60) );
-            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
-            _Disp.printImage((uint8_t *)u8ArrEngineHours, 4, 32, 26, 7);
-            break;
+        }
+        break;
+        case DISP_MON_MAINS_LOAD_KVA :
+        {
 
-        case DISP_MAINS_CUMU_POWER:
+        }
+        break;
+        case DISP_MON_MAINS_LOAD_KVAR :
+        {
+
+        }
+        break;
+        case DISP_MON_MAINS_CURRENT :
+        {
+
+        }
+        break;
+
+        case DISP_MON_MAINS_ENERGY:
         {
             _Disp.printImage((uint8_t *)u8ArrDollar, 4, 32, 26, 7);
             _pGetdoubleValCommon_t ArrGetVal[POWER_LAST]=
@@ -2445,10 +2122,10 @@ void MON_UI::prvNormalMonScreens()
         }
         break;
 
-        case DISP_BATTERY_VOLTAGE:
+        case DISP_MON_BAT_VOLTAGE:
         {
-            {
                 _Disp.printImage((uint8_t *)u8ArrBattery, 4, 32, 26, 2);
+            {
                 _Disp.gotoxy(GLCD_X(40),GLCD_Y(26));
                 _Disp.printStringLeftAligned((char *)"ENG BATT",FONT_VERDANA);
             }
@@ -2481,28 +2158,7 @@ void MON_UI::prvNormalMonScreens()
         }
         break;
 
-        case DISP_SITE_BATT:
-        {
-
-            {
-                _Disp.gotoxy(GLCD_X(48),GLCD_Y(32));
-                sprintf(arrTemp,"SITE BATT");
-                _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
-            }
-            _Disp.gotoxy(GLCD_X(88),GLCD_Y(32));
-            if(_hal.AnalogSensors.GetFilteredVBTSbattVolts() > 0.3F) //To avoid display of non zero values if the BTS connections are open(60V is mapped to almost 1200mV,So ADC fluctuates
-            {
-                sprintf(arrTemp,"%0.1f V",_hal.AnalogSensors.GetFilteredVBTSbattVolts());
-            }
-            else
-            {
-                sprintf(arrTemp,"%0.1f V",0.0F);
-            }
-            _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
-        }
-        break;
-
-        case DISP_BTS_RUN_TIME:
+        case DISP_MON_SITE_BAT_RUN_HRS:
         {
             _Disp.printImage((uint8_t *)u8ArrEngineHours, 4, 32, 26, 7);
                 _Disp.gotoxy(GLCD_X(120),GLCD_Y(35));
@@ -2510,7 +2166,7 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
         }
         break;
-        case DISP_TAMPERED_RUNHRS:
+        case DISP_MON_TAMPERED_RUN_HRS:
         {
             _Disp.printImage((uint8_t *)u8ArrEngineHours, 4, 32, 26, 7);
             {
@@ -2527,7 +2183,7 @@ void MON_UI::prvNormalMonScreens()
         }
         break;
 
-        case DISP_COOLENT_TEMP:
+        case DISP_MON_ENG_TEMP:
         {
 
             stTemp =_GCUAlarms.GetSelectedTempSensVal();
@@ -2540,6 +2196,7 @@ void MON_UI::prvNormalMonScreens()
 //              _Disp.printStringRightAligned((char *)"NA",FONT_ARIAL);
 //          }
 //          else
+          /*todo: add J1939 dependency */
           {
               prvPrintSensorStatus(stTemp,(char*)"`C", INTEGER_TYPE);
               if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
@@ -2559,7 +2216,7 @@ void MON_UI::prvNormalMonScreens()
         }
         break;
 
-        case DISP_OIL_PRESSURE:
+        case DISP_MON_LUBE_OIL_PRESSURE:
         {
             _Disp.printImage((uint8_t *)u8ArrOilPressure, 4, 32, 26, 3);
             stTemp = _GCUAlarms.GetLOPSensorVal();
@@ -2571,6 +2228,7 @@ void MON_UI::prvNormalMonScreens()
 //                _Disp.printStringRightAligned((char *)"NA",FONT_ARIAL);
 //            }
 //            else
+            /*todo: add J1939 dependency */
             {
                 if(stTemp.eStatus == A_SENSE::SENSOR_NOT_CONFIGRUED)
                 {
@@ -2600,9 +2258,8 @@ void MON_UI::prvNormalMonScreens()
             }
         }
         break;
-        case DISP_BALANCE_FUEL:
+        case DISP_MON_FUEL:
         {
-
             stTemp =_hal.AnalogSensors.GetSensorValue(
                             AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
 
@@ -2628,7 +2285,7 @@ void MON_UI::prvNormalMonScreens()
         }
         break;
 
-        case DISP_SHELTER_TEMP:
+        case DISP_MON_SHELTER_TEMP:
         {
             _Disp.printImage((uint8_t *)gau8LIShelterTemp, 4, 32, 26, 7);
             _Disp.gotoxy(GLCD_X(110),GLCD_Y(33));
@@ -2650,83 +2307,16 @@ void MON_UI::prvNormalMonScreens()
         }
         break;
 
-        case DISP_SCREEN_AUX_1:
-        {
-            // S1 as s1 Analog sensor
-            stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S1_SENSOR);
-            prvPrintSensorStatus(stTemp,(char*)"", FLOAT_TYPE , 80 , 37);
-
-        }
-        break;
-        case DISP_SCREEN_AUX_2:
+        /* aux 1 is commented in GC2111 NXP code */
+        case DISP_MON_AUX_2:
         {
 
              stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S2_SENSOR);
              prvPrintSensorStatus(stTemp,(char*)"", FLOAT_TYPE , 80 , 37);
         }
         break;
-        case DISP_SCREEN_AUX_3:
-        {
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-            {
-                // S3 as 4-20 mA sensor
-                stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S3_4_20_SENSOR);
-            }
-            else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
-            {
-                // S3 as 0-5 V Sensor
-                stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S3_0_5_SENSOR);
-            }
 
-            if(stTemp.eStatus == A_SENSE::SENSOR_NOT_CONFIGRUED)
-            {
-               _Disp.gotoxy(GLCD_X(80),GLCD_Y(37));
-               _Disp.printStringLeftAligned((char*)StrNotConfigured,FONT_VERDANA);
-            }
-            else if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
-            {
-                sprintf(arrTemp,"%0.1f",stTemp.stValAndStatus.f32InstSensorVal);
-                _Disp.gotoxy(GLCD_X(80),GLCD_Y(37));
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-            }
-            else
-            {
-                prvPrintSensorFaultStatus(stTemp , 80 ,37);
-            }
-        }
-        break;
-        case DISP_SCREEN_AUX_4:
-        {
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-            {
-                // S4 as 4-20 mA sensor
-                stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S4_4_20_SENSOR);
-            }
-            else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
-            {
-                // S4 as 0-5 V Sensor
-                stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S4_0_5_SENSOR);
-            }
-
-            if(stTemp.eStatus == A_SENSE::SENSOR_NOT_CONFIGRUED)
-            {
-               _Disp.gotoxy(GLCD_X(80),GLCD_Y(37));
-               _Disp.printStringLeftAligned((char*)StrNotConfigured,FONT_VERDANA);
-            }
-            else if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
-            {
-                sprintf(arrTemp,"%0.1f",stTemp.stValAndStatus.f32InstSensorVal);
-                _Disp.gotoxy(GLCD_X(80),GLCD_Y(37));
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-            }
-            else
-            {
-                prvPrintSensorFaultStatus(stTemp, 70, 37);
-            }
-        }
-        break;
-
-        case DISP_ENGINE_SPEED:
+        case DISP_MON_ENG_SPEED:
         {
             _Disp.printImage((uint8_t *)u8ArrEngineSpeed, 4, 32, 26, 7);
             _Disp.gotoxy(GLCD_X(94),GLCD_Y(37));
@@ -2743,7 +2333,7 @@ void MON_UI::prvNormalMonScreens()
             }
         }
         break;
-        case DISP_ENGINE_RUN_TIME:
+        case DISP_MON_ENG_RUN_TIME:
         {
             _Disp.gotoxy(GLCD_X(124),GLCD_Y(22));
 //            if(_j1939.IsCommunicationFail() && _cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ENG))
@@ -2762,10 +2352,10 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.printImage((uint8_t *)u8ArrEngineHours, 4, 32, 26, 7);
 
                 _Disp.gotoxy(GLCD_X(40),GLCD_Y(37));
-                _Disp.printStringLeftAligned((char *)StrStarts[_cfgz.GetArrLanguageIndex()],FONT_VERDANA);
+                _Disp.printStringLeftAligned((char *)StrStarts[_u8LanguageIndex],FONT_VERDANA);
 
                 _Disp.gotoxy(GLCD_X(40),GLCD_Y(52));
-                _Disp.printStringLeftAligned((char *)StrTrips[_cfgz.GetArrLanguageIndex()],FONT_VERDANA);
+                _Disp.printStringLeftAligned((char *)StrTrips[_u8LanguageIndex],FONT_VERDANA);
             }
 
             _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
@@ -2776,36 +2366,17 @@ void MON_UI::prvNormalMonScreens()
             _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
         }
         break;
-        case DISP_LAMP_ICONS:
-            prvBuildLampIconScreen();
-            break;
-        case DISP_EXAFTERTREAT_ICONS:
-            prvBuildExhaustIconScreen();
-            break;
-        case DISP_ENGINE_TYPE:
-        {
-//            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE))
-//            {
-//                _Disp.gotoxy(GLCD_X(4),GLCD_Y(40));
-//                _Disp.printStringLeftAligned((char *)StrEICViewMessage[_cfgz.GetArrLanguageIndex()],FONT_VERDANA);
-//
-//                _Disp.gotoxy(GLCD_X(65),GLCD_Y(25));
-//                sprintf(arrTemp,"%s ",(char *)StrEngineType[_cfgz.GetArrLanguageIndex()][_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)]);
-//                _Disp.printStringCenterAligned((char *)arrTemp,FONT_ARIAL);
-//            }
-//            else
-            {
-                {
-                    _Disp.gotoxy(GLCD_X(65),GLCD_Y(30));
-                    sprintf(arrTemp,"%s ",(char *)StrEngineType[_cfgz.GetArrLanguageIndex()][CFGZ::ENG_CONVENTIONAL]);
-                    _Disp.printStringCenterAligned((char *)arrTemp,FONT_ARIAL);
-                }
-            }
 
-        }
+        /* todo : might need with in future with J1939 */
+        // case DISP_LAMP_ICONS:
+        //     prvBuildLampIconScreen();
+        //     break;
+        // case DISP_EXAFTERTREAT_ICONS:
+        //     prvBuildExhaustIconScreen();
+        //     break;
+
+        default:
         break;
-
-        default: break;
     }
 }
 
@@ -2817,9 +2388,7 @@ void MON_UI::prvDisplayBootLogo()
 
 void MON_UI::prvProductInfo()
 {
-
     RTC::TIME_t CurrentTime;
-
     char SeriesId[3];
     char arrTemp[32];
 
@@ -2838,11 +2407,9 @@ void MON_UI::prvProductInfo()
     sprintf(arrTemp,"D");
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
-
     sprintf(arrTemp,"Eng Sr  :");
     _Disp.gotoxy(GLCD_X(2),GLCD_Y(34));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-    //sprintf(arrTemp, "0000000000");
     for(int i=0;i<12;i++)
     {
         if(EngSrNo[i] == 47)
@@ -2861,12 +2428,11 @@ void MON_UI::prvProductInfo()
         _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
     }
 
-
-    sprintf(arrTemp,(char*)StrInfoDate[_cfgz.GetArrLanguageIndex()]);
+    sprintf(arrTemp,(char*)StrInfoDate[_u8LanguageIndex]);
     _Disp.gotoxy(GLCD_X(2),GLCD_Y(47));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
     _hal.ObjRTC.GetTime(&CurrentTime);
-    sprintf(arrTemp,"%d %s %d",CurrentTime.u8Day, (char*)StrMonth[_cfgz.GetArrLanguageIndex()][CurrentTime.u8Month - 1],
+    sprintf(arrTemp,"%d %s %d",CurrentTime.u8Day, (char*)StrMonth[_u8LanguageIndex][CurrentTime.u8Month - 1],
         CurrentTime.u16Year);
     _Disp.gotoxy(GLCD_X(43),GLCD_Y(47));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
@@ -2883,108 +2449,6 @@ void MON_UI::prvProductInfo()
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 }
 
-void MON_UI::prvDigIOStatus()
-{
-    char arrTemp[32];
-
-    _Disp.gotoxy(GLCD_X(3),GLCD_Y(26));
-    sprintf(arrTemp,"DI:");
-    _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-
-    for(uint8_t u8Local = _hal.DigitalSensors.DI_A, x = 0; u8Local<= _hal.DigitalSensors.DI_P; u8Local++, x++)
-    {
-        uint8_t InputState = _hal.DigitalSensors.GetDigInputState(u8Local);
-        if(InputState!= DigitalSensor::SENSOR_NOT_CONFIGRUED)
-        {
-            sprintf(arrTemp , "%d", (uint8_t)(_hal.DigitalSensors.GetDigInputState(u8Local)));
-        }
-        else
-        {
-            sprintf(arrTemp , "N");
-        }
-       _Disp.gotoxy(GLCD_X(17+(7*x)),GLCD_Y(26));
-       _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-    }
-
-    _Disp.gotoxy(GLCD_X(3),GLCD_Y(46));
-    sprintf(arrTemp,"DO:");
-    _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-
-    for(uint8_t u8Local =CFGZ::ID_OUT_A_SOURCE , x =0; u8Local<= CFGZ::ID_OUT_G_SOURCE; u8Local=u8Local+2, x++)
-    {
-       sprintf(arrTemp , "%d", (uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u8Local))
-               == ACT_Manager::ACT_LATCHED));
-       _Disp.gotoxy(GLCD_X(24+(7*x)),GLCD_Y(46));
-       _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-    }
-
-}
-
-void MON_UI::prvPrintContactorImage(BASE_MODES::CONTACTOR_STATUS_t stContactorStatus)
-{
-    if(_manualMode.IsMainsContactorConfigured())
-    {
-        _Disp.printImage((uint8_t *)u8ArrContactor2,3, 16, 40, 9);
-        _Disp.printImage((uint8_t *)u8ArrContactor1,6, 16, 40, 39);
-        _Disp.printImage((uint8_t *)u8ArrContactor3,3, 16, 40, 93);
-
-        switch(stContactorStatus)
-        {
-            case BASE_MODES::BOTH_CONTACTOR_OPEN:
-            {
-                _Disp.printImage((uint8_t *)u8ArrContactor4,1, 10,29, 32);
-                _Disp.printImage((uint8_t *)u8ArrContactor4,1, 10,29, 86);
-                break;
-            }
-
-            case BASE_MODES::GEN_CONTACTOR_CLOSED:
-            {
-                _Disp.printImage((uint8_t *)u8ArrContactor4,1, 10,29, 32);
-                _Disp.printImage((uint8_t *)u8ArrContactor4,1, 10,35, 86);
-                break;
-            }
-
-            case BASE_MODES::MAINS_CONTACTOR_CLOSED:
-            {
-                _Disp.printImage((uint8_t *)u8ArrContactor4,1, 10,35, 32);
-                _Disp.printImage((uint8_t *)u8ArrContactor4,1, 10,29, 86);
-            }
-                break;
-
-            default:
-                break;
-        }
-    }
-    else
-    {
-
-        _Disp.printImage((uint8_t *)u8ArrContactor1,6, 16, 40, 25);
-        _Disp.printImage((uint8_t *)u8ArrContactor3,3, 16, 40, 79);
-
-
-        switch(stContactorStatus)
-        {
-            case BASE_MODES::BOTH_CONTACTOR_OPEN:
-           {
-               _Disp.printImage((uint8_t *)u8ArrContactor4,1, 10,29, 72);
-               break;
-           }
-
-           case BASE_MODES::GEN_CONTACTOR_CLOSED:
-           {
-               _Disp.printImage((uint8_t *)u8ArrContactor4,1, 10,35, 72);
-               break;
-           }
-
-          default:
-           {
-               _Disp.printImage((uint8_t *)u8ArrContactor4,1, 10,29, 72);
-           }
-               break;
-        }
-    }
-
-}
 
 bool MON_UI::prvIsValDigitsGreaterThan3(uint16_t u16VoltageVal)
 {
@@ -3006,6 +2470,12 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
 {
     uint8_t u8Position;
     uint8_t u8Local;
+    static float f32GenMinFreq = 0.0f;
+    static float f32MainsFreq = 0.0f;
+
+    f32GenMinFreq = _GCUAlarms.GetMinGenFreq();
+    f32MainsFreq = _GCUAlarms.GetMinMainsFreq();
+
 
     char arrTemp[32];  //Local variable for storing the sprintf output
 
@@ -3034,30 +2504,23 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
     {
         _Disp.gotoxy(GLCD_X(75),GLCD_Y(5));
 
-
         {
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)
             {
-                _Disp.printStringCenterAligned((char *)StrMainsStatus[_cfgz.GetArrLanguageIndex()][STR_MAINS_NOT_READ],FONT_ARIAL);
-            }
-            else if(_manualMode.GetPartialHealthyStatus())
-            {
-                _Disp.printStringCenterAligned((char *)StrMainsStatus[_cfgz.GetArrLanguageIndex()][STR_MAINS_PARTIAL_HEALTHY],FONT_ARIAL);
+                _Disp.printStringCenterAligned((char *)StrMainsStatus[_u8LanguageIndex][STR_MAINS_NOT_READ],FONT_ARIAL);
             }
             else if(_manualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY)
             {
-                _Disp.printStringCenterAligned((char *)StrMainsStatus[_cfgz.GetArrLanguageIndex()][STR_MAINS_HEALTHY],FONT_ARIAL);
+                _Disp.printStringCenterAligned((char *)StrMainsStatus[_u8LanguageIndex][STR_MAINS_HEALTHY],FONT_ARIAL);
             }
-            else if(_GCUAlarms.IsMainsSeqFail() &&
-                    (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_PHASE_REVERSAL_DETECT)
-                            == CFGZ::CFGZ_ENABLE)
+            else if(_GCUAlarms.IsMainsSeqFail() && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_PHASE_REVERSAL_DETECT) == CFGZ::CFGZ_ENABLE)
                     && (_manualMode.GetMainsStatus() == BASE_MODES::MAINS_UNHELATHY))
             {
-                _Disp.printStringCenterAligned((char *)StrMainsStatus[_cfgz.GetArrLanguageIndex()][STR_MAINS_SEQ_FAIL],FONT_ARIAL);
+                _Disp.printStringCenterAligned((char *)StrMainsStatus[_u8LanguageIndex][STR_MAINS_SEQ_FAIL],FONT_ARIAL);
             }
             else
             {
-                _Disp.printStringCenterAligned((char *)StrMainsStatus[_cfgz.GetArrLanguageIndex()][STR_MAINS_FAILED],FONT_ARIAL);
+                _Disp.printStringCenterAligned((char *)StrMainsStatus[_u8LanguageIndex][STR_MAINS_FAILED],FONT_ARIAL);
             }
         }
 
@@ -3096,11 +2559,11 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
 
         if(eSource == MAINS)
         {
-            sprintf(arrTemp,"%0.1f", _f32MainsFreq);
+            sprintf(arrTemp,"%0.1f", f32MainsFreq);
         }
         else
         {
-          sprintf(arrTemp,"%0.1f", _f32GenMinFreq);
+          sprintf(arrTemp,"%0.1f", f32GenMinFreq);
         }
 
         _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
@@ -3136,73 +2599,6 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
 
         }
     }
-    else if(u8AcSystemType ==  AC_SENSE::SPLIT_PHASE_SYSTEM)
-   {
-       _Disp.drawVerticalLine(GLCD_X(54), GLCD_Y(19), GLCD_Y(64));
-       u8Position = 22 ;
-       for(u8Local = R_PHASE; u8Local < B_PHASE ; u8Local++)
-       {
-          _Disp.gotoxy(GLCD_X(2),GLCD_Y(u8Position));
-          _Disp.printStringLeftAligned((char *)strPhase[u8Local],FONT_VERDANA);
-
-          if(!prvIsValDigitsGreaterThan3((uint16_t)
-                                         ((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local)))
-          {
-              sprintf(arrTemp,"%d",(uint16_t)
-                     ((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local));
-              _Disp.gotoxy(GLCD_X(37),GLCD_Y(u8Position));
-              _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-              _Disp.printChar('V',FONT_VERDANA);
-              u8Position = u8Position + 15;
-          }
-          else
-          {
-              sprintf(arrTemp,"%.1f",(float)
-                     (((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local)/1000.0f));
-              _Disp.gotoxy(GLCD_X(37),GLCD_Y(u8Position));
-              _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-              _Disp.printStringLeftAligned((char *)"kV",FONT_VERDANA);
-              u8Position = u8Position + 15;
-          }
-
-       }
-
-       _Disp.gotoxy(GLCD_X(35),GLCD_Y(52));
-
-       if(eSource == MAINS)
-       {
-           sprintf(arrTemp,"%0.1f ",_f32MainsFreq);
-       }
-       else
-       {
-           sprintf(arrTemp,"%0.1f ",_f32GenMinFreq);
-       }
-
-       _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-       _Disp.printStringLeftAligned((char *)"Hz",FONT_VERDANA);
-       _Disp.gotoxy(GLCD_X(57),GLCD_Y(35));
-       _Disp.printStringLeftAligned((char *)strPh_Ph[R_TO_Y],FONT_VERDANA);
-       if(!prvIsValDigitsGreaterThan3((uint16_t)
-                                      ((&_hal.AcSensors)->*ArrGetPhToPhVal[eSource][R_TO_Y])()))
-       {
-           sprintf(arrTemp,"%d ",(uint16_t)
-           ((&_hal.AcSensors)->*ArrGetPhToPhVal[eSource][R_TO_Y])());
-           _Disp.gotoxy(GLCD_X(110),GLCD_Y(35));
-           _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-           _Disp.printChar('V',FONT_VERDANA);
-       }
-       else
-       {
-           sprintf(arrTemp,"%.1f ",(float)
-           (((&_hal.AcSensors)->*ArrGetPhToPhVal[eSource][R_TO_Y])()/1000.0f));
-           _Disp.gotoxy(GLCD_X(110),GLCD_Y(35));
-           _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-           _Disp.gotoxy(GLCD_X(112),GLCD_Y(35));
-           _Disp.printStringLeftAligned((char *)"kV",FONT_VERDANA);
-       }
-
-
-   }
     else
     {
         _Disp.gotoxy(GLCD_X(30),GLCD_Y(37));
@@ -3224,16 +2620,15 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
             _Disp.printStringLeftAligned((char *)"kV",FONT_VERDANA);
         }
 
-
         _Disp.gotoxy(GLCD_X(110),GLCD_Y(37));
 
         if(eSource == MAINS)
         {
-            sprintf(arrTemp,"%0.1f ",_f32MainsFreq);
+            sprintf(arrTemp,"%0.1f ",f32MainsFreq);
         }
         else
         {
-            sprintf(arrTemp,"%0.1f ",_f32GenMinFreq);
+            sprintf(arrTemp,"%0.1f ",f32GenMinFreq);
         }
 
         _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
@@ -3322,45 +2717,6 @@ void MON_UI::prvPrintPower(POWER_TYPE_t eType, uint8_t u8AcSystemType, SOURCE_TY
             u8Position = u8Position +15;
         }
     }
-    else if(u8AcSystemType ==  AC_SENSE::SPLIT_PHASE_SYSTEM)
-    {
-       _Disp.drawVerticalLine(GLCD_X(56), GLCD_Y(19), GLCD_Y(64));
-       sprintf(arrTemp,"  %0.1f",
-               ((&_hal.AcSensors)->*ArrGetTotalPower[eSourceType][eType])()/1000);
-       _Disp.gotoxy(GLCD_X(20),GLCD_Y(30));
-       _Disp.printStringCenterAligned((char *)arrTemp,FONT_ARIAL);
-
-
-       if((eType == ACTIVE)&& (eSourceType != MAINS))
-       {
-           _Disp.gotoxy(GLCD_X(37),GLCD_Y(30));
-           _Disp.printStringLeftAligned((char *)strPower[eType],FONT_ARIAL);
-           sprintf(arrTemp,"  %d",
-                   (uint8_t)round(_hal.AcSensors.GENSET_GetDispPercentPower()));
-           _Disp.gotoxy(GLCD_X(15),GLCD_Y(48));
-           _Disp.printStringCenterAligned((char *)arrTemp,FONT_ARIAL);
-           _Disp.gotoxy(GLCD_X(26),GLCD_Y(48));
-           _Disp.printStringLeftAligned((char *)"%",FONT_ARIAL);
-       }
-       else
-       {
-           _Disp.gotoxy(GLCD_X(23),GLCD_Y(48));
-           _Disp.printStringCenterAligned((char *)strPower[eType],FONT_ARIAL);
-       }
-       u8Position = 28;
-       for(u8Local = R_PHASE; u8Local < B_PHASE ; u8Local++)
-       {
-          _Disp.gotoxy(GLCD_X(60),GLCD_Y(u8Position));
-          _Disp.printStringLeftAligned((char *)strPhase[u8Local],FONT_VERDANA);
-          sprintf(arrTemp,"  %0.1f",
-                  ((&_hal.AcSensors)->*ArrGetVal[eSourceType][eType])((PHASE_t)u8Local)/1000);
-          _Disp.gotoxy(GLCD_X(100),GLCD_Y(u8Position));
-          _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
-          _Disp.gotoxy(GLCD_X(104),GLCD_Y(u8Position));
-          _Disp.printStringLeftAligned((char *)strPower[eType],FONT_VERDANA);
-          u8Position = u8Position +18;
-       }
-    }
     else
     {
         if((eType == ACTIVE)&& (eSourceType != MAINS))
@@ -3400,7 +2756,7 @@ void MON_UI::prvPrintSensorFaultStatus(A_SENSE::SENSOR_RET_t stTemp , uint16_t X
     {
         {
           _Disp.gotoxy(GLCD_X(Xpos),GLCD_Y(Ypos));
-          _Disp.printStringCenterAligned((char*)StrOpnGndckt[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
+          _Disp.printStringCenterAligned((char*)StrOpnGndckt[_u8LanguageIndex],FONT_ARIAL);
         }
     }
     else if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_SHORT_TO_BAT)
@@ -3408,7 +2764,7 @@ void MON_UI::prvPrintSensorFaultStatus(A_SENSE::SENSOR_RET_t stTemp , uint16_t X
 
         {
             _Disp.gotoxy(GLCD_X(Xpos),GLCD_Y(Ypos));
-            _Disp.printStringCenterAligned((char*)StrSTB[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
+            _Disp.printStringCenterAligned((char*)StrSTB[_u8LanguageIndex],FONT_ARIAL);
         }
     }
 }
@@ -3453,14 +2809,14 @@ void MON_UI::prvPrintSensorStatus(A_SENSE::SENSOR_RET_t stTemp,char *str,
         {
             {
               _Disp.gotoxy(GLCD_X(83),GLCD_Y(37));
-              _Disp.printStringCenterAligned((char*)StrOpenckt[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
+              _Disp.printStringCenterAligned((char*)StrOpenckt[_u8LanguageIndex],FONT_ARIAL);
             }
         }
         else if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_SHORT_TO_BAT)
         {
             {
                 _Disp.gotoxy(GLCD_X(83),GLCD_Y(37));
-                _Disp.printStringCenterAligned((char*)StrSTB[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
+                _Disp.printStringCenterAligned((char*)StrSTB[_u8LanguageIndex],FONT_ARIAL);
             }
 
         }
@@ -3510,14 +2866,14 @@ void MON_UI::prvPrintSensorStatus(A_SENSE::SENSOR_RET_t stTemp,char *str,
         {
             {
               _Disp.gotoxy(GLCD_X(83),GLCD_Y(37));
-              _Disp.printStringCenterAligned((char*)StrOpenckt[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
+              _Disp.printStringCenterAligned((char*)StrOpenckt[_u8LanguageIndex],FONT_ARIAL);
             }
         }
         else if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_SHORT_TO_BAT)
         {
             {
                 _Disp.gotoxy(GLCD_X(83),GLCD_Y(37));
-                _Disp.printStringCenterAligned((char*)StrSTB[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
+                _Disp.printStringCenterAligned((char*)StrSTB[_u8LanguageIndex],FONT_ARIAL);
             }
         }
     }
@@ -3911,7 +3267,8 @@ void MON_UI:: prvDisplayError()
    }
 }
 
-
+#if ENABLE_MON_J1939
+/* todo: as chinese language is not there, this function is useless. remove it at the end. */
 void MON_UI::prvGetMonImageCoordicates( uint8_t *pu8SizeX, uint8_t *pu8SizeY, uint8_t *pu8CordinateX, uint8_t *pu8CordinateY)
 {
     switch(_stScreenNo)
@@ -4071,7 +3428,7 @@ void MON_UI::prvGetMonImageCoordicates( uint8_t *pu8SizeX, uint8_t *pu8SizeY, ui
       default: break;
     }
 }
-
+#endif
 
 
 void MON_UI:: prvPrintExerciser(uint8_t _ScreenNo)
@@ -4079,16 +3436,17 @@ void MON_UI:: prvPrintExerciser(uint8_t _ScreenNo)
     AUTO_EXERCISE_MODE::EXERCISE_t stTempExercise;
     char arrTemp[32];
     _Disp.gotoxy(GLCD_X(3),GLCD_Y(21));
-    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_cfgz.GetArrLanguageIndex()][STR_AUTO_EXERCISER_FREQ], FONT_VERDANA);
+    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_FREQ], FONT_VERDANA);
 
     _Disp.gotoxy(GLCD_X(3),GLCD_Y(31));
-    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_cfgz.GetArrLanguageIndex()][STR_AUTO_EXERCISER_NEXT_RUN], FONT_VERDANA);
+    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_NEXT_RUN], FONT_VERDANA);
 
     _Disp.gotoxy(GLCD_X(51),GLCD_Y(42));
-    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_cfgz.GetArrLanguageIndex()][STR_AUTO_EXERCISER_AT], FONT_VERDANA);
+    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_AT], FONT_VERDANA);
     _Disp.gotoxy(GLCD_X(51),GLCD_Y(52));
-    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_cfgz.GetArrLanguageIndex()][STR_AUTO_EXERCISER_FOR], FONT_VERDANA);
+    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_FOR], FONT_VERDANA);
 
+    //todo: remove this whole function once all requirements gets clear
      _autoExercise.GetExerciserInfo(&stTempExercise, _ScreenNo );
 //    stTempExercise.u8Occurence = 1;
 //     stTempExercise.u16Year = 2021;
@@ -4102,24 +3460,24 @@ void MON_UI:: prvPrintExerciser(uint8_t _ScreenNo)
      {
          case 0:
          {
-             _Disp.printStringLeftAligned((char*)StrAutoExerciser[_cfgz.GetArrLanguageIndex()][STR_AUTO_EXERCISER_DAILY], FONT_VERDANA);
+             _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_DAILY], FONT_VERDANA);
 
          }
          break;
 
          case 1:
          {
-             _Disp.printStringLeftAligned((char*)StrAutoExerciser[_cfgz.GetArrLanguageIndex()][STR_AUTO_EXERCISER_WEEKLY], FONT_VERDANA);
+             _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_WEEKLY], FONT_VERDANA);
              _Disp.gotoxy(GLCD_X(65),GLCD_Y(31));
-             _Disp.printStringLeftAligned((char*)StrDays[_cfgz.GetArrLanguageIndex()][stTempExercise.u8DayOfWeek], FONT_VERDANA);
+             _Disp.printStringLeftAligned((char*)StrDays[_u8LanguageIndex][stTempExercise.u8DayOfWeek], FONT_VERDANA);
          }
          break;
 
          case 2:
          {
-             _Disp.printStringLeftAligned((char*)StrAutoExerciser[_cfgz.GetArrLanguageIndex()][STR_AUTO_EXERCISER_MONTHLY], FONT_VERDANA);
+             _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_MONTHLY], FONT_VERDANA);
              _Disp.gotoxy(GLCD_X(65),GLCD_Y(31));
-             sprintf(arrTemp,"%02d %s %d",  stTempExercise.u8Day, (char*)StrMonth[_cfgz.GetArrLanguageIndex()][stTempExercise.u8Month - 1]
+             sprintf(arrTemp,"%02d %s %d",  stTempExercise.u8Day, (char*)StrMonth[_u8LanguageIndex][stTempExercise.u8Month - 1]
                                                                              , stTempExercise.u16Year );
              _Disp.printStringLeftAligned((char*)arrTemp, FONT_VERDANA);
          }
@@ -4137,19 +3495,19 @@ void MON_UI:: prvPrintExerciser(uint8_t _ScreenNo)
      _Disp.printStringLeftAligned((char*)"Hrs", FONT_VERDANA);
 }
 
-
+#if ENABLE_MON_J1939
 void MON_UI::prvBuildLampIconScreen(void)
 {
     _Disp.ClearScreen();
     _Disp.drawRectangle();
     _Disp.gotoxy(GLCD_X(64),GLCD_Y(5));
-    _Disp.printStringCenterAligned((char *)StrLampIcons[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
+    _Disp.printStringCenterAligned((char *)StrLampIcons[_u8LanguageIndex],FONT_ARIAL);
     _Disp.drawHorizontalLine(0, 19, 127);
     /* to solve SGC-225 */
     if( _j1939.IsCommunicationFail() || (!_j1939.IsDM1PGNRecieved()) )
     {
         _Disp.gotoxy(32,64);
-        _Disp.printStringCenterAligned((char*)strCANMsgRcvError[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
+        _Disp.printStringCenterAligned((char*)strCANMsgRcvError[_u8LanguageIndex],FONT_ARIAL);
     }
     else
     {
@@ -4195,7 +3553,7 @@ void MON_UI::prvBuildExhaustIconScreen(void)
     _Disp.ClearScreen();
     _Disp.drawRectangle();
     _Disp.gotoxy(GLCD_X(64),GLCD_Y(1));
-    _Disp.printStringCenterAligned((char *)StrExhaustAFT[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
+    _Disp.printStringCenterAligned((char *)StrExhaustAFT[_u8LanguageIndex],FONT_ARIAL);
     _Disp.drawHorizontalLine(0, 11, 127);
     /* If communication failure alarm occurs then display "Not available" on screen
      * 1. ArrPgnReadData[RX_PGN_DPFC1_64892][0] = SPN 3698
@@ -4210,7 +3568,7 @@ void MON_UI::prvBuildExhaustIconScreen(void)
     if( _j1939.IsCommunicationFail() )
     {
         _Disp.gotoxy(32,64);
-        _Disp.printStringCenterAligned((char*)strCANMsgRcvError[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
+        _Disp.printStringCenterAligned((char*)strCANMsgRcvError[_u8LanguageIndex],FONT_ARIAL);
     }
     else
     {
@@ -4268,69 +3626,6 @@ void MON_UI::prvBuildExhaustIconScreen(void)
         }
     }
 }
+#endif
 
-
-void MON_UI:: prvPrintHystogram()
-{
-    _Disp.drawVerticalLine(64, 19, 64);
-    char arrTemp[32];
-    uint32_t u32TempVal_1, u32TempVal_2 = 0;
-
-
-    uint8_t u8Ylocation=23;
-    for(uint8_t i=0;i<6;i++)
-    {
-        if(i>=3)
-        {
-            if(i==3)
-            {
-                u8Ylocation=23;
-            }
-            _Disp.gotoxy(GLCD_X(66),GLCD_Y(u8Ylocation));
-
-        }
-        else
-        {
-            _Disp.gotoxy(GLCD_X(3),GLCD_Y(u8Ylocation));
-        }
-        _Disp.printStringLeftAligned((char*)strHystogram[i], FONT_VERDANA);
-        u8Ylocation = u8Ylocation+14;
-    }
-
-
-    u8Ylocation = 23;
-
-    for(uint8_t i=0;i<6;i++)
-    {
-        if(i>=3)
-        {
-            if(i==3)
-            {
-                u8Ylocation=23;
-            }
-            _Disp.gotoxy(GLCD_X(102),GLCD_Y(u8Ylocation));
-
-        }
-        else
-        {
-            _Disp.gotoxy(GLCD_X(38),GLCD_Y(u8Ylocation));
-        }
-
-        u32TempVal_1 = ((_EngineMon.GetHistogramData(i))/ 60);
-        u32TempVal_2 = ((_EngineMon.GetHistogramData(i)) % 60);
-
-        if(u32TempVal_1 < 100)
-        {
-            sprintf(arrTemp,"%d:%02d",u32TempVal_1,u32TempVal_2);
-        }
-        else
-        {
-            sprintf(arrTemp,"%d",u32TempVal_1);
-        }
-
-        _Disp.printStringLeftAligned((char*)arrTemp, FONT_VERDANA);
-        u8Ylocation = u8Ylocation+14;
-    }
-
-}
 

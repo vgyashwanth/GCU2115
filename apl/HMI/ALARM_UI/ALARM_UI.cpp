@@ -102,8 +102,12 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
               else if(_eAlarmType == DM2)
               {
                   MON_UI::eDisplayMode = DISP_MON_MODE;
+#if ENABLE_MON_J1939
                   MON_UI::eMonScreenType =MON_UI::MON_SCREEN_J1939;
                   MON_UI::_stScreenNo = MON_UI::DISP_J1939_RX_LAST-1;
+#endif
+                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
+                  MON_UI::_stScreenNo = MON_UI::DISP_MON_LAST-1;
                   _eOldAlarmType = ALARM;
               }
               else if(_eAlarmType == PCD)
@@ -147,8 +151,13 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                   else
                   {
                       MON_UI::eDisplayMode = DISP_MON_MODE;
-                      MON_UI::eMonScreenType =MON_UI::MON_SCREEN_J1939;
-                      MON_UI::_stScreenNo = MON_UI::DISP_PROPB62_PGN_65378;
+#if ENABLE_MON_J1939
+                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_J1939;
+                  MON_UI::_stScreenNo = MON_UI::DISP_PROPB62_PGN_65378;
+#endif
+                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
+                  MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
+
                       _eOldAlarmType = ALARM;
                   }
               }
@@ -159,14 +168,19 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
               else if(_eAlarmType == NCD)
               {
                   MON_UI::eDisplayMode = DISP_MON_MODE;
+#if ENABLE_MON_J1939
                   MON_UI::eMonScreenType =MON_UI::MON_SCREEN_J1939;
                   MON_UI::_stScreenNo = MON_UI::DISP_PROPB62_PGN_65378;
+#endif
+                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
+                  MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
+
                   _eOldAlarmType = ALARM;
               }
               else
               {
                   MON_UI::eDisplayMode = DISP_MON_MODE;
-                  MON_UI::_stScreenNo = MON_UI::DISP_HOME;
+                  MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
                   MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
               }
 
@@ -186,7 +200,7 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
               u8AlarmScreenNum = 0;
 
               MON_UI::eDisplayMode = DISP_MON_MODE;
-              MON_UI::_stScreenNo = MON_UI::DISP_HOME;
+              MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
               MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
           }
           break;
@@ -199,7 +213,7 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                if(((_eAlarmType == DM2)||(_eAlarmType == PCD)||(_eAlarmType == NCD)))
                {
                    MON_UI::eDisplayMode = DISP_MON_MODE;
-                   MON_UI::_stScreenNo = MON_UI::DISP_HOME;
+                   MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
                    MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
                }
                else

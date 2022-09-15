@@ -98,6 +98,7 @@ _IdleModeStopTimer{0}
     _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY);
 }
 
+
 void START_STOP::Init()
 {
     UTILS_ResetTimer(&_StartStopSMUpdateTimer);

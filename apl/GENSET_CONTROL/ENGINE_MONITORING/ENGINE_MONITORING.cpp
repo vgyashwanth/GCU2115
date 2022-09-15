@@ -447,23 +447,14 @@ void ENGINE_MONITORING::prvUpdateEngineOn()
 
 void ENGINE_MONITORING::prvUpdateEngineCranked()
 {
-    static uint16_t u16CAMonCount = 0;
     bool bLOPCranked = false, bLLOPCranked = false, bChargAltCranked = false;
     A_SENSE::SENSOR_RET_t _stLOP = _GCUAlarms.GetLOPSensorVal();
-    if(START_STOP::IsChargAltStopLtached())
-    {
-        u16CAMonCount++;
-    }
-    else
-    {
-        u16CAMonCount = 0;
-    }
 
     /* prvUpdateEngineCranked() function is called every 50ms hence the _u8ChargAltMonCount
      * corresponds to 2 seconds will be 2000ms/50ms = 40*/
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_CHG_ALT_VOLT) == CFGZ::CFGZ_ENABLE)
         && (_hal.AnalogSensors.GetFilteredChargingAltVolts() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_CHG_ALT_THRESHOLD))
-        && (u16CAMonCount >= TMR_COUNT_FOR_TWO_SECS))
+        && (START_STOP::IsMonitorChargAltTrue()))
     {
         bChargAltCranked = true;
     }

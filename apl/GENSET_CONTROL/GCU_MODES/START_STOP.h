@@ -39,24 +39,6 @@ public:
 		ID_STATE_SS_FAIL_TO_STOP
 	}SS_STATE_t;
 
-	typedef enum
-	{
-	    PULL_SOLENOID_OFF = 0,
-	    PULL_SOLENOID_PULSE_ON,
-	    PULL_SOLENOID_PULSE_STARTED,
-	    PULL_SOLENOID_PULSE_OVER
-	}PULL_SOLENOID_STATE_t;
-
-
-    typedef enum
-    {
-        NO_IDLE_OPR = 0,
-        START_IDLE_OPR,
-        PROCESS_IDLE_OPR,
-        STOP_IDLE_OPR,
-        IDLE_TO_RATED_OPR,
-        RESET_IDLE_OPR
-    }IDLE_MODE_STATE_t;
 
      enum
     {
@@ -81,13 +63,6 @@ public:
      * None
      */
 	void Update(bool bDeviceInConfigMode);
-
-    /**
-     * This API tells whether genset is stopped completely or not.
-     * @param  : None
-     * @return : returns true if genset is stopped completely.
-     */
-	static bool IsEngStoppingComplete();
 
     /**
      * Provides the current state of the start stop state machine.
@@ -126,7 +101,6 @@ public:
      */
     void StopCommand();
 
-    void SkipStopIdleCommand();
 
     /**
      * provide the status of engine monitoring timer.
@@ -136,7 +110,6 @@ public:
     bool IsEngStoppingTimerEnabled();
 
 
-    bool IsLowIdleRatedDelay();
     /**
      * provide the status of safety monitoring delay.
      * @param  : None
@@ -144,8 +117,6 @@ public:
      */
     static uint8_t IsGenMonOn();
 
-    uint32_t GetStopLowIdleTime();
-    uint16_t GetIdleToRatedRemTime();
     /**
      * This API calculates the remaining time of the GCU display timers.
      * @param  eTimer : timer enum whose remaining time needs to be calculated. 
@@ -156,6 +127,8 @@ public:
     static bool IsChargAltStopLtached();
 
     static void ClearChargAltStopLtached();
+
+    static bool IsMonitorChargAltTrue();
 
     static void ClearPreheatOutput();
 
@@ -187,10 +160,6 @@ public:
 
     static bool IsStartPreheatON();
 
-    static bool IsIdleToRatedRampOver();
-
-    static bool IsKeySwitchOutputActive();
-
     void UpdateGcuStatusAndTimerDisplay(BASE_MODES::GCU_STATE_t eGcuState, BASE_MODES::TIMER_STATE_t eTimerDisplay);
 
     static bool IsJ1939PreheatFaultPresent();
@@ -199,16 +168,8 @@ public:
 
     bool CheckPreheatTempCondition();
 
-
-    bool IsIdleModeInputConfigured();
     void StartKeyPressed();
     void StopKeyPressed();
-    static bool IsIdleModeActive();
-    bool IsIdleToRatedDelayActive();
-    bool IsStopIdleActive();
-    bool IsStartIdleActive();
-    uint16_t GetStartIdleRemTime();
-    uint16_t GetStopIdleRemTime();
 
 private:
     HAL_Manager                 &_hal;
@@ -219,7 +180,6 @@ private:
     CHARGING_ALT                &_ChargeAlt;
     ENGINE_START_VALIDITY       &_EngineStartValidity;
 	static SS_STATE_t                  _State;
-	PULL_SOLENOID_STATE_t       _PullSolenoidState;
 	uint8_t                     _u8NoOfCrankAttempts;
 	static uint16_t             _u16ConfiguredSafetyMonDelay;
     bool                        _bGenStarted;
@@ -240,12 +200,9 @@ private:
     bool                        _bAlarmAckReleased;
     bool                        _bAckAudblAlrmRecd;
     bool                        _bSimAckRecd;
-    bool                        _bActivatePullSolenoid;
-    bool                        _bActivateHoldSolenoid;
 
     stTimer                     _PreheatTimer;
     stTimer                     _EngStartTimer;
-    stTimer                     _ISVPullSolenoidTimer;
     stTimer                     _EngCrankingTimer;
     stTimer                     _EngCrankRestTimer;
     stTimer                     _StartStopSMUpdateTimer;
@@ -253,37 +210,19 @@ private:
     stTimer                     _PowerOnTimer;
 
 
-    IDLE_MODE_STATE_t           _IdleModeState;
-    stTimer                     _LowSpeedTimer;
-    stTimer                     _IdleModePulseTimer;
-    stTimer                     _IdleToRatedTimer;
-    stTimer                     _IdleModeStopTimer;
-    static bool                 _bStartIdleEnabled;
-    static bool                 _bStopIdleEnabled;
-    bool                        _bStopIdleExecuted;
-    bool                        _bLowIdleOp;
-    bool                        _bIdleModeOnPulse;
-    bool                        _bIdleModeOffPulse;
     bool                        _bStartKeyPressed;
     bool                        _bStopKeyPressed;
-    static bool                 _bActiveAlarms;
 
 
     static stTimer              _EngStoppingTimer;
     static stTimer              _SafetyMonTimer;
-    static bool                 _bEngStoppingComplete;
     static bool                 _bChargAltStopLatched;
-    static bool                 _bKeySwitchOutput;
+    static bool                 _bMonitorChargAlt;
     static bool                 _bOPStopSolenoid;
     static bool                 _bOPStartRelay;
     static bool                 _bOPPreheat;
     static bool                 _bJ1939PrheatFaultPresent;
 
-    static bool                 _bInIdleMode;
-    static bool                 _bSkipStartIdle;
-    static bool                 _bSkipStopIdle;
-    static bool                 _bStopIdleExec;
-    static bool                 _bIsLowIdleTimerModeExec;
 
     void prvTurnOnOffOutputs();
 
@@ -295,14 +234,7 @@ private:
 
     void prvUpdateSimStartStopStatus();
 
-    /*
-     * This function turns on the Inlet Shutoff Valve Pull signal and Hold signal.
-     * Pull signal output is of pulse type. At every crank this o/p give a pulse for configurable time.
-     */
-    void prvSMDInletShutoffValve();
     void prvTurnOffPreheatStartCranking();
 
-    void prvDisableStartIdle();
-    void prvDisableStopIdle();
 };
 #endif

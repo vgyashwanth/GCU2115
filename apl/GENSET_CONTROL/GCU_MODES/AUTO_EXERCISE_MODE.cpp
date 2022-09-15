@@ -940,16 +940,17 @@ void AUTO_EXERCISE_MODE::StopAutoExe()
 
 void AUTO_EXERCISE_MODE::GetExerciserInfo(EXERCISE_t* pstTemp, uint8_t u8TempExeType)
 {
-    switch(u8TempExeType)
-    {
-        case  MON_UI::DISP_AUTO_EXERCISE_1:
-            memcpy(pstTemp, &_stEvent1, sizeof(EXERCISE_t));
-            break;
-        case MON_UI::DISP_AUTO_EXERCISE_2:
-            memcpy(pstTemp, &_stEvent2, sizeof(EXERCISE_t));
-            break;
-        default: break;
-    }
+    // todo : remove this function once removed from mon ui
+//    switch(u8TempExeType)
+//    {
+//        case  MON_UI::DISP_AUTO_EXERCISE_1:
+//            memcpy(pstTemp, &_stEvent1, sizeof(EXERCISE_t));
+//            break;
+//        case MON_UI::DISP_AUTO_EXERCISE_2:
+//            memcpy(pstTemp, &_stEvent2, sizeof(EXERCISE_t));
+//            break;
+//        default: break;
+//    }
 }
 
 void AUTO_EXERCISE_MODE::prvMonitorExcerciserTimer()

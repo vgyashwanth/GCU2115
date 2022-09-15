@@ -1989,7 +1989,6 @@ void UI::SaveConfigFile()
             }
 //RushiEnd
 
-
             AllParam.u8ArrParam[CFGZ::ID_CAN_J1939_COMM_ACTION_AMBER] = (uint8_t)ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTION_AMBER].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_CAN_J1939_COMM_ACTIVATION_AMBER] = (uint8_t)ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTIVATION_AMBER].value.u8Val;
             AllParam.u8ArrParam[CFGZ::ID_CAN_J1939_COMM_ACTION_RED] = (uint8_t)ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTION_RED].value.u8Val;

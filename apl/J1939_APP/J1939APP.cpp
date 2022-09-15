@@ -2502,15 +2502,7 @@ void J1939APP::prvHandleEngineStartStop()
             break;
         case START_STOP::ID_STATE_SS_FAIL_TO_STOP:
             break;
-        case START_STOP::ID_STATE_PULL_SOLENOID_ON:
-            if(bStateChanged)
-            {
-                if((_cfgz.GetEngType() == CFGZ::ENG_IVECO) && (_ArrPgnReadData[RX_PGN_IVECO_PREHEAT_65281][6] == 0))
-                {
-                    _bEngineStartPreheatStatus = false;
-                }
-            }
-            break;
+
 
     }
 }

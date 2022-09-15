@@ -648,6 +648,12 @@ class CFGZ
 
     } CFGZ_SENSOR_ACTION_t;
 
+    typedef enum{
+            CFGZ_ACTION_NONE_SENS         = 0,
+            CFGZ_ACTION_WARNING_SENS,
+            CFGZ_ACTION_SHUTDOWN_SENS,
+        } CFGZ_SENSOR_ACTION_SENS_t;
+
     typedef enum
     {
         CFGZ_ACTION_NONE_1 =0,
@@ -785,8 +791,7 @@ class CFGZ
 
     typedef enum {
         CFGZ_1_PHASE_SYSTEM = 0,
-        CFGZ_3_PHASE_SYSTEM,
-        CFGZ_SPLIT_PHASE
+        CFGZ_3_PHASE_SYSTEM
     } CFGZ_AC_SYSTEM_TYP_t;
 
     typedef enum {
@@ -815,17 +820,8 @@ class CFGZ
 
     typedef enum
     {
-        CFGZ_ALT_FREQUENCY,
-        CFGZ_MAGNETIC_PICKUP,
-        CFGZ_W_POINT_FREQ,
+        CFGZ_ALT_FREQUENCY
     }SPEED_SOURCE_t;
-
-    typedef enum
-    {
-        CFGZ_HEATER_CONTROL,
-        CFGZ_COOLER_CONTROL
-    }CFGZ_CLNT_CTRL_OPT;
-
 
     typedef enum
     {
@@ -1132,15 +1128,6 @@ private:
     */
     void prvConfigureACSense();
 
-    /**
-    * Loads default configuration into the RAM data structure holding CFGZ.
-    * @param: None
-    * @return
-    * None
-    */
-    void prvLoadDefault();
-
-    void prvSetHardcodedActDelay();
     void prvSetPassword();
 
     /*

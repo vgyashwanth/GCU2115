@@ -2246,25 +2246,6 @@ void MON_UI::prvNormalMonScreens()
                     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
                     u8Position = u8Position + 15;
                 }
-            }else if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) ==
-                    CFGZ::CFGZ_SPLIT_PHASE)
-            {
-                _Disp.drawVerticalLine(GLCD_X(50), GLCD_Y(19), GLCD_Y(64));
-                sprintf(arrTemp,"%0.02f",
-                       abs(_hal.AcSensors.GENSET_GetDispAveragePowerFactor()));
-                _Disp.gotoxy(GLCD_X(22),GLCD_Y(33));
-                _Disp.printStringCenterAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(23),GLCD_Y(48));
-                _Disp.printStringCenterAligned((char *)StrPF,FONT_ARIAL);
-                u8Position = 28;
-                for(u8Local = R_PHASE; u8Local < B_PHASE ; u8Local++)
-                {
-                   sprintf(arrTemp,"%s-%s    %0.2f",(char *)StrPF,(char *)strPhase[u8Local],
-                       abs(_hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)u8Local)));
-                   _Disp.gotoxy(GLCD_X(55),GLCD_Y(u8Position));
-                   _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-                   u8Position = u8Position + 18;
-                }
             }
             else
             {
@@ -2320,28 +2301,7 @@ void MON_UI::prvNormalMonScreens()
                     u8Position = u8Position + 15;
                 }
             }
-            else if(((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)
-                    == CFGZ::CFGZ_SPLIT_PHASE) && (!bDisplayMainsLoad))
-                    ||
-               ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM)
-                                == CFGZ::CFGZ_SPLIT_PHASE) && (bDisplayMainsLoad))
-                    )
-            {
-                u8Position = 28;
-                for(u8Local = R_PHASE; u8Local < B_PHASE ; u8Local++)
-                {
-                    _Disp.gotoxy(GLCD_X(25),GLCD_Y(u8Position));
-                    _Disp.printStringLeftAligned((char *)strPhase[u8Local],
-                                                 FONT_VERDANA);
-                    _Disp.gotoxy(GLCD_X(90),GLCD_Y(u8Position));
-                    sprintf(arrTemp,"%.1f",
-                            ((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)u8Local));
-                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                    _Disp.gotoxy(GLCD_X(92),GLCD_Y(u8Position));
-                    _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
-                    u8Position = u8Position + 18;
-                }
-            }
+
             else
             {
                 _Disp.gotoxy(GLCD_X(20),GLCD_Y(35));

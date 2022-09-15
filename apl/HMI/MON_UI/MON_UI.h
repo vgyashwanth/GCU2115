@@ -41,6 +41,11 @@
 #define EXT_INPUT_UPDATE_TIME_MS    50
 
 #define CNFG_UNIT_TBL_VAL(x)        x
+
+/*todo: macro definition*/
+#define ENABLE_MON_J1939     (0)
+
+
 class MON_UI
 {
 public:
@@ -50,130 +55,44 @@ public:
      */
     typedef enum
     {
-        DISP_HOME  =0      ,  /**< DISP_HOME */
-        DISP_CONTACTOR_STATUS ,/**< DISP_CONTACTOR_STATUS */
-        DISP_PRODUCT_INFO,
-        DISP_AUTO_EXERCISE_1,
-        DISP_AUTO_EXERCISE_2,
-        DISP_ENGINE_TYPE,
-        DISP_GEN_LN_VOLTAGE    ,/**< DISP_GEN_LN_VOLTAGE */
-        DISP_GEN_PF       ,/**< DISP_GEN_PF */
+        //Status & Info
+        DISP_MON_HOME = 0,
+        DISP_MON_PRODUCT_ID, /* Product ID*/
 
-        DISP_HISTOGRAM,
+        DISP_MON_CAN_COMMUNICATION_INFO,
+        DISP_MON_ENG_LINK_INFO,
 
-        DISP_MAINS_LN_VOLTAGE  ,/**< DISP_MAINS_LN_VOLTAGE */
-        DISP_MAINS_RUN_TIME,
-        DISP_GEN_CURRENT      ,/**< DISP_GEN_CURRENT */
-        DISP_GEN_KW       ,/**< DISP_GEN_KW */
-        DISP_GEN_KVA      ,/**< DISP_GEN_KVA */
-        DISP_GEN_KVAR     ,/**< DISP_GEN_KVAR */
-        DISP_GEN_CUMU_POWER    ,/**< DISP_GEN_CUMU_POWER */
-        DISP_MAINS_CUMU_POWER,
-        DISP_BATTERY_VOLTAGE  ,/**< DISP_BATTERY_VOLTAGE */
+        //Generator
+        DISP_MON_GEN_VOLTAGE,
+        DISP_MON_GEN_LOAD_KW,
+        DISP_MON_GEN_LOAD_KVA,
+        DISP_MON_GEN_LOAD_KVAR,
+        DISP_MON_GEN_POWER_FACTOR,
+        DISP_MON_GEN_CURRENT,
+        DISP_MON_GEN_ENERGY,
+        //Mains
+        DISP_MON_MAINS_VOLTAGE,  /*VLN*/
+        DISP_MON_MAINS_LOAD_KW,  /*LKW*/
+        DISP_MON_MAINS_LOAD_KVA, /*LKVA*/
+        DISP_MON_MAINS_LOAD_KVAR,/*LKVAR*/
+        DISP_MON_MAINS_CURRENT,  /*I*/
+        DISP_MON_MAINS_ENERGY,
+        //Engine
+        DISP_MON_BAT_VOLTAGE,
+        DISP_MON_CHRG_ALT_BAT_VOLTAGE,
+        DISP_MON_AIR_INTAKE_TEMP,
+        DISP_MON_BOOST_PRESSURE,
+        DISP_MON_SITE_BAT_RUN_HRS,
+        DISP_MON_TAMPERED_RUN_HRS,
+        DISP_MON_ENG_TEMP,
+        DISP_MON_LUBE_OIL_PRESSURE,
+        DISP_MON_FUEL,
+        DISP_MON_SHELTER_TEMP,
+        DISP_MON_AUX_2,
+        DISP_MON_ENG_SPEED,
+        DISP_MON_ENG_RUN_TIME,
+        DISP_MON_LAST
 
-
-        DISP_SITE_BATT,
-        DISP_BTS_RUN_TIME,
-        DISP_TAMPERED_RUNHRS,
-
-        DISP_COOLENT_TEMP     ,/**< DISP_COOLENT_TEMP */
-        DISP_OIL_PRESSURE     ,/**< DISP_OIL_PRESSURE */
-        DISP_BALANCE_FUEL     ,/**< DISP_BALANCE_FUEL */
-
-        DISP_SHELTER_TEMP,
-        DISP_SCREEN_AUX_1,      /* Aux i/p */
-        DISP_SCREEN_AUX_2,      /* Aux i/p */
-        DISP_SCREEN_AUX_3,      /* Aux i/p */
-        DISP_SCREEN_AUX_4,      /* Aux i/p */
-
-        DISP_SCREEN_DIG_IO_STATUS,
-
-        DISP_ENGINE_SPEED     ,/**< DISP_ENGINE_SPEED */
-        DISP_ENGINE_RUN_TIME   ,/**< DISP_ENGINE_RUN_TIME */
-        DISP_EXAFTERTREAT_ICONS,
-        DISP_LAMP_ICONS,
-        DISP_MON_SCREEN_LAST ,     /**< DISP_SCREEN_LAST */
-
-        DISP_PROPB62_PGN_65378 ,
-        DISP_PROPB57_PGN_65367  ,
-        DISP_EDC4_CAN_STATUS    ,
-        DISP_IVECO_ENGINE_STATUS,
-        DISP_LFE_PGN_65266      ,
-        DISP_EEC2_PGN_61443     ,
-        DISP_AMB_PGN_65269      ,
-        DISP_HOURS_PGN_65253    ,
-        DISP_VEP1_PGN_65271     ,
-        DISP_DD_PGN_65276       ,
-        DISP_WFI_PGN_65279      ,
-        DISP_LFC_PGN_65257      ,
-        DISP_EEC4_PGN_65214     ,
-        DISP_LFI_PGN_65203      ,
-        DISP_IC2_PGN_64976      ,
-        DISP_EOI_PGN_64914      ,
-        DISP_ET2_PGN_65188      ,
-        DISP_EEC3_PGN_65247_1    ,
-        DISP_EEC3_PGN_65247_2   ,
-        DISP_S2_PGN_65166       ,
-        DISP_EFL_P2_PGN_65243   ,
-        DISP_SHUTDOWN_PGN_65252 ,
-        DISP_EFG1_PGN_61450     ,
-        DISP_DPF1S_PGN_64796    ,
-        DISP_ET1_PGN_65262_1    ,
-        DISP_ET1_PGN_65262_2    ,
-        DISP_EEC1_PGN_61444_1   ,
-        DISP_EEC1_PGN_61444_2   ,
-        DISP_EFL_P1_PGN_65263_1 ,
-        DISP_EFL_P1_PGN_65263_2 ,
-        DISP_IC1_PGN_65270_1    ,
-        DISP_IC1_PGN_65270_2    ,
-        DISP_AT1IG1_PGN_61454   ,
-        DISP_A1DOC_PGN_64800    ,
-        DISP_AT1IG2_PGN_64948   ,
-        DISP_AT1IMG_PGN_64946   ,
-        DISP_AT1OG1_PGN_61455   ,
-        DISP_A1SCRDSI1_PGN_61475,
-        DISP_A1SCRDSI2_PGN_64833,
-        DISP_A1SCRDSR1_PGN_61476,
-        DISP_A1SCREGT1_PGN_64830,
-        DISP_AT2IG1_PGN_61456   ,
-        DISP_AT2OG1_PGN_61457   ,
-        DISP_A2SCRDSI2_PGN_64827,
-        DISP_A2SCRDSI1_PGN_61478,
-        DISP_A2SCRDSR1_PGN_61479,
-        DISP_A2SCREGT1_PGN_64824,
-        DISP_AT1OG2_PGN_64947   ,
-        DISP_AT1S2_PGN_64697    ,
-        DISP_AT1S_PGN_64891     ,
-        DISP_AT1T1I_PGN_65110   ,
-        DISP_PROPB32_PGN_65330  ,
-        DISP_PROPB5E_PGN_65374_1,
-        DISP_PROPB5E_PGN_65374_2,
-        DISP_PROPB5E_PGN_65374_3,
-        DISP_PROPB5E_PGN_65374_4,
-        DISP_PROPB5E_PGN_65374_5,
-        DISP_PROPB5E_PGN_65374_6,
-        DISP_PROSTOUT_PGN_65364_1    ,
-        DISP_PROSTOUT_PGN_65364_2,
-        DISP_HATZ_PROPB_PHYS_PGN_65280,
-        DISP_AI_PGN_65237,
-        DISP_ETC5_PGN_65219,
-        DISP_OII_PGN_64554,
-        DISP_IT1_PGN_65154      ,
-        DISP_GFP_PGN_65163      ,
-        DISP_IMI1_PGN_65190      ,
-        DISP_FD1_PGN_65213    ,
-        DISP_DLCC1_PGN_64775    ,
-        DISP_GFC_PGN_65199,
-        DISP_EPT1_PGN_65187,
-        DISP_EPT2_PGN_65186,
-        DISP_EPT3_PGN_65185,
-        DISP_EPT4_PGN_65184,
-        DISP_EPT5_PGN_65183,
-        DISP_ET4_PGN_64870,
-        DISP_TCI4_PGN_65176,
-        DISP_EFL_P12_PGN_64735,
-        DISP_HATZ_CCVS_PGN_65265, //Keep this enum as last, add new members above it.
-        DISP_J1939_RX_LAST
     }MON_DISPLAY_LIST_t;
 
 
@@ -262,13 +181,6 @@ public:
      */
     void GroupSwitching(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent);
 
-    /**
-     * For showing different state machine variable on error
-     * @param None
-     * @return None
-     */
-    void PrintErrorScreen();
-
 
 private:
     #define MAX_SPN_ON_1_SCREEN     (5U)
@@ -287,88 +199,28 @@ private:
     /**
      * Constant array for assigning the screen logo of specific group of parameter/
      */
-    const MON_GROUP_t u8ArrGroupArray[DISP_J1939_RX_LAST]=
+    const MON_GROUP_t u8ArrGroupArray[DISP_MON_LAST]=
     {
          DISP_GROUP_STATUS,
          DISP_GROUP_STATUS,
          DISP_GROUP_STATUS,
          DISP_GROUP_STATUS,
-         DISP_GROUP_STATUS,
-         DISP_GROUP_STATUS,
-         DISP_GROUP_GENERATOR,
 
          DISP_GROUP_GENERATOR,
          DISP_GROUP_GENERATOR,
-         DISP_GROUP_MAINS,
-         DISP_GROUP_MAINS,
-         DISP_GROUP_LOAD,
-         DISP_GROUP_LOAD,
-         DISP_GROUP_LOAD,
-         DISP_GROUP_LOAD,
+         DISP_GROUP_GENERATOR,
+         DISP_GROUP_GENERATOR,
+         DISP_GROUP_GENERATOR,
+         DISP_GROUP_GENERATOR,
          DISP_GROUP_GENERATOR,
 
          DISP_GROUP_MAINS,
+         DISP_GROUP_LOAD,
+         DISP_GROUP_LOAD,
+         DISP_GROUP_LOAD,
+         DISP_GROUP_LOAD,
+         DISP_GROUP_MAINS,
 
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
          DISP_GROUP_ENGINE,
          DISP_GROUP_ENGINE,
          DISP_GROUP_ENGINE,
@@ -444,7 +296,7 @@ private:
     }PH_PH_T;
 
 
-
+#if ENABLE_MON_J1939
     stSPNDisplayData astPropb57SPNList[1] =
     {
             {NULL, NULL, CNFG_UNIT_TBL_VAL(6)}
@@ -1058,6 +910,8 @@ private:
         { DISP_EFL_P12_PGN_64735,   NO_OF_EFLP12  ,astEFL_P12 },
         {DISP_HATZ_CCVS_PGN_65265, NO_OF_HATZ_CCVS_PGN_65265, astHATZCCVSSPNList},
     };
+#endif
+
     /**
      * typedef function pointer for accessing the monitoring parameter
      * values from A_SENSE class of a perticular phase
@@ -1120,14 +974,11 @@ private:
     /**
      * Array of the screens which contains its enable / disable status.
      */
-    bool _ArrScreenEnDs[DISP_J1939_RX_LAST];
+    bool _ArrScreenEnDs[DISP_MON_LAST];
+
 
     static bool _bMBModeChnageCMDRcvd;
-
-    float _f32GenMinFreq;
-
-    float _f32MainsFreq;
-
+    uint8_t _u8LanguageIndex;
 
     uint8_t _u8ScreenMin, _u8ScreenMax;
     typedef struct
@@ -1144,12 +995,6 @@ private:
      * @return None
      */
     void prvConfigureScreenEnable();
-    /**
-     * It is used to display contactor status
-     * @param stContactorStatus
-     * @return None
-     */
-    void prvPrintContactorImage(BASE_MODES::CONTACTOR_STATUS_t stContactorStatus);
 
     /**
      * It is used to display product logo.
@@ -1220,24 +1065,25 @@ private:
      */
     void prvDisplayError();
 
-    void prvGetMonImageCoordicates( uint8_t *pu8SizeX, uint8_t *pu8SizeY, uint8_t *pu8CordinateX, uint8_t *pu8CordinateY);
 
     void prvPrintExerciser(uint8_t _ScreenNo);
-    void prvBuildLampIconScreen(void);
-    void prvBuildExhaustIconScreen(void);
     void prvNormalMonScreens();
-    void prvJ1939MonScreens();
-    void prvPrintPGN65378OrPGN65367(uint8_t u8PGNReceived);
     void prvPrintCANMsgRcvError();
-    void prvPGNScreenDataAssignment(uint8_t u8PGNEnumNo);
     void prvAssignNoOfDigitAfterDP(SPNData_t *StrArrayPtr, uint8_t u8PGNEnumNo, uint8_t u8SpnNo);
     unsigned int prvGetNoOfFractionalDigits(double dNumber);
     void prvPrintNotAvailable(uint8_t u8RowNum, uint8_t u8ColStart);
+
+#if ENABLE_MON_J1939
+    void prvJ1939MonScreens();
+    void prvBuildLampIconScreen(void);
+    void prvBuildExhaustIconScreen(void);
     void prvPrintSPNErrorVal(uint8_t u8RowNum, uint8_t u8ColStart);
     void prvPrintJ1939AfterTreatDataOnScreen(bool bIsAfterTreat1PGN, uint8_t u8RxATPGNNo);
     void prvPrintJ1939SPNVal(SPNData_t stData, uint8_t u8x, uint8_t u8y );
-
-    void prvPrintHystogram();
+    void prvPrintPGN65378OrPGN65367(uint8_t u8PGNReceived);
+    void prvPGNScreenDataAssignment(uint8_t u8PGNEnumNo);
+    void prvGetMonImageCoordicates( uint8_t *pu8SizeX, uint8_t *pu8SizeY, uint8_t *pu8CordinateX, uint8_t *pu8CordinateY);
+#endif
 
     void prvPrintSensorFaultStatus(A_SENSE::SENSOR_RET_t stTemp , uint16_t Xpos , uint16_t Ypos);
 
@@ -1246,13 +1092,6 @@ private:
      * @return bool
      */
     bool prvIsValDigitsGreaterThan3(uint16_t u16VoltageVal);
-
-    /**
-     * It is used to display status of Inputs and outputs.
-     * @param None
-     * @return None
-     */
-    void prvDigIOStatus();
 
 };
 

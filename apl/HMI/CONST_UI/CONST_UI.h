@@ -12,16 +12,17 @@
 #include "GCU_ALARMS.h"
 #include "CFGZ.h"
 #include "J1939_APP/J1939_Database.h"
+
 extern const uint8_t u8BmpLogo[8][32];
 extern const uint8_t u8BmpLogoInfo[3][20];
 extern const uint8_t u8BmpLogoGen[3][20];
 extern const uint8_t u8BmpLogoMains[3][20];
 extern const uint8_t u8BmpLogoEng[3][20];
 extern const uint8_t u8BmpLogoLoad[3][20];
-extern const char *strTimerStatus[2][14];
-extern const char *strGCUStatus[2][10];
-extern const char *strMonScreens[2][32];
-extern const char *strGCUMode[2][5];
+extern const char *strTimerStatus[1][14];
+extern const char *strGCUStatus[1][10];
+extern const char *strMonScreens[1][30]; /*todo : MON_UI::DISP_MON_LAST should be used here for indexing */
+extern const char *strGCUMode[1][5];
 extern const char *strIDLMode[];
 extern const uint8_t u8ArrContactor1[6][16];
 extern const uint8_t u8ArrContactor2[3][16];

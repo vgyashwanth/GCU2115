@@ -71,7 +71,7 @@ const uint8_t u8BmpLogoLoad[3][20]=
     {0x00,0x00,0x00,0x00,0x10,0x20,0x40,0x00,0x80,0x5C,0x40,0x40,0x40,0x5C,0x80,0x00,0x00,0x00,0x00,0x00}
 };
 
-const char *strTimerStatus[2][14]=
+const char *strTimerStatus[1][14]=
 {
    {
     " ",
@@ -88,26 +88,10 @@ const char *strTimerStatus[2][14]=
     "Remaining minutes :",
     "GEN ON rem min:",
     "GEN OFF rem min:"
-   },
-   {
-      "",
-      "Precalentamiento :",
-      "Reatrdo de arranque :",
-      "Marcha :",
-      "Descanso de Marcha :",
-      "Mon Seguridad :",
-      "Enfriamiento :",
-      "Accion de Paro :",     //"Stop wait:",
-      "Addn Paro :",  //"Stop hold:",
-      "Minutos Restantes :",
-      "Minutos Restantes :",
-      "Minutos Restantes :",
-      "Gen Enc T Res :",
-      "Gen Apag T Res :"
    }
 };
 
-const char *strGCUStatus[2][10]=
+const char *strGCUStatus[1][10]=
 {
  {
      "  ",
@@ -120,18 +104,6 @@ const char *strGCUStatus[2][10]=
      "Electrical trip > Pls clr",
      "Shutdown alarm > Pls clr",
      "Engine off"
- },
- {
-    " ",
-    "Motor Parado Listo",
-    "Intentos de Marcha:",
-    "Operacion correcta",
-    "Apagando Motor",
-    "Aviso > Limpiar",
-    "Alarm Aviso > Limpiar",
-    "Disparo Electrico > Limpiar",
-    "Alarma Paro > Limpiar" ,
-    "Motor Parado"
  }
 };
 
@@ -146,132 +118,50 @@ const char *strHystogram[]=
 
 };
 char Mains_status[32] = "MAINS READING";
-const char *strMonScreens[2][32]=
+const char *strMonScreens[1][30]=
 {
- {
-    //Status & Info
-    "STATUS",  //0
-    "CONTACTORS",
-    "PRODUCT INFO",
-
-    "AUTO EXERCISE 1",
-    "AUTO EXERCISE 2",
-
-
-
-    "ENGINE TYPE",      // 5
-
-
-    //Generator
-    "GEN VOLTAGE",
-
-    "GEN PWR FACTOR",
-    "HISTOGRAM (%-hr)",
-
-
-
-    //Mains
-    (char *)Mains_status,   //"MAINS   READING",
-    "MAINS RUN TIME",
-
-
-
-    //Load
-    "LOAD CURRENT",         // 10
-    "LOAD POWER"    ,
-    "LOAD APP. PWR",
-    "LOAD REACT. PWR",
-    "GEN ENERGY",
-
-
-    "MAINS ENERGY",         // 15
-
-
-    //Engine
-    "BATT & CA VOLT",
-
-    "SITE BATTERY",
-    "SITE BAT RUN TIME",
-    "TMPR RUN LOG",
-
-    "ENG CLNT TEMP",
-    "ENG LUB OIL PR",
-    "FUEL LEVEL",
-
-   "SHELTER TEMP",
-    (char *)&strAuxS1String,
-    (char *)&strAuxS2String,
-    (char *)&strAuxS3String,
-    (char *)&strAuxS4String,
-
-    "DIG IO STATUS",
-
-    "ENG SPEED",
-    "ENG RUN TIME",
- },
- {
-    //Status & Info
-    "ESTADO",  //0
-    "CONTACTORS",
-    "INFO PRODUCT",
-
-    "AUTO EJERCICIO 1",
-    "AUTO EJERCICIO 2",
-    "TIPO DE MOTOR",      // 5
-
-
-    //Generator
-    "VOLTAJE GEN",
-
-    "FACTOR POT. GEN",
-    "HISTOGRAM (%-hr)",
-
-
-
-    //Mains
-    (char *)Mains_status,   //"MAINS   READING",
-    "T. OPERA RED",
-
-
-
-    //Load
-    "CORR. CARGA",         // 10
-    "POT. ACTIVA"    ,
-    "POT. APARENTE",
-    "POT. REACTIVA",
-    "ENERGIA GEN",
-
-
-    "ENERGIA DE RED",         // 15
-
-
-    //Engine
-    "BATT & CA VOLT",
-
-    "BATERIA DEL SITIO",
-    "Tiempo Op. Bateria",
-    "Reg Operacion.",
-
-    "Temp Ref Motor",
-    "Presion de Aceite",
-    "N. de Comb",
-
-   "TEMP CASETA",
-    (char *)&strAuxS1String,
-    (char *)&strAuxS2String,
-    (char *)&strAuxS3String,
-    (char *)&strAuxS4String,
-
-    "DIG IO STATUS",
-
-    "Velocidad Motor",
-    "Tiempo Op. Motor",
-  }
-
+    {
+        //Status & Info
+        "STATUS",
+        "PRODUCT INFO",
+        "CAN BUS INFO",
+        "ENGINE LINK",
+        //Generator
+        "GEN  VOLTAGE",
+        "GEN  kW   LOAD",
+        "GEN  kVA  LOAD",
+        "GEN  kVAr LOAD",
+        "GEN  PWR  FACTOR",
+        "GEN  OUTPUT",
+        "GEN  ENERGY",
+        //Mains
+        Mains_status,   //"MAINS   READING",
+        "MAINS  kW   LOAD",
+        "MAINS  kVA  LOAD",
+        "MAINS  kVAr LOAD",
+        "MAINS  OUTPUT",
+        "MAINS  ENERGY",
+        //Engine
+        "BATTERY",
+        "CHRG ALT",
+        "AIR INTAKE TEMP",
+        "BOOST  PRESS",
+        "SITE BAT RUN",
+        "TMPR RUN TIME",
+        "ENG  TEMP",
+        "ENG LUB OIL PR",
+        "ENG REM FUEL",
+        //Sensor
+        "SHELTER TEMP",
+        //Engine
+        (char *)&strAuxS2String,
+        "ENG SPEED",
+        "ENG RUN TIME"
+    }
 };
 
 
-const char *strGCUMode[2][5]=
+const char *strGCUMode[1][5]=
 {
  {
   "TEST MODE",
@@ -279,15 +169,7 @@ const char *strGCUMode[2][5]=
   "AUTO MODE",
   "Auto - SITE Bat Backup",
   "Auto - Cyclic",
- },
- {
-  "Modo Prueba",
-  "MODO MANUAL",
-  "AUTO",
-  "Auto- copia seg",
-  "Auto- ciclico",
  }
-
 };
 
 const char *strIDLMode[]=

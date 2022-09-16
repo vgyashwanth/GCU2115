@@ -1901,12 +1901,34 @@ void MON_UI::prvNormalMonScreens()
         break;
         case DISP_MON_CAN_COMMUNICATION_INFO:
         {
-            /*todo: display screens */
+            _Disp.gotoxy(GLCD_X(4),GLCD_Y(30));
+            _Disp.printStringLeftAligned("STATE : ",FONT_VERDANA);
+            if(_j1939.IsCommunicationFail())
+            {
+                sprintf(arrTemp,"%s","Bus Faulty");
+            }
+            else
+            {
+                sprintf(arrTemp,"%s","Bus Ok");
+            }
+            _Disp.gotoxy(GLCD_X(60),GLCD_Y(30));
+            _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
         }
         break;
         case DISP_MON_ENG_LINK_INFO:
         {
-            /*todo: display screens */
+            _Disp.gotoxy(GLCD_X(4),GLCD_Y(30));
+            _Disp.printStringLeftAligned("ECU Link : ",FONT_VERDANA);
+            if(0) /* todo: in nxp code is it always true */
+            {
+                sprintf(arrTemp,"%s","Not Ok");
+            }
+            else
+            {
+                sprintf(arrTemp,"%s","Ok");
+            }
+            _Disp.gotoxy(GLCD_X(70),GLCD_Y(30));
+            _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
         }
         break;
 
@@ -1919,6 +1941,7 @@ void MON_UI::prvNormalMonScreens()
 
         case DISP_MON_GEN_LOAD_KW:
         {
+            /* todo:  why is we are showing kw load of mains under gen ?*/
             if(bDisplayMainsLoad)
             {
                 prvPrintPower(ACTIVE,
@@ -2004,7 +2027,7 @@ void MON_UI::prvNormalMonScreens()
                   &AC_SENSE::MAINS_GetCurrentAmps,
             };
 
-            if(bDisplayMainsLoad)
+            if(bDisplayMainsLoad) /* todo : why we are showing mains  current under gen? */
             {
                 eSysType=MAINS;
             }
@@ -2075,25 +2098,61 @@ void MON_UI::prvNormalMonScreens()
         }
         break;
 
-        /* todo: implement below screen */
         case DISP_MON_MAINS_LOAD_KW :
         {
-
+            prvPrintPower(ACTIVE, _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM), MAINS);
         }
         break;
+
         case DISP_MON_MAINS_LOAD_KVA :
         {
-
+            prvPrintPower(APARENT, _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM),MAINS);
         }
         break;
+
         case DISP_MON_MAINS_LOAD_KVAR :
         {
-
+            prvPrintPower(REACTIVE, _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM),MAINS);
         }
         break;
         case DISP_MON_MAINS_CURRENT :
         {
+            u8Position = 22;
+            SOURCE_TYPE_t eSysType = MAINS;
+            _pGET_VAL_t ArrGetCurrentVal[TYPE_LAST]=
+            {
+                  &AC_SENSE::GENSET_GetCurrentAmps,
+                  &AC_SENSE::MAINS_GetCurrentAmps,
+            };
 
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
+            {
+                for(u8Local = R_PHASE; u8Local < PHASE_END ; u8Local++)
+                {
+                    _Disp.gotoxy(GLCD_X(20),GLCD_Y(u8Position));
+                    _Disp.printStringLeftAligned((char *)strPhase[u8Local],
+                                                 FONT_VERDANA);
+                    _Disp.gotoxy(GLCD_X(90),GLCD_Y(u8Position));
+                    sprintf(arrTemp,"%.0f",
+                            ((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)u8Local));
+                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                    _Disp.gotoxy(GLCD_X(92),GLCD_Y(u8Position));
+                    _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
+                    u8Position = u8Position + 15;
+                }
+            }
+            else
+            {
+                _Disp.gotoxy(GLCD_X(20),GLCD_Y(35));
+                _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],
+                                             FONT_VERDANA);
+                _Disp.gotoxy(GLCD_X(90),GLCD_Y(35));
+                sprintf(arrTemp,"%0.1f",
+                        ((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)R_PHASE));
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                _Disp.gotoxy(GLCD_X(92),GLCD_Y(35));
+                _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
+            }
         }
         break;
 
@@ -2124,7 +2183,8 @@ void MON_UI::prvNormalMonScreens()
 
         case DISP_MON_BAT_VOLTAGE:
         {
-                _Disp.printImage((uint8_t *)u8ArrBattery, 4, 32, 26, 2);
+            /* VBAT */
+            _Disp.printImage((uint8_t *)u8ArrBattery, 4, 32, 26, 2);
             {
                 _Disp.gotoxy(GLCD_X(40),GLCD_Y(26));
                 _Disp.printStringLeftAligned((char *)"ENG BATT",FONT_VERDANA);
@@ -2144,17 +2204,51 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.printStringLeftAligned((char*)"V",FONT_VERDANA);
             }
 
+            /* V BTS */
 
             _Disp.gotoxy(GLCD_X(40),GLCD_Y(47));
-            _Disp.printStringLeftAligned((char *)"CA VOLT",FONT_VERDANA);
+            _Disp.printStringLeftAligned((char *)"BTS BATT",FONT_VERDANA);
 
             _Disp.gotoxy(GLCD_X(112),GLCD_Y(47));
             sprintf(arrTemp,"%0.1f",
-                    _hal.AnalogSensors.GetFilteredChargingAltVolts());
+                    _hal.AnalogSensors.GetFilteredVBTSbattVolts());
             _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
             _Disp.gotoxy(GLCD_X(116),GLCD_Y(47));
             _Disp.printStringLeftAligned((char*)"V",FONT_VERDANA);
 
+        }
+        break;
+
+        case DISP_MON_CHRG_ALT_BAT_VOLTAGE:
+        {
+            _Disp.printImage((uint8_t *)u8ArrBattery, 4, 32, 26, 2);
+            _Disp.gotoxy(GLCD_X(40),GLCD_Y(30));
+            _Disp.printStringLeftAligned((char *)"CA VOLT",FONT_VERDANA);
+
+            _Disp.gotoxy(GLCD_X(112),GLCD_Y(30));
+            sprintf(arrTemp,"%0.1f",
+                    _hal.AnalogSensors.GetFilteredChargingAltVolts());
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+            _Disp.gotoxy(GLCD_X(116),GLCD_Y(30));
+            _Disp.printStringLeftAligned((char*)"V",FONT_VERDANA);
+        }
+        break;
+
+        case DISP_MON_AIR_INTAKE_TEMP :
+        {
+            _Disp.printImage((uint8_t *)u8ArrEngineTemp, 4, 32, 26, 7);
+            /* todo: add J1939 dependency. Values will only receive on J1939 */
+            _Disp.gotoxy(GLCD_X(40),GLCD_Y(47));
+            _Disp.printStringLeftAligned((char *)"Under Development",FONT_VERDANA);
+        }
+        break;
+
+        case DISP_MON_BOOST_PRESSURE :
+        {
+            _Disp.printImage((uint8_t *)u8ArrOilPressure, 4, 32, 26, 3);
+            /* todo: add J1939 dependency. Values will only receive on J1939 */
+            _Disp.gotoxy(GLCD_X(40),GLCD_Y(47));
+            _Disp.printStringLeftAligned((char *)"Under Development",FONT_VERDANA);
         }
         break;
 
@@ -2173,11 +2267,8 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.gotoxy(GLCD_X(120),GLCD_Y(28));
                 sprintf(arrTemp,"%ld Hrs %d min",(_EngineMon.GetTamperedRunTimeMin()/60), (uint8_t)(_EngineMon.GetTamperedRunTimeMin()%60));
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
-
                 _Disp.gotoxy(GLCD_X(120),GLCD_Y(42));
-
                 sprintf(arrTemp,"%0.1f kWh",(_hal.AcSensors.GENSET_GetTotalTamperedActiveEnergySinceInitWH()) /1000);
-
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
             }
         }
@@ -2185,7 +2276,6 @@ void MON_UI::prvNormalMonScreens()
 
         case DISP_MON_ENG_TEMP:
         {
-
             stTemp =_GCUAlarms.GetSelectedTempSensVal();
             _Disp.printImage((uint8_t *)u8ArrEngineTemp, 4, 32, 26, 7);
 
@@ -2201,11 +2291,7 @@ void MON_UI::prvNormalMonScreens()
               prvPrintSensorStatus(stTemp,(char*)"`C", INTEGER_TYPE);
               if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
               {
-
-                 sprintf(arrTemp,"%d",(int16_t)(
-                         (stTemp.stValAndStatus.f32InstSensorVal
-                          *DEG_F_FACTOR1)
-                          + DEG_F_FACTOR2 ));
+                 sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
                  _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
                  _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                  _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
@@ -2242,14 +2328,11 @@ void MON_UI::prvNormalMonScreens()
                     _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                     _Disp.gotoxy(GLCD_X(94),GLCD_Y(25));
                     _Disp.printStringLeftAligned((char*)"bar",FONT_VERDANA);
-                    sprintf(arrTemp,"%d",(uint16_t)(
-                            stTemp.stValAndStatus.f32InstSensorVal
-                            * PSI_CONVERSION));
+                    sprintf(arrTemp,"%d",(uint16_t)( stTemp.stValAndStatus.f32InstSensorVal * PSI_CONVERSION));
                     _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
                     _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                     _Disp.gotoxy(GLCD_X(94),GLCD_Y(42));
                     _Disp.printStringLeftAligned((char*)"psi",FONT_VERDANA);
-//                    _Disp.printImage((uint8_t *)u8ArrOilPressure, 4, 32, 26, 7);
                 }
                 else
                 {
@@ -2260,10 +2343,9 @@ void MON_UI::prvNormalMonScreens()
         break;
         case DISP_MON_FUEL:
         {
-            stTemp =_hal.AnalogSensors.GetSensorValue(
-                            AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
-
             _Disp.printImage((uint8_t *)u8ArrFuel, 4, 32, 26, 7);
+            stTemp =_hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
+
             prvPrintSensorStatus(stTemp,(char*)"%", INTEGER_TYPE);
             if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
             {
@@ -2278,9 +2360,6 @@ void MON_UI::prvNormalMonScreens()
                     _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                     _Disp.gotoxy(GLCD_X(94),GLCD_Y(42));
                     _Disp.printStringLeftAligned((char*)"Liters",FONT_VERDANA);
-
-                //_Disp.printImage((uint8_t *)u8ArrFuel, 4, 32, 26, 7);
-
             }
         }
         break;
@@ -2295,10 +2374,7 @@ void MON_UI::prvNormalMonScreens()
             prvPrintSensorStatus(stTemp,(char*)"`C", INTEGER_TYPE);
             if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
             {
-               sprintf(arrTemp,"%d",(int16_t)(
-                       (stTemp.stValAndStatus.f32InstSensorVal
-                        *DEG_F_FACTOR1)
-                        + DEG_F_FACTOR2 ));
+               sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
                _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
@@ -2307,10 +2383,9 @@ void MON_UI::prvNormalMonScreens()
         }
         break;
 
-        /* aux 1 is commented in GC2111 NXP code */
+        /* todo: aux 1 is commented in GC2111 NXP code */
         case DISP_MON_AUX_2:
         {
-
              stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S2_SENSOR);
              prvPrintSensorStatus(stTemp,(char*)"", FLOAT_TYPE , 80 , 37);
         }
@@ -2335,6 +2410,7 @@ void MON_UI::prvNormalMonScreens()
         break;
         case DISP_MON_ENG_RUN_TIME:
         {
+            _Disp.printImage((uint8_t *)u8ArrEngineHours, 4, 32, 26, 7);
             _Disp.gotoxy(GLCD_X(124),GLCD_Y(22));
 //            if(_j1939.IsCommunicationFail() && _cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ENG))
 //            {
@@ -2342,14 +2418,11 @@ void MON_UI::prvNormalMonScreens()
 //            }
 //            else
             {
-                sprintf(arrTemp,"%ldhrs  %dmin ",
-                        ( _GCUAlarms.GetSelectedEngRunMin()/60),
-                        (uint8_t)(_GCUAlarms.GetSelectedEngRunMin()%60) );
+                sprintf(arrTemp,"%ldhrs  %dmin ", ( _GCUAlarms.GetSelectedEngRunMin()/60), (uint8_t)(_GCUAlarms.GetSelectedEngRunMin()%60) );
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
             }
 
             {
-                _Disp.printImage((uint8_t *)u8ArrEngineHours, 4, 32, 26, 7);
 
                 _Disp.gotoxy(GLCD_X(40),GLCD_Y(37));
                 _Disp.printStringLeftAligned((char *)StrStarts[_u8LanguageIndex],FONT_VERDANA);

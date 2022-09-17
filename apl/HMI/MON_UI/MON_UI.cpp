@@ -105,8 +105,10 @@ void MON_UI::Init()
    Actually this defencive type of action should be taken inside any function.
 */
    _hal.ObjGlcd.AdjustContrast(_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_CONTRAST));
-
    _u8LanguageIndex = _cfgz.GetArrLanguageIndex();
+   /*default settings */
+    eDisplayMode = DISP_MON_MODE;
+    GoToHomeScreen();
 }
 
 void MON_UI::Update(bool bRefresh)

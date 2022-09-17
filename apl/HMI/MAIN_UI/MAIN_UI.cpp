@@ -10,22 +10,23 @@
  * @copyright   SEDEMAC Mechatronics Pvt Ltd
  **/
 
-
-
 #include <HMI/MAIN_UI/MAIN_UI.h>
 #include "../UI_DS.h"
 #include "MB_APP/MB_APP.h"
+
+
+#define TURN_ON      BSP_IO_LEVEL_LOW
+#define TURN_OFF     BSP_IO_LEVEL_HIGH
 
 KEYPAD::KEYPAD_EVENTS_t MAIN_UI::_sKeyEvent = AUTO_KEY_SHORT_PRESS;
 bool MAIN_UI::_sbKeyEventAvailable = false;
 uint16_t MAIN_UI::_u16ScreenChangeTime = SCREEN_CHANGE_OVER_PAUSE;
 
-
 MAIN_UI::MAIN_UI(HAL_Manager &hal, CFGZ &pcfgz, GCU_ALARMS &GCUAlarms,
-        ENGINE_MONITORING  &EngMon, START_STOP &StartStop,
-        MANUAL_MODE &ManualMode,
+        ENGINE_MONITORING  &EngMon, START_STOP &StartStop,MANUAL_MODE &ManualMode,
         Display &Disp, CFGC &CFGC, SLEEP_Handler &sleep, EGOV &Egov,
-        AUTO_EXERCISE_MODE &autoExercise, J1939APP &j1939 , BTS_MODE &BTSMode , CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity):
+        AUTO_EXERCISE_MODE &autoExercise, J1939APP &j1939 , BTS_MODE &BTSMode ,
+        CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity):
 _hal(hal),
 _cfgz(pcfgz),
 _sleep(sleep),
@@ -45,6 +46,8 @@ _DispEventLog(hal, Disp, CFGC, GCUAlarms, pcfgz),
 _PasswordEntry(hal, pcfgz, Disp),
 _objUI(hal,_PasswordEntry,pcfgz,Disp ,EngMon),
 _bPanelLockOnce(false),
+_bRefresh(true),
+_bEventLogEntry(false),
 _bExternalPanelLockOnce(false)
 {
     UTILS_ResetTimer(&_RefreshTimer);
@@ -57,7 +60,7 @@ _bExternalPanelLockOnce(false)
 
     _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
 
-    //Copy all Auxilary strings
+    /* Copy all Auxilary strings */
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_AUX_INPUT_A, strAuxAString);
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_AUX_INPUT_B, strAuxBString);
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_AUX_INPUT_C, strAuxCString);
@@ -79,66 +82,50 @@ _bExternalPanelLockOnce(false)
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_SENSOR_S3_NAME ,strAuxS3String );
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_SENSOR_S4_NAME ,strAuxS4String );
 
-
-
+    /* Copy profile name */
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_PROFILE, strProfile);
 }
 
 void MAIN_UI::prvExitFromConfigMode()
 {
     _objUI.SaveConfigFile();
-    _MonUI.Init();
+    _GCUAlarms.InitGCUAlarms();
+    /* todo: Shift below prv functions to the respective classes once all other files become ready */
+    prvUpadteBaseModeConfigDependency(); /* base mode related function call made with manual mode obj referenece*/
 
     _EngineStartValidity.UpdateStartValidyParam();
     _autoExercise.Init();
     _Egov.InitEgovParameters();
-    _ManualMode.InitNightModeParam();
-    _GCUAlarms.InitGCUAlarms();
-    for(uint8_t u8AlarmIndex = 0; u8AlarmIndex <
-                  GCU_ALARMS::ALARM_LIST_LAST; u8AlarmIndex++)
-    {
-      _GCUAlarms.ConfigureGCUAlarms(u8AlarmIndex);
-    }
-    for(uint8_t u8LoggingID = 0; u8LoggingID <GCU_ALARMS::ID_ALL_ALARMS_LAST; u8LoggingID++)
-    {
-      _GCUAlarms.AssignAlarmsForDisplay(u8LoggingID);
-    }
-    _ManualMode.ChangeManualState(
-          BASE_MODES::STATE_MANUAL_GEN_OFF);
-    _ManualMode.ChangeAutoState(
-          BASE_MODES::STATE_AMF_GEN_OFF_MAINS_ON);
-    _ManualMode.SetMainsStatusHealthy();
-    _GCUAlarms.ClearAllAlarms();
-    _GCUAlarms.ResetMainsMonParams();
     _StartStop.Init();
 
+    _MonUI.Init(); /* MON UI need to be updated at the end */
 
-
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)
-    {
-      _ManualMode.OpenMainsLoad();
-    }
     if(CEditableItem::IsAnyConfigValueEdited())
     {
       _GCUAlarms.LogEvent(GCU_ALARMS::Config_Modified_By_User_id,GCU_ALARMS::ID_NONE);
     }
-    MON_UI::eDisplayMode = DISP_MON_MODE;
-    _MonUI.GoToHomeScreen();
+    else
+    {
+        /* Do nothing */
+    }
 }
 
 bool MAIN_UI::Update()
 {
-    bool bRefresh = true;
-    static uint8_t _u8NumberOfAlarms =0;
-    static bool bEventLogEntry = false;
+    _bRefresh = true; /* todo: think about it */
+    static uint8_t _u8NumberOfAlarms = 0;
 
-    // Do not execute anything when device is in sleep mode.
+    /* exclude execution when in sleep mode. */
     if(_hal.AmIInSleep())
     {
         return false;
     }
+    else
+    {
+        /* Do nothing */
+    }
 
-    //Reset all timers when exited from sleep
+    /* Reset timers when exited from sleep */
     if(_hal.bJustExitedFromSleep)
     {
         _hal.bJustExitedFromSleep = false;
@@ -146,12 +133,20 @@ bool MAIN_UI::Update()
         UTILS_ResetTimer(&_PoweSaveModeTimer);
         return false;
     }
+    else
+    {
+        /* Do nothing */
+    }
 
-    //Ignore key press when just exited form Sleep
+    /* Ignore key press when just exited form Sleep*/
     if( UTILS_GetElapsedTimeInMs(&_SleepExitTimer) <= 500)
     {
         _sbKeyEventAvailable = false;
         return false;
+    }
+    else
+    {
+        /* Do nothing */
     }
 
     //If any config value changed then show saving setting screen
@@ -176,14 +171,14 @@ bool MAIN_UI::Update()
     else if(UTILS_GetElapsedTimeInMs(&_RefreshTimer) >= REFRESH_TIME_MS)
     {
         UTILS_ResetTimer(&_RefreshTimer);
-        bRefresh = true;
+        _bRefresh = true;
     }
     else
     {
-        bRefresh = false;
+        _bRefresh = false;
     }
 
-    //Check for number of alarms, for any new alarm chage mode to Alarm mode
+    /* Move mon screen to alarm screen if new alarm present */
     if((_GCUAlarms.GetActiveAlarmCount() > _u8NumberOfAlarms)
             && IS_DISP_MON_MODE())
     {
@@ -196,80 +191,76 @@ bool MAIN_UI::Update()
         _u8NumberOfAlarms = _GCUAlarms.GetActiveAlarmCount();
     }
 
-    //Till boot logo do not execute LED Handling
+    /* Hanlde LED once boot logo displayed */
     if(UTILS_GetElapsedTimeInSec(&_BootTimer) >= BOOT_DELAY)
     {
         prvLEDHandling();
     }
     else
     {
-        //Till boot time kick sleep time , power save time
-        // and screen change over time
+        /* execution should not eneter in any mode while boot timing */
         _sleep.KickSleepTimer();
         UTILS_ResetTimer(&_PoweSaveModeTimer);
         UTILS_ResetTimer(&_ScreenChangeOverTimer);
         _sbKeyEventAvailable = false;
     }
 
-    //kick sleep timer for following conditions
-    if(   IS_DISP_EVENT_LOG_MODE()
-        ||IS_DISP_CONFIG_MODE()
-        ||IS_DISP_PASSWORD_ENTRY_MODE()
-        ||(!IS_GCU_MANUAL_MODE())
-        ||((_StartStop.GetStartStopSMDState()
-                != START_STOP::ID_STATE_SS_ENG_OFF_ERR)
-            &&(_StartStop.GetStartStopSMDState()
-                    != START_STOP::ID_STATE_SS_ENG_OFF_OK))
-        ||(((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING))
-                == CFGZ::CFGZ_ENABLE) &&
-                (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)
-                      != ACT_Manager:: ACT_NOT_CONFIGURED))
-        ||(IS_GCU_AUTO_MODE()
-            &&(_hal.DigitalSensors.GetDigitalSensorState(
-                    DigitalSensor::DI_REMOTE_START_STOP)
-                   != DigitalSensor::SENSOR_NOT_CONFIGRUED))
-        ||_cfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_COMM_MODE)
-      )
+
+    if(!prvIsSleepEnabled())
     {
         _sleep.KickSleepTimer();
     }
+    else
+    {
+        /* do nothing */
+    }
 
-    //Turn off Back light after Power save delay over
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_POWER_SAVE_MODE)== CFGZ::CFGZ_ENABLE)
-                 &&(UTILS_GetElapsedTimeInSec(&_PoweSaveModeTimer)
-                      >= _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_PWR_SAVE_MODE_DELAY)))
+    /* Turn off back light if power save occures */
+    if(   (_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_POWER_SAVE_MODE)== CFGZ::CFGZ_ENABLE)
+       && (UTILS_GetElapsedTimeInSec(&_PoweSaveModeTimer)
+            >= _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_PWR_SAVE_MODE_DELAY)))
     {
         _hal.ObjGlcd.TurnOffBackLight();
         UTILS_ResetTimer(&_PoweSaveModeTimer);
+    }
+    else
+    {
+        /* Do nothing */
     }
 
     if(_EngMon.IsEngineOn() )
     {
         UTILS_ResetTimer(&_PoweSaveModeTimer);
     }
+    else
+    {
+        /* Do nothing */
+    }
 
+/*todo : below functionality not observed in GC2111 nxp, not found any related config parameter.
+         Need to remove remove if required  */
+#if 0
     if(UTILS_GetElapsedTimeInSec(&_AutoExitTimer) >= 200 )//_cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_EXIT_TIME))
     {
         UTILS_DisableTimer(&_AutoExitTimer);
         if(IS_DISP_CONFIG_MODE() ||IS_DISP_EVENT_LOG_MODE())
         {
-            UTILS_ResetTimer(&_RefreshTimer);
+           UTILS_ResetTimer(&_RefreshTimer);
            prvExitFromConfigMode();
         }
         else if(IS_DISP_PASSWORD_ENTRY_MODE())
         {
            MON_UI::eDisplayMode = DISP_MON_MODE;
            _MonUI.GoToHomeScreen();
-           _MonUI.Update(bRefresh);
+           _MonUI.Update(_bRefresh);
            _PasswordEntry.SetPasswordEntryState(PASSWORD_ENTRY_UI::ENTRY);
         }
     }
-
     if((_sKeyEvent ==  DN_LONG_PRESS )||(_sKeyEvent ==  UP_LONG_PRESS ))
     {
         UTILS_ResetTimer(&_AutoExitTimer);
     }
-
+#endif
 
     if(_ManualMode.IsGCUStateChanged())
     {
@@ -278,25 +269,29 @@ bool MAIN_UI::Update()
     }
 
 
-
-
     MB_APP::KEY_MB_CAN_EVENT_t  stMBEvent;
     MB_APP::GetMBEventStatus(&stMBEvent);
      if(_sbKeyEventAvailable || stMBEvent.bKeyEvent)
      {
-         _sbKeyEventAvailable = false;
-         UTILS_ResetTimer(&_AutoExitTimer);
-         _sleep.KickSleepTimer();
-         //During cranking turn off the back light to reduce the GCU current.
-         if(_ManualMode.GetTimerState() == BASE_MODES::CRANK_START_TIMER )
-         {
-             _hal.ObjGlcd.TurnOffBackLight();
-         }
-         else
-         {
-             _hal.ObjGlcd.TurnOnBackLight();
-         }
-         UTILS_ResetTimer(&_ScreenChangeOverTimer);
+        _sbKeyEventAvailable = false;
+        //UTILS_ResetTimer(&_AutoExitTimer); // need to remove
+        _sleep.KickSleepTimer();
+        UTILS_ResetTimer(&_ScreenChangeOverTimer);
+        UTILS_ResetTimer(&_PoweSaveModeTimer);
+
+         /* During cranking turn off the back light to reduce the GCU current. (Hardware specific)*/
+        if(_ManualMode.GetTimerState() == BASE_MODES::CRANK_START_TIMER )
+        {
+            _hal.ObjGlcd.TurnOffBackLight();
+        }
+        else
+        {
+            _hal.ObjGlcd.TurnOnBackLight();
+        }
+
+/* Shubham Wader 17.09.2022
+   below condition is confirmed with Mihir B. (SYSE). SW will execute screen changeover delay from config only if it is
+   greater that the hard code delay that user dont know.*/
         if ( _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME) > SCREEN_CHANGE_OVER_PAUSE)
         {
             _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
@@ -305,198 +300,53 @@ bool MAIN_UI::Update()
         {
             _u16ScreenChangeTime = SCREEN_CHANGE_OVER_PAUSE;
         }
-         UTILS_ResetTimer(&_PoweSaveModeTimer);
 
-         if((_sKeyEvent == DN_SHORT_PRESS) || (_sKeyEvent == UP_SHORT_PRESS))
-         {
-             _hal.ObjGlcd.AutoReInitGCLDScreen();
-         }
-         if(!_sbKeyEventAvailable &&  stMBEvent.bKeyEvent )
-          {
-              if(stMBEvent.bAutoKey)
-              {
-                  _sKeyEvent = AUTO_KEY_SHORT_PRESS;
-              }
-              else if(stMBEvent.bStartKey)
-              {
-                  _sKeyEvent = START_KEY_SHORT_PRESS;
-              }
-              else if(stMBEvent.bStopKey)
-              {
-                  _sKeyEvent = STOP_KEY_SHORT_PRESS;
-              }
-
-              if(stMBEvent.bAckKey)
-              {
-                  _sKeyEvent = ACK_KEY_PRESS;
-              }
-          }
-        switch(_sKeyEvent)
+        if((_sKeyEvent == DN_SHORT_PRESS) || (_sKeyEvent == UP_SHORT_PRESS))
         {
-           case KEYPAD::STOP_KEY_LONG_PRESS:
-           {
-               if(IS_DISP_MON_MODE() || IS_DISP_ALARM_MODE())
-               {
-                   if(  IS_GCU_MANUAL_MODE()
-                       && (!_ManualMode.IsGenRunTimersInProcess())
-                       && (!_EngMon.IsEngineCranked())
-                       && (!_EngMon.IsEngineOn()))
-                   {
-                       MON_UI::eDisplayMode = DISP_PASSWORD_EDIT_MODE;
-                       bRefresh = true;
-                   }
-               }
-               else if( IS_DISP_CONFIG_MODE() ||IS_DISP_EVENT_LOG_MODE())
-               {
-                   prvExitFromConfigMode();
-               }
-               else if(IS_DISP_PASSWORD_ENTRY_MODE())
-               {
-                   MON_UI::eDisplayMode = DISP_MON_MODE;
-                   _MonUI.GoToHomeScreen();
-                   _MonUI.Update(bRefresh);
-                   _PasswordEntry.SetPasswordEntryState(PASSWORD_ENTRY_UI::ENTRY);
-               }
-               break;
-           }
-           case UP_DN_KEY_LONG_PRESS:
-           {
-               if(IS_DISP_CONFIG_MODE())
-               {
-                   MON_UI::eDisplayMode = DISP_EVENT_LOG_MODE;
-                   bEventLogEntry = true;
-               }
-               else if(IS_DISP_EVENT_LOG_MODE())
-               {
-                   MON_UI::eDisplayMode = DISP_CONFIG_MODE;
-                   bEventLogEntry = false;
-                   _objUI.Handler(CKeyCodes::NONE);
-               }
-               break;
-           }
-           case STOP_KEY_SHORT_PRESS:  //Escape key Press
-           {
-               if(IS_DISP_PASSWORD_ENTRY_MODE())
-               {
-                   if(_PasswordEntry.GetPasswordEnteryState()
-                           == PASSWORD_ENTRY_UI::ENTRY)
-                   {     //Enter in Read Mode Only
-                       MON_UI::eDisplayMode = DISP_CONFIG_MODE;
-                       _objUI.Handler(CKeyCodes::NONE);
-                   }
-               }
-
-               if(IS_DISP_ALARM_MODE())
-               {
-                   //Enter in Read Mode Only
-                   MON_UI::eDisplayMode = DISP_MON_MODE;
-                   _MonUI.GoToHomeScreen();
-                   _MonUI.Update(bRefresh);
-               }
-               break;
-           }
-
-           case START_KEY_SHORT_PRESS:  //Start key Press
-           case AUTO_KEY_LONG_PRESS:   //Auto Long press
-           case AUTO_KEY_SHORT_PRESS:
-           case DN_STOP_KEY_LONG_PRESS:
-           {
-               if(IS_DISP_ALARM_MODE())
-               {
-                   MON_UI::eDisplayMode = DISP_MON_MODE;
-                   _MonUI.GoToHomeScreen();
-                   _MonUI.Update(bRefresh);
-               }
-               break;
-           }
-
-//           case DN_SHORT_PRESS:
-//           case UP_SHORT_PRESS:
-//               _GCUAlarms.TurnOffSounderAlarm();
-//            break;
-
-           case GEN_CONT_KEY_PRESS:
-           {
-               if(IS_GCU_MANUAL_MODE() ||IS_GCU_TEST_MODE())
-               {
-
-                   if(1)
-                   {
-                       if((!_ManualMode.IsGenContactorClosed())&& (_EngMon.IsGenAvailable()))
-                       {
-                           _ManualMode.SwitchLoadToGen();
-                       }
-                       else
-                       {
-                           _ManualMode.OpenGenLoad();
-                       }
-                   }
-               }
-           }
-           break;
-
-           case MAINS_CONT_KEY_PRESS:
-           {
-               if(IS_GCU_MANUAL_MODE() || IS_GCU_TEST_MODE())
-               {
-                   if((_ManualMode.IsMainsContactorConfigured()))
-                   {
-                       if((!_ManualMode.IsMainsContactorClosed()) && (_ManualMode.GetMainsStatus() == BASE_MODES:: MAINS_HELATHY ))
-                       {
-                           _ManualMode.SwitchLoadToMains();
-                       }
-                       else
-                       {
-                           _ManualMode.OpenMainsLoad();
-                       }
-                   }
-               }
-           }
-           break;
-
-           default:
-               break;
+            _hal.ObjGlcd.AutoReInitGCLDScreen();
+        }
+        else
+        {
+            /* do nothing */
         }
 
-        switch(MON_UI::eDisplayMode)
+        if(stMBEvent.bKeyEvent)
         {
-            case DISP_MON_MODE:
+            if(stMBEvent.bAutoKey)
             {
-                _MonUI.CheckKeyPress(_sKeyEvent);
-                break;
+                _sKeyEvent = AUTO_KEY_SHORT_PRESS;
             }
-            case DISP_ALARM_MODE:
+            else if(stMBEvent.bStartKey)
             {
-                _DispAlarm.CheckKeyPress(_sKeyEvent);
-                break;
+                _sKeyEvent = START_KEY_SHORT_PRESS;
             }
-            case DISP_EVENT_LOG_MODE:
+            else if(stMBEvent.bStopKey)
             {
-                _DispEventLog.CheckKeyPress(_sKeyEvent);
-                break;
+                _sKeyEvent = STOP_KEY_SHORT_PRESS;
             }
-            case DISP_PASSWORD_EDIT_MODE:
+            else
             {
-               _PasswordEntry.CheckKeyPress(_sKeyEvent);
-                break;
+              /* Do nothing */
             }
-            case DISP_CONFIG_MODE:
+/* todo: need to append below if in above else if. Need of discussion. */
+            if(stMBEvent.bAckKey)
             {
-                _objUI.ConfigCheckKeyPress(_sKeyEvent);
-                break;
+                _sKeyEvent = ACK_KEY_PRESS;
             }
         }
+
+        prvHandleKeyPressEvent(_sKeyEvent);
     }
 
     switch(MON_UI::eDisplayMode)
     {
        case DISP_MON_MODE:
        {
-//           if(((_sKeyEvent ==  KEYPAD::BSP_KEY_4_LONG_PRESS )||(_sKeyEvent ==  KEYPAD::BSP_KEY_5_LONG_PRESS )) && bRefresh)
+//           if(((_sKeyEvent ==  KEYPAD::BSP_KEY_4_LONG_PRESS )||(_sKeyEvent ==  KEYPAD::BSP_KEY_5_LONG_PRESS )) && _bRefresh)
 //           {
 //               _MonUI.GroupSwitching(_sKeyEvent);
 //           }
-           _MonUI.Update(bRefresh);
+           _MonUI.Update(_bRefresh);
 
            break;
        }
@@ -507,14 +357,14 @@ bool MAIN_UI::Update()
                UTILS_ResetTimer(&_ScreenChangeOverTimer);
            }
 
-//           if(((_sKeyEvent ==  KEYPAD::BSP_KEY_4_LONG_PRESS )||(_sKeyEvent ==  KEYPAD::BSP_KEY_5_LONG_PRESS ))&& bRefresh)
+//           if(((_sKeyEvent ==  KEYPAD::BSP_KEY_4_LONG_PRESS )||(_sKeyEvent ==  KEYPAD::BSP_KEY_5_LONG_PRESS ))&& _bRefresh)
 //           {
 //               _MonUI.GroupSwitching(_sKeyEvent);
-//               _MonUI.Update(bRefresh);
+//               _MonUI.Update(_bRefresh);
 //           }
 //           else
            {
-               _DispAlarm.Update(bRefresh);
+               _DispAlarm.Update(_bRefresh);
            }
 
            break;
@@ -522,14 +372,14 @@ bool MAIN_UI::Update()
        case DISP_EVENT_LOG_MODE:
        {
            UTILS_ResetTimer(&_PoweSaveModeTimer);
-           _DispEventLog.Update(bEventLogEntry);
-           bEventLogEntry = false;
+           _DispEventLog.Update(_bEventLogEntry);
+           _bEventLogEntry = false;
            break;
        }
        case DISP_PASSWORD_EDIT_MODE:
        {
            UTILS_ResetTimer(&_PoweSaveModeTimer);
-          _PasswordEntry.Update(bRefresh);
+          _PasswordEntry.Update(_bRefresh);
           if( _PasswordEntry.CheckPasswordStatus())
           {
               MON_UI::eDisplayMode = DISP_CONFIG_MODE;
@@ -582,11 +432,9 @@ MODE_TYPE_t MAIN_UI::GetDispMode(void)
 {
     return MON_UI::eDisplayMode;
 }
+
 void MAIN_UI::prvLEDHandling()
 {
-    #define TURN_ON      BSP_IO_LEVEL_LOW
-    #define TURN_OFF     BSP_IO_LEVEL_HIGH
-
     static bsp_io_level_t eState = BSP_IO_LEVEL_LOW;
 
     if(UTILS_GetElapsedTimeInMs(&_LEDBlinkTimer) >= LED_BLINK_TIMER)
@@ -775,3 +623,243 @@ void MAIN_UI::UpdateLEDStatus(bsp_io_level_t stLED1, bsp_io_level_t stLED2,
     _hal.ledManager.led4.ChangeLEDState(stLED3);
 }
 
+void MAIN_UI::prvUpadteBaseModeConfigDependency()
+{
+    _ManualMode.InitNightModeParam();
+    _ManualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
+    _ManualMode.ChangeAutoState(BASE_MODES::STATE_AMF_GEN_OFF_MAINS_ON);
+    _ManualMode.SetMainsStatusHealthy();  /* Todo: need to discuss the need of this */
+
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)
+    {
+      _ManualMode.OpenMainsLoad();
+    }
+}
+
+bool MAIN_UI::prvIsSleepEnabled()
+{
+/*Shubham Wader 17.09.2022
+ This function returns true if the program need to execute sleep
+ action. Function returns false means, critical execution is happening
+ dont take sleep at all. This means need to kick sleep timer, so that
+ it should not cross the set delay. */
+
+// todo : the conditions found in GC2111 to kick sleep timer. guarded below need to check and use if required
+#if 0
+    if(((!IS_GCU_MANUAL_MODE() && !IS_GCU_AUTO_MODE()) || _EngMon.IsEngineOn()) &&
+        ((IS_GCU_AUTO_MODE()) || ((_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_ERR) &&
+            (_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_OK))))
+#endif
+    if(   IS_DISP_EVENT_LOG_MODE() ||IS_DISP_CONFIG_MODE() ||IS_DISP_PASSWORD_ENTRY_MODE() || (!IS_GCU_MANUAL_MODE())
+       || ((_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_ERR)
+           && (_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_OK))
+       || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
+           && (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR) != ACT_Manager:: ACT_NOT_CONFIGURED))
+       || (IS_GCU_AUTO_MODE()
+           && (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_REMOTE_START_STOP) != DigitalSensor::SENSOR_NOT_CONFIGRUED))
+       || _cfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_COMM_MODE)
+      )
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+void MAIN_UI::prvHandleKeyPressEvent(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
+{
+
+/* Immidiate actions on keypress */
+    switch(_sKeyEvent)
+    {
+       case KEYPAD::STOP_KEY_LONG_PRESS: /* enter/exit config mode */
+       {
+           if(IS_DISP_MON_MODE() || IS_DISP_ALARM_MODE())
+           {
+               if(  IS_GCU_MANUAL_MODE()
+                   && (!_ManualMode.IsGenRunTimersInProcess())
+                   && (!_EngMon.IsEngineCranked())
+                   && (!_EngMon.IsEngineOn()))
+               {
+                   MON_UI::eDisplayMode = DISP_PASSWORD_EDIT_MODE;
+                   _bRefresh = true;
+               }
+               else
+               {
+                  /* do nothing */
+               }
+           }
+           else if( IS_DISP_CONFIG_MODE() ||IS_DISP_EVENT_LOG_MODE())
+           {
+               prvExitFromConfigMode();
+           }
+           else if(IS_DISP_PASSWORD_ENTRY_MODE())
+           {
+               MON_UI::eDisplayMode = DISP_MON_MODE;
+               _MonUI.GoToHomeScreen();
+               _MonUI.Update(_bRefresh);
+               _PasswordEntry.SetPasswordEntryState(PASSWORD_ENTRY_UI::ENTRY);
+           }
+           else
+           {
+              /* do nothing */
+           }
+       }
+       break;
+
+       case UP_DN_KEY_LONG_PRESS: /* enter/exit event log mode */
+       {
+           if(IS_DISP_CONFIG_MODE())
+           {
+               MON_UI::eDisplayMode = DISP_EVENT_LOG_MODE;
+               _bEventLogEntry = true;
+           }
+           else if(IS_DISP_EVENT_LOG_MODE())
+           {
+               MON_UI::eDisplayMode = DISP_CONFIG_MODE;
+               _bEventLogEntry = false;
+               _objUI.Handler(CKeyCodes::NONE);
+           }
+           else
+           {
+              /* do nothing */
+           }
+       }
+       break;
+       case STOP_KEY_SHORT_PRESS:  /* Escape key Press, engine stop(manual mode) */
+       {
+           if(IS_DISP_PASSWORD_ENTRY_MODE())
+           {
+               if(_PasswordEntry.GetPasswordEnteryState() == PASSWORD_ENTRY_UI::ENTRY)
+               {    /* config read mode */
+                    MON_UI::eDisplayMode = DISP_CONFIG_MODE;
+                   _objUI.Handler(CKeyCodes::NONE);
+               }
+               else
+               {
+                  /* do nothing */
+               }
+           }
+
+           if(IS_DISP_ALARM_MODE())
+           {   /* Move to home screen */
+               MON_UI::eDisplayMode = DISP_MON_MODE;
+               _MonUI.GoToHomeScreen();
+               _MonUI.Update(_bRefresh);
+           }
+           else
+           {
+               /* Do nothing */
+           }
+       }
+       break;
+
+       case START_KEY_SHORT_PRESS:
+       case AUTO_KEY_LONG_PRESS:
+       case AUTO_KEY_SHORT_PRESS:
+       case DN_STOP_KEY_LONG_PRESS:
+       {
+           if(IS_DISP_ALARM_MODE())
+           {
+               MON_UI::eDisplayMode = DISP_MON_MODE;
+               _MonUI.GoToHomeScreen();
+               _MonUI.Update(_bRefresh);
+           }
+           else
+           {
+               /* do nothing */
+           }
+       }
+       break;
+
+       case GEN_CONT_KEY_PRESS:
+       {
+           if(IS_GCU_MANUAL_MODE() || IS_GCU_TEST_MODE())
+           {
+                if(_ManualMode.IsGenContactorConfigured())
+                {
+                    if((!_ManualMode.IsGenContactorClosed()) && (_EngMon.IsGenAvailable()))
+                    {
+                        _ManualMode.SwitchLoadToGen();
+                    }
+                    else
+                    {
+                        _ManualMode.OpenGenLoad();
+                    }
+                }
+                else
+                {
+                    /* do nothing */
+                }
+           }
+           else
+           {
+               /* do nothing */
+           }
+       }
+       break;
+
+       case MAINS_CONT_KEY_PRESS:
+       {
+           if(IS_GCU_MANUAL_MODE() || IS_GCU_TEST_MODE())
+           {
+               if((_ManualMode.IsMainsContactorConfigured()))
+               {
+                   if((!_ManualMode.IsMainsContactorClosed()) && (_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY))
+                   {
+                       _ManualMode.SwitchLoadToMains();
+                   }
+                   else
+                   {
+                       _ManualMode.OpenMainsLoad();
+                   }
+               }
+               else
+               {
+                   /* do nothing */
+               }
+           }
+           else
+           {
+               /* do nothing */
+           }
+       }
+       break;
+
+       default:
+           break;
+    }
+
+/* Pass keypress status to respective execuctions */
+    switch(MON_UI::eDisplayMode)
+    {
+        case DISP_MON_MODE:
+        {
+            _MonUI.CheckKeyPress(_sKeyEvent);
+            break;
+        }
+        case DISP_ALARM_MODE:
+        {
+            _DispAlarm.CheckKeyPress(_sKeyEvent);
+            break;
+        }
+        case DISP_EVENT_LOG_MODE:
+        {
+            _DispEventLog.CheckKeyPress(_sKeyEvent);
+            break;
+        }
+        case DISP_PASSWORD_EDIT_MODE:
+        {
+           _PasswordEntry.CheckKeyPress(_sKeyEvent);
+            break;
+        }
+        case DISP_CONFIG_MODE:
+        {
+            _objUI.ConfigCheckKeyPress(_sKeyEvent);
+            break;
+        }
+    }
+
+}

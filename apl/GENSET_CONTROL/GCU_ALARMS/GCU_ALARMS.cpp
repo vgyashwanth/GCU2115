@@ -3322,6 +3322,20 @@ void GCU_ALARMS::InitGCUAlarms()
     _bOpAutoFuelTransfer = false;
     UTILS_ResetTimer(&_FuelSettlingTimer);
     UTILS_DisableTimer(&_AFTTimeoutAfterActTimer);
+
+/* Shubham Wader 16.09.2022 '
+   shifting below snippet of code here which was initially in MAIN_UI.  Keeping MAIN UI abstact.*/
+    for(uint8_t u8AlarmIndex = 0; u8AlarmIndex < GCU_ALARMS::ALARM_LIST_LAST; u8AlarmIndex++)
+    {
+      ConfigureGCUAlarms(u8AlarmIndex);
+    }
+    for(uint8_t u8LoggingID = 0; u8LoggingID < GCU_ALARMS::ID_ALL_ALARMS_LAST; u8LoggingID++)
+    {
+      AssignAlarmsForDisplay(u8LoggingID);
+    }
+
+    ClearAllAlarms();
+    ResetMainsMonParams();
 }
 
 void GCU_ALARMS::prvMainsHighLowOutputs()

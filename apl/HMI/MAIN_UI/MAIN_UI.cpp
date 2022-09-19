@@ -237,8 +237,8 @@ bool MAIN_UI::Update()
         /* Do nothing */
     }
 
-/*todo : below functionality not observed in GC2111 nxp, not found any related config parameter.
-         Need to remove remove if required  */
+/*  todo : below functionality not observed in GC2111 nxp, not found any related config parameter.
+         Need to remove if not required  */
 #if 0
     if(UTILS_GetElapsedTimeInSec(&_AutoExitTimer) >= 200 )//_cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_EXIT_TIME))
     {
@@ -342,40 +342,31 @@ bool MAIN_UI::Update()
     {
        case DISP_MON_MODE:
        {
-//           if(((_sKeyEvent ==  KEYPAD::BSP_KEY_4_LONG_PRESS )||(_sKeyEvent ==  KEYPAD::BSP_KEY_5_LONG_PRESS )) && _bRefresh)
-//           {
-//               _MonUI.GroupSwitching(_sKeyEvent);
-//           }
            _MonUI.Update(_bRefresh);
-
-           break;
        }
+        break;
        case DISP_ALARM_MODE:
        {
            if(_GCUAlarms.IsAlarmPresent())
            {
                UTILS_ResetTimer(&_ScreenChangeOverTimer);
            }
-
-//           if(((_sKeyEvent ==  KEYPAD::BSP_KEY_4_LONG_PRESS )||(_sKeyEvent ==  KEYPAD::BSP_KEY_5_LONG_PRESS ))&& _bRefresh)
-//           {
-//               _MonUI.GroupSwitching(_sKeyEvent);
-//               _MonUI.Update(_bRefresh);
-//           }
-//           else
-           {
-               _DispAlarm.Update(_bRefresh);
-           }
-
-           break;
+           else
+          {
+            /* do nothing */
+          }
+            _DispAlarm.Update(_bRefresh);
        }
+        break;
+
        case DISP_EVENT_LOG_MODE:
        {
            UTILS_ResetTimer(&_PoweSaveModeTimer);
            _DispEventLog.Update(_bEventLogEntry);
            _bEventLogEntry = false;
-           break;
        }
+        break;
+
        case DISP_PASSWORD_EDIT_MODE:
        {
            UTILS_ResetTimer(&_PoweSaveModeTimer);
@@ -385,28 +376,32 @@ bool MAIN_UI::Update()
               MON_UI::eDisplayMode = DISP_CONFIG_MODE;
               _objUI.Handler(CKeyCodes::NONE);
           }
-           break;
+          else
+          {
+            /* do nothing */
+          }
        }
-       /* <LDRA Phase code 62S> <Switch case not terminated with break.:Resolved>
-        * <Verified by: Nikhil Mhaske> <11/9/2021> */
+        break;
        case DISP_CONFIG_MODE:
        {
            UTILS_ResetTimer(&_PoweSaveModeTimer);
            _objUI.ConfigUIUpdate();
-          //Checking long press events
-          if((_sKeyEvent ==  DN_LONG_PRESS )
-          ||(_sKeyEvent ==  UP_LONG_PRESS ))
+          if((_sKeyEvent ==  DN_LONG_PRESS ) || (_sKeyEvent ==  UP_LONG_PRESS ))
           {
               _objUI.ConfigCheckKeyPress(_sKeyEvent);
           }
-          break;
+          else
+          {
+            /* do nothing */
+          }
        }
+        break;
     }
-
-    if((UTILS_GetElapsedTimeInSec(&_ScreenChangeOverTimer) >= _u16ScreenChangeTime)&& (_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME)>0))
+/* todo: modify and write a private function to handle screen changeover */
+    if((UTILS_GetElapsedTimeInSec(&_ScreenChangeOverTimer) >= _u16ScreenChangeTime) && (_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME)>0))
     {
         _hal.ObjGlcd.AutoReInitGCLDScreen();
-       UTILS_ResetTimer(&_ScreenChangeOverTimer);
+        UTILS_ResetTimer(&_ScreenChangeOverTimer);
        _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
        if(IS_DISP_MON_MODE())
        {
@@ -416,6 +411,14 @@ bool MAIN_UI::Update()
        {
            _DispAlarm.CheckKeyPress(DN_SHORT_PRESS);
        }
+       else
+       {
+            /* Do nothing */
+        }
+    }
+    else
+    {
+        /* do nothing */
     }
 
     if((!IS_DISP_ALARM_MODE()) && (!IS_DISP_MON_MODE()))
@@ -534,8 +537,9 @@ void MAIN_UI::prvLEDHandling()
            _hal.ledManager.led5.TurnOff();
        }
 
-       if(((_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-               && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
+       if((   (_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY)
+           && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+           && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
        {
            _hal.ledManager.led8.TurnOn();
        }
@@ -544,7 +548,7 @@ void MAIN_UI::prvLEDHandling()
            _hal.ledManager.led8.TurnOff();
        }
 
-       if(_ManualMode.IsGenContactorConfigured()&&_ManualMode.IsGenContactorClosed())
+       if(_ManualMode.IsGenContactorConfigured() && _ManualMode.IsGenContactorClosed())
        {
            _hal.ledManager.led6.TurnOn();
        }
@@ -553,7 +557,8 @@ void MAIN_UI::prvLEDHandling()
            _hal.ledManager.led6.TurnOff();
        }
 
-       if((_ManualMode.IsMainsContactorConfigured())&& (_ManualMode.IsMainsContactorClosed()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+       if((_ManualMode.IsMainsContactorConfigured()) && (_ManualMode.IsMainsContactorClosed())
+           && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
        {
            _hal.ledManager.led7.TurnOn();
        }
@@ -564,16 +569,6 @@ void MAIN_UI::prvLEDHandling()
 
     }
     _hal.ledManager.led1.ChangeLEDState((bsp_io_level_t)(!_hal.ObjKeypad.IsKey1PressedRaw()));
-//    if(KEYPAD::BSP_KEY_1_PRESS_STARTED)
-//    {
-//        _hal.ledManager.led1.ChangeLEDState(IsKey1PressedRaw);
-//    }
-//    if( KEYPAD::BSP_KEY_1_RELEASED)
-//    {
-//        _hal.ledManager.led1.TurnOff();
-//    }
-
-
 }
 
 

@@ -104,7 +104,11 @@ private:
     UI                  _objUI;
     ENGINE_START_VALIDITY &_EngineStartValidity;
     bool                 _bPanelLockOnce;
+
+    bool                 _bRefresh;
+    bool                 _bEventLogEntry;
     bool                 _bExternalPanelLockOnce;
+
     /**
      * Screen refresh timer.
      */
@@ -176,6 +180,9 @@ private:
     void UpdateLEDStatus(bsp_io_level_t stLED1, bsp_io_level_t stLED2,
             bsp_io_level_t stLED3);
 
+    bool prvIsSleepEnabled();
+    void prvUpadteBaseModeConfigDependency();
+    void prvHandleKeyPressEvent(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent);
 
 };
 

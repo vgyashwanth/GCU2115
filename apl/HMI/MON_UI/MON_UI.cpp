@@ -20,7 +20,7 @@ uint8_t MON_UI::_stScreenNo           = MON_UI::DISP_MON_HOME;
 MODE_TYPE_t MON_UI::eDisplayMode      = DISP_MON_MODE;
 MON_UI::MON_SCREEN_st MON_UI::eMonScreenType = MON_SCREEN_NORMAL;
 
-MON_UI::MON_UI(HAL_Manager &hal, MANUAL_MODE &manualMode,AUTO_EXERCISE_MODE &autoExercise,
+MON_UI::MON_UI(HAL_Manager &hal, MANUAL_MODE &manualMode,
         ENGINE_MONITORING &_engineMonitoring, CFGZ &cfgz, START_STOP &startStop,
         GCU_ALARMS &GCUAlarms, Display &Disp, CFGC &CFGC, J1939APP &j1939 , BTS_MODE &BTSMode, CYCLIC_MODE &cyclicMode):
 _hal(hal),
@@ -31,7 +31,6 @@ _startStop(startStop),
 _GCUAlarms(GCUAlarms),
 _Disp(Disp),
 _cfgc(CFGC),
-_autoExercise(autoExercise),
 _j1939(j1939),
 _BTSMode(BTSMode),
 _cyclicMode(cyclicMode),
@@ -197,28 +196,29 @@ void MON_UI::Update(bool bRefresh)
                 eMonScreenType = MON_SCREEN_NORMAL;
             }
 
-            if( _eOpMode ==  BASE_MODES::AUTO_MODE)
-            {
-                if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::AUTO_EXERCISE_MODE )
-                {
-                    _eOpMode =  BASE_MODES::AUTO_EXERCISE_MODE;
-                }
-                else if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::MANUAL_MODE )
-                {
-                    _eOpMode =  BASE_MODES::MANUAL_MODE;
-                }
-            }
-            else  if(_eOpMode ==  BASE_MODES::AUTO_EXERCISE_MODE)
-            {
-                if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::AUTO_MODE )
-                {
-                    _eOpMode =  BASE_MODES::AUTO_MODE;
-                }
-                else if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::MANUAL_MODE )
-                {
-                    _eOpMode =  BASE_MODES::MANUAL_MODE;
-                }
-            }
+            //TODO: Decide if we need this
+//            if( _eOpMode ==  BASE_MODES::AUTO_MODE)
+//            {
+//                if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::AUTO_EXERCISE_MODE )
+//                {
+//                    _eOpMode =  BASE_MODES::AUTO_EXERCISE_MODE;
+//                }
+//                else if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::MANUAL_MODE )
+//                {
+//                    _eOpMode =  BASE_MODES::MANUAL_MODE;
+//                }
+//            }
+//            else  if(_eOpMode ==  BASE_MODES::AUTO_EXERCISE_MODE)
+//            {
+//                if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::AUTO_MODE )
+//                {
+//                    _eOpMode =  BASE_MODES::AUTO_MODE;
+//                }
+//                else if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::MANUAL_MODE )
+//                {
+//                    _eOpMode =  BASE_MODES::MANUAL_MODE;
+//                }
+//            }
         }
         break;
 
@@ -1850,7 +1850,7 @@ void MON_UI::prvNormalMonScreens()
 
                  _Disp.gotoxy(GLCD_X(3),GLCD_Y(51));
 
-                 if(_autoExercise.IsNightModeRestrictOn())
+                 if(_manualMode.IsNightModeRestrictOn())
                  {
                      _Disp.printStringLeftAligned((char *)StrNightModeRestrict[_u8LanguageIndex],FONT_ARIAL);
                  }
@@ -1868,22 +1868,6 @@ void MON_UI::prvNormalMonScreens()
                  }
                  else if(_eOpMode == BASE_MODES::AUTO_EXERCISE_MODE)
                  {
-                     if(_autoExercise.GetRunningExeType() ==1)
-                     {
-                         _Disp.printStringLeftAligned((char *)StrAutoExercise1[_u8LanguageIndex],FONT_ARIAL);
-                     }
-                     else if(_autoExercise.GetRunningExeType() ==2)
-                     {
-                         _Disp.printStringLeftAligned((char *)StrAutoExercise2[_u8LanguageIndex],FONT_ARIAL);
-                     }
-
-                     if(_autoExercise.IsExerciserStarted())
-                     {
-                         sprintf(arrTemp,"%02d:%02d", (uint8_t)(_autoExercise.GetExerciserTime()/60),
-                                 (uint8_t)(_autoExercise.GetExerciserTime()%60));
-                         _Disp.gotoxy(GLCD_X(126),GLCD_Y(51));
-                         _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                     }
                  }
                  else
                  {
@@ -2886,10 +2870,6 @@ void MON_UI::prvStopKeyPressAction()
 
     _startStop.StopKeyPressed();
 
-    if(_eOpMode == BASE_MODES::MANUAL_MODE)
-    {
-        BASE_MODES:: SetStopPressState(true);
-    }
     if(eDisplayMode == DISP_MON_MODE)
     {
         _bMBModeChnageCMDRcvd = false;
@@ -2924,7 +2904,7 @@ void MON_UI::prvStopKeyPressAction()
             {
                 _manualMode.SwitchToManualMode();
             }
-            _autoExercise.StopAutoExe();
+
         }
         else if(_eOpMode == BASE_MODES::BTS_MODE)
         {
@@ -2949,9 +2929,6 @@ void MON_UI::prvStopKeyPressAction()
             {
                // _startStop.StopCommand();
             }
-            // After coming out of Auto Mode MainsPartialHealthy should be always false & MainsPartialLEDStatus should be true.
-            _manualMode.ClearMainsPartialHealthyStatus();
-            _manualMode.SetMainsPartialLEDstatus();
         }
         else if(_eOpMode == BASE_MODES::CYCLIC_MODE)
         {
@@ -2996,11 +2973,6 @@ void MON_UI::prvStartKeyPressAction()
     _bMBModeChnageCMDRcvd = false;
     _startStop.ClearSimStartPulse();
     _startStop.ClearSimAutoPulse();
-
-    if(_eOpMode == BASE_MODES::MANUAL_MODE)
-    {
-        BASE_MODES::SetStartPressState(true);
-    }
 
     if(((_eOpMode == BASE_MODES::MANUAL_MODE)
           ||(_eOpMode == BASE_MODES::TEST_MODE))
@@ -3087,7 +3059,7 @@ void MON_UI::prvAutoKeyPressAction()
                _manualMode.OpenGenLoad();
                _manualMode.OpenMainsLoad();
             }
-            _autoExercise.StopAutoExe();
+//            _autoExercise.StopAutoExe();
             _eOpMode = BASE_MODES::MANUAL_MODE;
             _manualMode.DisableReturnToMains();
         }
@@ -3095,7 +3067,7 @@ void MON_UI::prvAutoKeyPressAction()
         {
             _eOpMode = BASE_MODES::MANUAL_MODE;
             _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
-            _autoExercise.StopAutoExe();
+//            _autoExercise.StopAutoExe();
         }
     }
     else if(_eOpMode == BASE_MODES::BTS_MODE)
@@ -3131,9 +3103,6 @@ void MON_UI::prvAutoKeyPressAction()
              _eOpMode = BASE_MODES::MANUAL_MODE;
              _manualMode.DisableReturnToMains();
         }
-        // After coming out of Auto Mode MainsPartialHealthy should be always false & MainsPartialLEDStatus should be true.
-        _manualMode.ClearMainsPartialHealthyStatus();
-        _manualMode.SetMainsPartialLEDstatus();
     }
     else if(_eOpMode == BASE_MODES::CYCLIC_MODE)
     {
@@ -3433,66 +3402,6 @@ void MON_UI::prvGetMonImageCoordicates( uint8_t *pu8SizeX, uint8_t *pu8SizeY, ui
 
 void MON_UI:: prvPrintExerciser(uint8_t _ScreenNo)
 {
-    AUTO_EXERCISE_MODE::EXERCISE_t stTempExercise;
-    char arrTemp[32];
-    _Disp.gotoxy(GLCD_X(3),GLCD_Y(21));
-    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_FREQ], FONT_VERDANA);
-
-    _Disp.gotoxy(GLCD_X(3),GLCD_Y(31));
-    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_NEXT_RUN], FONT_VERDANA);
-
-    _Disp.gotoxy(GLCD_X(51),GLCD_Y(42));
-    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_AT], FONT_VERDANA);
-    _Disp.gotoxy(GLCD_X(51),GLCD_Y(52));
-    _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_FOR], FONT_VERDANA);
-
-    //todo: remove this whole function once all requirements gets clear
-     _autoExercise.GetExerciserInfo(&stTempExercise, _ScreenNo );
-//    stTempExercise.u8Occurence = 1;
-//     stTempExercise.u16Year = 2021;
-//     stTempExercise.u8Day = 3;
-//     stTempExercise.u8DayOfWeek = 1;
-//     stTempExercise.u8Month = 2;
-//     stTempExercise.u32OnDuration = 4502;
-//     stTempExercise.u32StartTime = 1410;
-     _Disp.gotoxy(GLCD_X(50),GLCD_Y(21));
-     switch(stTempExercise.u8Occurence)
-     {
-         case 0:
-         {
-             _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_DAILY], FONT_VERDANA);
-
-         }
-         break;
-
-         case 1:
-         {
-             _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_WEEKLY], FONT_VERDANA);
-             _Disp.gotoxy(GLCD_X(65),GLCD_Y(31));
-             _Disp.printStringLeftAligned((char*)StrDays[_u8LanguageIndex][stTempExercise.u8DayOfWeek], FONT_VERDANA);
-         }
-         break;
-
-         case 2:
-         {
-             _Disp.printStringLeftAligned((char*)StrAutoExerciser[_u8LanguageIndex][STR_AUTO_EXERCISER_MONTHLY], FONT_VERDANA);
-             _Disp.gotoxy(GLCD_X(65),GLCD_Y(31));
-             sprintf(arrTemp,"%02d %s %d",  stTempExercise.u8Day, (char*)StrMonth[_u8LanguageIndex][stTempExercise.u8Month - 1]
-                                                                             , stTempExercise.u16Year );
-             _Disp.printStringLeftAligned((char*)arrTemp, FONT_VERDANA);
-         }
-         break;
-     }
-     _Disp.gotoxy(GLCD_X(75),GLCD_Y(42));
-     sprintf(arrTemp,"%02d:%02d",  (stTempExercise.u32StartTime /100),(stTempExercise.u32StartTime%100) );
-     _Disp.printStringLeftAligned((char*)arrTemp, FONT_ARIAL);
-     _Disp.gotoxy(GLCD_X(105),GLCD_Y(42));
-     _Disp.printStringLeftAligned((char*)"Hrs", FONT_VERDANA);
-     _Disp.gotoxy(GLCD_X(75),GLCD_Y(52));
-     sprintf(arrTemp,"%02d:%02d",  (stTempExercise.u32OnDuration/100),(stTempExercise.u32OnDuration%100) );
-     _Disp.printStringLeftAligned((char*)arrTemp, FONT_ARIAL );
-     _Disp.gotoxy(GLCD_X(105),GLCD_Y(52));
-     _Disp.printStringLeftAligned((char*)"Hrs", FONT_VERDANA);
 }
 
 #if ENABLE_MON_J1939

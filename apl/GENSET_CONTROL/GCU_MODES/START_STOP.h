@@ -52,6 +52,8 @@ public:
 
      #define IS_PRHEAT_RELAY_CONFIGURED()       ( ACT_Manager::ACT_NOT_CONFIGURED != _hal.actuators.GetActStatus(ACTUATOR::ACT_PREHEAT))
 
+     #define IS_AMB_TEMP_ENABLED()              ( _cfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_AMB_TEMPERATURE) == 1U)
+
 	// Constructor: Initializes this module
 	START_STOP(HAL_Manager &hal, ENGINE_MONITORING &EngineMon, CFGZ &cfgz,  
                     GCU_ALARMS &GCUAlarms, BASE_MODES::GCU_MODE_VARS_t &vars, CHARGING_ALT &ChargeAlt,   ENGINE_START_VALIDITY  &EngineStartValidity);
@@ -162,8 +164,6 @@ public:
 
     void UpdateGcuStatusAndTimerDisplay(BASE_MODES::GCU_STATE_t eGcuState, BASE_MODES::TIMER_STATE_t eTimerDisplay);
 
-    static bool IsJ1939PreheatFaultPresent();
-
     static bool IsStopCommand();
 
     bool CheckPreheatTempCondition();
@@ -221,7 +221,6 @@ private:
     static bool                 _bOPStopSolenoid;
     static bool                 _bOPStartRelay;
     static bool                 _bOPPreheat;
-    static bool                 _bJ1939PrheatFaultPresent;
 
 
     void prvTurnOnOffOutputs();

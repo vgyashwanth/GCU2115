@@ -189,11 +189,6 @@ public:
      */
     TIMER_STATE_t GetTimerState();
 
-    static bool GetStopPressState();
-    static void SetStopPressState(bool state);
-
-    static bool GetStartPressState();
-    static void SetStartPressState(bool state);
     /**
      * API provide the information about the genset is to be started or not.
      * @param  : None
@@ -265,16 +260,13 @@ public:
     void SetTimerState(TIMER_STATE_t state);
     static bool IsGenContactorClosed(void);
     static bool IsMainsContactorClosed(void);
-    static bool IsGenContactorOpen(void);
-    static bool IsMainsContactorOpen(void);
     bool IsGCUStateChanged();
     void ClearGCUStateChangedStatus();
     bool GetPressureSensorStatusBeforeStart();
     bool IsMainsContactorConfigured();
     bool IsGenContactorConfigured();
-    static bool GetPartialHealthyStatus();
-   static bool GetMainsLowStatus();
-   static bool GetMainsHighStatus();
+    static bool GetMainsLowStatus();
+    static bool GetMainsHighStatus();
     bool IsLoadOnMains();
     static void SetModeState(MANUAL_STATE_t eState);
     static void SetModeState(AMF_STATE_t eState);
@@ -284,12 +276,6 @@ public:
     static bool GetIndividualPhaseStatus(PHASE_t ePhase);
 
     uint8_t GetMainsHealthyPhaseCnt(void);
-    void SetMainsPartialLEDstatus(void);
-    void ClearMainsPartialLEDstatus(void);
-    void ClearMainsPartialHealthyStatus(void);
-
-
-
 protected:
     #define SM_UPDATE_TIME      50U
 
@@ -319,8 +305,6 @@ protected:
     static stTimer              _GCUSMUpdateTimer;
     static stTimer              _BaseModeUpdateTimer;
     static stTimer              _MainsMonUpdateTimer;
-    static stTimer               _GenPulseTimer;
-    static stTimer               _MainsPulseTimer;
     static GCU_OPERATING_MODE_t _eOperatingMode;
     static uint16_t             _u16SchOnTimeMin;
     static uint16_t             _u16SchOnTimeHr;
@@ -328,21 +312,9 @@ protected:
     static uint16_t             _u16NightModeStopTime;
     static uint16_t             _u16NightModeDurationHrsMin;
     static uint32_t             _u32SchRemTime_sec;
-    static bool                _bMainsPartialHealthy;
     static bool                _bNightModeRestrict;
-    static bool                _bLoadTransferEn;
-    static bool                _bOpenGenStatus;
-    static bool               _bCloseGenStatus;
 
-    static bool _bCLoseGenFlag;
-
-    static bool               _bOpenMainsStatus;
-    static bool              _bCloseMainsStatus;
-
-    static bool                _bSchGenStart;
-    static bool                _bIsHealthyPhCntIncr;
-    static bool               _bOpenGenReceived;
-    static bool              _bOpenMainsReceived;
+    static bool               _bCLoseGenFlag;
 
     static bool  _bStartPress;
     static bool  _bStopPress;
@@ -374,10 +346,7 @@ private:
     static bool         _bBPhasHealthyStatus;
     static bool         _bMainsHigh ;
     static bool         _bMainsLow  ;
-    /**_bMainsPartialLEDStatus flag is used to display mains status LED if mains
-     * three phase and mains partial healthy detection is enabled.
-     */
-    static bool         _bMainsPartialLEDStatus;
+
     /**
      * This function updates the contactor status depending on the mains and
      * engine status and depending on that it will latch the mains or genset contactor.
@@ -396,14 +365,12 @@ private:
     void prvOperatingModeOutputs();
 
     void prvUpdateNightModeRestrictStatus(void);
-    void prvHandleInhibitInputs(void);
 
     /**
      * This function returns true if Engine is not in Cooling stage in any mode.
      */
     bool prvEngineNotInCoolingStage();
 
-//    void prvUpdateBreakerPulseState();
 };
 
 #endif

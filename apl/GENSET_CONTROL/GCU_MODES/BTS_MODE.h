@@ -51,8 +51,6 @@ private:
     START_STOP          &_StartStop;
     GCU_MODE_VARS_t     &_vars;
 
-
-    uint8_t             _u8PrevMainsHealthyPhCnt;
     bool                _bGenOnDuetoBTS;    /*Need to shift to Start Stop*/
     bool                _bGenOnDueToSheltTemp;
     bool                _bBattChargingOn;
@@ -63,7 +61,6 @@ private:
     uint32_t            _u32ShelterTempTimerCount;
 
     bool prvGenStartCondition();
-    void prvGenStartAction(void);
 };
 
 #endif  /*_BTS_MODE_H_*/

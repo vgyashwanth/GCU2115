@@ -24,7 +24,6 @@
 #include "../UI/CKeyCodes.h"
 #include "../../SLEEP_Handler/SLEEP_Handler.h"
 #include "../GENSET_CONTROL/EGOV/EGOV.h"
-#include "../GENSET_CONTROL/GCU_MODES/AUTO_EXERCISE_MODE.h"
 #include "../ENGINE_START_VALIDITY/ENGINE_START_VALIDITY.h"
 
 #define SCREEN_CHANGE_OVER_PAUSE (2*60U) // 2 Min time.
@@ -44,7 +43,7 @@ public:
             ENGINE_MONITORING  &EngMon, START_STOP &StartStop,
             MANUAL_MODE &ManualMode,
             Display &Disp, CFGC &CFGC, SLEEP_Handler &sleep, EGOV &Egov,
-            AUTO_EXERCISE_MODE &autoExercise, J1939APP &j1939 , BTS_MODE &BTSMode , CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity);
+            J1939APP &j1939 , BTS_MODE &BTSMode , CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity);
 
     static bool _sbKeyEventAvailable;
     /**
@@ -99,7 +98,6 @@ private:
     BTS_MODE             &_BTSMode;
     CYCLIC_MODE          &_CyclicMode;
     MON_UI              _MonUI;
-    AUTO_EXERCISE_MODE   &_autoExercise;
     ALARM_UI            _DispAlarm;
     EVENT_LOG_UI        _DispEventLog;
     PASSWORD_ENTRY_UI   _PasswordEntry;

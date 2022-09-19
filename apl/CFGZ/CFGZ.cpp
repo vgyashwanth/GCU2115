@@ -483,7 +483,7 @@ void CFGZ::prvConfigureASENSE()
 u8MapSize = sizeof(aPIN23MAP)/sizeof(ASENSOR_MAP_ROW_t);
 cfg.stAIConfig[A_SENSE::HAL_PIN_23].eSensor = prGetAnalogSensor(ID_AUX_S4_DIG_P_SENSOR_SELECTION, aPIN23MAP,u8MapSize);
 cfg.stAIConfig[A_SENSE::HAL_PIN_23].eRef    = ANLG_IP::REF_ENGINE_BODY;
-prvCpyInterpolationTable(ID_AUX_S4_DIG_P_TANK_LENGTH_1, cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable);
+prvCpyInterpolationTable(ID_AUX_S4_DIG_P_SENSOR_HIGH_VTG, cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable);
 cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.u8InterPolationPoints = 10;
 
 

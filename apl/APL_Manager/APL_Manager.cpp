@@ -17,12 +17,11 @@ _chrgAlt(*this, _engineMonitoring, _cfgz, _gcuAlarms),
 _startStop(*this, _engineMonitoring, _cfgz,  _gcuAlarms, _vars, _chrgAlt,_EngineStartValidity),
 _ManualMode(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
 _AutoMode(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
-_autoExerciser(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
 _BTSMode(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
 _CyclicMode(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
 _display(this->ObjGlcd),
 _MainUI(*this,_cfgz, _gcuAlarms,_engineMonitoring, _startStop,
-         _ManualMode, _display, _cfgc, _sleep, _Egov,_autoExerciser, _J1939,_BTSMode,_CyclicMode, _EngineStartValidity),
+         _ManualMode, _display, _cfgc, _sleep, _Egov, _J1939,_BTSMode,_CyclicMode, _EngineStartValidity),
 _Egov(*this, _cfgz,_engineMonitoring, _startStop),
 _J1939(*this, _cfgc, _cfgz, _engineMonitoring,_gcuAlarms,_MbApp,_AutoMode, _Egov ),
 _EngineStartValidity(_cfgz, _gcuAlarms),
@@ -81,13 +80,8 @@ void APL_Manager::Update()
             _gcuAlarms.Update(bDeviceInConfigMode);
             _ManualMode.Update(bDeviceInConfigMode);
             _AutoMode.Update(bDeviceInConfigMode);
-            _autoExerciser.Update(bDeviceInConfigMode);
             _BTSMode.Update(bDeviceInConfigMode);
             _CyclicMode.Update(bDeviceInConfigMode);
-
-
-
-            _autoExerciser.Update(bDeviceInConfigMode);
 
             _cfgc.Update();
             if(_cfgc.IsSGC421())

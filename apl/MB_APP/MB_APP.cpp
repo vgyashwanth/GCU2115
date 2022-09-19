@@ -784,16 +784,6 @@ void MB_APP::prvUpdateGCUAlarms()
             _u16TempAlarmVal |= ((uint16_t)1U << 12U);
             _u16TempAlarmVal |= ((uint16_t)1U << 11U);
         }
-        else if(_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_EXERCISE_MODE)
-        {
-            /*
-             * Note : In NXP code only 12 th bit is set when Opertaing mode is Auto Exercise.
-             * However, Automation of SGC1XX is used for testing SGC4XX
-             * where the 13th and 12th bit are set when Operating mode is Auto Exercise.
-             * Hence in Renesas Code similar has been implemented to continue with Automation testing.*/
-            _u16TempAlarmVal |= ((uint16_t)1U << 13U);
-            _u16TempAlarmVal |= ((uint16_t)1U << 12U);
-        }
         else if(_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE)
         {
             _u16TempAlarmVal |= ((uint16_t)1U << 13U);
@@ -815,10 +805,6 @@ void MB_APP::prvUpdateGCUAlarms()
         {
             _u16TempAlarmVal |= ((uint16_t)1U << 12U);
             _u16TempAlarmVal |= ((uint16_t)1U << 11U);
-        }
-        else if(_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_EXERCISE_MODE)
-        {
-            _u16TempAlarmVal |= ((uint16_t)1U << 12U);
         }
         else if(_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE)
         {

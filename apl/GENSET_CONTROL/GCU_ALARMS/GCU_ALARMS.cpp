@@ -46,6 +46,7 @@ _bOpAutoFuelTransfer(false),
 _bCLNTTempCtrl(false),
 _bBTSBattHealthy(false),
 _bHighShelterTemp(false),
+_bLowShelterTemp(false),
 _bUpdateFuelTheftCalc(false),
 _u8UnderFreqAlarm(0),
 _u8OverFreqAlarm(0),
@@ -72,8 +73,6 @@ _u8AlarmIndex(0),
 _u8DummyZero(0),
 _u8DummyOne(1),
 _u8Dummy255(255),
-_u8MonGenContactor(0),
-_u8MonMainsContactor(0),
 _u8CrankMon(0),
 _u8EngineOff(0),
 _u8GenAvailable(0),
@@ -2095,7 +2094,8 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[J1939_RED_LAMP_STATUS].u8Value = gpJ1939->IsRedLampON();
     _ArrAlarmValue[J1939_MIL_LAMP_STATUS].u8Value = gpJ1939->IsMilLampON();
     _ArrAlarmValue[J1939_ASH_LOAD_STATUS].u8Value =(uint8_t) gpJ1939->GetReadData(RX_PGN_AT1S_64891, 1);
-    _ArrAlarmValue[J1939_PREHEAT_FAIL_STATUS].u8Value =(uint8_t)START_STOP::IsJ1939PreheatFaultPresent();
+    //Todo: remove this alarm
+    //_ArrAlarmValue[J1939_PREHEAT_FAIL_STATUS].u8Value =(uint8_t)0;
 
 }
 
@@ -2397,10 +2397,6 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
     _u8MonOn = START_STOP::IsGenMonOn();
     _u8FuelRelayOn = START_STOP::IsFuelRelayOn();
 
-    _u8MonGenContactor =  BASE_MODES::IsGenContactorClosed();
-    _u8MonMainsContactor = BASE_MODES::IsMainsContactorClosed();
-    _u8MonGenContactorOpen = BASE_MODES::IsGenContactorOpen();
-    _u8MonMainsContactorOpen = BASE_MODES::IsMainsContactorOpen();
     for(_u8AlarmIndex = 0; _u8AlarmIndex < ALARM_LIST_LAST; _u8AlarmIndex++)
     {
         if(ArrAlarmMonitoring[_u8AlarmIndex].bEnableMonitoring)
@@ -3204,6 +3200,20 @@ void GCU_ALARMS::InitGCUAlarms()
     _bOpAutoFuelTransfer = false;
     UTILS_ResetTimer(&_FuelSettlingTimer);
     UTILS_DisableTimer(&_AFTTimeoutAfterActTimer);
+
+/* Shubham Wader 16.09.2022 '
+   shifting below snippet of code here which was initially in MAIN_UI.  Keeping MAIN UI abstact.*/
+    for(uint8_t u8AlarmIndex = 0; u8AlarmIndex < GCU_ALARMS::ALARM_LIST_LAST; u8AlarmIndex++)
+    {
+      ConfigureGCUAlarms(u8AlarmIndex);
+    }
+    for(uint8_t u8LoggingID = 0; u8LoggingID < GCU_ALARMS::ID_ALL_ALARMS_LAST; u8LoggingID++)
+    {
+      AssignAlarmsForDisplay(u8LoggingID);
+    }
+
+    ClearAllAlarms();
+    ResetMainsMonParams();
 }
 
 void GCU_ALARMS::prvMainsHighLowOutputs()
@@ -3484,6 +3494,10 @@ bool GCU_ALARMS::IsShelterTempHigh(void)
     return _bHighShelterTemp;
 }
 
+bool GCU_ALARMS::IsShelterTempLow(void)
+{
+    return _bLowShelterTemp;
+}
 bool GCU_ALARMS::IsMainsFeedbackAvailable()
 {
 //    if(IsAlarmMonEnabled(GCU_ALARMS::MAINS_CONTACTOR_LATCHED))
@@ -3507,4 +3521,12 @@ bool GCU_ALARMS::IsGenFeedbackAvailable()
     {
         return true;
     }
+}
+
+void GCU_ALARMS::UpdateFuelTheftCalculation()
+{
+    /*
+     * This function is used to set _bUpdateFuelTheftCalc
+     *  which updates the fuel theft calculations*/
+    _bUpdateFuelTheftCalc = true;
 }

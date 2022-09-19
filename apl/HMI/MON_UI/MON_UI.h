@@ -20,7 +20,6 @@
 #include "../../apl/GENSET_CONTROL/GCU_MODES/MANUAL_MODE.h"
 #include "../../CFGC/CFGC.h"
 #include "../UI/UI.h"
-#include "../../apl/GENSET_CONTROL/GCU_MODES/AUTO_EXERCISE_MODE.h"
 #include "../../apl/GENSET_CONTROL/GCU_MODES/BTS_MODE.h"
 #include "../../apl/GENSET_CONTROL/GCU_MODES/CYCLIC_MODE.h"
 #include "J1939_APP/J1939APP.h"
@@ -136,8 +135,7 @@ public:
      * @param reference of cfgz object
      * @return None
      */
-    MON_UI(HAL_Manager &hal, MANUAL_MODE &manualMode,AUTO_EXERCISE_MODE &autoExercise,
-           ENGINE_MONITORING &_engineMonitoring, CFGZ &cfgz, START_STOP &startStop,
+    MON_UI(HAL_Manager &hal, MANUAL_MODE &manualMode,ENGINE_MONITORING &_engineMonitoring, CFGZ &cfgz, START_STOP &startStop,
            GCU_ALARMS &GCUAlarms, Display &Disp, CFGC &CFGC, J1939APP &j1939, BTS_MODE &BTSMode, CYCLIC_MODE &cyclicMode);
     /**
      * Update routine for UI class
@@ -947,7 +945,6 @@ private:
     GCU_ALARMS          &_GCUAlarms;
     Display             &_Disp;
     CFGC                &_cfgc;
-    AUTO_EXERCISE_MODE  &_autoExercise;
     J1939APP            &_j1939;
     BTS_MODE            &_BTSMode;
     CYCLIC_MODE         &_cyclicMode;

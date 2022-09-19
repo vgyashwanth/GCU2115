@@ -88,11 +88,18 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
         switch(_eCyclicState)
         {
             case STATE_CYCLIC_GEN_OFF_MAINS_ON:
-                if(_MainsStatus == MAINS_UNHELATHY)
+                if(_EngineMon.IsEngineOn() == 1U)
+                {
+                    _eCyclicState = STATE_CYCLIC_GEN_START;
+                    UTILS_DisableTimer(&_ReturnToMainsTimer);
+                }
+                else if(_MainsStatus == MAINS_UNHELATHY)
                 {
                     _bOpenMainsLoad = true;
                     if( (!_GCUAlarms.IsCommonElectricTrip())
-                            && (!_GCUAlarms.IsCommonShutdown()) && (!_bEmergencyStop)
+                            && (!_GCUAlarms.IsCommonShutdown())
+                            && (!_bEmergencyStop)
+                            &&(!_GCUAlarms.IsCommonWarning())
                             && GetPressureSensorStatusBeforeStart() && (!IsNightModeRestrictOn()))
                     {
                         _StartStop.StartCommand();
@@ -103,11 +110,6 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                         _eCyclicState = STATE_CYCLIC_GEN_OFF_MAINS_OFF;
                     }
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
-                }
-                else if(_EngineMon.IsEngineOn() == 1U)
-                {
-                    _eCyclicState = STATE_CYCLIC_ENGINE_STOP;
-                    _StartStop.StopCommand();
                 }
                 else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=  5U)
                 {
@@ -130,7 +132,11 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 if(_GCUAlarms.IsAlarmPresent())
                 {
                     prvSetGCUState();
-                    if(_bCyclicModeGenOnStatus)
+                    if(IsNightModeRestrictOn())
+                    {
+                        _vars.TimerState = NO_TIMER_RUNNING;
+                    }
+                    else if(_bCyclicModeGenOnStatus)
                     {
                         _vars.TimerState = CYCLIC_ON_TIMER;
                     }
@@ -143,7 +149,11 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                             _StartStop.GetStartStopSMDState())
                 {
                     _vars.GCUState = ENGINE_OFF_READY;
-                    if(_bCyclicModeGenOnStatus)
+                    if(IsNightModeRestrictOn())
+                    {
+                        _vars.TimerState = NO_TIMER_RUNNING;
+                    }
+                    else if(_bCyclicModeGenOnStatus)
                     {
                         _vars.TimerState = CYCLIC_ON_TIMER;
                     }
@@ -156,21 +166,14 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                         _vars.TimerState = NO_TIMER_RUNNING;
                     }
                 }
-                else if(START_STOP::ID_STATE_SS_STOP_HOLD ==
-                        _StartStop.GetStartStopSMDState())
-                {
-                    _vars.GCUState = ENGINE_STOPPING;
-                }
                 break;
 
             case STATE_CYCLIC_GEN_OFF_MAINS_OFF:
                 if(_EngineMon.IsEngineOn() == 1U)
                 {
-                    _eCyclicState = STATE_CYCLIC_ENGINE_STOP;
-                    _StartStop.StopCommand();
+                    _eCyclicState = STATE_CYCLIC_GEN_START;
                 }
-                else if((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                        CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                else if(_MainsStatus == MAINS_HELATHY)
                 {
                     _eCyclicState = STATE_CYCLIC_GEN_OFF_MAINS_ON;
                     UTILS_ResetTimer(&_ReturnToMainsTimer);
@@ -189,7 +192,9 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                         &&(!_GCUAlarms.IsCommonElectricTrip())
                         && (!_GCUAlarms.IsCommonShutdown()) && (!_bEmergencyStop)
                         && GetPressureSensorStatusBeforeStart()
-                        && (!IsNightModeRestrictOn()))
+                        && (!IsNightModeRestrictOn())
+                        && (START_STOP::ID_STATE_SS_STOP_HOLD !=
+                                _StartStop.GetStartStopSMDState()))
                 {
                     _StartStop.StartCommand();
                     _eCyclicState = STATE_CYCLIC_GEN_START;
@@ -200,7 +205,11 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 if(_GCUAlarms.IsAlarmPresent())
                 {
                     prvSetGCUState();
-                    if(_bCyclicModeGenOnStatus)
+                    if(IsNightModeRestrictOn())
+                    {
+                        _vars.TimerState = NO_TIMER_RUNNING;
+                    }
+                    else if(_bCyclicModeGenOnStatus)
                     {
                         _vars.TimerState = CYCLIC_ON_TIMER;
                     }
@@ -217,7 +226,11 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                         _StartStop.GetStartStopSMDState())
                 {
                     _vars.GCUState = ENGINE_OFF_READY;
-                    if(_bCyclicModeGenOnStatus)
+                    if(IsNightModeRestrictOn())
+                    {
+                        _vars.TimerState = NO_TIMER_RUNNING;
+                    }
+                    else if(_bCyclicModeGenOnStatus)
                     {
                         _vars.TimerState = CYCLIC_ON_TIMER;
                     }
@@ -229,10 +242,9 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 break;
 
             case STATE_CYCLIC_GEN_START:
-                if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                                        CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-                  || (_GCUAlarms.IsCommonShutdown())
+                if((_GCUAlarms.IsCommonShutdown())
                   || (_GCUAlarms.IsCommonElectricTrip())
+                  || (_GCUAlarms.IsCommonWarning())
                   || (IsNightModeRestrictOn()))
                 {
                     _StartStop.StopCommand();
@@ -240,6 +252,10 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     {
 
                         _vars.GCUState = SHUTDOWN;
+                    }
+                    else if(_GCUAlarms.IsCommonWarning())
+                    {
+                        _vars.GCUState = WARNING;
                     }
                     else if(_GCUAlarms.IsCommonElectricTrip())
                     {
@@ -250,6 +266,12 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                         _vars.GCUState = EMPTY_GCU_STATE;
                     }
                     _eCyclicState = STATE_CYCLIC_ENGINE_STOP;
+                }
+                else if(_MainsStatus == MAINS_HELATHY)
+                {
+                    _StartStop.StopCommand();
+                    UTILS_ResetTimer(&_ReturnToMainsTimer);
+                    _eCyclicState = STATE_CYCLIC_RETURN_DELAY;
                 }
                 else if(_EngineMon.IsWarmUpTimeExpired())
                 {
@@ -264,10 +286,6 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _bCyclicOffTimerExpired  = false;
                     _bCyclicModeGenOffStatus = false;
                     _bCyclicOnTimerExpired   = false;
-                }
-                else if(_GCUAlarms.IsCommonWarning())
-                {
-                    _vars.GCUState = WARNING;
                 }
                 else if(_GCUAlarms.IsCommonNotification())
                 {
@@ -304,8 +322,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 }
                 else if((_GCUAlarms.IsCommonElectricTrip())
                         ||(_bCyclicOnTimerExpired && _bCyclicModeGenOnStatus)
-                        || ((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                                        CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)))
+                        || (_MainsStatus == MAINS_HELATHY))
                 {
                     if(_bCyclicOnTimerExpired && _bCyclicModeGenOnStatus)
                     {
@@ -319,8 +336,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                         UTILS_ResetTimer(&_EngCoolDownTimer);
                         _eCyclicState = STATE_CYCLIC_ENGINE_COOLING;
                     }
-                    else if((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                            CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                    else if(_MainsStatus == MAINS_HELATHY)
                     {
                         _bStartOffTimer = false;
                         _eCyclicState = STATE_CYCLIC_RETURN_DELAY;
@@ -356,12 +372,13 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _vars.TimerState = CYCLIC_ON_TIMER;
                 }
 
-                if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-                        || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
-                        && (!_bCloseGenContactor) && (!_bContactorTransferOn))
-                {
-                    SwitchLoadToGen();
-                }
+                //Todo : Decide whether to include the below condition
+//                if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+//                        || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+//                        && (!_bCloseGenContactor) && (!_bContactorTransferOn))
+//                {
+//                    SwitchLoadToGen();
+//                }
                 break;
 
             case STATE_CYCLIC_RETURN_DELAY:
@@ -369,8 +386,9 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 {
                     _vars.GCUState = SHUTDOWN;
                     _StartStop.StopCommand();
-
                     _eCyclicState = STATE_CYCLIC_ENGINE_STOP;
+                    //Todo: In NXP code open gen load command is absent
+                    // It should have been there why is it not there
                     _bOpenGenLoad = true;
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                 }
@@ -387,7 +405,11 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 {
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
 
-                    if(_bCyclicModeGenOnStatus)
+                    if(IsNightModeRestrictOn())
+                    {
+                        _vars.TimerState = NO_TIMER_RUNNING;
+                    }
+                    else if(_bCyclicModeGenOnStatus)
                     {
                         _eCyclicState    = STATE_CYCLIC_GEN_ON_LOAD;
                         _vars.GCUState   = ENGINE_ON_HEALTHY;
@@ -403,7 +425,6 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=5U)
                 {
                     SwitchLoadToMains();
-                    OpenGenLoad(); /// Open GEN load as mains inhibit input might be active
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
 
                     if(_bCyclicModeGenOnStatus)
@@ -474,10 +495,11 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 }
                 else if((_MainsStatus == MAINS_UNHELATHY) && (!_GCUAlarms.IsCommonElectricTrip()))
                 {
-                    if(!_bCyclicModeGenOnStatus)
-                    {
-                        _bCyclicModeGenOnStatus = true;
-                    }
+                    // Todo: Decide whether the below condition is required.
+//                    if(!_bCyclicModeGenOnStatus)
+//                    {
+//                        _bCyclicModeGenOnStatus = true;
+//                    }
 
                     _bStartOffTimer = false;
                     SwitchLoadToGen();
@@ -497,14 +519,12 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = ENGINE_STOPPING;
                 }
 
-                if((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-                                               ||((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+                if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
                                                && (!_bCloseMainsContactor) && (!_bContactorTransferOn))
                 {
                      SwitchLoadToMains();
                 }
-                else if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-                        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+                else if(((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
                         && (_bCloseMainsContactor) && (!_bContactorTransferOn))
 
                 {
@@ -528,10 +548,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     }
                     else
                     {
-                        if((_GCUAlarms.IsCommonShutdown())||(_GCUAlarms.IsCommonElectricTrip()))
-                        {
-                            _bCyclicOffTimerExpired = true;
-                        }
+                        _bCyclicOffTimerExpired = false;
                         _bCyclicModeGenOffStatus = false;
                         _bCyclicOnTimerExpired = false;
                         _bCyclicModeGenOnStatus = false;
@@ -547,7 +564,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 else
                 {
                     // In case of fail to stop condition if mains is healthy mains contactor will get latched
-                    if((_MainsStatus == MAINS_HELATHY)
+                    if(((_MainsStatus == MAINS_HELATHY)&& (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
                          && (!_bCloseMainsContactor) && (!_bContactorTransferOn))
                     {
                          SwitchLoadToMains();

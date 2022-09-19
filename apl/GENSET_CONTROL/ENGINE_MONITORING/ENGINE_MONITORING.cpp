@@ -447,23 +447,14 @@ void ENGINE_MONITORING::prvUpdateEngineOn()
 
 void ENGINE_MONITORING::prvUpdateEngineCranked()
 {
-    static uint16_t u16CAMonCount = 0;
     bool bLOPCranked = false, bLLOPCranked = false, bChargAltCranked = false;
     A_SENSE::SENSOR_RET_t _stLOP = _GCUAlarms.GetLOPSensorVal();
-    if(START_STOP::IsChargAltStopLtached())
-    {
-        u16CAMonCount++;
-    }
-    else
-    {
-        u16CAMonCount = 0;
-    }
 
     /* prvUpdateEngineCranked() function is called every 50ms hence the _u8ChargAltMonCount
      * corresponds to 2 seconds will be 2000ms/50ms = 40*/
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_CHG_ALT_VOLT) == CFGZ::CFGZ_ENABLE)
         && (_hal.AnalogSensors.GetFilteredChargingAltVolts() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_CHG_ALT_THRESHOLD))
-        && (u16CAMonCount >= TMR_COUNT_FOR_TWO_SECS))
+        && (START_STOP::IsMonitorChargAltTrue()))
     {
         bChargAltCranked = true;
     }
@@ -839,23 +830,7 @@ void ENGINE_MONITORING::ReadEnergySetEnergyOffset(bool bFromEeprom)
 
 float ENGINE_MONITORING::GetFilteredEngSpeed()
 {
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP))
-    {
-        if(!gpJ1939->IsCommunicationFail())
-        {
-             return (float)(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 3));
-        }
-        else
-        {
-            return 0;
-        }
-    }
-    else if((_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP)
-        ||(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_W_POINT_FREQ))
-    {
-        return _hal.AnalogSensors.GetFilteredPulseInpuRPM();
-    }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
+     if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
     {
         return _hal.AnalogSensors.GetFiltRPMThruCompartor();
     }
@@ -867,21 +842,9 @@ float ENGINE_MONITORING::GetFilteredEngSpeed()
 
 float ENGINE_MONITORING::GetRawEngSpeed()
 {
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP))
-    {
-        if(!gpJ1939->IsCommunicationFail())
-        {
-            return (float)gpJ1939->GetReadData(RX_PGN_EEC1_61444, J1939APP::ENGINE_SPEED_SPN_190);
-        }
-        return 0;
-    }
-    else
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_MAGNETIC_PICKUP)
-            ||(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_W_POINT_FREQ))
-    {
-       return _hal.AnalogSensors.GetPulseInpuRPM();
-    }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
+
+
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
     {
        return _hal.AnalogSensors.GetRPMThruCompartor();
     }

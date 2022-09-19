@@ -427,6 +427,7 @@ void CFGZ::prvConfigureASENSE()
     u8MapSize = sizeof(aPIN13MAP)/sizeof(ASENSOR_MAP_ROW_t);
     cfg.stAIConfig[A_SENSE::HAL_PIN_13].eSensor = prGetAnalogSensor(ID_ENG_TEMP_DIG_L_SENSOR_SELECTION, aPIN13MAP,u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_13].eRef    = ANLG_IP::REF_ENGINE_BODY;
+
     prvCpyInterpolationTable(ID_ENG_TEMP_DIG_L_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_13].stTable);
 
     cfg.stAIConfig[A_SENSE::HAL_PIN_13].stTable.u8InterPolationPoints = 10;
@@ -491,14 +492,14 @@ cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.u8InterPolationPoints = 10;
     _hal.AnalogSensors.ConfigureSensor(cfg);
     //Following calculation is for config value enum to the number.
     _hal.AnalogSensors.ConfigureNumberOfPoles((uint8_t)((_All_Param.u8ArrParam[ID_ALT_CONFIG_NUMBER_OF_POLES] * 2) + 2));
-    if(_All_Param.u8ArrParam[ID_SPEED_MONITOR_SPEED_SENSE_SOURCE] == CFGZ_MAGNETIC_PICKUP)
-    {
-        _hal.AnalogSensors.ConfigPulseInput(_All_Param.u16ArrParam[ID_SPEED_MONITOR_RESERVED],PULSE_IP_SENSOR);
-    }
-    else if(_All_Param.u8ArrParam[ID_SPEED_MONITOR_SPEED_SENSE_SOURCE] == CFGZ_W_POINT_FREQ)
-    {
-        _hal.AnalogSensors.ConfigPulseInput(_All_Param.u16ArrParam[ID_SPEED_MONITOR_RESERVED], A_SENSE::PULSE_IP_TYPE_t(PULSE_IP_SENSOR + 1));
-    }
+//    if(_All_Param.u8ArrParam[ID_SPEED_MONITOR_SPEED_SENSE_SOURCE] == CFGZ_MAGNETIC_PICKUP)
+//    {
+//        _hal.AnalogSensors.ConfigPulseInput(_All_Param.u16ArrParam[ID_SPEED_MONITOR_RESERVED],PULSE_IP_SENSOR);
+//    }
+//    else if(_All_Param.u8ArrParam[ID_SPEED_MONITOR_SPEED_SENSE_SOURCE] == CFGZ_W_POINT_FREQ)
+//    {
+//        _hal.AnalogSensors.ConfigPulseInput(_All_Param.u16ArrParam[ID_SPEED_MONITOR_RESERVED], A_SENSE::PULSE_IP_TYPE_t(PULSE_IP_SENSOR + 1));
+//    }
 }
 
 AnalogSensor::TYPS_t CFGZ::prGetAnalogSensor(uint8_t u8CfgSensorIdx, 

@@ -32,6 +32,10 @@ void SLEEP_Handler::Update()
 //    {
 //        return;
 //    }
+    /* Shubham Wader 19.09.2022
+     * As there are no any Sleep mode related config parameters, It is highly likely that sleep mode functionality is no there
+     * in GC2111.
+     * todo: need to confirm once at the end.*/
     if(_hal.AmIInSleep())
     {
         /*No key press in progress, enter sleep*/

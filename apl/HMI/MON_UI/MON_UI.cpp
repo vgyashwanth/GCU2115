@@ -41,7 +41,7 @@ _ArrScreenEnDs{false,false,false,
     false,false,false,false,false,false,false,
     false,false,false,false,false,false,false,false,false,false,false,
     false,false,false,false,false,false,false,false,false}, /* init with all screen disabled */
-_u8LanguageIndex(_cfgz.GetArrLanguageIndex()),
+_u8LanguageIndex(0),//_cfgz.GetArrLanguageIndex()), /* todo: need to change once functions written correctly */
 _u8ScreenMin(DISP_MON_HOME),  /* suggetion sgc4xx: can pass enum instead of hard coded 0. */
 _u8ScreenMax(DISP_MON_LAST)
 {

@@ -196,13 +196,15 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
           }
           else
           {
-              _alarm.ClearAllAlarms();
-              u8AlarmScreenNum = 0;
-
-              MON_UI::eDisplayMode = DISP_MON_MODE;
-              MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
-              MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
+                /* do nothing */
           }
+          _alarm.ClearAllAlarms();
+          u8AlarmScreenNum = 0;
+
+          MON_UI::eDisplayMode = DISP_MON_MODE;
+          MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
+          MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
+
           break;
       }
 

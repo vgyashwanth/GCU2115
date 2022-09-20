@@ -361,12 +361,14 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
             }
             else
             {
-                _GCUAlarms.ClearAllAlarms();
-                if(eMonScreenType == MON_SCREEN_NORMAL)
-                {
-                    _stScreenNo = DISP_MON_HOME;
-                }
+                /* do nothing */
             }
+            _GCUAlarms.ClearAllAlarms();
+            if(eMonScreenType == MON_SCREEN_NORMAL)
+            {
+                _stScreenNo = DISP_MON_HOME;
+            }
+
         }
         break;
 
@@ -413,7 +415,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 }
 
 /* Shubham Wader 15.09.2022
- Adding below macro to use while development. While release, remove that */
+ todo: Adding below macro to use while development. While release, remove that */
 #define ENABLE_ALL_MON_SCREENS     (1)
 void MON_UI::prvConfigureScreenEnable()
 {
@@ -431,9 +433,12 @@ void MON_UI::prvConfigureScreenEnable()
             case DISP_MON_PRODUCT_ID :
                 _ArrScreenEnDs[u8Screen] = true;
                 break;
+            /* Shubham Wader 20.09.2022
+              As per the communication received from Devendra D.(SYSE), below two screens will be always OFF in the
+              initial build we are giving. This build wont have CAN comm(J1939). todo */
             case DISP_MON_CAN_COMMUNICATION_INFO :
             case DISP_MON_ENG_LINK_INFO :
-                if(true)// todo: add dependency of J1939 comm cfgz parameter
+                if(false)
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
@@ -504,9 +509,12 @@ void MON_UI::prvConfigureScreenEnable()
                     /* do nothing */
                 }
                 break;
+            /* Shubham Wader 20.09.2022
+              As per the communication received from Devendra D.(SYSE), below two can dependent screens will be always OFF in the
+              initial build we are giving. This build wont have CAN comm(J1939). todo */
             case DISP_MON_AIR_INTAKE_TEMP :
             case DISP_MON_BOOST_PRESSURE :
-                if(true)// todo: add dependency of J1939 comm cfgz parameter
+                if(false)
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }

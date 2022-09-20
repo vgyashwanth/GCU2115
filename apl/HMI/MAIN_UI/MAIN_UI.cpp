@@ -153,6 +153,7 @@ bool MAIN_UI::Update()
             CEditableItem::ClearConfigEditStatus();
             UTILS_ResetTimer(&_RefreshTimer);
         }
+        _sleep.KickSleepTimer();
         return true;
     }
     else if(UTILS_GetElapsedTimeInMs(&_RefreshTimer) >= REFRESH_TIME_MS)

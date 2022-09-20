@@ -20,7 +20,6 @@
 
 KEYPAD::KEYPAD_EVENTS_t MAIN_UI::_sKeyEvent = AUTO_KEY_SHORT_PRESS;
 bool MAIN_UI::_sbKeyEventAvailable = false;
-uint16_t MAIN_UI::_u16ScreenChangeTime = SCREEN_CHANGE_OVER_PAUSE;
 
 MAIN_UI::MAIN_UI(HAL_Manager &hal, CFGZ &pcfgz, GCU_ALARMS &GCUAlarms,
         ENGINE_MONITORING  &EngMon, START_STOP &StartStop,MANUAL_MODE &ManualMode,
@@ -45,10 +44,9 @@ _DispAlarm(GCUAlarms, Disp,pcfgz, j1939,hal),
 _DispEventLog(hal, Disp, CFGC, GCUAlarms, pcfgz),
 _PasswordEntry(hal, pcfgz, Disp),
 _objUI(hal,_PasswordEntry,pcfgz,Disp ,EngMon),
-_bPanelLockOnce(false),
 _bRefresh(true),
-_bEventLogEntry(false),
-_bExternalPanelLockOnce(false)
+_u16ScreenChangeTime(SCREEN_CHANGE_OVER_PAUSE),
+_bEventLogEntry(false)
 {
     UTILS_ResetTimer(&_RefreshTimer);
     UTILS_ResetTimer(&_PoweSaveModeTimer);
@@ -57,8 +55,6 @@ _bExternalPanelLockOnce(false)
     UTILS_ResetTimer(&_AutoExitTimer);
     UTILS_ResetTimer(&_BootTimer);
     _hal.ObjKeypad.RegisterKeyEventCB(prvKeypad_callback);
-
-    _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
 
     /* Copy all Auxilary strings */
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_AUX_INPUT_A, strAuxAString);
@@ -88,7 +84,7 @@ _bExternalPanelLockOnce(false)
 
 void MAIN_UI::prvExitFromConfigMode()
 {
-    _objUI.SaveConfigFile();
+    _objUI.SaveConfigFile(); /* consist saving setting screen */
     _GCUAlarms.InitGCUAlarms();
     /* todo: Shift below prv functions to the respective classes once all other files become ready */
     prvUpadteBaseModeConfigDependency(); /* base mode related function call made with manual mode obj referenece*/
@@ -149,21 +145,12 @@ bool MAIN_UI::Update()
         /* Do nothing */
     }
 
-    //If any config value changed then show saving setting screen
-    // till it save the data or till 2sec
-    if(CEditableItem::IsAnyConfigValueEdited() &&
-            (IS_DISP_MON_MODE()|| IS_DISP_ALARM_MODE()))
+    /* 3 sec intentional timeout to save the configs */
+    if(CEditableItem::IsAnyConfigValueEdited() &&  (IS_DISP_MON_MODE()|| IS_DISP_ALARM_MODE()))
     {
         if(( UTILS_GetElapsedTimeInSec(&_RefreshTimer) >= TIME_OUT_SEC) )
         {
-//            if(!_cfgz.IsConfigWritten())
-//            {
-//                _MonUI.PrintErrorScreen();
-//            }
-//            else
-            {
-                CEditableItem::ClearConfigEditStatus();
-            }
+            CEditableItem::ClearConfigEditStatus();
             UTILS_ResetTimer(&_RefreshTimer);
         }
         return true;
@@ -198,7 +185,7 @@ bool MAIN_UI::Update()
     }
     else
     {
-        /* execution should not eneter in any mode while boot timing */
+        /* execution should not enter in any mode while boot timing */
         _sleep.KickSleepTimer();
         UTILS_ResetTimer(&_PoweSaveModeTimer);
         UTILS_ResetTimer(&_ScreenChangeOverTimer);
@@ -212,13 +199,12 @@ bool MAIN_UI::Update()
     }
     else
     {
-        /* do nothing */
+        /* execute sleep  */
     }
 
     /* Turn off back light if power save occures */
     if(   (_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_POWER_SAVE_MODE)== CFGZ::CFGZ_ENABLE)
-       && (UTILS_GetElapsedTimeInSec(&_PoweSaveModeTimer)
-            >= _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_PWR_SAVE_MODE_DELAY)))
+       && (UTILS_GetElapsedTimeInSec(&_PoweSaveModeTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_PWR_SAVE_MODE_DELAY)))
     {
         _hal.ObjGlcd.TurnOffBackLight();
         UTILS_ResetTimer(&_PoweSaveModeTimer);
@@ -333,92 +319,25 @@ bool MAIN_UI::Update()
             {
                 _sKeyEvent = ACK_KEY_PRESS;
             }
+            else
+            {
+                /* do nothing */
+            }
         }
 
         prvHandleKeyPressEvent(_sKeyEvent);
     }
 
-    switch(MON_UI::eDisplayMode)
-    {
-       case DISP_MON_MODE:
-       {
-           _MonUI.Update(_bRefresh);
-       }
-        break;
-       case DISP_ALARM_MODE:
-       {
-           if(_GCUAlarms.IsAlarmPresent())
-           {
-               UTILS_ResetTimer(&_ScreenChangeOverTimer);
-           }
-           else
-          {
-            /* do nothing */
-          }
-            _DispAlarm.Update(_bRefresh);
-       }
-        break;
+    prvHandleDisplayModes();
 
-       case DISP_EVENT_LOG_MODE:
-       {
-           UTILS_ResetTimer(&_PoweSaveModeTimer);
-           _DispEventLog.Update(_bEventLogEntry);
-           _bEventLogEntry = false;
-       }
-        break;
-
-       case DISP_PASSWORD_EDIT_MODE:
-       {
-           UTILS_ResetTimer(&_PoweSaveModeTimer);
-          _PasswordEntry.Update(_bRefresh);
-          if( _PasswordEntry.CheckPasswordStatus())
-          {
-              MON_UI::eDisplayMode = DISP_CONFIG_MODE;
-              _objUI.Handler(CKeyCodes::NONE);
-          }
-          else
-          {
-            /* do nothing */
-          }
-       }
-        break;
-       case DISP_CONFIG_MODE:
-       {
-           UTILS_ResetTimer(&_PoweSaveModeTimer);
-           _objUI.ConfigUIUpdate();
-          if((_sKeyEvent ==  DN_LONG_PRESS ) || (_sKeyEvent ==  UP_LONG_PRESS ))
-          {
-              _objUI.ConfigCheckKeyPress(_sKeyEvent);
-          }
-          else
-          {
-            /* do nothing */
-          }
-       }
-        break;
-    }
-/* todo: modify and write a private function to handle screen changeover */
-    if((UTILS_GetElapsedTimeInSec(&_ScreenChangeOverTimer) >= _u16ScreenChangeTime) && (_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME)>0))
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME) > VALUE_ZERO)
     {
-        _hal.ObjGlcd.AutoReInitGCLDScreen();
-        UTILS_ResetTimer(&_ScreenChangeOverTimer);
-       _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
-       if(IS_DISP_MON_MODE())
-       {
-            _MonUI.CheckKeyPress(DN_SHORT_PRESS);
-       }
-       else if(IS_DISP_ALARM_MODE())
-       {
-           _DispAlarm.CheckKeyPress(DN_SHORT_PRESS);
-       }
-       else
-       {
-            /* Do nothing */
-        }
+        prvHandleScreenChangeover();
     }
     else
     {
-        /* do nothing */
+        /*todo: need to discuss, should we disable _ScreenChangeOverTimer here ? */
+        /* skip changeover, if timer config value is set to 0. */
     }
 
     if((!IS_DISP_ALARM_MODE()) && (!IS_DISP_MON_MODE()))
@@ -443,8 +362,7 @@ void MAIN_UI::prvLEDHandling()
     if(UTILS_GetElapsedTimeInMs(&_LEDBlinkTimer) >= LED_BLINK_TIMER)
     {
         UTILS_ResetTimer(&_LEDBlinkTimer);
-        eState = (eState == BSP_IO_LEVEL_LOW)? BSP_IO_LEVEL_HIGH
-                                               :BSP_IO_LEVEL_LOW;
+        eState = (eState == BSP_IO_LEVEL_LOW)? BSP_IO_LEVEL_HIGH :BSP_IO_LEVEL_LOW;
 
         if(_ManualMode.IsOperInProgress() == true)
         {
@@ -588,7 +506,6 @@ void MAIN_UI::prvKeypad_callback(KEYPAD::KEYPAD_EVENTS_t Evt)
         }
     _sKeyEvent = Evt;
     _sbKeyEventAvailable = true;
-    _u16ScreenChangeTime = SCREEN_CHANGE_OVER_PAUSE;
 }
 
 bool MAIN_UI::prvIsEnginNotInONstate()
@@ -858,3 +775,98 @@ void MAIN_UI::prvHandleKeyPressEvent(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
     }
 
 }
+
+void MAIN_UI::prvHandleDisplayModes()
+{
+    /* This private function handles update functions of all display modes */
+    switch(MON_UI::eDisplayMode)
+    {
+       case DISP_MON_MODE:
+       {
+           _MonUI.Update(_bRefresh);
+       }
+        break;
+       case DISP_ALARM_MODE:
+       {
+           if(_GCUAlarms.IsAlarmPresent())
+           {
+               UTILS_ResetTimer(&_ScreenChangeOverTimer);
+           }
+           else
+          {
+            /* do nothing */
+          }
+            _DispAlarm.Update(_bRefresh);
+       }
+        break;
+
+       case DISP_EVENT_LOG_MODE:
+       {
+           UTILS_ResetTimer(&_PoweSaveModeTimer);
+           _DispEventLog.Update(_bEventLogEntry);
+           _bEventLogEntry = false;
+       }
+        break;
+
+       case DISP_PASSWORD_EDIT_MODE:
+       {
+           UTILS_ResetTimer(&_PoweSaveModeTimer);
+          _PasswordEntry.Update(_bRefresh);
+          if( _PasswordEntry.CheckPasswordStatus())
+          {
+              MON_UI::eDisplayMode = DISP_CONFIG_MODE;
+              _objUI.Handler(CKeyCodes::NONE);
+          }
+          else
+          {
+            /* do nothing */
+          }
+       }
+        break;
+       case DISP_CONFIG_MODE:
+       {
+           UTILS_ResetTimer(&_PoweSaveModeTimer);
+           _objUI.ConfigUIUpdate();
+          if((_sKeyEvent ==  DN_LONG_PRESS ) || (_sKeyEvent ==  UP_LONG_PRESS ))
+          {
+              _objUI.ConfigCheckKeyPress(_sKeyEvent);
+          }
+          else
+          {
+            /* do nothing */
+          }
+       }
+        break;
+
+        default:
+        break;
+    }
+}
+
+void MAIN_UI::prvHandleScreenChangeover()
+{
+    /* This function functionally move the monitering/ alarm screen to the "next" screen */
+    if(UTILS_GetElapsedTimeInSec(&_ScreenChangeOverTimer) >= _u16ScreenChangeTime)
+    {
+        _hal.ObjGlcd.AutoReInitGCLDScreen();
+        UTILS_ResetTimer(&_ScreenChangeOverTimer);
+       _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);
+       if(IS_DISP_MON_MODE())
+       {
+            _MonUI.CheckKeyPress(DN_SHORT_PRESS);
+       }
+       else if(IS_DISP_ALARM_MODE())
+       {
+           _DispAlarm.CheckKeyPress(DN_SHORT_PRESS);
+       }
+       else
+       {
+            /* Do nothing */
+        }
+    }
+    else
+    {
+        /* do nothing */
+    }
+}
+

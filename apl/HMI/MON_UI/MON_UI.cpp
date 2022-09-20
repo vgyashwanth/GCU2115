@@ -289,7 +289,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                 }
                 else if(eMonScreenType == MON_SCREEN_J1939)
                 {
-                /* suggestion sgc4xx: if execution is came at first sceen of J1939, on pressing UP, the execution should move to the last screen of normal mon
+                /* suggestion sgc4xx: if execution is came at first screen of J1939, on pressing UP, the execution should move to the last screen of normal mon
                    screen. isnt it ? WHy screen number is made directly shifted to first screen of normal mon sceen ? */
                     MON_UI::_stScreenNo = DISP_MON_HOME;
                     if( _cfgz.GetEngType()==CFGZ::ENG_KUBOTA) /* todo: properly add the engine types */
@@ -1826,73 +1826,76 @@ void MON_UI::prvNormalMonScreens()
     {
         case DISP_MON_HOME:
         {
-            /* todo: have to put language dependency in if*/
+            _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(35), GLCD_Y(128));
+            _Disp.gotoxy(GLCD_X(3),GLCD_Y(21));
+            if(_manualMode.GetGCUState()== MANUAL_MODE::ENGINE_STARTING)
             {
-                _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(35), GLCD_Y(128));
-                _Disp.gotoxy(GLCD_X(3),GLCD_Y(21));
-                if(_manualMode.GetGCUState()== MANUAL_MODE::ENGINE_STARTING)
-                {
-                    sprintf(arrTemp,"%s %d/%d",strGCUStatus[_u8LanguageIndex][_manualMode.GetGCUState()],
-                            _startStop.GetCrankAttemptNumber(), _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_START_ATTEMPTS));
-                }
-                else
-                {
-                    sprintf(arrTemp,"%s", strGCUStatus[_u8LanguageIndex][_manualMode.GetGCUState()]);
-                }
+                sprintf(arrTemp,"%s %d/%d",strGCUStatus[_u8LanguageIndex][_manualMode.GetGCUState()],
+                        _startStop.GetCrankAttemptNumber(), _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_START_ATTEMPTS));
+            }
+            else
+            {
+                sprintf(arrTemp,"%s", strGCUStatus[_u8LanguageIndex][_manualMode.GetGCUState()]);
+            }
 
-                _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-                _Disp.gotoxy(GLCD_X(3),GLCD_Y(38));
+            _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(3),GLCD_Y(38));
 
+            if(_manualMode.GetTimerState() != BASE_MODES::NO_TIMER_RUNNING)
+            {
                 sprintf(arrTemp,"%s",strTimerStatus[_u8LanguageIndex][_manualMode.GetTimerState()]);
                 _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
-                /*todo: x-y coordinates for time */
+                _Disp.gotoxy(GLCD_X(70),GLCD_Y(38));
                 sprintf(arrTemp," %d",(uint16_t)_startStop.GetTimersRemainingTime(_manualMode.GetTimerState()));
                 _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+            }
+            else
+            {
+                /* do nothing */
+            }
 
-                 _Disp.gotoxy(GLCD_X(3),GLCD_Y(51));
+             _Disp.gotoxy(GLCD_X(3),GLCD_Y(51));
 
-                 if(_autoExercise.IsNightModeRestrictOn())
+             if(_autoExercise.IsNightModeRestrictOn())
+             {
+                 _Disp.printStringLeftAligned((char *)StrNightModeRestrict[_u8LanguageIndex],FONT_ARIAL);
+             }
+             else if(_eOpMode == BASE_MODES::AUTO_MODE)
+             {
+
+                 if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING)== CFGZ::CFGZ_ENABLE)
                  {
-                     _Disp.printStringLeftAligned((char *)StrNightModeRestrict[_u8LanguageIndex],FONT_ARIAL);
-                 }
-                 else if(_eOpMode == BASE_MODES::AUTO_MODE)
-                 {
-
-                     if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING)== CFGZ::CFGZ_ENABLE)
-                     {
-                         _Disp.printStringLeftAligned((char *)StrAutoAMF[_u8LanguageIndex],FONT_ARIAL);
-                     }
-                     else
-                     {
-                         _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][ BASE_MODES::AUTO_MODE],FONT_ARIAL);
-                     }
-                 }
-                 else if(_eOpMode == BASE_MODES::AUTO_EXERCISE_MODE)
-                 {
-                     if(_autoExercise.GetRunningExeType() ==1)
-                     {
-                         _Disp.printStringLeftAligned((char *)StrAutoExercise1[_u8LanguageIndex],FONT_ARIAL);
-                     }
-                     else if(_autoExercise.GetRunningExeType() ==2)
-                     {
-                         _Disp.printStringLeftAligned((char *)StrAutoExercise2[_u8LanguageIndex],FONT_ARIAL);
-                     }
-
-                     if(_autoExercise.IsExerciserStarted())
-                     {
-                         sprintf(arrTemp,"%02d:%02d", (uint8_t)(_autoExercise.GetExerciserTime()/60),
-                                 (uint8_t)(_autoExercise.GetExerciserTime()%60));
-                         _Disp.gotoxy(GLCD_X(126),GLCD_Y(51));
-                         _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                     }
+                     _Disp.printStringLeftAligned((char *)StrAutoAMF[_u8LanguageIndex],FONT_ARIAL);
                  }
                  else
                  {
-                     _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][_eOpMode],FONT_ARIAL);/* todo: doubt*/
+                     _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][ BASE_MODES::AUTO_MODE],FONT_ARIAL);
+                 }
+             }
+             else if(_eOpMode == BASE_MODES::AUTO_EXERCISE_MODE)
+             {
+                 if(_autoExercise.GetRunningExeType() ==1)
+                 {
+                     _Disp.printStringLeftAligned((char *)StrAutoExercise1[_u8LanguageIndex],FONT_ARIAL);
+                 }
+                 else if(_autoExercise.GetRunningExeType() ==2)
+                 {
+                     _Disp.printStringLeftAligned((char *)StrAutoExercise2[_u8LanguageIndex],FONT_ARIAL);
                  }
 
-            }
+                 if(_autoExercise.IsExerciserStarted())
+                 {
+                     sprintf(arrTemp,"%02d:%02d", (uint8_t)(_autoExercise.GetExerciserTime()/60),
+                             (uint8_t)(_autoExercise.GetExerciserTime()%60));
+                     _Disp.gotoxy(GLCD_X(126),GLCD_Y(51));
+                     _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                 }
+             }
+             else
+             {
+                 _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][_eOpMode],FONT_ARIAL);/* todo: doubt*/
+             }
         }
         break;
 
@@ -1903,7 +1906,7 @@ void MON_UI::prvNormalMonScreens()
         break;
         case DISP_MON_CAN_COMMUNICATION_INFO:
         {
-            _Disp.gotoxy(GLCD_X(4),GLCD_Y(30));
+            _Disp.gotoxy(GLCD_X(10),GLCD_Y(35));
             _Disp.printStringLeftAligned("STATE : ",FONT_VERDANA);
             if(_j1939.IsCommunicationFail())
             {
@@ -1913,13 +1916,13 @@ void MON_UI::prvNormalMonScreens()
             {
                 sprintf(arrTemp,"%s","Bus Ok");
             }
-            _Disp.gotoxy(GLCD_X(60),GLCD_Y(30));
+            _Disp.gotoxy(GLCD_X(65),GLCD_Y(30));
             _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
         }
         break;
         case DISP_MON_ENG_LINK_INFO:
         {
-            _Disp.gotoxy(GLCD_X(4),GLCD_Y(30));
+            _Disp.gotoxy(GLCD_X(10),GLCD_Y(30));
             _Disp.printStringLeftAligned("ECU Link : ",FONT_VERDANA);
             if(0) /* todo: in nxp code is it always true */
             {
@@ -1929,7 +1932,7 @@ void MON_UI::prvNormalMonScreens()
             {
                 sprintf(arrTemp,"%s","Ok");
             }
-            _Disp.gotoxy(GLCD_X(70),GLCD_Y(30));
+            _Disp.gotoxy(GLCD_X(75),GLCD_Y(30));
             _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
         }
         break;
@@ -2224,14 +2227,14 @@ void MON_UI::prvNormalMonScreens()
         case DISP_MON_CHRG_ALT_BAT_VOLTAGE:
         {
             _Disp.printImage((uint8_t *)u8ArrBattery, 4, 32, 26, 2);
-            _Disp.gotoxy(GLCD_X(40),GLCD_Y(30));
+            _Disp.gotoxy(GLCD_X(40),GLCD_Y(33));
             _Disp.printStringLeftAligned((char *)"CA VOLT",FONT_VERDANA);
 
-            _Disp.gotoxy(GLCD_X(112),GLCD_Y(30));
+            _Disp.gotoxy(GLCD_X(112),GLCD_Y(33));
             sprintf(arrTemp,"%0.1f",
                     _hal.AnalogSensors.GetFilteredChargingAltVolts());
             _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-            _Disp.gotoxy(GLCD_X(116),GLCD_Y(30));
+            _Disp.gotoxy(GLCD_X(116),GLCD_Y(33));
             _Disp.printStringLeftAligned((char*)"V",FONT_VERDANA);
         }
         break;
@@ -2240,7 +2243,7 @@ void MON_UI::prvNormalMonScreens()
         {
             _Disp.printImage((uint8_t *)u8ArrEngineTemp, 4, 32, 26, 7);
             /* todo: add J1939 dependency. Values will only receive on J1939 */
-            _Disp.gotoxy(GLCD_X(40),GLCD_Y(47));
+            _Disp.gotoxy(GLCD_X(40),GLCD_Y(33));
             _Disp.printStringLeftAligned((char *)"Under Development",FONT_VERDANA);
         }
         break;
@@ -2249,7 +2252,7 @@ void MON_UI::prvNormalMonScreens()
         {
             _Disp.printImage((uint8_t *)u8ArrOilPressure, 4, 32, 26, 3);
             /* todo: add J1939 dependency. Values will only receive on J1939 */
-            _Disp.gotoxy(GLCD_X(40),GLCD_Y(47));
+            _Disp.gotoxy(GLCD_X(40),GLCD_Y(33));
             _Disp.printStringLeftAligned((char *)"Under Development",FONT_VERDANA);
         }
         break;

@@ -28,9 +28,10 @@
 #include "../ENGINE_START_VALIDITY/ENGINE_START_VALIDITY.h"
 
 #define SCREEN_CHANGE_OVER_PAUSE (2*60U) // 2 Min time.
-#define REFRESH_TIME_MS     (300U)
-#define BOOT_DELAY          (4U)
-#define TIME_OUT_SEC        (3U)
+#define REFRESH_TIME_MS          (300U)
+#define BOOT_DELAY               (4U)
+#define TIME_OUT_SEC             (3U)
+#define VALUE_ZERO               (0U)
 
 class MAIN_UI
 {
@@ -105,11 +106,14 @@ private:
     PASSWORD_ENTRY_UI   _PasswordEntry;
     UI                  _objUI;
     ENGINE_START_VALIDITY &_EngineStartValidity;
-    bool                 _bPanelLockOnce;
 
     bool                 _bRefresh;
     bool                 _bEventLogEntry;
-    bool                 _bExternalPanelLockOnce;
+    /** To change the screen time during running
+     *  It can be 2 min after key press or configured
+     *  screen change over time.
+     */
+    uint16_t _u16ScreenChangeTime;
 
     /**
      * Screen refresh timer.
@@ -150,14 +154,6 @@ private:
 //     */
 //   volatile  MODE_TYPE_t _DisplayMode;
 
-    /** To change the screen time during running
-     *  It can be 2 min after key press or configured
-     *  screen change over time.
-     */
-    static uint16_t _u16ScreenChangeTime;
-
-
-
     /** Used to handle all LED related functionality
      * @param  none
      * @return none
@@ -185,7 +181,8 @@ private:
     bool prvIsSleepEnabled();
     void prvUpadteBaseModeConfigDependency();
     void prvHandleKeyPressEvent(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent);
-
+    void prvHandleDisplayModes();
+    void prvHandleScreenChangeover();
 };
 
 

@@ -14,7 +14,6 @@
 #include "config.h"
 #include "BASE_MODES.h"
 #include "AUTO_MODE.h"
-#include "AUTO_EXERCISE_MODE.h"
 #include "BTS_MODE.h"
 #include "CYCLIC_MODE.h"
 #include "SLEEP_Handler.h"
@@ -42,7 +41,6 @@ private:
     START_STOP                  _startStop;
     MANUAL_MODE                 _ManualMode;
     AUTO_MODE                   _AutoMode;
-    AUTO_EXERCISE_MODE          _autoExerciser;
     BTS_MODE                    _BTSMode;
     CYCLIC_MODE                 _CyclicMode;
     Display                     _display;

@@ -15,7 +15,6 @@
 
 #include "BTS_MODE.h"
 
-
 BTS_MODE::BTS_MODE(HAL_Manager &hal, ENGINE_MONITORING &EngineMon,
                          CFGZ &cfgz,  GCU_ALARMS &GCUAlarms,
                             START_STOP &StartStop, GCU_MODE_VARS_t &vars):
@@ -26,7 +25,6 @@ _cfgz(cfgz),
 _GCUAlarms(GCUAlarms),
 _StartStop(StartStop),
 _vars(vars),
-_u8PrevMainsHealthyPhCnt(0),
 _bGenOnDuetoBTS(false),
 _bGenOnDueToSheltTemp(false),
 _bBattChargingOn(false),
@@ -87,36 +85,6 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
         /***END: GEN ON timer count in fuel saver mode for high shelter temp ***/
 
 
-        if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) != CFGZ::CFGZ_1_PHASE_SYSTEM))
-        {
-             if(GetMainsHealthyPhaseCnt() > _u8PrevMainsHealthyPhCnt)
-             {
-                 _bIsHealthyPhCntIncr = true;
-             }
-             else if(GetMainsHealthyPhaseCnt() < _u8PrevMainsHealthyPhCnt)
-             {
-                 _bIsHealthyPhCntIncr = false;
-             }
-             _u8PrevMainsHealthyPhCnt = GetMainsHealthyPhaseCnt();
-        }
-
-        if((_bIsHealthyPhCntIncr)
-                ||((_MainsStatus == MAINS_HELATHY)
-                        && ((!_bMainsPartialHealthy)
-                                || (_bMainsPartialHealthy && (!_bGenOnDuetoBTS)&&(!_bGenOnDueToSheltTemp) &&((GetMainsHealthyPhaseCnt()==1)||(GetMainsHealthyPhaseCnt() == 2)))
-                            )
-                   )
-                ||(_GCUAlarms.IsBTSBattHealthy() && (!_bGenOnDuetoBTS)&&(!_GCUAlarms.IsShelterTempHigh()))
-//                        &&_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::SHELTER_TEMP_STOP_GEN)&&_bMainsPartialHealthy)
-           )
-        {
-            SetMainsPartialLEDstatus();
-        }
-        else
-        {
-            ClearMainsPartialLEDstatus();
-        }
-
         /* Ignore Remote start / stop */
         _bRemoteStartRCVD = false;
         _bRemoteStopRCVD  = false;
@@ -132,23 +100,45 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
             case STATE_BTS_GEN_OFF_MAINS_OFF:
                 if(_EngineMon.IsEngineOn() == 1U)
                 {
-                    _StartStop.StopCommand();
-                    _eBTSState = STATE_BTS_ENGINE_STOP;
+//                    _StartStop.StopCommand();
+//                    _eBTSState = STATE_BTS_ENGINE_STOP;
+                    _eBTSState = STATE_BTS_GEN_START;
+                    UTILS_DisableTimer(&_ReturnToMainsTimer);
                 }
                 else if(prvGenStartCondition())
                 {
                      if((!_GCUAlarms.IsCommonElectricTrip())
                             && (!_GCUAlarms.IsCommonShutdown())
-                            && (!_bEmergencyStop)&& GetPressureSensorStatusBeforeStart()&&(!IsNightModeRestrictOn()))
+                            &&(!_GCUAlarms.IsCommonWarning())
+                            && (!_bEmergencyStop)
+                            && (START_STOP::ID_STATE_SS_STOP_HOLD != _StartStop.GetStartStopSMDState()))
                      {
-                         prvGenStartAction();
-                     }
-                     else if(_MainsStatus == MAINS_HELATHY)
-                     {
-                         UTILS_ResetTimer(&_ReturnToMainsTimer);
-                         _eBTSState = STATE_BTS_GEN_OFF_MAINS_ON;
-                     }
+                         if(GetPressureSensorStatusBeforeStart())
+                         {
+                             if(!_GCUAlarms.IsBTSBattHealthy())
+                             {
+                                 _bGenOnDuetoBTS = true;
+                                 _bGenOnDueToSheltTemp = false;
+                             }
+                             else if(_GCUAlarms.IsShelterTempHigh())
+                             {
+                                 _bGenOnDuetoBTS = false;
+                                 _bGenOnDueToSheltTemp = true;
+                             }
+                             else
+                             {
+                                 _bGenOnDuetoBTS = false;
+                                 _bGenOnDueToSheltTemp = false;
+                             }
+                         }
 
+                         if(!IsNightModeRestrictOn())
+                         {
+                             _StartStop.StartCommand();
+                             _eBTSState = STATE_BTS_GEN_START;
+                         }
+                         UTILS_DisableTimer(&_ReturnToMainsTimer);
+                     }
                 }
                 else if(_MainsStatus == MAINS_HELATHY)
                 {
@@ -165,44 +155,49 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = ENGINE_OFF_READY;
                     _vars.TimerState = NO_TIMER_RUNNING;
                 }
-                else if(START_STOP::ID_STATE_SS_STOP_HOLD == _StartStop.GetStartStopSMDState())
-                {
-                    _vars.GCUState = ENGINE_STOPPING;
-                }
                 break;
 
             case STATE_BTS_GEN_OFF_MAINS_ON:
                 if(_EngineMon.IsEngineOn() == 1U)
                 {
-                    _StartStop.StopCommand();
-                    _eBTSState = STATE_BTS_ENGINE_STOP;
-                }
-                else if(prvGenStartCondition())
-                {
-                    if((!_GCUAlarms.IsCommonElectricTrip())&& (!_GCUAlarms.IsCommonShutdown())
-                       && (!_bEmergencyStop)&& GetPressureSensorStatusBeforeStart() && (!IsNightModeRestrictOn()))
-                    {
-                        prvGenStartAction();
-                    }
-                    else if((_bMainsPartialHealthy)||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
-                    {
-                        if(!_bCloseMainsContactor)
-                        {
-                            SwitchLoadToMains();
-                        }
-                    }
-                    else
-                    {
-                        OpenMainsLoad();
-                        _eBTSState = STATE_BTS_GEN_OFF_MAINS_OFF;
-                    }
-
+//                    _StartStop.StopCommand();
+//                    _eBTSState = STATE_BTS_ENGINE_STOP;
+                    _eBTSState = STATE_BTS_GEN_START;
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                 }
                 else if(_MainsStatus == MAINS_UNHELATHY)
                 {
                     OpenMainsLoad();
-                    _eBTSState = STATE_BTS_GEN_OFF_MAINS_OFF;
+                    if(((!_GCUAlarms.IsBTSBattHealthy()) || (_GCUAlarms.IsShelterTempHigh()))
+                        &&(!_GCUAlarms.IsCommonElectricTrip())&& (!_GCUAlarms.IsCommonShutdown()) && (!_GCUAlarms.IsCommonWarning())
+                       && (!_bEmergencyStop) && (!IsNightModeRestrictOn()) && (START_STOP::ID_STATE_SS_STOP_HOLD != _StartStop.GetStartStopSMDState()))
+                    {
+                        if(GetPressureSensorStatusBeforeStart())
+                        {
+                            if(!_GCUAlarms.IsBTSBattHealthy())
+                            {
+                                _bGenOnDuetoBTS = true;
+                                _bGenOnDueToSheltTemp = false;
+                            }
+                            else if(_GCUAlarms.IsShelterTempHigh())
+                            {
+                                _bGenOnDuetoBTS = false;
+                                _bGenOnDueToSheltTemp = true;
+                            }
+                            else
+                            {
+                                _bGenOnDuetoBTS = false;
+                                _bGenOnDueToSheltTemp = false;
+                            }
+
+                            _StartStop.StartCommand();
+                            _eBTSState = STATE_BTS_GEN_START;
+                        }
+                    }
+                    else
+                    {
+                        _eBTSState = STATE_BTS_GEN_OFF_MAINS_OFF;
+                    }
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                 }
                 else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=  5U)
@@ -223,17 +218,21 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                 break;
 
             case STATE_BTS_GEN_START:
-                if((((_MainsStatus == MAINS_HELATHY)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
-                        && (!_bMainsPartialHealthy))|| _bIsHealthyPhCntIncr)
+                if((_MainsStatus == MAINS_HELATHY)
                     || (_GCUAlarms.IsCommonElectricTrip()) || (_GCUAlarms.IsCommonShutdown())
-                    || (_GCUAlarms.IsBTSBattHealthy() && (!_GCUAlarms.IsShelterTempHigh()))
+                    || (_GCUAlarms.IsCommonWarning())
+                    || ((_GCUAlarms.IsBTSBattHealthy() && _bGenOnDuetoBTS)
+                            || (_GCUAlarms.IsShelterTempLow() && _bGenOnDueToSheltTemp))
                     || IsNightModeRestrictOn())
                 {
                     _StartStop.StopCommand();
                     if(_GCUAlarms.IsCommonShutdown())
                     {
-
                         _vars.GCUState = SHUTDOWN;
+                    }
+                    else if(_GCUAlarms.IsCommonWarning())
+                    {
+                        _vars.GCUState = WARNING;
                     }
                     else if (_GCUAlarms.IsCommonElectricTrip())
                     {
@@ -255,17 +254,15 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                         _bBattChargingOn = true;
                         _u32BattChargingCount = 0;
                         _bBattChargTmrExpired= false;
+                        _bShelterTempTmrOn = false;
                     }
                     else if(_bGenOnDueToSheltTemp)
                     {
                         _bShelterTempTmrOn = true;
                         _u32ShelterTempTimerCount = 0;
                         _bShelterTempTmrExpired= false;
+                        _bBattChargingOn = false;
                     }
-                }
-                else if(_GCUAlarms.IsCommonWarning())
-                {
-                    _vars.GCUState = WARNING;
                 }
                 else if(_GCUAlarms.IsCommonNotification())
                 {
@@ -306,18 +303,17 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     }
                 }
                 else if((_GCUAlarms.IsCommonElectricTrip())|| _bBattChargTmrExpired
-                        || _bShelterTempTmrExpired ||(_bGenOnDueToSheltTemp && (!_GCUAlarms.IsShelterTempHigh())))
+                        || (_bShelterTempTmrExpired && _GCUAlarms.IsShelterTempLow()))
                 {
                     if(_bBattChargingOn && _bBattChargTmrExpired)
                     {
                         _bBattChargingOn = false;
-                        _bGenOnDuetoBTS = false;
+//                        _bGenOnDuetoBTS = false;
                     }
-                    else if((_bShelterTempTmrOn && _bShelterTempTmrExpired)
-                            ||(_bGenOnDueToSheltTemp && (!_GCUAlarms.IsShelterTempHigh())))
+                    else if(_bShelterTempTmrOn && _bShelterTempTmrExpired)
                     {
                         _bShelterTempTmrOn = false;
-                        _bGenOnDueToSheltTemp = false;
+//                        _bGenOnDueToSheltTemp = false;
                     }
                     _bBattChargTmrExpired = false;
                     _bShelterTempTmrExpired = false;
@@ -328,11 +324,17 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     _bOpenGenLoad = true;
                     _vars.TimerState = COOL_DOWN_TIMER;
                     UTILS_ResetTimer(&_EngCoolDownTimer);
-                    UTILS_DisableTimer(&_ReturnToMainsTimer);
                     _eBTSState = STATE_BTS_ENGINE_COOLING;
                 }
-                else if(((_MainsStatus == MAINS_HELATHY)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
-                        && (!_bMainsPartialHealthy))|| _bIsHealthyPhCntIncr)
+                else if(_bShelterTempTmrExpired && (!_GCUAlarms.IsShelterTempLow()))
+                {
+                    _bShelterTempTmrOn = true;
+                    _bGenOnDueToSheltTemp = true;
+                    _u32ShelterTempTimerCount = 0;
+                    _bShelterTempTmrExpired= false;
+                    _bBattChargingOn = false;
+                }
+                else if(_MainsStatus == MAINS_HELATHY)
                 {
                     _eBTSState = STATE_BTS_RETURN_DELAY;
                     UTILS_ResetTimer(&_ReturnToMainsTimer);
@@ -351,10 +353,13 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = ENGINE_ON_HEALTHY;
                 }
 
-                if(prvGenStartCondition()&& (!_bCloseGenContactor)&& (!_bContactorTransferOn))
-                {
-                    SwitchLoadToGen();
-                }
+                //Todo : To check if following commented code is required
+                // for GC2111 . There is some comment in SGC4XX NXP code as to why
+                //this part of code has been added.
+//                if(prvGenStartCondition()&& (!_bCloseGenContactor)&& (!_bContactorTransferOn))
+//                {
+//                    SwitchLoadToGen();
+//                }
                 break;
 
             case STATE_BTS_RETURN_DELAY:
@@ -377,7 +382,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     }
                 }
                 else if((_GCUAlarms.IsCommonElectricTrip())|| _bBattChargTmrExpired
-                        || _bShelterTempTmrExpired ||(_bGenOnDueToSheltTemp && (!_GCUAlarms.IsShelterTempHigh())))
+                        || _bShelterTempTmrExpired)
                 {
                     _bBattChargTmrExpired = false;
                     _bShelterTempTmrExpired = false;
@@ -393,16 +398,15 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     if(_bBattChargingOn)
                     {
                         _bBattChargingOn = false;
-                        _bGenOnDuetoBTS = false;
+//                        _bGenOnDuetoBTS = false;
                     }
                     else if(_bShelterTempTmrOn)
                     {
                         _bShelterTempTmrOn = false;
-                        _bGenOnDueToSheltTemp = false;
+//                        _bGenOnDueToSheltTemp = false;
                     }
                 }
-                else if(((_MainsStatus == MAINS_UNHELATHY)|| _bMainsPartialHealthy||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
-                        &&(!_bIsHealthyPhCntIncr) && (!_GCUAlarms.IsBTSBattHealthy()))
+                else if(_MainsStatus == MAINS_UNHELATHY)
                 {
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                     _eBTSState = STATE_BTS_GEN_ON_LOAD;
@@ -412,7 +416,6 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                 else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=5U)
                 {
                     SwitchLoadToMains();
-                    OpenGenLoad(); /// Open GEN load as mains inhibit input might be active
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                     UTILS_ResetTimer(&_EngCoolDownTimer);
                     _eBTSState = STATE_BTS_ENGINE_COOLING;
@@ -445,22 +448,22 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
 
                     if(_bBattChargingOn)
                     {
-                        _bBattChargTmrExpired = false;
+//                        _bBattChargTmrExpired = false;
                         _bBattChargingOn = false;
-                        _bGenOnDuetoBTS = 0;
+//                        _bGenOnDuetoBTS = 0;
                     }
                     if(_bShelterTempTmrOn)
                     {
-                        _bShelterTempTmrExpired = 0;
+//                        _bShelterTempTmrExpired = 0;
                         _bShelterTempTmrOn = false;
-                        _bGenOnDueToSheltTemp = false;
+//                        _bGenOnDueToSheltTemp = false;
                     }
                 }
                 else if(_GCUAlarms.IsCommonElectricTrip())
                 {
                     _vars.GCUState = ELECTRIC_TRIP;
                 }
-                else if((((_MainsStatus == MAINS_UNHELATHY)||_bMainsPartialHealthy) && (!_bIsHealthyPhCntIncr))&&(_bBattChargingOn ||  _bShelterTempTmrOn) )
+                else if((_MainsStatus == MAINS_UNHELATHY)&&(_bBattChargingOn ||  _bShelterTempTmrOn) )
                 {
                     SwitchLoadToGen();
                     _eBTSState = STATE_BTS_GEN_ON_LOAD;
@@ -507,7 +510,6 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                 if(_EngineMon.IsEngineOn() == 0U)
                 {
                     _eBTSState = STATE_BTS_GEN_OFF_MAINS_OFF;
-                    _bIsHealthyPhCntIncr = false;
                     if(_GCUAlarms.IsAlarmPresent())
                     {
                        prvSetGCUState();
@@ -515,8 +517,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                 }
                 else
                 {
-                    if(((((_MainsStatus == MAINS_HELATHY)|| _bMainsPartialHealthy) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-                                                   ||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
+                    if(((_MainsStatus == MAINS_HELATHY)&& (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
                                                    && (!_bCloseMainsContactor) && (!_bContactorTransferOn))
                     {
                          SwitchLoadToMains();
@@ -528,6 +529,16 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
 //                    {
 //                        OpenMainsLoad();
 //                    }
+                }
+
+                if(_bGenOnDuetoBTS)
+                {
+                    _bGenOnDuetoBTS = false;
+                }
+
+                if(_bGenOnDueToSheltTemp)
+                {
+                    _bGenOnDueToSheltTemp = false;
                 }
                 break;
 
@@ -547,40 +558,15 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
 }
 bool BTS_MODE::prvGenStartCondition()
 {
-    /* Start the GEN when BTS is unhealthy or shelter temperature is high even if mains monitoring is disabled.*/
-    if(((((_MainsStatus == MAINS_UNHELATHY)|| _bMainsPartialHealthy)&& (!_bIsHealthyPhCntIncr))
-           || (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)
-        )&&(!_GCUAlarms.IsBTSBattHealthy() || (_GCUAlarms.IsShelterTempHigh())))
+    /* Start the GEN when BTS is unhealthy or shelter temperature is high.*/
+    if((_MainsStatus == MAINS_UNHELATHY)
+        &&((!_GCUAlarms.IsBTSBattHealthy()) || (_GCUAlarms.IsShelterTempHigh())))
     {
         return true;
     }
     return false;
 }
 
-void BTS_MODE::prvGenStartAction()
-{
-    if(!_GCUAlarms.IsBTSBattHealthy())
-     {
-         _bGenOnDuetoBTS = true;
-         _bGenOnDueToSheltTemp = false;
-     }
-     else if(_GCUAlarms.IsShelterTempHigh())
-     {
-         _bGenOnDuetoBTS = false;
-         _bGenOnDueToSheltTemp = true;
-     }
-     else
-     {
-         _bGenOnDuetoBTS = false;
-         _bGenOnDueToSheltTemp = false;
-     }
-
-    _StartStop.StartCommand();
-    OpenMainsLoad();
-    _eBTSState = STATE_BTS_GEN_START;
-    UTILS_DisableTimer(&_ReturnToMainsTimer);
-
-}
 
 uint32_t BTS_MODE::GetBTSModeTime(BASE_MODES::TIMER_STATE_t eTimer)
 {

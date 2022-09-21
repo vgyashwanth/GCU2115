@@ -590,9 +590,13 @@ public:
 
     bool IsBTSBattHealthy();
     bool IsShelterTempHigh();
+    bool IsShelterTempLow();
 
     bool IsMainsFeedbackAvailable();
     bool IsGenFeedbackAvailable();
+
+
+    void UpdateFuelTheftCalculation();
 private:
     #define FUEL_THEFT_WAKEUP_TIMER         (4U)
     typedef enum{
@@ -700,6 +704,8 @@ private:
         J1939_ASH_LOAD_STATUS,
         LOW_LOAD_STATUS,
         REGENERATION_SW_STATUS,
+        MODE_SELECT_STATUS,
+        AMB_TEMP_SELECT_STATUS,
         ALARM_VALUE_LAST
     }ALARM_VALUE_t;
 
@@ -733,6 +739,7 @@ private:
     bool          _bCLNTTempCtrl;
     bool          _bBTSBattHealthy;
     bool          _bHighShelterTemp;
+    bool          _bLowShelterTemp;
     bool          _bUpdateFuelTheftCalc;
     uint8_t       _u8UnderFreqAlarm;
     uint8_t       _u8OverFreqAlarm;
@@ -759,10 +766,6 @@ private:
     uint8_t       _u8DummyZero;
     uint8_t       _u8DummyOne;
     uint8_t       _u8Dummy255;
-    uint8_t       _u8MonGenContactor;
-    uint8_t       _u8MonMainsContactor;
-    uint8_t       _u8MonGenContactorOpen;
-    uint8_t       _u8MonMainsContactorOpen;
     uint8_t       _u8CrankMon;
     uint8_t       _u8EngineOff;
     uint8_t       _u8GenAvailable;

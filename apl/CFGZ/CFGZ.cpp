@@ -849,11 +849,7 @@ void CFGZ::GetEngSrNo(char EngSrNo[])
 
 uint8_t CFGZ::GetArrLanguageIndex()
 {
-    //If Chinese Language is selected the config UI should be displayed in English. Thus _u8LanguageArrayIndex is set to 0(English language) if Chinese Language is selected.
-    if(GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_MODE) == CFGZ::LANGUAGE_CHINSESE )
-    {
-       return 0;
-    }
-    return (uint8_t)(GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_MODE));
+
+    return (uint8_t)(0);
 }
 

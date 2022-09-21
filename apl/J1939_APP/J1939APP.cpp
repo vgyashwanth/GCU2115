@@ -484,8 +484,7 @@ void J1939APP::prvUpdatePGN64915Data(void)
     */
     if((!_gcuAlarm.IsCommonAlarm())
           && (!_engMon.IsEngineOn())
-          && ((_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE)||
-              (_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_EXERCISE_MODE))
+          && ((_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE))
       )
     {
         _f32Pgn64915Data[PGN_64915_AUTO_MODE]= 0;

@@ -24,8 +24,7 @@ bool MAIN_UI::_sbKeyEventAvailable = false;
 MAIN_UI::MAIN_UI(HAL_Manager &hal, CFGZ &pcfgz, GCU_ALARMS &GCUAlarms,
         ENGINE_MONITORING  &EngMon, START_STOP &StartStop,MANUAL_MODE &ManualMode,
         Display &Disp, CFGC &CFGC, SLEEP_Handler &sleep, EGOV &Egov,
-        AUTO_EXERCISE_MODE &autoExercise, J1939APP &j1939 , BTS_MODE &BTSMode ,
-        CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity):
+        J1939APP &j1939 , BTS_MODE &BTSMode , CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity):
 _hal(hal),
 _cfgz(pcfgz),
 _sleep(sleep),
@@ -38,8 +37,7 @@ _j1939(j1939),
 _BTSMode(BTSMode),
 _CyclicMode(CyclicMode),
 _EngineStartValidity(EngineStartValidity),
-_MonUI(hal, ManualMode,autoExercise, EngMon, pcfgz, StartStop, GCUAlarms, Disp, CFGC, j1939 , BTSMode, CyclicMode),
-_autoExercise(autoExercise),
+_MonUI(hal, ManualMode, EngMon, pcfgz, StartStop, GCUAlarms, Disp, CFGC, j1939 , BTSMode, CyclicMode),
 _DispAlarm(GCUAlarms, Disp,pcfgz, j1939,hal),
 _DispEventLog(hal, Disp, CFGC, GCUAlarms, pcfgz),
 _PasswordEntry(hal, pcfgz, Disp),
@@ -88,9 +86,7 @@ void MAIN_UI::prvExitFromConfigMode()
     _GCUAlarms.InitGCUAlarms();
     /* todo: Shift below prv functions to the respective classes once all other files become ready */
     prvUpadteBaseModeConfigDependency(); /* base mode related function call made with manual mode obj referenece*/
-
     _EngineStartValidity.UpdateStartValidyParam();
-    _autoExercise.Init();
     _Egov.InitEgovParameters();
     _StartStop.Init();
 
@@ -388,7 +384,6 @@ void MAIN_UI::prvLEDHandling()
                     break;
                 }
                 case BASE_MODES::AUTO_MODE:
-                case BASE_MODES::AUTO_EXERCISE_MODE:
                 case BASE_MODES::BTS_MODE:
                 case BASE_MODES::CYCLIC_MODE:
                 {

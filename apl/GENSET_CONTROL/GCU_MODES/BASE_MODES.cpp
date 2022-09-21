@@ -13,11 +13,9 @@
  **/
 
 #include "BASE_MODES.h"
-#include "AUTO_EXERCISE_MODE.h"
+#include "START_STOP.h"
 bool BASE_MODES::_bOpenMainsLoad = false;
 bool BASE_MODES::_bOpenGenLoad = false;
-bool BASE_MODES::_bOpenMainsStatus = false;
-bool BASE_MODES::_bCloseMainsStatus = false;
 bool BASE_MODES::_bRemoteStartRCVD = false;
 bool BASE_MODES::_bRemoteStopRCVD = false;
 bool BASE_MODES::_bContactorTransferOn = false;
@@ -33,23 +31,11 @@ bool BASE_MODES::_bMBStartCmdRequested = false;
 bool BASE_MODES::_bMBStopCmdRequested = false;
 bool BASE_MODES::_bMBStartCmdReceived = false;
 bool BASE_MODES::_bMBStopCmdReceived = false;
-bool BASE_MODES::_bOpenGenStatus = false;
-bool BASE_MODES::_bCloseGenStatus = false;
-bool BASE_MODES::_bOpenGenReceived = false;
-bool BASE_MODES::_bOpenMainsReceived = false;
-
-bool BASE_MODES:: _bStartPress = false;
-bool BASE_MODES:: _bStopPress = false;
-
-
-
 stTimer BASE_MODES::_ReturnToMainsTimer = {0};
 stTimer BASE_MODES::_EngCoolDownTimer = {0};
 stTimer BASE_MODES::_GCUSMUpdateTimer = {0};
 stTimer BASE_MODES::_BaseModeUpdateTimer = {0};
 stTimer BASE_MODES::_MainsMonUpdateTimer = {0};
-stTimer BASE_MODES::_GenPulseTimer = {0};
-stTimer BASE_MODES::_MainsPulseTimer = {0};
 BASE_MODES::MANUAL_STATE_t BASE_MODES::_eManualState = STATE_MANUAL_GEN_OFF;
 BASE_MODES::AMF_STATE_t BASE_MODES::_eAutoState = STATE_AMF_GEN_OFF_MAINS_OFF;
 BASE_MODES::MAINS_STATUS_t BASE_MODES::_MainsStatus = BASE_MODES::MAINS_HELATHY;
@@ -74,28 +60,16 @@ BASE_MODES::GCU_STATE_t BASE_MODES::_ePrevGCUState=EMPTY_GCU_STATE;
 bool BASE_MODES::_bRPhasHealthyStatus = false;
 bool BASE_MODES::_bYPhasHealthyStatus = false;
 bool BASE_MODES::_bBPhasHealthyStatus = false;
-bool BASE_MODES::_bMainsPartialHealthy = false;
-bool BASE_MODES::_bMainsPartialLEDStatus = false;
 bool BASE_MODES::_bMainsHigh = false;
 bool BASE_MODES::_bMainsLow  = false;
 bool BASE_MODES::_bNightModeRestrict = false;
-bool BASE_MODES::_bLoadTransferEn = false;
-bool BASE_MODES::_bSchGenStart = false;
-bool BASE_MODES::_bIsHealthyPhCntIncr = false;
 
-//#define IS_GEN_LOAD_INHIBIT_IP_ENABLED()        _GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::GEN_LOAD_INHIBIT)
-#define IS_GEN_LOAD_INHIBIT_IP_ENABLED() 1
-//#define IS_GEN_LOAD_INHIBIT_IP_ACTIVATED()      _GCUAlarms.IsAlarmActive(GCU_ALARMS::GEN_LOAD_INHIBIT)
-#define IS_GEN_LOAD_INHIBIT_IP_ACTIVATED() 1
+
 #define GEN_CONTACTOR_IS_ABOUT_TO_LATCH()       ((_bContTransferToGenOn) || (_bSwitchLoadToGen))
 #define IS_GEN_CONTACTOR_LATCHED()              ((_bCloseGenContactor) || GEN_CONTACTOR_IS_ABOUT_TO_LATCH())
 #define GEN_CONTACTOR_NOT_LATCHED()             (!_bCloseGenContactor)
 #define LOAD_XFER_TO_GEN_NOT_INITIATED()        (!_bContTransferToGenOn)
 
-//#define IS_MAINS_LOAD_INHIBIT_IP_ENABLED()      _GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::MAINS_LOAD_INHIBIT)
-#define IS_MAINS_LOAD_INHIBIT_IP_ENABLED()      1
-//#define IS_MAINS_LOAD_INHIBIT_IP_ACTIVATED()    _GCUAlarms.IsAlarmActive(GCU_ALARMS::MAINS_LOAD_INHIBIT)
-#define IS_MAINS_LOAD_INHIBIT_IP_ACTIVATED()  1
 #define MAINS_CONTACTOR_IS_ABOUT_TO_LATCH()     ((_bContTransferToMainsOn) || (_bSwitchLoadToMains))
 #define IS_MAINS_CONTACTOR_LATCHED()            ((_bCloseMainsContactor) || MAINS_CONTACTOR_IS_ABOUT_TO_LATCH())
 #define MAINS_CONTACTOR_NOT_LATCHED()           (!_bCloseMainsContactor)
@@ -107,12 +81,9 @@ bool BASE_MODES::_bIsHealthyPhCntIncr = false;
 #define IS_GEN_AVAILABLE()                      (_EngineMon.IsGenAvailable())
 
 #define IS_DEV_IN_MANUAL_MODE()                 (_eOperatingMode == MANUAL_MODE)
-#define IS_DEV_IN_SCH_MODE()                    (_eOperatingMode == AUTO_EXERCISE_MODE)
 #define IS_DEV_IN_AUTO_MODE()                   (_eOperatingMode != MANUAL_MODE)
 
 #define IS_AUTO_LOAD_XFER_ENABLED()             (IS_DEV_IN_MANUAL_MODE() && (CFGZ::CFGZ_ENABLE == _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_AUTO_LOAD_TRANSFER)))
-#define IS_SCH_LOAD_XFER_ENABLED()              ((IS_DEV_IN_SCH_MODE() && (_bLoadTransferEn))|| (!IS_DEV_IN_SCH_MODE()))
-#define IS_SCH_LOAD_XFER_INITIATED()            ((_bLoadTransferEn) && (_bSchGenStart))
 
 #define IS_RET_TO_MAINS_STARTED()               (UTILS_IsTimerEnabled(&_ReturnToMainsTimer))
 #define IS_RET_TO_MAINS_EXPIRED()               (UTILS_GetElapsedTimeInSec(&_ReturnToMainsTimer) >= 5U)
@@ -122,10 +93,6 @@ bool BASE_MODES::_bIsHealthyPhCntIncr = false;
 #define MAINS_MONITORING_ENABLED()              (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
 #define IS_MAINS_HEALTHY()                      (MAINS_MONITORING_ENABLED() && (_MainsStatus == MAINS_HELATHY))
 #define IS_REMORE_SS_ENABLED()                  ((!MAINS_MONITORING_ENABLED()) && (_bRemoteStopRCVD))
-
-#define IS_MAINS_PARTIAL_HEALTHY_CONFIGURED()   (0)
-#define IS_MAINS_PH_RECOVERED_IN_3_PHASE()      ((_bIsHealthyPhCntIncr &&_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) != CFGZ::CFGZ_1_PHASE_SYSTEM && IS_MAINS_PARTIAL_HEALTHY_CONFIGURED()) \
-                                                    || (!IS_MAINS_PARTIAL_HEALTHY_CONFIGURED()))
 
 #define MAINS_HEALTHY_COND_FULFILLED()          (IS_MAINS_HEALTHY() || IS_REMORE_SS_ENABLED())
 
@@ -138,8 +105,6 @@ _EngineMon(EngineMon),
 _vars(vars)
 {
     UTILS_ResetTimer(&_BaseModeUpdateTimer);
-    UTILS_DisableTimer(&_GenPulseTimer);
-    UTILS_DisableTimer(&_MainsPulseTimer);
     InitNightModeParam();
 }
 
@@ -174,8 +139,7 @@ void BASE_MODES::Update()
         prvUpdateNightModeRestrictStatus();
         UpdateMainsStatus();
         prvUpdateContactorOutputs();
-//        prvUpdateBreakerPulseState();
-        prvUpdateBTSBattHybrdModeStatus();
+
         if(_hal.DigitalSensors.GetDigitalSensorState(
                 DigitalSensor::DI_EMERGENCY_STOP) == DigitalSensor::SENSOR_LATCHED)
         {
@@ -190,25 +154,6 @@ void BASE_MODES::Update()
     }
 }
 
-void BASE_MODES::prvUpdateBTSBattHybrdModeStatus(void)
-{
-    // If site is on BTS battery as it is healthy hence DG is in OFF state with no alarm condition,
-    // then need to manipulate output - BTS battery hybrid mode
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
-            && (!_EngineMon.IsGenReady())
-            && (!_bCloseGenContactor)
-            && (!_bCloseMainsContactor)
-            && (_eOperatingMode == BTS_MODE)
-            && (_GCUAlarms.IsCommonAlarm()))
-    {
-        _hal.actuators.Activate(ACTUATOR::ACT_BTS_BATTERY_HYBRID_MODE);
-    }
-    else if(_bCloseGenContactor || _bCloseMainsContactor
-            || (_GCUAlarms.IsCommonAlarm()) || (_EngineMon.IsGenReady()) || (_eOperatingMode != BTS_MODE))
-    {
-        _hal.actuators.Deactivate(ACTUATOR::ACT_BTS_BATTERY_HYBRID_MODE);
-    }
-}
 BASE_MODES::GCU_STATE_t BASE_MODES::GetGCUState()
 {
   return _vars.GCUState;
@@ -219,25 +164,6 @@ BASE_MODES::TIMER_STATE_t BASE_MODES::GetTimerState()
   return _vars.TimerState;
 }
 
-bool BASE_MODES:: GetStopPressState()
-{
-    return (bool)_bStopPress;
-}
-
-void BASE_MODES:: SetStopPressState(bool state)
-{
-    _bStopPress = state;
-}
-
-bool BASE_MODES:: GetStartPressState()
-{
-    return (bool)_bStartPress;
-}
-
-void BASE_MODES:: SetStartPressState(bool state)
-{
-    _bStartPress = state;
-}
 
 void BASE_MODES::Stop()
 {
@@ -306,6 +232,9 @@ void BASE_MODES::prvSetGCUState()
 
 void BASE_MODES::UpdateMainsStatus()
 {
+    //Todo: In NXP GC2111 for BTS and cyclic mode when mains mon is disable
+    //Mains is considered unhealthy. And in auto mode it is considered healthy
+    //for the same condition.
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)
     {
         _MainsStatus = MAINS_HELATHY;
@@ -314,74 +243,6 @@ void BASE_MODES::UpdateMainsStatus()
             DigitalSensor::DI_SIMULATE_MAINS) ==  DigitalSensor::SENSOR_LATCHED)
     {
         _MainsStatus = MAINS_HELATHY;
-    }
-
-
-
-          {
-              _MainsStatus = MAINS_HELATHY;
-              _bMainsPartialHealthy = true;
-          }
-
-
-}
-void BASE_MODES::prvHandleInhibitInputs(void)
-{
-    static uint8_t u8GenToggle , u8MainsToggle;
-    if(IS_GEN_LOAD_INHIBIT_IP_ACTIVATED()&& IS_GEN_CONTACTOR_LATCHED())
-    {
-        /* If Gen load inhibit input is activated then open Genset contactor */
-        _bSwitchLoadToGen = false;
-        _bOpenGenLoad= true;
-
-        u8GenToggle = 0;
-    }
-    else if(IS_GEN_LOAD_INHIBIT_IP_ENABLED()
-            &&(!IS_GEN_LOAD_INHIBIT_IP_ACTIVATED())
-            && GEN_CONTACTOR_NOT_LATCHED()
-            && ENGINE_IS_RUNNING()
-            && IS_GEN_AVAILABLE()
-            &&(IS_DEV_IN_AUTO_MODE()||(IS_AUTO_LOAD_XFER_ENABLED()))
-            && LOAD_XFER_TO_GEN_NOT_INITIATED()
-            && IS_SCH_LOAD_XFER_ENABLED()
-            && (u8GenToggle == 0))
-    {
-        u8GenToggle = 1;
-        _bSwitchLoadToGen = true;
-    }
-
-    if(IS_MAINS_LOAD_INHIBIT_IP_ACTIVATED()&& IS_MAINS_CONTACTOR_LATCHED())
-    {
-        /* If Mains load inhibit input is activated then open Mains contactor */
-        _bSwitchLoadToMains = false;
-        _bOpenMainsLoad= true;
-        u8MainsToggle = 0;
-    }
-    else if(IS_MAINS_LOAD_INHIBIT_IP_ENABLED()
-            && (!IS_MAINS_LOAD_INHIBIT_IP_ACTIVATED())
-            && MAINS_CONTACTOR_NOT_LATCHED()
-            && LOAD_XFER_TO_MAINS_NOT_INITIATED()
-            && MAINS_HEALTHY_COND_FULFILLED()
-            && (IS_MAINS_PH_RECOVERED_IN_3_PHASE())
-            && IS_DEV_IN_AUTO_MODE()
-            && (!IS_SCH_LOAD_XFER_INITIATED())
-            && CHK_RET_TO_MAINS()
-    )
-    {
-        _bSwitchLoadToMains = true;
-        u8MainsToggle = 0;
-    }
-    else if(IS_MAINS_LOAD_INHIBIT_IP_ENABLED()
-            && (!IS_MAINS_LOAD_INHIBIT_IP_ACTIVATED())
-            && ENGINE_IS_RUNNING()
-            && IS_AUTO_LOAD_XFER_ENABLED()
-            && GEN_CONTACTOR_NOT_LATCHED()
-            && LOAD_XFER_TO_GEN_NOT_INITIATED()
-            && (0 == u8MainsToggle)
-            && IS_GEN_AVAILABLE())
-    {
-        _bSwitchLoadToGen = 1;
-        u8MainsToggle = 1;
     }
 
 }
@@ -420,13 +281,6 @@ bool BASE_MODES::prvEngineNotInCoolingStage()
             }
             break;
 
-        case AUTO_EXERCISE_MODE:
-            if(_eAutoExeState == ID_AUTO_EXE_ENGINE_COOLING)
-            {
-                bEngineNotInCoolingStage = false;
-            }
-            break;
-
         default:
             break;
 
@@ -436,7 +290,6 @@ bool BASE_MODES::prvEngineNotInCoolingStage()
 
 void BASE_MODES::prvUpdateContactorOutputs()
 {
-    prvHandleInhibitInputs();
     if(((_bSwitchLoadToMains)||((_hal.DigitalSensors.GetDigitalSensorState(
             DigitalSensor::DI_CLOSE_MAINS_OPEN_GEN_SWITCH) ==  
                 DigitalSensor::SENSOR_LATCHED) && (_MainsStatus == MAINS_HELATHY) && (_eOperatingMode == BASE_MODES::MANUAL_MODE))) && (!_bContactorTransferOn))
@@ -474,26 +327,15 @@ void BASE_MODES::prvUpdateContactorOutputs()
             _bContTransferToMainsOn = false;
             // make mains contactor out active
             _bCloseMainsContactor = true;
-            _bCloseMainsStatus = true;
         }
         else if(_bContTransferToGenOn)
         {
             _bContTransferToGenOn = false;
             // make gen contactor active
             _bCloseGenContactor = true;
-            _bCloseGenStatus = true;
         }
     }
 
-    if(_bOpenMainsLoad)
-    {
-        _bOpenMainsStatus = true;
-    }
-    if(_bOpenGenLoad)
-    {
-        _bOpenGenStatus = true;
-
-    }
 
     prvOpenGenMainLoad(&_bOpenGenLoad, &_bContTransferToGenOn, &_bCloseGenContactor);
     prvOpenGenMainLoad(&_bOpenMainsLoad, &_bContTransferToMainsOn, &_bCloseMainsContactor);
@@ -591,11 +433,6 @@ void BASE_MODES::AssignModechangeParameters()
                  _eOperatingMode = BASE_MODES::CYCLIC_MODE;
                  _eCyclicState = STATE_CYCLIC_GEN_OFF_MAINS_OFF;
              }
-             else if(AUTO_EXERCISE_MODE::IsExerciserStarted())
-             {
-                 _eOperatingMode = AUTO_EXERCISE_MODE;
-                 _eAutoExeState = ID_AUTO_EXE_DG_OFF;
-             }
              else
              {
                  _eOperatingMode =AUTO_MODE;
@@ -615,11 +452,6 @@ void BASE_MODES::AssignModechangeParameters()
             {
                 _eOperatingMode = BASE_MODES::CYCLIC_MODE;
                 _eCyclicState = STATE_CYCLIC_GEN_ON_LOAD;
-            }
-            else if(AUTO_EXERCISE_MODE::IsExerciserStarted())
-            {
-                _eOperatingMode = AUTO_EXERCISE_MODE;
-                _eAutoExeState = ID_AUTO_EXE_DG_ON_LOAD;
             }
             else
             {
@@ -645,7 +477,7 @@ void BASE_MODES::OpenMainsLoad()
 
 void BASE_MODES::prvOperatingModeOutputs()
 {
-    if((_eOperatingMode == AUTO_MODE) || (_eOperatingMode == AUTO_EXERCISE_MODE)
+    if((_eOperatingMode == AUTO_MODE)
             || (_eOperatingMode == BTS_MODE) || (_eOperatingMode == CYCLIC_MODE))
     {
         _hal.actuators.Activate(ACTUATOR::ACT_MODE_AUTO);
@@ -713,15 +545,6 @@ bool BASE_MODES::IsMainsContactorClosed(void)
     return _bCloseMainsContactor;
 }
 
-bool BASE_MODES::IsGenContactorOpen(void)
-{
-    return _bOpenGenReceived;
-}
-
-bool BASE_MODES::IsMainsContactorOpen(void)
-{
-    return _bOpenMainsReceived;
-}
 
 
 bool BASE_MODES::GetPressureSensorStatusBeforeStart()
@@ -758,10 +581,6 @@ bool BASE_MODES::IsGenContactorConfigured()
    return false;
 }
 
-bool BASE_MODES:: GetPartialHealthyStatus()
-{
-    return _bMainsPartialHealthy;
-}
 
 
 bool BASE_MODES::GetMainsLowStatus()
@@ -844,18 +663,6 @@ uint8_t BASE_MODES::GetMainsHealthyPhaseCnt(void)
     }
 }
 
-void BASE_MODES::SetMainsPartialLEDstatus()
-{
-    _bMainsPartialLEDStatus = true;
-}
-void BASE_MODES::ClearMainsPartialLEDstatus()
-{
-    _bMainsPartialLEDStatus = false;
-}
-void BASE_MODES::ClearMainsPartialHealthyStatus(void)
-{
-    _bMainsPartialHealthy = false;
-}
 void BASE_MODES::InitNightModeParam()
 {
     uint16_t u16RequiredHours = 0, u16RequiredMins = 0, u16IncrementReqHours = 0;
@@ -942,6 +749,4 @@ bool BASE_MODES::IsNightModeRestrictOn()
     return _bNightModeRestrict;
 }
 
-//void BASE_MODES::prvUpdateBreakerPulseState()
-//{}
 

@@ -47,14 +47,6 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
 
         UTILS_ResetTimer(&_GCUSMUpdateTimer);
 
-        /**
-           _bMainsPartialLEDStatus flag is used to display mains status LED if mains three phase and mains partial healthy detection is enabled.
-           Mains partial healthy does not affect for any other mode than BTS. Hence _bMainsPartialLEDStatus should be 1 for non BTS modes
-           _bMainsPartialLEDStatus variable is initialised with 1 in order to ignore mains partial status for all other modes.
-           But consider a case if mode is switched from AUTO BTS -> Manual. In order to achieve above condition, _bMainsPartialLEDStatus is set here
-         * */
-        SetMainsPartialLEDstatus();
-
         if((_MainsStatus == MAINS_UNHELATHY)&&(_bCloseMainsContactor)&&(!_bContactorTransferOn))
         {
             OpenMainsLoad();
@@ -70,6 +62,7 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                 _bStartRequest = false;
                 if((_bStopRequest) || (_GCUAlarms.IsCommonShutdown()) ||
                                       (_GCUAlarms.IsCommonElectricTrip())
+                                      ||(_GCUAlarms.IsCommonWarning())
                                       ||(IsNightModeRestrictOn()))
                 {
                     _bStopRequest = false;
@@ -80,6 +73,10 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                     {
                         _vars.GCUState = SHUTDOWN;
 
+                    }
+                    else if(_GCUAlarms.IsCommonWarning())
+                    {
+                        _vars.GCUState = WARNING;
                     }
                     else if (_GCUAlarms.IsCommonElectricTrip())
                     {
@@ -92,6 +89,7 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                 }
                 else if(_EngineMon.IsWarmUpTimeExpired() && _EngineMon.IsEngineCranked())
                 {
+                    //Todo: Need to decide the correct position of the above if condition
                     if(_eOperatingMode == BASE_MODES::TEST_MODE)
                     {
                         _bTestMode = true;
@@ -102,10 +100,6 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                         SwitchLoadToGen();
                     }
                     _eManualState = STATE_MANUAL_GEN_READY;
-                }
-                else if(_GCUAlarms.IsCommonWarning())
-                {
-                    _vars.GCUState = WARNING;
                 }
                 else if(_GCUAlarms.IsCommonNotification())
                 {
@@ -125,13 +119,15 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                 if(_bModeSwitchFromAuto || _GCUAlarms.IsCommonShutdown() ||(IsNightModeRestrictOn())
                         || (_bTestMode && _bStopRequest))
                 {
-                    _bModeSwitchFromAuto = false;
+                    if(_bModeSwitchFromAuto)
+                    {
+                        _bModeSwitchFromAuto = false;
+                    }
                     _bOpenGenLoad = true;
 
 
                     _vars.GCUState = (_GCUAlarms.IsCommonShutdown()|| (IsNightModeRestrictOn())) ?
                                             SHUTDOWN : ENGINE_STOPPING;
-
 
                     if(_bTestMode)
                     {
@@ -156,7 +152,10 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                 else if(_GCUAlarms.IsCommonWarning())
                 {
                     _vars.GCUState = WARNING;
-                    _vars.TimerState = (_bTestMode) ? TEST_MODE_TIMER : _vars.TimerState;
+                    if(_StartStop.IsGenMonOn() == 1U)
+                    {
+                        _vars.TimerState = NO_TIMER_RUNNING;
+                    }
                 }
                 else if(_StartStop.IsGenMonOn() == 1U)
                 {
@@ -164,6 +163,15 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                                         NOTIFICATION : ENGINE_ON_HEALTHY;
 
                     _vars.TimerState = (_bTestMode) ? TEST_MODE_TIMER : NO_TIMER_RUNNING;
+                }
+
+                if(START_STOP::ID_STATE_SS_ENG_OFF_OK == _StartStop.GetStartStopSMDState())
+                {
+                    _vars.GCUState = ENGINE_OFF_READY;
+                    _vars.TimerState = NO_TIMER_RUNNING;
+                    _eManualState = STATE_MANUAL_GEN_OFF;
+
+                    //Todo:Turn on Stop LED
                 }
                 break;
 
@@ -230,23 +238,27 @@ void MANUAL_MODE::prvSwitchToGenStartState()
     {
         _bStopRequest = false;
         _bStartRequest = false;
+        _eManualState = STATE_MANUAL_ENGINE_STOP;
+        _StartStop.StopCommand();
     }
     else if(_bStartRequest)
     {
         _bStartRequest = false;
-        if((!_bEmergencyStop) && (!_GCUAlarms.IsCommonElectricTrip())
-             && (!_GCUAlarms.IsCommonShutdown())
-            && GetPressureSensorStatusBeforeStart())
+        if(START_STOP::ID_STATE_SS_STOP_HOLD != _StartStop.GetStartStopSMDState())
         {
-            _StartStop.StartCommand();
-            _eManualState = STATE_MANUAL_GEN_START;
+            if((!_bEmergencyStop) && (!_GCUAlarms.IsCommonElectricTrip())
+                         && (!_GCUAlarms.IsCommonShutdown())
+                        && GetPressureSensorStatusBeforeStart())
+            {
+                _StartStop.StartCommand();
+                _eManualState = STATE_MANUAL_GEN_START;
+            }
         }
-        UTILS_DisableTimer(&_ReturnToMainsTimer);
     }
     else if(_EngineMon.IsEngineOn() == 1U)
     {
-        _StartStop.StopCommand();
-        _eManualState = STATE_MANUAL_ENGINE_STOP;
+//        _StartStop.StopCommand();
+        _eManualState = STATE_MANUAL_GEN_START;
     }
 
     if(_GCUAlarms.IsAlarmPresent())

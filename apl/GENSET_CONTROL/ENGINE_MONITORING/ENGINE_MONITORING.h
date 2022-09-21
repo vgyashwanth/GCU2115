@@ -39,123 +39,6 @@ public:
        REACTIVE_POWER, /**< REACTIVE */
        POWER_LAST/**< POWER_LAST */
     }POWER_TP_t;
-    /// Constructor: Initializes this module
-    ENGINE_MONITORING(CFGZ &cfgz, GCU_ALARMS &GCUAlarms, HAL_Manager &hal);
-
-    /**
-     * Executes module functionality. To be called in the super while loop.
-     * @param  : bool for checking whether device is in configuration.
-     * @return
-     * None
-     */
-    void Update(bool bDeviceInConfigMode);
-
-    /**
-     * provide the status whether engine is cranked or not.
-     * @param  : None
-     * @return : returns true if the engine is cranked.
-     */
-    static bool IsEngineCranked();
-
-    /**
-     * provide the status whether warm up delay is over or not.
-     * @param  : None
-     * @return : returns true if the warm up delay is expired.
-     */
-    bool IsWarmUpTimeExpired();
-
-    void DisableEngWarmUpTimer();
-
-    void DisableGenWarmUpTimer();
-
-    bool IsGenWarmUpEnabledAndNotExpired();
-
-    void EngineStoppingComplete();
-
-    static uint32_t GetEngineRunTimeMin();
-    static uint32_t  GetMainsRunTimeMin();
-    static uint32_t  GetBTSRunTimeMin();
-    static uint32_t  GetTamperedRunTimeMin();
-    uint32_t GetEngineNoOfStarts();
-
-    uint32_t GetEngineNoOfTrips();
-
-    void StoreEngRnCnt(uint32_t u32cnt);
-    void StoreMainsRnCnt(uint32_t u32cnt);
-    void StoreStartCnt(uint32_t u32cnt);
-    void StoreTripCnt(uint32_t u32cnt);
-    void StoreCummulativeCnt();
-    void StoreGenEnery(POWER_TP_t eTyep, uint32_t u32cnt);
-    void StoreMainsEnery(POWER_TP_t eTyep, uint32_t u32cnt);
-    void UpdateStartStopState(uint8_t u8StartStopState);
-
-
-    /**
-     * provide the status whether Genset is ready or not depending on the values
-     * of voltage and frequency.
-     * @param  : None
-     * @return : returns true when the genset is ready.
-     */
-    static uint8_t IsGenReady();
-
-    /**
-     * provide the status whether engine is on or not.
-     * @param  : None
-     * @return : returns true if the engine is on.
-     */
-    static uint8_t IsEngineOn();
-
-    static uint8_t IsEngineOff();
-
-    static uint8_t IsGenAvailable();
-
-    static void ClearTriplatched();
-
-    void ReadEnergySetEnergyOffset(bool bFromEeprom);
-
-    float GetFilteredEngSpeed();
-
-    float GetRawEngSpeed();
-//    float GetTamprEEPromCummEnergy();
-//    float GetGenEEPromCummKWH();
-//    float GetGenEEPromCummKVAH();
-//    float GetGenEEPromCummKVARH();
-
-    void StoreCumulativeEnergy();
-    void StoreTamprCummulativeEnergy();
-
-    uint16_t GetHistogramData(uint8_t);
-
-    void UpdateEngineOnStatus(void);
-    void UpdateContactorLoadStatus();
-    static LOAD_CONT_STATUS_t GetContactorLoadStatus();
-    static bool GetAndClearIsLoadStatusChanged();
-
-   // bool IsGenTamp();
-    typedef struct
-    {
-        bool bCtOnLoadCable;    // true means on load cable, false means on Alternator output cable
-        bool bGensetContactorFeedbackIsAssigned;    // to some input
-        bool bGensetContactorFeedbackInputStatus;   // true means contactor is latched so as to connect load to Genset
-        bool bMainsContactorFeedbackIsAssigned; // to some input
-        bool bMainsContactorFeedbackInputStatus;   // true means contactor is latched so as to connect load to Mains
-        bool bGensetContactorOutputAssigned;
-        bool bMainsContactorOutputAssigned;
-        bool bGensetContactorOutputStatus;  // can be on or off; only meaningful if assigned AND is not pulse type
-        bool bMainsContactorOutputStatus;  // can be on or off; only meaningful if assigned AND is not pulse type
-    } CONTACTOR_INFO_t;
-    LOAD_CONT_STATUS_t getAssumedLoadStatus(CONTACTOR_INFO_t ci);
-    bool isGensetContactorFeedbackAssigned();
-    bool isMainsContactorFeedbackAssigned();
-    bool gensetContactorFeedbackInputStatus();
-    bool mainsContactorFeedbackInputStatus();
-    bool isMainsContactorOutputAssigned();
-    bool isGensetContactorOutputAssigned();
-
-    bool haveWeTriedToCloseGensetContactor();
-    bool haveWeTriedToCloseMainsContactor();
-
-private:
 
     typedef enum
     {
@@ -168,8 +51,115 @@ private:
         ID_HIST_LAST
     }HISTOGRAM_t;
 
+    typedef struct
+    {
+        bool bCtOnLoadCable;    // true means on load cable, false means on Alternator output cable
+        bool bGensetContactorFeedbackIsAssigned;    // to some input
+        bool bGensetContactorFeedbackInputStatus;   // true means contactor is latched so as to connect load to Genset
+        bool bMainsContactorFeedbackIsAssigned; // to some input
+        bool bMainsContactorFeedbackInputStatus;   // true means contactor is latched so as to connect load to Mains
+        bool bGensetContactorOutputAssigned;
+        bool bMainsContactorOutputAssigned;
+        bool bGensetContactorOutputStatus;  // can be on or off; only meaningful if assigned AND is not pulse type
+        bool bMainsContactorOutputStatus;  // can be on or off; only meaningful if assigned AND is not pulse type
+    } CONTACTOR_INFO_t;
+
+
+    /* Constructor: Initializes this module */
+    ENGINE_MONITORING(CFGZ &cfgz, GCU_ALARMS &GCUAlarms, HAL_Manager &hal);
 
     /**
+     * Executes module functionality. To be called in the super while loop.
+     * @param  : bool for checking whether device is in configuration.
+     * @return
+     * None
+     */
+    void Update(bool bDeviceInConfigMode);
+
+/* Status prototypes */
+    bool IsGenStartValid();
+    static uint8_t IsEngineOn();
+    static uint8_t IsEngineOff();
+    static uint8_t IsGenAvailable();
+    static bool IsEngineCranked();
+    static uint8_t IsGenReady();
+    bool IsWarmUpTimeExpired();
+    bool IsGenWarmUpEnabledAndNotExpired();
+
+    bool isGensetContactorFeedbackAssigned();
+    bool isMainsContactorFeedbackAssigned();
+    bool gensetContactorFeedbackInputStatus();
+    bool mainsContactorFeedbackInputStatus();
+    bool isMainsContactorOutputAssigned();
+    bool isGensetContactorOutputAssigned();
+    LOAD_CONT_STATUS_t getAssumedLoadStatus(CONTACTOR_INFO_t ci);
+
+    bool haveWeTriedToCloseGensetContactor();
+    bool haveWeTriedToCloseMainsContactor();
+
+
+/* Value return prototypes */
+    float GetFilteredEngSpeed();
+
+/* Action prototypes */
+    static void ClearTriplatched();
+    void DisableEngWarmUpTimer();
+    void DisableGenWarmUpTimer();
+
+/* returns private structure variables that are made static to accessible outside */
+    static uint32_t GetEngineRunTimeMin();
+    static uint32_t GetMainsRunTimeMin();
+    static uint32_t GetBTSRunTimeMin();
+    static uint32_t GetTamperedRunTimeMin();
+
+    uint32_t GetEngineNoOfStarts();
+    uint32_t GetEngineNoOfTrips();
+
+/* Supportive prototypes */
+    void StoreEngRnCnt(uint32_t u32cnt);
+    void StoreMainsRnCnt(uint32_t u32cnt);
+    void StoreStartCnt(uint32_t u32cnt);
+    void StoreTripCnt(uint32_t u32cnt);
+    void StoreGenEnery(POWER_TP_t eTyep, uint32_t u32cnt);
+    void StoreMainsEnery(POWER_TP_t eTyep, uint32_t u32cnt);
+    void UpdateStartStopState(uint8_t u8StartStopState);
+
+/* store cumulative counts data to external eeprom */
+    void StoreCummulativeCnt();
+
+/* Updation prototypes */
+    void ReadEnergySetEnergyOffset(bool bFromEeprom);
+    /* todo: following 3 functions can be made private */
+    void UpdateContactorLoadStatus();
+    static LOAD_CONT_STATUS_t GetContactorLoadStatus();
+    static bool GetAndClearIsLoadStatusChanged();
+
+
+/*____________________________________________________________________________________________________________________*/
+
+private:
+    /* Supportive private macros */
+    #define KW_TO_WATT_CONVERSION       (1000U)
+    #define ENGINE_OFF_TMR_THRESHOLD    (1U)
+    #define FIFTY_MSEC                  (50U)
+    #define RUN_MIN_1st_SLOT            (1000U*60U)
+    #define RUN_MIN_2nd_SLOT            (5000U*60U)
+
+    #define TIME_1st_SLOT_SEC           (5*60U)  //5min
+    #define TIME_2nd_SLOT_SEC           (10*60U)  //10min
+    #define TIME_3rd_SLOT_SEC           (15*60U)  //15min
+
+    #define ONE_MIN_CNT                 (60)
+    #define MAX_NO_OF_STARTS            (65000)
+    #define MAX_NO_OF_TRIPS             (65000)
+    #define TMR_COUNT_FOR_TWO_SECS      (40)
+    #define HISTO_RANGE_MIN             (0)
+    #define HISTO_RANGE_MAX             (20)
+    #define CHECK_GEN_MIN_HEALTHY_FREQ()  (_hal.AnalogSensors.GetGensetFreqThruCompartor() > _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_FREQ))
+    #define CHECK_GEN_MIN_HEALTHY_VTG()   (_GCUAlarms.GetMinGensetVoltage() > _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_VOLT))
+
+
+    /* todo: need to decide, wheather to make below structure private or public
      * Structure for storing Energy CUMULATIVE Count
      */
     typedef struct __attribute__((packed))
@@ -191,8 +181,8 @@ private:
         float f32TamprGenKVAH;
         float f32TamprGenKVARH;
 
-        uint16_t u16ArrHistogram[ID_HIST_LAST];
-//        uint16_t u16Dummy[2];
+        uint16_t u16ArrHistogram[ID_HIST_LAST]; /* todo: discuss wheather to keep or remove */
+
         uint32_t u32GenNumberOfTrips;
         uint32_t u32GenNumberOfStarts;
         uint32_t u32CRC;
@@ -208,32 +198,13 @@ private:
         float f32GenKVARH;
     }GEN_t;
 
-    #define CHECK_GEN_MIN_HEALTHY_FREQ()  (_hal.AnalogSensors.GetGensetFreqThruCompartor() > _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_FREQ))
-    #define CHECK_GEN_MIN_HEALTHY_VTG()   (_GCUAlarms.GetMinGensetVoltage() > _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_VOLT))
-    #define KW_TO_WATT_CONVERSION       1000U
-    #define ENGINE_OFF_TMR_THRESHOLD    1U
-    #define FIFTY_MSEC                  50U
-    #define RUN_MIN_1st_SLOT            (1000U*60U)
-    #define RUN_MIN_2nd_SLOT            (5000U*60U)
 
-    #define TIME_1st_SLOT_SEC           (5*60U)  //5min
-    #define TIME_2nd_SLOT_SEC           (10*60U)  //10min
-    #define TIME_3rd_SLOT_SEC           (15*60U)  //15min
-
-    #define ONE_MIN_CNT                 60
-    #define MAX_NO_OF_STARTS            65000
-    #define MAX_NO_OF_TRIPS             65000
-    #define TMR_COUNT_FOR_TWO_SECS      40
-    #define HISTO_RANGE_MIN             0
-    #define HISTO_RANGE_MAX             20
-
+    /* private object references */
     CFGZ                        &_cfgz;
     GCU_ALARMS                  &_GCUAlarms;
     HAL_Manager                 &_hal;
-    uint8_t                     _u8StartStopSMState;
-    static bool                 _bTripLatched;
-    static bool                 _bEngineCranked;
-    static bool                 _bLoadContactorStatusChanged;
+
+    /* private timer instances */
     stTimer                     _LLOPCrankingTimer;
     stTimer                     _Timer50MS;
     stTimer                     _TimerOneMin;
@@ -246,14 +217,23 @@ private:
     stTimer                     _EngWarmUpTimer;
     stTimer                     _GenWarmUpTimer;
     stTimer                     _LOPSensMonTimer;
-    AC_SENSE::ENERGY_REGISTER_t _stTampEnergyRegister,_stEnergyRegister, _stMainsEnergyRegister;
+
+    /* private static variables */
+    static bool                 _bTripLatched;
+    static bool                 _bEngineCranked;
+    static bool                 _bLoadContactorStatusChanged;
     static uint8_t              _u8EngineOff;
     static uint8_t              _u8EngineOn;
     static uint8_t              _u8GenReady;
     static uint8_t              _u8GenAvailable;
     static CUMULATIVE_t         _stCummulativeCnt;
     static LOAD_CONT_STATUS_t   _eLoadStatusCurrent;
+
+    uint8_t                     _u8StartStopSMState;
     uint8_t                     _u8ActiveSectorForCummulative;
+    AC_SENSE::ENERGY_REGISTER_t _stTampEnergyRegister,_stEnergyRegister, _stMainsEnergyRegister;
+
+    A_SENSE::SENSOR_RET_t       _stLOP;  /* Lop sensor structure */
     /**
      * Checks if the any trip occurs and set the flag to updated the trip count.
      * @param  : None
@@ -290,8 +270,22 @@ private:
 
     void prvLoadHistogram();
     void prvClearHistogram();
-
     uint16_t prvCheckTimeSlot(uint32_t u32RunTime);
+
+    void prvUpdateLOPSensor();
+    void prvUpdateEngineRunHrs();
+    void prvUpdateMainsRunHrs();
+    void prvUpdateBTSRunHrs();
+
+    void prvUpdateEngineONstatus(void);
+    void prvUpdateCumulativeEnergyCounts();
+    void prvUpdateCumulativeTamperedEnergyCounts();
+
+    bool prvDisconnectCranckByChanrgingAlt();
+    bool prvDisconnectCranckByLOPSensor();
+    bool prvDisconnectCranckByLOPSwitch();
+
+
 };
 
 #endif

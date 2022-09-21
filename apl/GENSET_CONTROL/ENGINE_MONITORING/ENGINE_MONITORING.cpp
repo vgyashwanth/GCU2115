@@ -19,6 +19,10 @@
 #include "J1939_APP/J1939APP.h"
 #include "../ENGINE_START_VALIDITY/ENGINE_START_VALIDITY.h"
 
+/* supporting private macros */
+#define IS_START_STOP_SM_IN_CRANK_STATE()       (  (_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANKING)   \
+                                               || (_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANK_REST))
+
 uint8_t ENGINE_MONITORING::_u8EngineOff = 0;
 uint8_t ENGINE_MONITORING::_u8EngineOn = 0;
 uint8_t ENGINE_MONITORING::_u8GenReady = 0;
@@ -26,6 +30,10 @@ uint8_t ENGINE_MONITORING::_u8GenAvailable = 0;
 bool ENGINE_MONITORING::_bTripLatched = false;
 bool ENGINE_MONITORING::_bLoadContactorStatusChanged = false;
 ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::_eLoadStatusCurrent = LOAD_NOT_ON_GEN_MAINS;
+
+/*  Shubham Wader 21.09.2022
+    todo:  Why we are making _stCummulativeCnt static? If we want to use those outside class then why to keep it
+    private ? C++ property misuse . Either need to make it public to access anywhere or restrict access. */
 ENGINE_MONITORING::CUMULATIVE_t ENGINE_MONITORING::_stCummulativeCnt={0};
 
 bool ENGINE_MONITORING::_bEngineCranked = false;
@@ -61,114 +69,20 @@ void ENGINE_MONITORING::Update(bool bDeviceInConfigMode)
     if(UTILS_GetElapsedTimeInMs(&_Timer50MS) >= FIFTY_MSEC)
     {
         UTILS_ResetTimer(&_Timer50MS);
+
+        /* Instead of creating local instances of sensor structure wherever needed, craeted private global class limited
+           instance for LOP sensor.  */
+        _stLOP = _GCUAlarms.GetLOPSensorVal();
+
         prvCheckTrips();
         prvCheckEngineOff();
         prvUpdateEngineOn();
         prvUpdateEngineCranked();
         prvUpdateGenReady();
         UpdateContactorLoadStatus();
-        if(UTILS_GetElapsedTimeInSec(&_TimerOneMin) >= ONE_MIN_CNT)
-        {
-            UTILS_ResetTimer(&_TimerOneMin);
-            if(BASE_MODES::IsGenContactorClosed())
-            {
-                prvLoadHistogram();
-            }
-            if((_u8EngineOn == 1U) && (GetRawEngSpeed() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
-                && (true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus())
-                && (false == ENGINE_START_VALIDITY::GetEngineStartInvalidity()))
-            {
-//                if(!_cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ENG))
-                {
-                    _stCummulativeCnt.u32EngineRunTime_min++;
-                }
-//                else
-//                {
-//                    StoreEngRnCnt(_GCUAlarms.GetSelectedEngRunMin());
-//                }
-
-                uint16_t u16TimeSlot = prvCheckTimeSlot(_GCUAlarms.GetSelectedEngRunMin());
-                if(UTILS_GetElapsedTimeInSec(&_TimerGenUpdateCumulative) >= u16TimeSlot)
-                {
-                    StoreCummulativeCnt();
-                    UTILS_ResetTimer(&_TimerGenUpdateCumulative);
-                }
-            }
-            else if((_u8EngineOn == 1U) && (true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus()) &&
-                    (true == ENGINE_START_VALIDITY::GetEngineStartInvalidity()) &&
-                    (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE))
-            {
-                _stCummulativeCnt.u32TamperedRunTime_min++;
-                if(_TimerUpdateTamperedCumulative.bEnabled == false)
-                {
-                    UTILS_ResetTimer(&_TimerUpdateTamperedCumulative);
-                }
-                uint16_t u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32TamperedRunTime_min);
-                if(UTILS_GetElapsedTimeInSec(&_TimerUpdateTamperedCumulative) >= u16TimeSlot)
-                {
-                    StoreCummulativeCnt();
-                    UTILS_ResetTimer(&_TimerUpdateTamperedCumulative);
-                }
-            }
-
-
-
-        }
-
-        if(((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED)
-               ||(_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_OUT)!=ACT_Manager::ACT_NOT_CONFIGURED))
-               &&(_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE) && BASE_MODES::IsMainsContactorClosed()
-            )
-        {
-            if(_MainsRunTimeBaseTimer.bEnabled == false)
-            {
-                UTILS_ResetTimer(&_MainsRunTimeBaseTimer);
-                UTILS_ResetTimer(&_TimerMainsUpdateCumulative);
-            }
-            if(UTILS_GetElapsedTimeInSec(&_MainsRunTimeBaseTimer)>= ONE_MIN_CNT)
-            {
-                _stCummulativeCnt.u32MainsRunTime_min++;
-                uint16_t u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32MainsRunTime_min);
-                if(UTILS_GetElapsedTimeInSec(&_TimerMainsUpdateCumulative) >= u16TimeSlot)
-                {
-                   StoreCummulativeCnt();
-                   UTILS_ResetTimer(&_TimerMainsUpdateCumulative);
-                }
-                UTILS_ResetTimer(&_MainsRunTimeBaseTimer);
-            }
-        }
-        else
-        {
-             UTILS_DisableTimer(&_MainsRunTimeBaseTimer);
-        }
-
-        if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
-                &&(!BASE_MODES::IsGenContactorClosed())
-                && (((!BASE_MODES::IsMainsContactorClosed())&&(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-                        || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE) && (_u8EngineOn == 0U))))
-        {
-            if(_BTSRunTimeBaseTimer.bEnabled == false)
-            {
-                UTILS_ResetTimer(&_BTSRunTimeBaseTimer);
-                UTILS_ResetTimer(&_TimerBTSUpdateCumulative);
-            }
-            if(UTILS_GetElapsedTimeInSec(&_BTSRunTimeBaseTimer)>= ONE_MIN_CNT)
-            {
-                _stCummulativeCnt.u32BTSRunTime_min++;
-                uint16_t u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32BTSRunTime_min);
-                if(UTILS_GetElapsedTimeInSec(&_TimerBTSUpdateCumulative) >= u16TimeSlot)
-                {
-                   StoreCummulativeCnt();
-                   UTILS_ResetTimer(&_TimerBTSUpdateCumulative);
-                }
-                UTILS_ResetTimer(&_BTSRunTimeBaseTimer);
-            }
-        }
-        else
-        {
-             UTILS_DisableTimer(&_BTSRunTimeBaseTimer);
-        }
-
+        prvUpdateEngineRunHrs();
+        prvUpdateMainsRunHrs();
+        prvUpdateBTSRunHrs();
     }
 }
 
@@ -305,13 +219,10 @@ void ENGINE_MONITORING::UpdateContactorLoadStatus()
 {
     static LOAD_CONT_STATUS_t eLoadStatusPrv=LOAD_NOT_ON_GEN_MAINS;
 
-
     static bool eTampStatusPrv = false;
     bool eTampStatusCurrent = eTampStatusPrv;
 
-    eTampStatusCurrent = (true == ENGINE_START_VALIDITY::GetEngineStartInvalidity())
-                                              && (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
-                                              &&  (true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus());
+    eTampStatusCurrent = IsGenStartValid(); /* stores true if tampered start */
     if(eTampStatusCurrent != eTampStatusPrv)
     {
         ReadEnergySetEnergyOffset(false);
@@ -390,7 +301,6 @@ void ENGINE_MONITORING::UpdateContactorLoadStatus()
         }
     }
     eLoadStatusPrv = _eLoadStatusCurrent;
-
 }
 
 ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::GetContactorLoadStatus()
@@ -413,7 +323,7 @@ bool ENGINE_MONITORING::GetAndClearIsLoadStatusChanged()
 
 uint16_t ENGINE_MONITORING::prvCheckTimeSlot(uint32_t u32RunTime)
 {
-    uint16_t u16TimeSlot = TIME_1st_SLOT_SEC;
+    static uint16_t u16TimeSlot = TIME_1st_SLOT_SEC;
 
     if(u32RunTime < RUN_MIN_1st_SLOT )
     {
@@ -427,17 +337,20 @@ uint16_t ENGINE_MONITORING::prvCheckTimeSlot(uint32_t u32RunTime)
     {
         u16TimeSlot = TIME_3rd_SLOT_SEC;
     }
+    else
+    {
+        /* do nothing */
+    }
 
     return u16TimeSlot;
-
 }
 
 void ENGINE_MONITORING::prvUpdateEngineOn()
 {
-    if((GetRawEngSpeed() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
-        ||(_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ALT_FREQUENCY)))
+    if((_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
+        || (_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ALT_FREQUENCY)))
     {
-        UpdateEngineOnStatus();
+        prvUpdateEngineONstatus();
     }
     else
     {
@@ -447,88 +360,30 @@ void ENGINE_MONITORING::prvUpdateEngineOn()
 
 void ENGINE_MONITORING::prvUpdateEngineCranked()
 {
-    bool bLOPCranked = false, bLLOPCranked = false, bChargAltCranked = false;
-    A_SENSE::SENSOR_RET_t _stLOP = _GCUAlarms.GetLOPSensorVal();
+    bool bLOPCranked = false;
+    bool bLLOPCranked = false;
+    bool bChargAltCranked = false;
 
-    /* prvUpdateEngineCranked() function is called every 50ms hence the _u8ChargAltMonCount
-     * corresponds to 2 seconds will be 2000ms/50ms = 40*/
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_CHG_ALT_VOLT) == CFGZ::CFGZ_ENABLE)
-        && (_hal.AnalogSensors.GetFilteredChargingAltVolts() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_CHG_ALT_THRESHOLD))
-        && (START_STOP::IsMonitorChargAltTrue()))
-    {
-        bChargAltCranked = true;
-    }
-    else
-    {
-        bChargAltCranked = false;
-    }
+    bChargAltCranked = prvDisconnectCranckByChanrgingAlt();
+    bLOPCranked = prvDisconnectCranckByLOPSensor();
+    bLLOPCranked = prvDisconnectCranckByLOPSwitch();
 
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LOP_SENS)  == CFGZ::CFGZ_ENABLE) &&
-            ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-            ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_LOP_CURR_SENSOR))) &&
-            (_stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT) &&
-            (_stLOP.stValAndStatus.f32InstSensorVal > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_LOP_SENS)))
-
+    if (IS_START_STOP_SM_IN_CRANK_STATE() && (!IsEngineCranked()))
     {
-        if(UTILS_GetElapsedTimeInSec(&_LOPSensMonTimer) >= 1)
-        {
-            bLOPCranked = true;
-        }
-        else
-        {
-            bLOPCranked = false;
-        }
-    }
-    else
-    {
-        bLOPCranked = false;
-        UTILS_ResetTimer(&_LOPSensMonTimer);
-    }
-
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_ENABLE)
-    {
-        if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
-        {
-            if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) == DigitalSensor::SENSOR_LATCHED)
-            {
-                UTILS_ResetTimer(&_LLOPCrankingTimer);
-            }
-            else
-            {
-                if(!UTILS_IsTimerEnabled(&_LLOPCrankingTimer))
-                {
-                    UTILS_ResetTimer(&_LLOPCrankingTimer);
-                }
-            }
-
-            if(UTILS_GetElapsedTimeInMs(&_LLOPCrankingTimer) >= (uint64_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_LLOP_SW_TRANS_TIME)*1000))
-            {
-                bLLOPCranked = true;
-                UTILS_DisableTimer(&_LLOPCrankingTimer);
-            }
-            else
-            {
-                bLLOPCranked = false;
-            }
-        }
-    }
-    else
-    {
-        bLLOPCranked = false;
-    }
-
-    if((!_bEngineCranked) && ((_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANKING)
-            || (_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANK_REST)))
-    {
-        if((GetRawEngSpeed() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
+        if((_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
             ||(_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ALT_FREQUENCY))
             ||(bLOPCranked) ||(bLLOPCranked) || (bChargAltCranked))
         {
             _bEngineCranked = true;
             _u8EngineOff = false;
             UTILS_ResetTimer(&_EngWarmUpTimer);
-            UpdateEngineOnStatus();
+            prvUpdateEngineONstatus();
         }
+        else
+        {
+            /* do nothing */
+        }
+
     }
     else
     {
@@ -537,6 +392,10 @@ void ENGINE_MONITORING::prvUpdateEngineCranked()
             _bEngineCranked = false;
             _u8EngineOff = true;
         }
+        else
+        {
+            /* Do nothing */
+        }
     }
 }
 
@@ -544,22 +403,28 @@ void ENGINE_MONITORING::prvUpdateGenReady()
 {
     if(_u8GenReady == 0U)
     {
-        if((CHECK_GEN_MIN_HEALTHY_VTG()) && (CHECK_GEN_MIN_HEALTHY_FREQ()) &&
-             (!_GCUAlarms.IsCommonElectricTrip()) && (!_GCUAlarms.IsCommonShutdown()) &&
-                 (UTILS_GetElapsedTimeInMs(&_EngWarmUpTimer) >= FIFTY_MSEC))
+        if((CHECK_GEN_MIN_HEALTHY_VTG()) && (CHECK_GEN_MIN_HEALTHY_FREQ())
+            && (!_GCUAlarms.IsCommonElectricTrip()) && (!_GCUAlarms.IsCommonShutdown())
+            && (UTILS_GetElapsedTimeInMs(&_EngWarmUpTimer) >= FIFTY_MSEC))
         {
             _u8GenReady = true;
-            if(((true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus()) &&
-                                (false == ENGINE_START_VALIDITY::GetEngineStartInvalidity()) &&
-                                (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE))
-                || (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_DISABLE))
+
+            if(IsGenStartValid())
             {
                 _stCummulativeCnt.u32GenNumberOfStarts++;
+            }
+            else
+            {
+                /* do nothing */
             }
 
             if(_stCummulativeCnt.u32GenNumberOfStarts > MAX_NO_OF_STARTS)
             {
                 _stCummulativeCnt.u32GenNumberOfStarts = 0;
+            }
+            else
+            {
+                /* do nothing */
             }
             StoreCummulativeCnt();
             UTILS_ResetTimer(&_GenWarmUpTimer);
@@ -569,6 +434,10 @@ void ENGINE_MONITORING::prvUpdateGenReady()
     {
         _u8GenReady = false;
         UTILS_DisableTimer(&_GenWarmUpTimer);
+    }
+    else
+    {
+        /* do nothing */
     }
 
     if(_u8GenReady && (UTILS_GetElapsedTimeInSec(&_GenWarmUpTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_WARM_UP_DELAY)))
@@ -585,37 +454,56 @@ void ENGINE_MONITORING::prvUpdateGenReady()
 
 void ENGINE_MONITORING::prvCheckEngineOff()
 {
-    A_SENSE::SENSOR_RET_t _stLOP = _GCUAlarms.GetLOPSensorVal();
-    if(_u8EngineOn == 1U)
+    if(_u8EngineOn == 1U) /* todo: need to think why are we comparing with 1 here, if it is used as flag why dont we make it bool ?*/
     {
-        if((_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) <= 0)
-            && (GetRawEngSpeed() <= 0)
+        /* Below conditional checks have matched with nxp code to maintain legacy */
+        if(    (_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) <= 0)
+            && (_GCUAlarms.GetSpeedValue() <= 0)
             && (_hal.AnalogSensors.GetGensetFreqThruCompartor() <= 0)
-            && ((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_DISABLE)
-            || ((_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) ==  DigitalSensor::SENSOR_NOT_CONFIGRUED
-            || (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) ==  DigitalSensor::SENSOR_LATCHED)) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_ENABLE)))
-            && ((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LOP_SENS) == CFGZ::CFGZ_DISABLE) || (_stLOP.stValAndStatus.f32InstSensorVal < _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_LOP_SENS))
-            || (_stLOP.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT)))
+            && (   (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) ==  DigitalSensor::SENSOR_NOT_CONFIGRUED)
+                || (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) ==  DigitalSensor::SENSOR_LATCHED)
+                || (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_DISABLE))
+            && ((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LOP_SENS) == CFGZ::CFGZ_DISABLE)
+                || (_stLOP.stValAndStatus.f32InstSensorVal < _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_LOP_SENS))
+                || ( (_stLOP.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT) ||
+                     (_stLOP.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED) )
+                )
+            )
         {
             _u8EngineOn = false;
+            _bEngineCranked = false;
+            _u8EngineOff = true;
             UTILS_DisableTimer(&_TimerOneMin);
             if((!_GCUAlarms.IsCommonShutdown()) && START_STOP::IsStopRelayON())
             {
                 _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Stop_id, GCU_ALARMS::ID_NONE);
             }
-            _bEngineCranked = false;
-            _u8EngineOff = true;
+            else
+            {
+                /* do nothing */
+            }
+
             if(CFGC::IsSGC421())
             {
                 EGOV::ResetEgovVars();
+            }
+            else
+            {
+                /* do nothing */
             }
         }
     }
     else
     {
+        /* todo: need to confirm abount EGOVE functionality. IF it is not there then need to remove
+                 below function call */
         if(CFGC::IsSGC421())
         {
             EGOV::ResetEgovVars();
+        }
+        else
+        {
+            /* do nothing */
         }
     }
 }
@@ -630,8 +518,16 @@ void ENGINE_MONITORING::prvCheckTrips()
         {
             _stCummulativeCnt.u32GenNumberOfTrips = 0;
         }
-        StoreCummulativeCnt();
+        else
+        {
+            /* do nothing */
+        }
+        StoreCummulativeCnt();  /* store cumm data if trip arises */
         _bTripLatched = true;
+    }
+    else
+    {
+        /* do nothing */
     }
 }
 
@@ -649,7 +545,6 @@ uint8_t ENGINE_MONITORING::IsEngineOff()
 {
     return _u8EngineOff;
 }
-
 uint8_t ENGINE_MONITORING::IsGenAvailable()
 {
     return _u8GenAvailable;
@@ -662,35 +557,22 @@ bool ENGINE_MONITORING::IsEngineCranked()
 
 bool ENGINE_MONITORING::IsWarmUpTimeExpired()
 {
-    if(UTILS_GetElapsedTimeInSec(&_GenWarmUpTimer) >=
-                                _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_WARM_UP_DELAY))
-    {
-        return true;
-    }
-    return false;
+    return (UTILS_GetElapsedTimeInSec(&_GenWarmUpTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_WARM_UP_DELAY));
 }
 
-void ENGINE_MONITORING::StoreCumulativeEnergy()
+void ENGINE_MONITORING::prvUpdateCumulativeEnergyCounts()
 {
-//    if((true == ENGINE_START_VALIDITY::GetEngineStartInvalidity())
-//         && (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_WAVE_DETECT_EN) == CFGZ::CFGZ_ENABLE)
-//         &&  (true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus()))
-    {
-        StoreTamprCummulativeEnergy();
-    }
-//    else
-    {
-        _stCummulativeCnt.f32GenKWH   = (float)(_hal.AcSensors.GENSET_GetTotalActiveEnergySinceInitWH()/KW_TO_WATT_CONVERSION);
-        _stCummulativeCnt.f32GenKVAH = (float)(_hal.AcSensors.GENSET_GetTotalApparentEnergySinceInitVAH()/KW_TO_WATT_CONVERSION);
-        _stCummulativeCnt.f32GenKVARH= (float)(_hal.AcSensors.GENSET_GetTotalReactiveEnergySinceInitVARH()/KW_TO_WATT_CONVERSION);
-    }
+
+    _stCummulativeCnt.f32GenKWH   = (float)(_hal.AcSensors.GENSET_GetTotalActiveEnergySinceInitWH()/KW_TO_WATT_CONVERSION);
+    _stCummulativeCnt.f32GenKVAH  = (float)(_hal.AcSensors.GENSET_GetTotalApparentEnergySinceInitVAH()/KW_TO_WATT_CONVERSION);
+    _stCummulativeCnt.f32GenKVARH = (float)(_hal.AcSensors.GENSET_GetTotalReactiveEnergySinceInitVARH()/KW_TO_WATT_CONVERSION);
 
    _stCummulativeCnt.f32MainsKWH   = (float)(_hal.AcSensors.MAINS_GetTotalActiveEnergySinceInitWH()/KW_TO_WATT_CONVERSION);
    _stCummulativeCnt.f32MainsKVAH  = (float)(_hal.AcSensors.MAINS_GetTotalApparentEnergySinceInitVAH()/KW_TO_WATT_CONVERSION);
    _stCummulativeCnt.f32MainsKVARH = (float)(_hal.AcSensors.MAINS_GetTotalReactiveEnergySinceInitVARH()/KW_TO_WATT_CONVERSION);
 }
 
-void ENGINE_MONITORING::StoreTamprCummulativeEnergy()
+void ENGINE_MONITORING::prvUpdateCumulativeTamperedEnergyCounts()
 {
     _stCummulativeCnt.f32TamprGenKWH  = (float)(_hal.AcSensors.GENSET_GetTotalTamperedActiveEnergySinceInitWH()/KW_TO_WATT_CONVERSION);
     _stCummulativeCnt.f32TamprGenKVAH  = (float)(_hal.AcSensors.GENSET_GetTotalTamperedApparentEnergySinceInitVAH()/KW_TO_WATT_CONVERSION);
@@ -701,10 +583,13 @@ void ENGINE_MONITORING::StoreTamprCummulativeEnergy()
 void ENGINE_MONITORING::StoreCummulativeCnt()
 {
     static CUMULATIVE_t stStoredCummulative0,stStoredCummulative1;
-    StoreCumulativeEnergy();
+
+    prvUpdateCumulativeEnergyCounts();
+    prvUpdateCumulativeTamperedEnergyCounts();
+
     _stCummulativeCnt.u64Header++;
     _stCummulativeCnt.u32CRC =(uint16_t) CRC16::ComputeCRCGeneric((uint8_t *)&_stCummulativeCnt,
-                                              sizeof(CUMULATIVE_t) -sizeof(uint32_t)
+                                              sizeof(CUMULATIVE_t) - sizeof(uint32_t)
                                               , CRC_MEMORY_SEED);
     if(_u8ActiveSectorForCummulative == 0)
     {
@@ -840,20 +725,6 @@ float ENGINE_MONITORING::GetFilteredEngSpeed()
     }
 }
 
-float ENGINE_MONITORING::GetRawEngSpeed()
-{
-
-
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
-    {
-       return _hal.AnalogSensors.GetRPMThruCompartor();
-    }
-    else
-    {
-       return 0.0;
-    }
-}
-
 void ENGINE_MONITORING:: prvGetCumulativeCnt()
 {
     /**
@@ -926,17 +797,20 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _stCummulativeCnt.f32TamprGenKVARH = 0.0;
 
         _u8ActiveSectorForCummulative =0;
-        prvClearHistogram();
     }
 }
 
-void ENGINE_MONITORING::UpdateEngineOnStatus(void)
+void ENGINE_MONITORING::prvUpdateEngineONstatus(void)
 {
     if(_u8EngineOn == 0U)
     {
         _u8EngineOn = 1;
         UTILS_ResetTimer(&_TimerOneMin);
         UTILS_ResetTimer(&_TimerGenUpdateCumulative);
+    }
+    else
+    {
+        /* do nothing */
     }
 }
 
@@ -1027,32 +901,214 @@ void ENGINE_MONITORING::prvLoadHistogram(void)
     }
 }
 
-void ENGINE_MONITORING::prvClearHistogram()
+
+void ENGINE_MONITORING::prvUpdateEngineRunHrs()
 {
-     uint8_t u8Local;
+    static uint16_t u16TimeSlot = 1U; /* todo: initialization , need to think */
+    if(UTILS_GetElapsedTimeInSec(&_TimerOneMin) >= ONE_MIN_CNT)
+    {
+        UTILS_ResetTimer(&_TimerOneMin);
 
-     for(u8Local = 0 ; u8Local <= ID_HIST_6; u8Local++)
-     {
-         _stCummulativeCnt.u16ArrHistogram[u8Local] = 0;
-     }
+        if((_u8EngineOn == 1U) && (IsGenStartValid()) &&
+            (_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED)))
+        {
+            /* todo : If required, need to update J1939 dependency on run hours */
+            _stCummulativeCnt.u32EngineRunTime_min++;
+
+            u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32EngineRunTime_min);
+            if(UTILS_GetElapsedTimeInSec(&_TimerGenUpdateCumulative) >= u16TimeSlot)
+            {
+                StoreCummulativeCnt();
+                UTILS_ResetTimer(&_TimerGenUpdateCumulative);
+            }
+        }
+        else if((_u8EngineOn == 1U) && (!IsGenStartValid()) &&
+                (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE))
+        {
+            _stCummulativeCnt.u32TamperedRunTime_min++;
+            if(_TimerUpdateTamperedCumulative.bEnabled == false)
+            {
+                UTILS_ResetTimer(&_TimerUpdateTamperedCumulative);
+            }
+            u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32TamperedRunTime_min);
+            if(UTILS_GetElapsedTimeInSec(&_TimerUpdateTamperedCumulative) >= u16TimeSlot)
+            {
+                StoreCummulativeCnt();
+                UTILS_ResetTimer(&_TimerUpdateTamperedCumulative);
+            }
+        }
+        else
+        {
+            /* do nothing */
+        }
+    }
+    else
+    {
+        /* do nothing */
+    }
 }
-uint16_t ENGINE_MONITORING::GetHistogramData(uint8_t u8Index)
+
+void ENGINE_MONITORING::prvUpdateMainsRunHrs()
 {
-    uint16_t HistogramVal;
+    static uint16_t u16TimeSlot = 1U;
 
-    HistogramVal = _stCummulativeCnt.u16ArrHistogram[u8Index];
+    if(((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR) != ACT_Manager::ACT_NOT_CONFIGURED)
+           ||(_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_OUT) != ACT_Manager::ACT_NOT_CONFIGURED))
+        && (_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE)
+        && BASE_MODES::IsMainsContactorClosed())
+    {
+        if(!UTILS_IsTimerEnabled(&_MainsRunTimeBaseTimer))
+        {
+            UTILS_ResetTimer(&_MainsRunTimeBaseTimer);
+            UTILS_ResetTimer(&_TimerMainsUpdateCumulative);
+        }
 
-    return HistogramVal;
+        if(UTILS_GetElapsedTimeInSec(&_MainsRunTimeBaseTimer) >= ONE_MIN_CNT)
+        {
+            _stCummulativeCnt.u32MainsRunTime_min++;
+            u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32MainsRunTime_min);
+            if(UTILS_GetElapsedTimeInSec(&_TimerMainsUpdateCumulative) >= u16TimeSlot)
+            {
+               StoreCummulativeCnt();
+               UTILS_ResetTimer(&_TimerMainsUpdateCumulative);
+            }
+            UTILS_ResetTimer(&_MainsRunTimeBaseTimer);
+        }
+    }
+    else
+    {
+         UTILS_DisableTimer(&_MainsRunTimeBaseTimer);
+    }
 }
 
-//bool ENGINE_MONITORING::IsGenTamp()
-//{
-//    if((true == ENGINE_START_VALIDITY::GetEngineStartInvalidity())
-//            && (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_WAVE_DETECT_EN) == CFGZ::CFGZ_ENABLE)
-//            &&  (true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus()))
-//    {
-//        return true;
-//    }
-//
-//    return false;
-//}
+void ENGINE_MONITORING::prvUpdateBTSRunHrs()
+{
+    static uint16_t u16TimeSlot = 1U;
+
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
+        && (!BASE_MODES::IsGenContactorClosed())
+        && (((!BASE_MODES::IsMainsContactorClosed()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                    || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE) && (_u8EngineOn == 0U))))
+    {
+        if(_BTSRunTimeBaseTimer.bEnabled == false)
+        {
+            UTILS_ResetTimer(&_BTSRunTimeBaseTimer);
+            UTILS_ResetTimer(&_TimerBTSUpdateCumulative);
+        }
+        if(UTILS_GetElapsedTimeInSec(&_BTSRunTimeBaseTimer)>= ONE_MIN_CNT)
+        {
+            _stCummulativeCnt.u32BTSRunTime_min++;
+            u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32BTSRunTime_min);
+            if(UTILS_GetElapsedTimeInSec(&_TimerBTSUpdateCumulative) >= u16TimeSlot)
+            {
+               StoreCummulativeCnt();
+               UTILS_ResetTimer(&_TimerBTSUpdateCumulative);
+            }
+            UTILS_ResetTimer(&_BTSRunTimeBaseTimer);
+        }
+    }
+    else
+    {
+         UTILS_DisableTimer(&_BTSRunTimeBaseTimer);
+    }
+}
+
+
+bool ENGINE_MONITORING::prvDisconnectCranckByChanrgingAlt()
+{
+    /* prvUpdateEngineCranked() function is called every 50ms hence the _u8ChargAltMonCount
+     * corresponds to 2 seconds will be 2000ms/50ms = 40*/
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_CHG_ALT_VOLT) == CFGZ::CFGZ_ENABLE)
+        && (_hal.AnalogSensors.GetFilteredChargingAltVolts() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_CHG_ALT_THRESHOLD))
+        && (START_STOP::IsMonitorChargAltTrue()))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+bool ENGINE_MONITORING::prvDisconnectCranckByLOPSensor()
+{
+    /* todo: have confusion about sensors */
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LOP_SENS)  == CFGZ::CFGZ_ENABLE) &&
+        ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_LOP_CURR_SENSOR))) &&
+        (_stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT) &&
+        (_stLOP.stValAndStatus.f32InstSensorVal > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_LOP_SENS)))
+    {
+        /* wait for 1 sec to make a decision */
+        if(UTILS_GetElapsedTimeInSec(&_LOPSensMonTimer) >= 1U)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+       UTILS_ResetTimer(&_LOPSensMonTimer);
+       return false;
+    }
+}
+
+bool ENGINE_MONITORING::prvDisconnectCranckByLOPSwitch()
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_ENABLE)
+    {
+        if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
+        {
+            if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) == DigitalSensor::SENSOR_LATCHED)
+            {
+                /* todo: test LLOP functionality for cranck disconnet specifically  */
+                UTILS_DisableTimer(&_LLOPCrankingTimer);
+            }
+            else
+            {
+                if(!UTILS_IsTimerEnabled(&_LLOPCrankingTimer))
+                {
+                    UTILS_ResetTimer(&_LLOPCrankingTimer);
+                }
+                else
+                {
+                    /* do nothing */
+                }
+            }
+
+            if(UTILS_GetElapsedTimeInMs(&_LLOPCrankingTimer) >= (uint64_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_LLOP_SW_TRANS_TIME)*1000))
+            {
+                UTILS_DisableTimer(&_LLOPCrankingTimer);
+                return  true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        return  false;
+    }
+
+}
+
+
+bool ENGINE_MONITORING::IsGenStartValid()
+{
+    /* function returns true if valid start found */
+    /* (invalidity enabled & valid start found & wave detection enabled) || (wave detection disabled) */
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
+    {
+        return ((true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus())
+                && (false == ENGINE_START_VALIDITY::GetEngineStartInvalidity()));
+    }
+    else
+    {
+        return true;
+    }
+}
+

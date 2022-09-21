@@ -197,30 +197,6 @@ void MON_UI::Update(bool bRefresh)
                 _stScreenNo = DISP_MON_HOME;
                 eMonScreenType = MON_SCREEN_NORMAL;
             }
-
-            //TODO: Decide if we need this
-//            if( _eOpMode ==  BASE_MODES::AUTO_MODE)
-//            {
-//                if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::AUTO_EXERCISE_MODE )
-//                {
-//                    _eOpMode =  BASE_MODES::AUTO_EXERCISE_MODE;
-//                }
-//                else if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::MANUAL_MODE )
-//                {
-//                    _eOpMode =  BASE_MODES::MANUAL_MODE;
-//                }
-//            }
-//            else  if(_eOpMode ==  BASE_MODES::AUTO_EXERCISE_MODE)
-//            {
-//                if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::AUTO_MODE )
-//                {
-//                    _eOpMode =  BASE_MODES::AUTO_MODE;
-//                }
-//                else if(_autoExercise.GetGCUOperatingMode() ==BASE_MODES::MANUAL_MODE )
-//                {
-//                    _eOpMode =  BASE_MODES::MANUAL_MODE;
-//                }
-//            }
         }
         break;
 
@@ -1865,11 +1841,7 @@ void MON_UI::prvNormalMonScreens()
 
              _Disp.gotoxy(GLCD_X(3),GLCD_Y(51));
 
-             if(_autoExercise.IsNightModeRestrictOn())
-             {
-                 _Disp.printStringLeftAligned((char *)StrNightModeRestrict[_u8LanguageIndex],FONT_ARIAL);
-             }
-             else if(_eOpMode == BASE_MODES::AUTO_MODE)
+             if(_eOpMode == BASE_MODES::AUTO_MODE)
              {
 
                  if(_manualMode.IsNightModeRestrictOn())
@@ -1879,25 +1851,6 @@ void MON_UI::prvNormalMonScreens()
                  else
                  {
                      _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][ BASE_MODES::AUTO_MODE],FONT_ARIAL);
-                 }
-             }
-             else if(_eOpMode == BASE_MODES::AUTO_EXERCISE_MODE)
-             {
-                 if(_autoExercise.GetRunningExeType() ==1)
-                 {
-                     _Disp.printStringLeftAligned((char *)StrAutoExercise1[_u8LanguageIndex],FONT_ARIAL);
-                 }
-                 else if(_autoExercise.GetRunningExeType() ==2)
-                 {
-                     _Disp.printStringLeftAligned((char *)StrAutoExercise2[_u8LanguageIndex],FONT_ARIAL);
-                 }
-
-                 if(_autoExercise.IsExerciserStarted())
-                 {
-                     sprintf(arrTemp,"%02d:%02d", (uint8_t)(_autoExercise.GetExerciserTime()/60),
-                             (uint8_t)(_autoExercise.GetExerciserTime()%60));
-                     _Disp.gotoxy(GLCD_X(126),GLCD_Y(51));
-                     _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                  }
              }
              else
@@ -1924,13 +1877,13 @@ void MON_UI::prvNormalMonScreens()
             {
                 sprintf(arrTemp,"%s","Bus Ok");
             }
-            _Disp.gotoxy(GLCD_X(65),GLCD_Y(30));
+            _Disp.gotoxy(GLCD_X(65),GLCD_Y(35));
             _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
         }
         break;
         case DISP_MON_ENG_LINK_INFO:
         {
-            _Disp.gotoxy(GLCD_X(10),GLCD_Y(30));
+            _Disp.gotoxy(GLCD_X(10),GLCD_Y(35));
             _Disp.printStringLeftAligned("ECU Link : ",FONT_VERDANA);
             if(0) /* todo: in nxp code is it always true */
             {
@@ -1940,7 +1893,7 @@ void MON_UI::prvNormalMonScreens()
             {
                 sprintf(arrTemp,"%s","Ok");
             }
-            _Disp.gotoxy(GLCD_X(75),GLCD_Y(30));
+            _Disp.gotoxy(GLCD_X(75),GLCD_Y(35));
             _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
         }
         break;

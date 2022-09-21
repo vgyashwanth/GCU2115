@@ -70,19 +70,11 @@ private:
     #define IS_DISP_EVENT_LOG_MODE()      (MON_UI::eDisplayMode == DISP_EVENT_LOG_MODE)
     #define IS_DISP_CONFIG_MODE()         (MON_UI::eDisplayMode == DISP_CONFIG_MODE)
 
-    #define IS_GCU_MANUAL_MODE()          (_ManualMode.GetGCUOperatingMode()\
-                                                 == BASE_MODES::MANUAL_MODE )
-    #define IS_GCU_AUTO_MODE()            (_ManualMode.GetGCUOperatingMode()\
-                                                 == BASE_MODES::AUTO_MODE )
-    #define IS_GCU_BTS_MODE()            (_ManualMode.GetGCUOperatingMode()\
-                                                 == BASE_MODES::BTS_MODE )
-    #define IS_GCU_CYCLIC_MODE()          (_ManualMode.GetGCUOperatingMode()\
-                                             == BASE_MODES::CYCLIC_MODE )
-    #define IS_GCU_AUTO_EXE_MODE()        (_ManualMode.GetGCUOperatingMode()\
-                                               == BASE_MODES::AUTO_EXERCISE_MODE )
-
-    #define IS_GCU_TEST_MODE()            (_ManualMode.GetGCUOperatingMode()\
-                                               == BASE_MODES::TEST_MODE )
+    #define IS_GCU_MANUAL_MODE()          (_ManualMode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE )
+    #define IS_GCU_AUTO_MODE()            (_ManualMode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE )
+    #define IS_GCU_BTS_MODE()             (_ManualMode.GetGCUOperatingMode() == BASE_MODES::BTS_MODE )
+    #define IS_GCU_CYCLIC_MODE()          (_ManualMode.GetGCUOperatingMode() == BASE_MODES::CYCLIC_MODE )
+    #define IS_GCU_TEST_MODE()            (_ManualMode.GetGCUOperatingMode() == BASE_MODES::TEST_MODE )
 
 
     //Object references of different class

@@ -395,7 +395,7 @@ void MAIN_UI::prvLEDHandling()
 
             }
        }
-       else if(IS_GCU_AUTO_MODE() || IS_GCU_AUTO_EXE_MODE() || IS_GCU_BTS_MODE()|| IS_GCU_CYCLIC_MODE())
+       else if(IS_GCU_AUTO_MODE() || IS_GCU_BTS_MODE()|| IS_GCU_CYCLIC_MODE())
        {
            UpdateLEDStatus(TURN_ON, TURN_OFF, TURN_OFF);
        }

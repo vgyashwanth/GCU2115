@@ -238,13 +238,13 @@ void ALARM_UI::prvDisplayAlarmScreen()
     _Disp.drawRectangle();
     _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(19), GLCD_Y(128));
 
-    _Disp.drawVerticalLine(GLCD_X(100),GLCD_Y(0),GLCD_Y(19));
+    _Disp.drawVerticalLine(GLCD_X(95),GLCD_Y(0),GLCD_Y(19));
     {
         _Disp.drawVerticalLine(GLCD_X(22), GLCD_Y(0), GLCD_Y(19));
         _Disp.printImage((uint8_t *)u8ArrAlarmLogo, 3,20,0, 0);
 
         //Print screen name
-        _Disp.gotoxy(GLCD_X(64),GLCD_Y(5));
+        _Disp.gotoxy(GLCD_X(60),GLCD_Y(5));
         _Disp.printStringCenterAligned((char *)strAlarms[_cfgz.GetArrLanguageIndex()],
                     FONT_ARIAL);
     }

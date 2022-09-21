@@ -16,6 +16,8 @@
 #include "CFGZ.h"
 #include "productSelection.h"
 
+#define TEST_ALARM       (0)
+
 class GCU_ALARMS{
 public:
 
@@ -882,5 +884,11 @@ private:
     void prvActDeactAFTOutput();
 
     void prvCheckTripAction(uint8_t u8ReturnIndex, uint8_t u8TripIndex, bool status);
+
+#if TEST_ALARM
+    stTimer    _AlaramtestTimer;
+    void prvTestAlarm();
+#endif
+
 };
 #endif

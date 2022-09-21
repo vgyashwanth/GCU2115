@@ -383,19 +383,30 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             break;
 
         case CFGZ::CFGZ_LOW_LUBE_OIL_PRESS_SWITCH:
+
             ArrAlarmMonitoring[LLOP_SWITCH].bEnableMonitoring = true;
             prvSetAlarmAction(LLOP_SWITCH, u8AlarmAction);
             prvSetAlarmActivation(LLOP_SWITCH, CFGZ::CFGZ_FROM_MONITORING_ON);
             ArrAlarmMonitoring[LLOP_SWITCH].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
-            ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[LLOP_SWITCH_STATUS];
-            ArrAlarmMonitoring[u8InputIndex].LocalEnable = &_u8MonOn;
-
             ArrAlarmMonitoring[LLOP_SWITCH].u8LoggingID = GCU_ALARMS::Low_Oil_Pressure_id;
             ArrAlarmMonitoring[LLOP_SWITCH].pValue = &_ArrAlarmValue[LLOP_SWITCH_STATUS];
+
+            ArrAlarmMonitoring[LLOP_MON].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_MON_LLOP_BEFORE_CRANK) == CFGZ::CFGZ_ENABLE);
+            ArrAlarmMonitoring[LLOP_MON].LocalEnable = &_u8EngineOff ;
+            ArrAlarmMonitoring[LLOP_MON].bMonitoringPolarity = false;
+            ArrAlarmMonitoring[LLOP_MON].Threshold.u8Value = 1;
+            ArrAlarmMonitoring[LLOP_MON].ThreshDataType = ONE_BYTE_INT;
+            ArrAlarmMonitoring[LLOP_MON].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
+            ArrAlarmMonitoring[LLOP_MON].u8LoggingID = GCU_ALARMS::NoAlarm_id;
+            ArrAlarmMonitoring[LLOP_MON].pValue = &_ArrAlarmValue[LLOP_SWITCH_STATUS];
+
+            ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[LLOP_SWITCH_STATUS];
+            ArrAlarmMonitoring[u8InputIndex].LocalEnable = &_u8MonOn;
 
             break;
 
         case CFGZ::CFGZ_HIGH_ENGINE_TEMP_SWITCH:
+
             ArrAlarmMonitoring[HWT_SWITCH].bEnableMonitoring = true;
             prvSetAlarmAction(HWT_SWITCH, u8AlarmAction);
             prvSetAlarmActivation(HWT_SWITCH, CFGZ::CFGZ_FROM_MONITORING_ON);
@@ -491,12 +502,22 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
 
         case CFGZ::CFGZ_MAINS_CONTACTOR_LATCHED:
             ArrAlarmMonitoring[MAINS_CONTACTOR_LATCHED].bEnableMonitoring = true;
+            prvSetAlarmActivation(MAINS_CONTACTOR_LATCHED, CFGZ::CFGZ_ALWAYS);
+            ArrAlarmMonitoring[MAINS_CONTACTOR_LATCHED].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
+            ArrAlarmMonitoring[MAINS_CONTACTOR_LATCHED].u8LoggingID = GCU_ALARMS::NoAlarm_id;
+            ArrAlarmMonitoring[MAINS_CONTACTOR_LATCHED].pValue = &_ArrAlarmValue[MAINS_CONT_LATCHED_STATUS];
+
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[MAINS_CONT_LATCHED_STATUS ];
             ArrAlarmMonitoring[u8InputIndex].LocalEnable = &_u8DummyOne;
             break;
 
         case CFGZ::CFGZ_GEN_CONTACTOR_LATCHED:
             ArrAlarmMonitoring[DG_CONTACTOR_LATCHED].bEnableMonitoring = true;
+            prvSetAlarmActivation(DG_CONTACTOR_LATCHED, CFGZ::CFGZ_ALWAYS);
+            ArrAlarmMonitoring[DG_CONTACTOR_LATCHED].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
+            ArrAlarmMonitoring[DG_CONTACTOR_LATCHED].u8LoggingID = GCU_ALARMS::NoAlarm_id;
+            ArrAlarmMonitoring[DG_CONTACTOR_LATCHED].pValue = &_ArrAlarmValue[GEN_CONT_LATCHED_STATUS];
+
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[GEN_CONT_LATCHED_STATUS];
             ArrAlarmMonitoring[u8InputIndex].LocalEnable = &_u8DummyOne;
             break;
@@ -529,10 +550,22 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
 
             break;
         case CFGZ:: CFGZ_MODE_SELECT:
+            ArrAlarmMonitoring[MODE_SELECT].bEnableMonitoring = true;
+            prvSetAlarmActivation(MODE_SELECT, CFGZ::CFGZ_ALWAYS);
+            ArrAlarmMonitoring[MODE_SELECT].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
+            ArrAlarmMonitoring[MODE_SELECT].u8LoggingID = GCU_ALARMS::NoAlarm_id;
+            ArrAlarmMonitoring[MODE_SELECT].pValue = &_ArrAlarmValue[MODE_SELECT_STATUS];
+
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[MODE_SELECT_STATUS];
             ArrAlarmMonitoring[u8InputIndex].LocalEnable = &_u8DummyOne;
             break;
         case CFGZ:: CFGZ_AMB_TEMP_SELECT:
+            ArrAlarmMonitoring[AMB_TEMP_SWITCH].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_AMB_TEMPERATURE) == CFGZ::CFGZ_ENABLE);
+            prvSetAlarmActivation(AMB_TEMP_SWITCH, CFGZ::CFGZ_ALWAYS);
+            ArrAlarmMonitoring[AMB_TEMP_SWITCH].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
+            ArrAlarmMonitoring[AMB_TEMP_SWITCH].u8LoggingID = GCU_ALARMS::NoAlarm_id;
+            ArrAlarmMonitoring[AMB_TEMP_SWITCH].pValue = &_ArrAlarmValue[MODE_SELECT_STATUS];
+
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[AMB_TEMP_SELECT_STATUS];
             ArrAlarmMonitoring[u8InputIndex].LocalEnable = &_u8DummyOne;
             break;
@@ -548,6 +581,8 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
      * Currently the data types may not match as the CFGZ data types are not yet freezed.
      */
     bool benableMon=false;
+    ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LUBE_OIL_PRESSURE];
+
     switch(u8AlarmIndex)
     {
         case LOW_OIL_PRESS_SHUTDOWN:
@@ -987,7 +1022,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
                 ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Over_Load_id;
                 ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_OVERLOAD_THRESHOLD);
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax =NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_OVERLOAD_MON_DELAY);
+                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_OVERLOAD_MON_DELAY);
                 ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
             }
         break;
@@ -1517,25 +1552,25 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         case FAIL_TO_STOP:
             {
                 ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true;
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = true;
+                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
                 ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Fail_To_Stop_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
+                ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
+                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 1;
+                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
             }
             break;
         case FAIL_TO_START:
             {
                 ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true;
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = true;
+                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
                 ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Fail_To_Start_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
+                ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
+                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 1;
+                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
             }
             break;
         case ESTOP:
@@ -1544,18 +1579,17 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         }
             break;
         case LOAD_UNBALANCE:
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Load_Unbalance_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            break;
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_ACTION) != CFGZ::CFGZ_ACTION_NONE) && (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT) == CFGZ::CFGZ_ENABLE));
+            prvSetAlarmAction(u8AlarmIndex,CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_ACTION);
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
+            ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Load_Unbalance_id;
+            ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD));
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax =  NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_DELAY);
+            ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
+        }
+        break;
         case LFL_SWITCH:
         {
             //Implemented Completely in prvAssignInputSettings func.
@@ -1577,17 +1611,16 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         }
             break;
         case FILT_MAINTENANCE_BY_DATE:
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Filter_maintenance_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true ;
+            prvSetAlarmAction(u8AlarmIndex,CFGZ::ID_MAINT_ALARM_ACTION);
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
+            ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Filter_maintenance_id;
+            ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
+            ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
+        }
             break;
         case V_BELT_BROKEN_SWITCH:
         {
@@ -1595,53 +1628,32 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         }
             break;
         case LLOP_MON:
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = false;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = NoAlarm_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            break;
+        {
+            //Implemented Completely in prvAssignInputSettings func.
+        }
+        break;
         case HIGH_OIL_PRESS_DETECTED:
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = High_Oil_Press_Detected_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            break;
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true;
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = true;
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
+            ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = High_Oil_Press_Detected_id;
+            ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
+            ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
+        }
+        break;
         case MAINS_CONTACTOR_LATCHED:
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = NoAlarm_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            break;
+        {
+            //Implemented Completely in prvAssignInputSettings func.
+        }
+        break;
         case DG_CONTACTOR_LATCHED:
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = NoAlarm_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            break;
+        {
+            //Implemented Completely in prvAssignInputSettings func.
+        }
+        break;
         case BATT_CHG_FAIL:
         {
             //Implemented Completely in prvAssignInputSettings func.
@@ -1658,75 +1670,58 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         }
             break;
         case INVALID_DG_START:
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Invalid_gen_start_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            break;
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT) == CFGZ::CFGZ_ENABLE);
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableNotification = (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT) == CFGZ::CFGZ_ENABLE);
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
+            ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Invalid_gen_start_id;
+            ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
+            ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
+        }
+        break;
         case AMB_TEMP_SWITCH:
         {
             //Implemented Completely in prvAssignInputSettings func.
         }
-            break;
+        break;
         case ALARM_AMBER_LAMP :
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Amber_Lamp_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            break;
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_AMBER) != CFGZ::CFGZ_ACTION_NONE);
+            prvSetAlarmAction(ALARM_AMBER_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_AMBER));
+            prvSetAlarmActivation(ALARM_AMBER_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_AMBER));
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Amber_Lamp_id;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_AMBER);
+        }
+        break;
         case ALARM_RED_LAMP :
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Red_Lamp_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            break;
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_RED) != CFGZ::CFGZ_ACTION_NONE);
+            prvSetAlarmAction(ALARM_RED_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_RED));
+            prvSetAlarmActivation(ALARM_RED_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_RED));
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Red_Lamp_id;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_RED);
+        }
+        break;
         case ALARM_MIL_LAMP:
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Mil_Lamp_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            break;
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_MIL) != CFGZ::CFGZ_ACTION_NONE);
+            prvSetAlarmAction(ALARM_MIL_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_MIL));
+            prvSetAlarmActivation(ALARM_MIL_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_MIL));
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Mil_Lamp_id;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_MIL);
+        }
+        break;
         case ALARM_PROTECT_LAMP:
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Protect_Lamp_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            break;
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_PROTECT) != CFGZ::CFGZ_ACTION_NONE);
+            prvSetAlarmAction(ALARM_PROTECT_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_PROTECT));
+            prvSetAlarmActivation(ALARM_PROTECT_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_PROTECT));
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Protect_Lamp_id;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_PROTECT);
+        }
+        break;
         case ALARM_P0031 :
         case ALARM_P0032 :
         case ALARM_P0107 :
@@ -1790,19 +1785,20 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         case ALARM_P2315 :
         case ALARM_P2316 :
         case ALARM_P2317 :
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_P0031_id + u8AlarmIndex - ALARM_P0031;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (false);
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
+            ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_P0031_id + u8AlarmIndex - ALARM_P0031;
+            ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
+            ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
 
-//                ArrAlarmMonitoring[u8AlarmIndex].pValue = u8AlarmIndex - ALARM_P0031;
-            }
+        }
+        break;
+
+        default :
             break;
     }
 }
@@ -2407,7 +2403,7 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
                 {
                     if(ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant)
                     {
-                       prvAssignAlarmLatchedAction(_u8AlarmIndex);
+                        prvAssignAlarmLatchedAction(_u8AlarmIndex);
 
                         if(((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == ONE_BYTE_INT) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->u8Value) <= ArrAlarmMonitoring[_u8AlarmIndex].Threshold.u8Value) || \
                                 ((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == TWO_BYTE_INT) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->u16Value) < ArrAlarmMonitoring[_u8AlarmIndex].Threshold.u16Value) ||   \
@@ -2503,13 +2499,6 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
 
                 }
             }
-          //  if((_cfgz.GetCFGZ_Param(CFGZ::ID_WARNING_AUTO_CLEAR_EN) == CFGZ::CFGZ_ENABLE) && (_u8AlarmIndex != LOW_LOAD_TRIP))
-            {
-                ArrAlarmMonitoring[_u8AlarmIndex].bWarningLatched = ArrAlarmMonitoring[_u8AlarmIndex].bEnableWarning &&
-                        ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant;
-            }
-
-
 
             _bCommonNotification = _bCommonNotification || ArrAlarmMonitoring[_u8AlarmIndex].bNotificationLatched;
             _bCommonWarning = _bCommonWarning || ArrAlarmMonitoring[_u8AlarmIndex].bWarningLatched;

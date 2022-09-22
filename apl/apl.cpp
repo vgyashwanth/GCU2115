@@ -11,6 +11,10 @@
 #include "MB_APP.h"
 #include "APL_Manager/APL_Manager.h"
 #include "config.h"
+
+#define UNIT_TESTING 0
+
+#if(UNIT_TESTING)
 //#include "DEBUG_PRINT/DEBUG_PRINT.h"
 
 //volatile static bool bFlashErased = false;
@@ -82,6 +86,7 @@ void TurnOnAllDigitalOutput();
 
 void NV_LOG_Test();
 
+#endif
 void APL_Main()
 {
     volatile  uint32_t u32SpVal = __get_MSP();
@@ -94,13 +99,13 @@ void APL_Main()
         AplManager.Update();
     }
 
+#if(UNIT_TESTING)
     // StartStopKeyPress();
     // KeyPadTest();
-
     // D_SENSE_Test();
     // USB_CDC_Test();
-   //  DFLASH_test();
-//    GLCD_Test();
+    // DFLASH_test();
+    // GLCD_Test();
     // AC_SENSE_Test();
     // MODBUS_Test();
     // Virtual_EEPROM_Test();
@@ -113,9 +118,11 @@ void APL_Main()
     // PFLASH_Test();
     // DIG_IP_Test();
     // CFGZ_Test();
-//    NV_LOG_Test();
-}
+    // NV_LOG_Test();
+#endif
 
+}
+#if(UNIT_TESTING)
 void NV_LOG_Test()
 {
 //    HAL_Manager hal;
@@ -1422,3 +1429,4 @@ void keypad_cb(KEYPAD::KEYPAD_EVENTS_t Evt)
 //{
 // //   _requestResult = evt;
 //}
+#endif

@@ -483,7 +483,7 @@ void CFGZ::prvConfigureASENSE()
 u8MapSize = sizeof(aPIN23MAP)/sizeof(ASENSOR_MAP_ROW_t);
 cfg.stAIConfig[A_SENSE::HAL_PIN_23].eSensor = prGetAnalogSensor(ID_AUX_S4_DIG_P_SENSOR_SELECTION, aPIN23MAP,u8MapSize);
 cfg.stAIConfig[A_SENSE::HAL_PIN_23].eRef    = ANLG_IP::REF_ENGINE_BODY;
-prvCpyInterpolationTable(ID_AUX_S4_DIG_P_TANK_LENGTH_1, cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable);
+prvCpyInterpolationTable(ID_AUX_S4_DIG_P_SENSOR_HIGH_VTG, cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable);
 cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.u8InterPolationPoints = 10;
 
 
@@ -849,11 +849,7 @@ void CFGZ::GetEngSrNo(char EngSrNo[])
 
 uint8_t CFGZ::GetArrLanguageIndex()
 {
-    //If Chinese Language is selected the config UI should be displayed in English. Thus _u8LanguageArrayIndex is set to 0(English language) if Chinese Language is selected.
-    if(GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_MODE) == CFGZ::LANGUAGE_CHINSESE )
-    {
-       return 0;
-    }
-    return (uint8_t)(GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_MODE));
+
+    return (uint8_t)(0);
 }
 

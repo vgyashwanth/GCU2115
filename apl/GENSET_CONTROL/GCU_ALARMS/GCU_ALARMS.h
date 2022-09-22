@@ -559,7 +559,6 @@ public:
      */
     void ConfigureGCUAlarms(uint8_t u8AlarmIndex);
 
-    void DisableAFTTimeoutAfterActTimer();
 
     void AssignAlarmsForDisplay(uint8_t AlarmID);
 
@@ -592,9 +591,6 @@ public:
     bool IsShelterTempHigh();
     bool IsShelterTempLow();
 
-    bool IsMainsFeedbackAvailable();
-    bool IsGenFeedbackAvailable();
-
 
     void UpdateFuelTheftCalculation();
 private:
@@ -609,12 +605,11 @@ private:
         GEN_Y_PHASE_VOLTAGE,
         GEN_B_PHASE_VOLTAGE,
 
-        MAINS_R_PHASE_VOLTAGE,
-        MAINS_Y_PHASE_VOLTAGE,
-        MAINS_B_PHASE_VOLTAGE,
-        MAINS_R_PHASE_FREQ,
-        MAINS_Y_PHASE_FREQ,
-        MAINS_B_PHASE_FREQ,
+        MAINS_MIN_PHASE_VOLTAGE,
+        MAINS_MAX_PHASE_VOLTAGE,
+
+        MAINS_MIN_PHASE_FREQ,
+        MAINS_MAX_PHASE_FREQ,
 
         MAINS_PH_PH_MIN_VOLTAGE,
         CHARG_ALT_VOLTAGE,
@@ -627,10 +622,12 @@ private:
         FUEL_THEFT_ALARM,
         GEN_PHASE_ROTATION_STATUS,
         MAINS_PHASE_ROTATION_STATUS,
+        MPU_LOSS_STATUS,
+
         ENG_TEMP_OPEN_CKT,
         LOP_RES_OPEN_CKT,
         LOP_CURRENT_OPEN_CKT,
-        DIG_INPUT_A,    //26
+        DIG_INPUT_A,
         DIG_INPUT_B,
         DIG_INPUT_C,
         DIG_INPUT_D,
@@ -646,6 +643,36 @@ private:
         DIG_INPUT_N,
         DIG_INPUT_O,
         DIG_INPUT_P,
+
+        LOW_FUEL_LVL_SWITCH_STATUS,
+        LLOP_SWITCH_STATUS,
+        HWT_SWITCH_STATUS,
+        WATER_LEVEL_SWITCH_STATUS,
+        EMERGENCY_STOP_STATUS,
+        REMOTE_SS_STATUS,
+        SIM_START_STATUS,
+        SIM_STOP_STATUS,
+        SIM_AUTO_STATUS,
+        CLOSE_GEN_OPEN_MAINS_STATUS,
+        CLOSE_MAINS_OPEN_GEN_STATUS,
+        SIM_MAINS_STATUS,
+        V_BELT_BROKEN_SWITCH_STATUS,
+        MAINS_CONT_LATCHED_STATUS,
+        GEN_CONT_LATCHED_STATUS,
+        BATT_CHG_FAIL_STATUS,
+        SMOKE_FIRE_STATUS,
+        MODE_SELECT_STATUS,
+        AMB_TEMP_SELECT_STATUS,
+
+        FAIL_TO_STOP_STATUS,
+        FAIL_TO_START_STATUS,
+        GEN_UNBALANCED_LOAD,
+        MAINT_DATE,
+        HIGH_OIL_PRESSURE,
+
+        INVALID_GEN_START_STATUS,
+
+
         AUX_SENS_S1_OPEN_CKT,
         AUX_SENS_S2_OPEN_CKT,
         AUX_SENS_S3_OPEN_CKT,
@@ -659,51 +686,17 @@ private:
         SHELTER_TEMP_VAL,
         SHELT_TEMP_OPEN_CKT,
         EARTH_LEAKAGE_CURR_VAL,
-        REMOTE_SS_STATUS,
-        FAIL_TO_STOP_STATUS,
-        FAIL_TO_START_STATUS,
-        EMERGENCY_STOP_STATUS,
-        SIM_START_STATUS,
-        SIM_STOP_STATUS,
-        SIM_AUTO_STATUS,
-        SIM_MAINS_STATUS,
-        CLOSE_GEN_OPEN_MAINS_STATUS,
-        CLOSE_MAINS_OPEN_GEN_STATUS,
-        GEN_UNBALANCED_LOAD,
-        LOW_FUEL_LVL_SWITCH_STATUS,
-        LLOP_SWITCH_STATUS,
-        HWT_SWITCH_STATUS,
-        WATER_LEVEL_SWITCH_STATUS,
-        V_BELT_BROKEN_SWITCH_STATUS,
-        MPU_LOSS_STATUS,
-        MAINT_DATE,
+
         PIN23_SENSOR_CURRENT_VAL,
         FUEL_OPEN_CKT_VAL,
-        GEN_MIN_VOLTAGE,
-        GEN_MIN_FREQ,
-        HIGH_OIL_PRESSURE,
-        MAINS_CONT_LATCHED_STATUS,
-        GEN_CONT_LATCHED_STATUS,
-        FAIL_TO_LATCH_GEN_CONT_STATUS,
-        FAIL_TO_LATCH_MAINS_CONT_STATUS,
-        BATT_CHG_FAIL_STATUS,
-        SMOKE_FIRE_STATUS,
-        PANEL_LOCK_STATUS,
-        EX_AUTO_PANEL_LOCK_STATUS,
-        GEN_LOAD_INHIBIT_STATUS,
-        MAINS_LOAD_INHIBIT_STATUS,
-        INVALID_GEN_START_STATUS,
-        AFT_ACTIVATION_TIMEOUT_STATUS,
+
         LOP_CURR_STB,
-        J1939_COM_FAIL_STATUS,
-        J1939_PROTECT_LAMP_STATUS,
+
         J1939_AMBER_LAMP_STATUS,
         J1939_RED_LAMP_STATUS,
         J1939_MIL_LAMP_STATUS,
-        J1939_PREHEAT_FAIL_STATUS,
-        J1939_ASH_LOAD_STATUS,
-        LOW_LOAD_STATUS,
-        REGENERATION_SW_STATUS,
+        J1939_PROTECT_LAMP_STATUS,
+
         ALARM_VALUE_LAST
     }ALARM_VALUE_t;
 
@@ -733,7 +726,6 @@ private:
     bool          _bOPSounderAlarm;
     bool          _bFailToStart;
     bool          _bFailToStop;
-    bool          _bOpAutoFuelTransfer;
     bool          _bCLNTTempCtrl;
     bool          _bBTSBattHealthy;
     bool          _bHighShelterTemp;
@@ -786,7 +778,6 @@ private:
     uint8_t       _u8MaintAlarm;
     float         _f32FuelLevelOldValue;
     stTimer       _FuelSettlingTimer;
-    stTimer       _AFTTimeoutAfterActTimer;
     stTimer       _SounderAlarmTimer;
     stTimer       _UpdateAlarmMonTimer;
     stTimer       _AlarmUpdate;
@@ -841,6 +832,7 @@ private:
             uint8_t u8Activation, uint8_t u8ActivationDelay, 
                 uint8_t u8AlarmAction, uint8_t u8LoggingID);
 
+    float prvGetMinMainsFreq();
     float prvGetMaxMainsFreq();
 
     float prvGetMaxGensetCurent();
@@ -871,13 +863,9 @@ private:
 
     void prvMainsHighLowOutputs();
 
-    void prvAutoFuelTransferFunction();
-
     void prvCoolantTempCtrlFunction();
 
     void prvActDeactCLNTTempCtrlOutput();
-
-    void prvActDeactAFTOutput();
 
     void prvCheckTripAction(uint8_t u8ReturnIndex, uint8_t u8TripIndex, bool status);
 };

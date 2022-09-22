@@ -86,7 +86,7 @@ void MAIN_UI::prvExitFromConfigMode()
     _GCUAlarms.InitGCUAlarms();
     /* todo: Shift below prv functions to the respective classes once all other files become ready */
     prvUpadteBaseModeConfigDependency(); /* base mode related function call made with manual mode obj referenece*/
-    _EngineStartValidity.UpdateStartValidyParam();
+    _EngineStartValidity.InitEngineStartValidityConfig();
     _Egov.InitEgovParameters();
     _StartStop.Init();
 

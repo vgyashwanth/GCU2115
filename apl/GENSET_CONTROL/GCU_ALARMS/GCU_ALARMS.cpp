@@ -2026,7 +2026,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
 
 
 
-    _ArrAlarmValue[INVALID_GEN_START_STATUS].u8Value = (uint8_t)(ENGINE_START_VALIDITY::GetEngineStartInvalidity());
+    _ArrAlarmValue[INVALID_GEN_START_STATUS].u8Value = (uint8_t)(ENGINE_START_VALIDITY::IsValidEngineStartFound());
 
     _ArrAlarmValue[AFT_ACTIVATION_TIMEOUT_STATUS].u8Value = _u8AFTActivationTimeout;
     _ArrAlarmValue[SIM_MAINS_STATUS].u8Value= (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(

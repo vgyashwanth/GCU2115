@@ -3,6 +3,10 @@
  *
  *  Created on: 03-Jun-2022
  *      Author: madhuri.abhang
+
+ *  Modification History:
+ *  Shubham Wader 22.09.2022
+ *  -Rearrenged code neately.
  */
 
 #ifndef APL_GENSET_CONTROL_ENGINE_START_VALIDITY_ENGINE_START_VALIDITY_H_
@@ -16,61 +20,59 @@
 
 class ENGINE_START_VALIDITY
 {
+/* MACRO */
+    /* While start operation , Expected minimum time that should be taken by engine
+        to traverse from lower threshold speed to higher threshold. If higher speed achieved
+        before that, the engine start process is been tampered. */
+    #define ALLOWED_RAMP_TIME_FOR_VALID_START      (100U) /* 100 mili sec */
 
-    //-------------------------------------------------------------------------------------------------/
-    //*                                     PRIVATE MACRO                                             */
-    //-------------------------------------------------------------------------------------------------/
-    #define RPM_THRESHOLD_LOW_CONST                     600
-    #define RPM_THRESHOLD_HIGH_CONST                    1200
-    #define MIN_CNTS_FOR_RPM1TORPM2                     (100)   //(1msec * 100 count = 100msec)
-    #define CNTS_FOR_1_SEC                              (1000)  //(1msec * 1000 count = 1sec)
+/* General constant values to be considered to check start validity , if user sets unpractical value */
+    #define CONSTANT_LOWER_SPEED_THRESHOLD         (600U)  /* rpm */
+    #define CONSTANT_UPPER_SPEED_THRESHOLD         (1200U) /* rpm */
 
-
+/* Public class restricted enum */
+    /* Start Validity State Machine States */
     typedef enum
     {
-        INVALID_DG_RUN_IDLE,
-        INVALID_DG_RUN_CHECK_HIGH_THRSH,
-        INVALID_DU_RUN_FALSE
-    }INVALID_DG_DETECTION_STATE_t;
-
-    /**
-     ** @brief  The function initialises  -
-     **         Sets lower, higher rpm threshold depending on crank disconnect, under speed threshold.
-     **         Sets timeout to wait for lower to higher threshold depending on crank hold time.
-     **         Resets all necessary variables for engine start validity SMD.
-     **
-     ** @param None
-     ** @return void
-     **/
-
-
-    void InitEngineStartValidityParams(void);
-    void SetStartWaveDetectionStatus(bool bStatus);
+        SV_SM_IDLE = 0,           /* Start Validity State Machine Idle */
+        SV_SM_CHECK_VALID_START,
+        SV_SM_FOUND_VALID_START,
+        SV_SM_FOUND_INVALID_START,
+        SV_SM_RESET,
+        SV_SM_LAST
+    }START_VALIDITY_SM_STATE_t;
 
 public:
-    static void SetEngineStartInvalidity(bool bStatus);
-    static bool GetEngineStartInvalidity(void);
-    static bool GetStartWaveDetectionStatus(void);
-    void UpdateStartValidyParam(void);
-    ENGINE_START_VALIDITY(CFGZ &cfgz, GCU_ALARMS &GCUAlarms);
-    void SMDToChkEngStartValidity(void);
-    void InitInvalidDgDetectionStateMachine(void);
+
+    ENGINE_START_VALIDITY(CFGZ &cfgz, GCU_ALARMS &GCUAlarms); /* constructor */
+
+/* PUBLIC FUNCTIONS */
+    void InitEngineStartValidityConfig();
+    void EngineStartValiditySM(bool bDeviceInConfigMode);
+
+/* Shubham Wader 22.09.2022
+   Below prototypes and variables made static intentionally to expand
+   scope of accessibility without object. */
+    static bool IsEngineStartValidityDetectionEnabled();
+    static bool IsValidEngineStartFound();
+
+/* PUBLIC variables */
+    static bool bStartValidDetectionEnaled;
+    static bool bFoundValidEngineStart;
 
 private:
-    CFGZ &_cfgz;
-    GCU_ALARMS          &_GCUAlarms;
-    static bool _bEngineStartWasInValid;
-    bool _bStrtTmrToDetectInvalidDgRun = false;
-    static bool _bStartWaveDetection;
-    uint32_t _u32TimeFromRpm1ToRpm2_ms = 0;
-    uint32_t _u32TimeoutForRpm1ToRpm2_us = 0;
-    uint16_t _u16LowRpmThreshold = 0;
-    uint16_t _u16HighRpmThreshold = 0;
-    INVALID_DG_DETECTION_STATE_t _eInvalidDgDetectionState = INVALID_DG_RUN_IDLE;
+/* Private object refetences */
+    CFGZ            &_cfgz;
+    GCU_ALARMS      &_GCUAlarms;
+
+/* Private Timer Instances */
+    stTimer         _SpeedRampDetectTimer;
+
+/* Private variables */
+    START_VALIDITY_SM_STATE_t  _eValidStartDetectionState;
+    uint16_t        _u16LowerSpeedThreshold_rpm;
+    uint16_t        _u16HigherSpeedThreshold_rpm;
+
 };
-
-
-
-
 
 #endif /* APL_GENSET_CONTROL_ENGINE_START_VALIDITY_ENGINE_START_VALIDITY_H_ */

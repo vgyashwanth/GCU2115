@@ -113,12 +113,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
             case ID_STATE_SS_ENG_OFF_OK:
 
                 prvSetOutputVariables(false, false, false, false);
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
-                {
-                    _EngineStartValidity.InitInvalidDgDetectionStateMachine();
-                    ENGINE_START_VALIDITY::SetEngineStartInvalidity(false);
-                }
-
                 if(_EngineMon.IsEngineOn() == 1U)
                 {
                     _bGenStarted = true;

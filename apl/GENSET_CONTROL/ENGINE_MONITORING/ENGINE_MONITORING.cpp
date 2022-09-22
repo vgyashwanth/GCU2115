@@ -616,25 +616,6 @@ uint32_t ENGINE_MONITORING::GetTamperedRunTimeMin()
 {
     return  _stCummulativeCnt.u32TamperedRunTime_min;
 }
-//float ENGINE_MONITORING::GetTamprEEPromCummEnergy()
-//{
-//    return _stCummulativeCnt.f32TamprGenKWH;
-//}
-//float ENGINE_MONITORING::GetGenEEPromCummKWH()
-//{
-//    return _stCummulativeCnt.f32GenKWH;
-//}
-//
-//
-//float ENGINE_MONITORING:: GetGenEEPromCummKVAH()
-//{
-//    return _stCummulativeCnt.f32GenKVAH;
-//}
-//
-//float ENGINE_MONITORING:: GetGenEEPromCummKVARH()
-//{
-//    return  _stCummulativeCnt.f32GenKVARH;
-//}
 
 uint32_t ENGINE_MONITORING::GetMainsRunTimeMin()
 {
@@ -1103,8 +1084,8 @@ bool ENGINE_MONITORING::IsGenStartValid()
     /* (invalidity enabled & valid start found & wave detection enabled) || (wave detection disabled) */
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
     {
-        return ((true == ENGINE_START_VALIDITY::GetStartWaveDetectionStatus())
-                && (false == ENGINE_START_VALIDITY::GetEngineStartInvalidity()));
+        return ((true == ENGINE_START_VALIDITY::IsEngineStartValidityDetectionEnabled())
+                && (false == ENGINE_START_VALIDITY::IsValidEngineStartFound()));
     }
     else
     {

@@ -1,17 +1,17 @@
 /**
  * @file        [MB_APP]
- * @brief       This module defines the modbus registers. It internally populates 
+ * @brief       This module defines the modbus registers. It internally populates
  *              the modbus registers and also provides API's to read/write these
  *              registers. The module allows to define registers whose addresses
  *              aren't continuous, ex: 10 registers in address range [0-9]
- *              and another 10 registers in address range [20-29]. 
+ *              and another 10 registers in address range [20-29].
  *              In case we want to define groups of registers whose addresses are
  *              non-continuous, the following things need to be done:
  *              1. Create an entry for each register in MODBUS_READ_REGISTERS_t if
  *              it is a read only register. Create an entry in  MODBUS_WRITE_REGISTERS_t
  *              if it is a write only register
  *              The enum entry corresponding the first register of an address group
- *              shall be set with it's address. The successive enums will automatically 
+ *              shall be set with it's address. The successive enums will automatically
  *              assigned the right addresses, because the compilers assigns successive
  *              values to the following enum entries.
  *              2. Change MODBUS_ADDRESS_GROUPS value to the number of register
@@ -19,7 +19,7 @@
  *              3. Create a uint16_t buffer to hold the new group of registers.
  *              This means the size of this buffer shall be equal to the number of
  *              registers in this group.
- *              ex: _au16Grp1Registers & _au16Grp1Registers is already done for 
+ *              ex: _au16Grp1Registers & _au16Grp1Registers is already done for
  *              group 1 and group 2.
  *              4. An entry for the new group needs to be created in _aAddressGrp.
  *              This is done in the parametrized constructor.
@@ -42,7 +42,6 @@
 #include "GCU_ALARMS.h"
 #include "ENGINE_MONITORING.h"
 #include "AUTO_MODE.h"
-#include "../EGOV/EGOV.h"
 
 #define AUTOMATION 0
 /*Defines the number of discontinuous address groups*/
@@ -69,7 +68,9 @@ public:
        address.
      */
     typedef enum {
-        MB_REG_PROTOCOL_VER = 0,
+        DIG_ALARM_1_REG = 0, //
+        DIG_ALARM_2_REG, //
+        SOLID_STATE_OP_REG, //
         MB_MAINS_L1_N_VOLTAGE,
         MB_MAINS_L2_N_VOLTAGE,
         MB_MAINS_L3_N_VOLTAGE,
@@ -79,86 +80,77 @@ public:
         MB_GEN_L1_CURRENT,
         MB_GEN_L2_CURRENT,
         MB_GEN_L3_CURRENT,
-
         MB_MAINS_CUMM_ACTIVE_ENERGY_1,
         MB_MAINS_CUMM_ACTIVE_ENERGY_2,
-
         MB_GEN_CUMM_ACTIVE_ENERGY_1,
         MB_GEN_CUMM_ACTIVE_ENERGY_2,
+        MB_ENG_RUN_HOURS,
+        MB_ENG_RUN_MINUTES,
+        MB_MAINS_RUN_HOURS,
+        MB_MAINS_RUN_MINUTES,
+        MB_BATTERY_VOLTAGE,
+        MB_BTS_CHARGE_STATE,
+        MB_FUEL_LEVEL,
+        MB_MAINS_L1_POWER,
+      	MB_MAINS_L2_POWER,
+      	MB_MAINS_L3_POWER,
+        MB_GEN_L1_POWER,
+        MB_GEN_L2_POWER,
+        MB_GEN_L3_POWER,
+        MB_BTS_RUN_HRS,
+        MB_BTS_RUN_MIN,
+        MB_TMP_RUN_HOURS,
+        MB_TMP_RUN_MINUTES,
+        MB_GEN_TMP_ACTIVE_ENERGY_1,
+        MB_GEN_TMP_ACTIVE_ENERGY_2,
 
-        MB_GEN_L1_L2_VOLATGE,
-        MB_GEN_L2_L3_VOLATGE,
-        MB_GEN_L3_L1_VOLATGE,
+/* Expected start address for the first parameter over modbus is 0x4000.
+This start address is subtracted while parsing the modbus packet so the
+enum DIG_ALARM_1_REG starts from 0. After which all the parameters are sequentially added
+but as per the requirement new parameters need be added from 0x4030 address over MODBUS.
+Since we are supposed to add all the parameters from 0x4030 we have added offset of 14 in
+COOLANT_TEMP_REGi.e difference between GEN_TMP_KWH_REG_2 and COOLANT_TEMP_REG .
+NOTE :- If you are adding any enum between GEN_TMP_KWH_REG_2 and COOLANT_TEMP_REG register,
+verify that COOLANT_TEMP_REG register is at 0x4030. So to do that you are supposed to edit
+offset 14.
+*/
+        MB_COOLANT_TEMPERATURE = MB_GEN_TMP_ACTIVE_ENERGY_2 + 14,
+        MB_OIL_PRESSURE,
+        MB_ENG_SPEED,
         MB_GEN_R_FREQUENCY,
         MB_GEN_Y_FREQUENCY,
         MB_GEN_B_FREQUENCY,
+        MB_GEN_L1_APPARENT_POWER,
+        MB_GEN_L2_APPARENT_POWER,
+        MB_GEN_L3_APPARENT_POWER,
+        MB_GEN_L1_REACTIVE_POWER,
+        MB_GEN_L2_REACTIVE_POWER,
+        MB_GEN_L3_REACTIVE_POWER,
+        MB_GEN_CUMM_APPARENT_ENERGY_1,
+        MB_GEN_CUMM_APPARENT_ENERGY_2,
+        MB_GEN_CUMM_REACTIVE_ENERGY_1,
+        MB_GEN_CUMM_REACTIVE_ENERGY_2,
         MB_GEN_L1_PF,
         MB_GEN_L2_PF,
         MB_GEN_L3_PF,
-        MB_GEN_AVERAGE_PF, /* gu16GenTotalPF */
+        MB_GEN_AVERAGE_PF,
+        MB_FUEL_IN_LIT, //
 
+#if AUTOMATION
+
+        MB_AUX_S1,
+        MB_AUX_S2,
+        MB_GEN_L1_L2_VOLATGE,
+        MB_GEN_L2_L3_VOLATGE,
+        MB_GEN_L3_L1_VOLATGE,
         MB_MAINS_L1_L2_VOLTAGE,
         MB_MAINS_L2_L3_VOLTAGE,
         MB_MAINS_L3_L1_VOLTAGE,
         MB_MAINS_R_FREQUENCY,
         MB_MAINS_Y_FREQUENCY,
         MB_MAINS_B_FREQUENCY,
-
-        MB_GEN_L1_POWER,
-        MB_GEN_L2_POWER,
-        MB_GEN_L3_POWER,
-        MB_GEN_TOTAL_POWER,
-        MB_GEN_PERCENT_LOAD,
-
-        MB_GEN_L1_APPARENT_POWER,
-        MB_GEN_L2_APPARENT_POWER,
-        MB_GEN_L3_APPARENT_POWER,
-        MB_GEN_TOTAL_APPARENT_POWER,
-        MB_GEN_L1_REACTIVE_POWER,
-        MB_GEN_L2_REACTIVE_POWER,
-        MB_GEN_L3_REACTIVE_POWER,
-        MB_GEN_TOTAL_REACTIVE_POWER,
-
-
-        MB_GEN_CUMM_APPARENT_ENERGY_1,
-        MB_GEN_CUMM_APPARENT_ENERGY_2,
-        MB_GEN_CUMM_REACTIVE_ENERGY_1,
-        MB_GEN_CUMM_REACTIVE_ENERGY_2,
-
-
-
-        MB_MAINS_CUMM_APPARENT_ENERGY_1,
-        MB_MAINS_CUMM_APPARENT_ENERGY_2,
-        MB_MAINS_CUMM_REACTIVE_ENERGY_1,
-        MB_MAINS_CUMM_REACTIVE_ENERGY_2,
-
-
-        MB_OIL_PRESSURE,
-        MB_COOLANT_TEMPERATURE,
-        MB_FUEL_LEVEL,
-        MB_FUEL_IN_LIT,
-
-        MB_CHARGING_ALT_VOLTAGE, /* extra */
-        MB_BATTERY_VOLTAGE,
-        MB_ENG_SPEED,
         MB_NO_OF_STARTS,
         MB_NO_OF_TRIPS,
-        MB_ENG_RUN_HOURS_1, /* extra */
-        MB_ENG_RUN_HOURS_2, /* extra */
-        MB_ENG_RUN_MINUTES,
-
-        MB_MAINS_RUN_HOURS, /* extra */
-        MB_MAINS_RUN_MINUTES,
-
-        MB_AUX_S1,  /*gu16AuxS1Value */
-        MB_AUX_S2,  /*gu16AuxS2Value */
-        MB_AUX_S3,  /*gu16AuxS3Value */
-        MB_AUX_S4,  /*gu16AuxS4Value */
-
-        MB_BTS_CHARGE_STATE, /* gu16BTSChargeState */
-        MB_BTS_RUN_HRS,
-        MB_BTS_RUN_MIN,  /* gu16BtsRunMins */
-
         MB_ALARM_1,
         MB_ALARM_2,
         MB_ALARM_3,
@@ -171,41 +163,36 @@ public:
         MB_ALARM_10,
         MB_ALARM_11,
         MB_ALARM_12,
-
-        MB_ALARM_13,   /* gu16AlarmReg13 */
-        MB_ALARM_14,   /* gu16AlarmReg14 */
-        MB_ALARM_15,   /* gu16AlarmReg15 */
-        MB_ALARM_16,   /* gu16AlarmReg16 */
-        MB_ALARM_17,   /* gu16AlarmReg17 */
-
-        MB_DIG_IP_STATUS,  /* gu16DigIPStatus */
-        MB_DIG_OP_STATUS,  /* gu16DigOPStatus */
-
-
-//       MB_IP_OP_DIAGNOSTICS,  /*Doubt: This is additional parameter. Should this be added ?*/
-
-
+        MB_ALARM_13,
+        MB_ALARM_14,
+        MB_ALARM_15,
+        MB_ALARM_16,
+        MB_ALARM_17,
+        MB_DIG_IP_STATUS,
+        MB_DIG_OP_STATUS,
         MB_GEN_STATUS,
         MB_TIME_STAMP0,
         MB_TIME_STAMP1,
         MB_TIME_STAMP2,
         MB_TIME_STAMP3,
-#if (AUTOMATION ==1)
-        MB_CA_VTG,
+        PASSWORD_ACCESS_STATUS, //
+        MAIN_MENU_INDEX, //
+        SUB_MENU_INDEX, //
+        ITEM_INDEX, //
+
 #endif
         MB_READ_REG_LAST
     } MODBUS_READ_REGISTERS_t;
 
     typedef enum name {
-        MB_COMMAND       = 0,
+        MB_COMMAND = 0,
+        MB_MODE_REG, //
         MB_DATE_TIME1,
         MB_DATE_TIME2,
         MB_DATE_TIME3,
         MB_DATE_TIME4,
         MB_DATE_TIME5,
     }MODBUS_WRITE_REGISTERS_t;
-
-
 
     typedef struct
     {
@@ -222,7 +209,7 @@ public:
      * None
      */
     MB_APP(HAL_Manager &hal,  CFGZ &cfgz, GCU_ALARMS &gcuAlarm,
-            ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode, EGOV &EGOV);
+            ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode);
 
     /**
      * Fetches the value of a modbus register with write access(address group 2).
@@ -252,7 +239,7 @@ public:
     void SetWriteRegisterValue(MODBUS_WRITE_REGISTERS_t eRegister, uint16_t u16Value);
 
     /**
-     * Handles modbus transactions and keeps refreshing the modbus registers 
+     * Handles modbus transactions and keeps refreshing the modbus registers
      * with the latest data from other modules. This is expected to be called in
      * the super while loop.
      * @param - None
@@ -281,7 +268,6 @@ private:
     GCU_ALARMS          &_gcuAlarm;
     ENGINE_MONITORING   &_engineMonitoring;
     AUTO_MODE           &_Automode;
-    EGOV                &_Egov;
     uint16_t             _u16MODBUSCommand;
     uint16_t             _u16MODBUSOperModeCMD;
   //  static MODBUS_CMD_STATUS_t _eMBCmdStatus;
@@ -305,7 +291,7 @@ private:
      * @return
      * index of the register group.
      */
-    uint8_t prvIdentifyRegisterGroup(uint16_t u16RegisterAddress, 
+    uint8_t prvIdentifyRegisterGroup(uint16_t u16RegisterAddress,
                                                 bool bReadAccess, bool bWriteAccess);
 
     /**
@@ -340,6 +326,21 @@ private:
      */
     void prvUpdateMBCommandStatus();
 
+    /** Updates the appropriate registers with Time Stamp
+     * */
+    void prvUpdateTimeStamp();
+
+    void prvUpdateEngSensorAlarms(uint8_t u8AlarmID1, uint8_t u8AlarmID2, uint8_t u8AlarmID3, uint8_t u8Offset);
+    void prvUpdateEngSensorAlarms(uint8_t u8AlarmID1, uint8_t u8AlarmID2, uint8_t u8Offset);
+    void prvUpdateEngSensorAlarms(uint8_t u8AlarmID1, uint8_t u8Offset);
+    void prvUpdateAlarmRegValue(uint8_t u8AlarmID, uint8_t u8Offset);
+    void prvUpdateAlarmRegStatus(uint8_t u8AlarmID, uint8_t u8Offset);
+
+    void prvUpadateDIGInOut();
+    void prvUpdateBtsParams();
+    void prvUpdateTmpParams();
+    void prvUpdateAUXSensorVal();
+
     /**
      * Updates the appropriate registers with response to the MODBUS commands.
      * @param - None
@@ -348,22 +349,6 @@ private:
      */
     void prvUpdateGCUAlarms();
 
-    /** Updates the appropriate registers with Time Stamp
-     * */
-    void prvUpdateTimeStamp();
-
-    void UpdateEngSensorAlarms(uint8_t u8AlarmReg, uint8_t u8ShutdownID, uint8_t u8WarningID,
-                        uint8_t u8SwitchID, uint8_t u8Offset);
-    void UpdateAlarmRegValue(uint8_t u8AlarmID, uint8_t u8AlarmReg, uint8_t u8Offset);
-
-    void UpdateAlarmRegStatus(uint8_t u8AlarmID, uint8_t u8AlarmReg, uint8_t u8Offset);
-
-    void UpdateDGVoltAlarms(uint8_t u8AlarmReg, uint8_t u8WarningID, uint8_t u8ShutdownID, uint8_t u8Offset);
-    void prvUpdateAUXReg(uint16_t u16AlarmID1, uint16_t u16AlarmID2, uint16_t u16Offset);
-
-    void prvUpadateDIGInOut();
-    void prvUpdateBtsParams();
-    void prvUpdateAUXSensorVal();
 };
 
 #endif

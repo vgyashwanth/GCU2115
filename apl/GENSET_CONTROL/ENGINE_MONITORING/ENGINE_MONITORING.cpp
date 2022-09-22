@@ -731,10 +731,10 @@ uint32_t ENGINE_MONITORING::GetTamperedRunTimeMin()
 {
     return  _stCummulativeCnt.u32TamperedRunTime_min;
 }
-//float ENGINE_MONITORING::GetTamprEEPromCummEnergy()
-//{
-//    return _stCummulativeCnt.f32TamprGenKWH;
-//}
+float ENGINE_MONITORING::GetTamprEEPromCummEnergy()
+{
+    return _stCummulativeCnt.f32TamprGenKWH;
+}
 //float ENGINE_MONITORING::GetGenEEPromCummKWH()
 //{
 //    return _stCummulativeCnt.f32GenKWH;

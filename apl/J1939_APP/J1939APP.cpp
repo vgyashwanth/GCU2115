@@ -14,6 +14,7 @@
 
 #include "J1939APP.h"
 #include "START_STOP.h"
+
 static const float F32_Null = (float)(0xFFFFFFFF);
 bool J1939APP::bTXBufferisEmpty        = true;
 bool J1939APP::bAvrFaultShutDn         = false;

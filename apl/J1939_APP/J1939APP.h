@@ -23,6 +23,7 @@
 #include "HAL_Manager.h"
 #include "MB_APP.h"
 #include "../GENSET_CONTROL/ENGINE_MONITORING/ENGINE_MONITORING.h"
+#include "../EGOV/EGOV.h"
 
 class J1939APP: public J1939DRIVER
 {

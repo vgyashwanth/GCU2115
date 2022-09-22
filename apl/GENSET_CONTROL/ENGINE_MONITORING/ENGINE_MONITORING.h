@@ -116,7 +116,7 @@ public:
     float GetFilteredEngSpeed();
 
     float GetRawEngSpeed();
-//    float GetTamprEEPromCummEnergy();
+    float GetTamprEEPromCummEnergy();
 //    float GetGenEEPromCummKWH();
 //    float GetGenEEPromCummKVAH();
 //    float GetGenEEPromCummKVARH();

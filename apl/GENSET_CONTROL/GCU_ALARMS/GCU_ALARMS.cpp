@@ -225,7 +225,7 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
 }
 
 void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-                                    bool bMonitoringPolarity, uint8_t u8LoggingID, 
+                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
                                     uint8_t u8Threshold, uint16_t u16CounterMax)
 {
     ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
@@ -237,7 +237,7 @@ void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnabl
 }
 
 void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-                                    bool bMonitoringPolarity, uint8_t u8LoggingID, 
+                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
                                     uint16_t u16Threshold, uint16_t u16CounterMax)
 {
     ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
@@ -249,7 +249,7 @@ void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnabl
 }
 
 void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-                                    bool bMonitoringPolarity, uint8_t u8LoggingID, 
+                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
                                     float f32Threshold, uint16_t u16CounterMax)
 {
     ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
@@ -335,8 +335,8 @@ void GCU_ALARMS::prvSetAlarmActivation(uint8_t u8AlarmIndex, uint8_t u8AlarmActi
     ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
 }
 
-void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSource, 
-                                        uint8_t u8Activation, uint8_t u8ActivationDelay, 
+void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSource,
+                                        uint8_t u8Activation, uint8_t u8ActivationDelay,
                                         uint8_t u8AlarmAction, uint8_t u8LoggingID)
 {
     if((u8InputIndex >= DIG_IN_A )&&(u8InputIndex <= DIG_IN_P )
@@ -2886,7 +2886,67 @@ void GCU_ALARMS::prvActDeactOutput(bool bOutputCondition, ACTUATOR::ACTUATOR_TYP
 }
 
 void GCU_ALARMS::prvUpdateOutputs()
-{  }
+{
+    prvActDeactOutput(_bOPSounderAlarm, ACTUATOR::ACT_AUDIBLE_ALARM);
+    prvActDeactOutput(ArrAlarmMonitoring[VBAT_OV].bResultInstant, ACTUATOR::ACT_VBAT_OV);
+    prvActDeactOutput(ArrAlarmMonitoring[VBAT_UV].bResultInstant, ACTUATOR::ACT_VBAT_UV);
+    prvActDeactOutput(ArrAlarmMonitoring[CA_FAIL].bShutdownLatched, ACTUATOR::ACT_CA_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[CA_FAIL].bWarningLatched, ACTUATOR::ACT_CA_WARNING);
+    prvActDeactOutput(_bCommonAlarm, ACTUATOR::ACT_ALARM);
+    prvActDeactOutput(_bCommonElectricTrip, ACTUATOR::ACT_ELEC_TRIP);
+    prvActDeactOutput(_bCommonShutdown, ACTUATOR::ACT_SHUTDOWN);
+    prvActDeactOutput(_bCommonWarning, ACTUATOR::ACT_WARNING);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_A].bResultInstant, ACTUATOR::ACT_DIG_IN_A);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_B].bResultInstant, ACTUATOR::ACT_DIG_IN_B);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_C].bResultInstant, ACTUATOR::ACT_DIG_IN_C);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_D].bResultInstant, ACTUATOR::ACT_DIG_IN_D);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_E].bResultInstant, ACTUATOR::ACT_DIG_IN_E);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_F].bResultInstant, ACTUATOR::ACT_DIG_IN_F);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_G].bResultInstant, ACTUATOR::ACT_DIG_IN_G);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_H].bResultInstant, ACTUATOR::ACT_DIG_IN_H);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_I].bResultInstant, ACTUATOR::ACT_DIG_IN_I);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_J].bResultInstant, ACTUATOR::ACT_DIG_IN_J);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_K].bResultInstant, ACTUATOR::ACT_DIG_IN_K);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_L].bResultInstant, ACTUATOR::ACT_DIG_IN_L);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_M].bResultInstant, ACTUATOR::ACT_DIG_IN_M);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_N].bResultInstant, ACTUATOR::ACT_DIG_IN_N);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_O].bResultInstant, ACTUATOR::ACT_DIG_IN_O);
+    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_P].bResultInstant, ACTUATOR::ACT_DIG_IN_P);
+    prvActDeactOutput(ArrAlarmMonitoring[ESTOP].bResultLatched, ACTUATOR::ACT_E_STOP);
+    prvActDeactOutput(ArrAlarmMonitoring[FAIL_TO_START].bResultLatched, ACTUATOR::ACT_FAIL_TO_START);
+    prvActDeactOutput(ArrAlarmMonitoring[FAIL_TO_STOP].bResultLatched, ACTUATOR::ACT_FAIL_TO_STOP);
+    prvActDeactOutput(ArrAlarmMonitoring[DG_R_OV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_R_OV_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[DG_Y_OV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_Y_OV_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[DG_B_OV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_B_OV_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[DG_R_UV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_R_UV_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[DG_Y_UV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_Y_UV_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[DG_B_UV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_B_UV_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[OVERCURRENT].bResultLatched, ACTUATOR::ACT_GEN_OC);
+    prvActDeactOutput(ArrAlarmMonitoring[HIGH_WATER_TEMP].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive, ACTUATOR::ACT_HIGH_TEMP);
+    prvActDeactOutput(_u8LowFuelLevelAlarm, ACTUATOR::ACT_LOW_FUEL);
+    prvActDeactOutput(ArrAlarmMonitoring[LOW_FUEL_LEVEL_NOTIFICATION].bNotificationLatched, ACTUATOR::ACT_LOW_FUEL_NOTIFICATION);
+    prvActDeactOutput(_u8LowOilPressAlarm, ACTUATOR::ACT_LOW_PRES);
+    prvActDeactOutput(ArrAlarmMonitoring[MAINS_OVERVOLT_TRIP].bResultInstant, ACTUATOR::ACT_MAINS_HIGH);
+    prvActDeactOutput(ArrAlarmMonitoring[MAINS_UNDERVOLT_TRIP].bResultInstant, ACTUATOR::ACT_MAINS_LOW);
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) || (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_LOP_VOL_SENSOR))
+    {
+        prvActDeactOutput(ArrAlarmMonitoring[OPEN_LOP_SENS_CKT].bResultLatched, ACTUATOR::ACT_OIL_CKT_OPEN);
+    }
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_LOP_CUR_SENSOR)
+    {
+        prvActDeactOutput(ArrAlarmMonitoring[OPEN_LOP_CURR_SENS_CKT].bResultLatched, ACTUATOR::ACT_OIL_CKT_OPEN);
+    }
+    prvActDeactOutput(ArrAlarmMonitoring[OVERFREQ_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_OF_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[OVERSPEED_L1].bShutdownLatched, ACTUATOR::ACT_OS_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[OVERSPEED_L2].bShutdownLatched, ACTUATOR::ACT_GROSS_OS_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[OPEN_ENG_TEMP_CKT].bResultLatched, ACTUATOR::ACT_TEMP_CKT_OPEN);
+    prvActDeactOutput(ArrAlarmMonitoring[UNDERFREQ_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_UF_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[UNDERSPEED].bShutdownLatched, ACTUATOR::ACT_US_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[FILT_MAINTENANCE].bAlarmActive || ArrAlarmMonitoring[FILT_MAINTENANCE_BY_DATE].bAlarmActive, ACTUATOR::ACT_FILT_MAINT);
+    prvActDeactOutput(ArrAlarmMonitoring[ALARM_MIL_LAMP].bResultInstant, ACTUATOR::ACT_MIL);/*DOUBT*/
+}
+
+
 
 uint16_t GCU_ALARMS::GetMinGensetVoltage()
 {

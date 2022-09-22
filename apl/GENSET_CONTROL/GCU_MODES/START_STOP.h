@@ -54,6 +54,8 @@ public:
 
      #define IS_AMB_TEMP_ENABLED()              ( _cfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_AMB_TEMPERATURE) == 1U)
 
+     #define DG_IDLE_RUN_DELAY_IN_SEC           (5U)
+
 	// Constructor: Initializes this module
 	START_STOP(HAL_Manager &hal, ENGINE_MONITORING &EngineMon, CFGZ &cfgz,  
                     GCU_ALARMS &GCUAlarms, BASE_MODES::GCU_MODE_VARS_t &vars, CHARGING_ALT &ChargeAlt,   ENGINE_START_VALIDITY  &EngineStartValidity);
@@ -171,6 +173,8 @@ public:
     void StartKeyPressed();
     void StopKeyPressed();
 
+    uint32_t GetCrankStartDelay();
+
 private:
     HAL_Manager                 &_hal;
     ENGINE_MONITORING           &_EngineMon;
@@ -200,6 +204,8 @@ private:
     bool                        _bAlarmAckReleased;
     bool                        _bAckAudblAlrmRecd;
     bool                        _bSimAckRecd;
+    bool                       _bDGIdleRunDelayRunning;
+    static bool                 _bMonitorDGIdleRun;
 
     stTimer                     _PreheatTimer;
     stTimer                     _EngStartTimer;
@@ -208,7 +214,7 @@ private:
     stTimer                     _StartStopSMUpdateTimer;
     stTimer                     _StopHoldTimer;
     stTimer                     _PowerOnTimer;
-
+    stTimer                     _DGIDleRunTimer;
 
     bool                        _bStartKeyPressed;
     bool                        _bStopKeyPressed;
@@ -222,7 +228,6 @@ private:
     static bool                 _bOPStartRelay;
     static bool                 _bOPPreheat;
 
-
     void prvTurnOnOffOutputs();
 
     void prvSetOutputVariables(bool bStartRelayStatus, bool bStopSolenoidStatus,
@@ -234,6 +239,16 @@ private:
     void prvUpdateSimStartStopStatus();
 
     void prvTurnOffPreheatStartCranking();
+
+    void prvSkipPreheatStartCranking();
+
+    void prvReqStartDGIdleRunTimer();
+
+    void prvUpdateDGIDLERunStatus();
+
+    static bool IsMonitorDGIdleRunTrue();
+
+    void prvEngineOnGenStartAction();
 
 };
 #endif

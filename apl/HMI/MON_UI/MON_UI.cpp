@@ -1868,9 +1868,6 @@ void MON_UI::prvNormalMonScreens()
                          _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][ BASE_MODES::AUTO_MODE],FONT_ARIAL);
                      }
                  }
-                 else if(_eOpMode == BASE_MODES::AUTO_EXERCISE_MODE)
-                 {
-                 }
                  else
                  {
                      _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][_eOpMode],FONT_ARIAL);/* todo: doubt*/
@@ -2970,17 +2967,6 @@ void MON_UI::prvStopKeyPressAction()
                 _manualMode.SwitchToManualMode();
             }
         }
-        else if(_eOpMode == BASE_MODES::AUTO_EXERCISE_MODE)
-        {
-            _eOpMode = BASE_MODES::MANUAL_MODE;
-            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_READY);
-            _manualMode.DisableEngCoolTimer();
-            if(_manualMode.GetAutoExeState() != BASE_MODES::ID_AUTO_EXE_DG_ON_LOAD)
-            {
-                _manualMode.SwitchToManualMode();
-            }
-
-        }
         else if(_eOpMode == BASE_MODES::BTS_MODE)
         {
             _eOpMode = BASE_MODES::MANUAL_MODE;
@@ -3085,10 +3071,6 @@ void MON_UI::prvAutoKeyPressAction()
                 _cyclicMode.SwitchFromManualToCyclic();
 
             }
-            else if(_manualMode.GetGCUOperatingMode()==BASE_MODES::AUTO_EXERCISE_MODE)
-            {
-                _eOpMode = BASE_MODES::AUTO_EXERCISE_MODE;
-            }
             else if(_manualMode.GetGCUOperatingMode()==BASE_MODES::AUTO_MODE)
             {
                 _eOpMode = BASE_MODES::AUTO_MODE;
@@ -3118,31 +3100,6 @@ void MON_UI::prvAutoKeyPressAction()
                 _manualMode.OpenMainsLoad();
             }
             _manualMode.DisableReturnToMains();
-        }
-    }
-    else if(_eOpMode == BASE_MODES::AUTO_EXERCISE_MODE)
-    {
-        if(_manualMode.GetAutoExeState() == BASE_MODES::ID_AUTO_EXE_DG_ON_LOAD)
-        {
-            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_READY);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_AUTO_LOAD_TRANSFER) == CFGZ::CFGZ_DISABLE)
-            {
-               _manualMode.SwitchLoadToGen();
-            }
-            else
-            {
-               _manualMode.OpenGenLoad();
-               _manualMode.OpenMainsLoad();
-            }
-//            _autoExercise.StopAutoExe();
-            _eOpMode = BASE_MODES::MANUAL_MODE;
-            _manualMode.DisableReturnToMains();
-        }
-        else if(_manualMode.GetAutoExeState() == BASE_MODES::ID_AUTO_EXE_FAULT)
-        {
-            _eOpMode = BASE_MODES::MANUAL_MODE;
-            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
-//            _autoExercise.StopAutoExe();
         }
     }
     else if(_eOpMode == BASE_MODES::BTS_MODE)

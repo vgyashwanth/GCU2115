@@ -72,7 +72,6 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                     if(_GCUAlarms.IsCommonShutdown() ||(IsNightModeRestrictOn()))
                     {
                         _vars.GCUState = SHUTDOWN;
-
                     }
                     else if(_GCUAlarms.IsCommonWarning())
                     {
@@ -110,7 +109,6 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = ENGINE_ON_HEALTHY;
                     _vars.TimerState = NO_TIMER_RUNNING;
                 }
-
                 break;
 
             case STATE_MANUAL_GEN_READY:
@@ -165,7 +163,7 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                     _vars.TimerState = (_bTestMode) ? TEST_MODE_TIMER : NO_TIMER_RUNNING;
                 }
 
-                if(START_STOP::ID_STATE_SS_ENG_OFF_OK == _StartStop.GetStartStopSMDState())
+                if(START_STOP::ID_STATE_SS_ENG_OFF_OK == _StartStop.GetStartStopSMDState()) // Patch to solve a particular case in cyclic mode
                 {
                     _vars.GCUState = ENGINE_OFF_READY;
                     _vars.TimerState = NO_TIMER_RUNNING;
@@ -179,7 +177,6 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                 _bStartRequest = false;
                 _bOpenGenLoad = true;
 
-
                 if(((UTILS_GetElapsedTimeInSec(&_EngCoolDownTimer)) >=
                         _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_ENG_COOL_TIME)) ||
                         (_bStopRequest) || (_GCUAlarms.IsCommonShutdown())
@@ -187,7 +184,6 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                 {
                     _bStopRequest = false;
                     _StartStop.StopCommand();
-
                     UTILS_DisableTimer(&_EngCoolDownTimer);
                     _eManualState = STATE_MANUAL_ENGINE_STOP;
                 }
@@ -248,6 +244,7 @@ void MANUAL_MODE::prvSwitchToGenStartState()
         {
             if((!_bEmergencyStop) && (!_GCUAlarms.IsCommonElectricTrip())
                          && (!_GCUAlarms.IsCommonShutdown())
+                         &&  (!_GCUAlarms.IsCommonWarning())
                         && GetPressureSensorStatusBeforeStart())
             {
                 _StartStop.StartCommand();
@@ -257,7 +254,6 @@ void MANUAL_MODE::prvSwitchToGenStartState()
     }
     else if(_EngineMon.IsEngineOn() == 1U)
     {
-//        _StartStop.StopCommand();
         _eManualState = STATE_MANUAL_GEN_START;
     }
 

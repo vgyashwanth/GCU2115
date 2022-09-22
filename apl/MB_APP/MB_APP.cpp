@@ -33,6 +33,7 @@
 #include "MB_APP.h"
 #include "../HMI/MON_UI/MON_UI.h"
 #include "../HMI/MAIN_UI/MAIN_UI.h"
+#include "START_STOP.h"
 
 MB_APP::KEY_MB_CAN_EVENT_t MB_APP::stMBEvent={0};
 MB_APP::MB_APP(HAL_Manager &hal, CFGZ &cfgz, GCU_ALARMS &gcuAlarm,

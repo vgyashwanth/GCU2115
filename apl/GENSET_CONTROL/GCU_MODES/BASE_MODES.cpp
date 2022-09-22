@@ -39,16 +39,12 @@ stTimer BASE_MODES::_MainsMonUpdateTimer = {0};
 BASE_MODES::MANUAL_STATE_t BASE_MODES::_eManualState = STATE_MANUAL_GEN_OFF;
 BASE_MODES::AMF_STATE_t BASE_MODES::_eAutoState = STATE_AMF_GEN_OFF_MAINS_OFF;
 BASE_MODES::MAINS_STATUS_t BASE_MODES::_MainsStatus = BASE_MODES::MAINS_HELATHY;
-BASE_MODES::AUTO_EXE_STATE_t BASE_MODES:: _eAutoExeState = ID_AUTO_EXE_DG_OFF;
 BASE_MODES::BTS_STATE_t BASE_MODES::_eBTSState = STATE_BTS_GEN_OFF_MAINS_OFF;
 BASE_MODES::CYCLIC_STATE_t BASE_MODES::_eCyclicState = STATE_CYCLIC_GEN_OFF_MAINS_OFF;
 stTimer BASE_MODES::_ContactorTransferTimer = {0};
 bool BASE_MODES::_bContTransferToMainsOn = false;
 bool BASE_MODES::_bContTransferToGenOn = false;
 BASE_MODES::GCU_OPERATING_MODE_t BASE_MODES::_eOperatingMode =MANUAL_MODE;
-uint16_t BASE_MODES::_u16SchOnTimeMin = 0;
-uint16_t BASE_MODES::_u16SchOnTimeHr= 0;
-uint32_t BASE_MODES::_u32SchRemTime_sec= 0;
 uint16_t BASE_MODES:: _u16NightModeStartTime = 0;
 uint16_t BASE_MODES:: _u16NightModeStopTime = 0;
 uint16_t BASE_MODES:: _u16NightModeDurationHrsMin = 0;
@@ -57,38 +53,17 @@ BASE_MODES::GCU_STATE_t BASE_MODES::_ePrevGCUState=EMPTY_GCU_STATE;
 //BASE_MODES::TIMER_STATE_t BASE_MODES::_ePrevTimerState = NO_TIMER_RUNNING;
 //BASE_MODES::GCU_OPERATING_MODE_t BASE_MODES::_ePrevOperatingMode = MANUAL_MODE;
 
-bool BASE_MODES::_bRPhasHealthyStatus = false;
-bool BASE_MODES::_bYPhasHealthyStatus = false;
-bool BASE_MODES::_bBPhasHealthyStatus = false;
-bool BASE_MODES::_bMainsHigh = false;
-bool BASE_MODES::_bMainsLow  = false;
 bool BASE_MODES::_bNightModeRestrict = false;
-
-
-#define GEN_CONTACTOR_IS_ABOUT_TO_LATCH()       ((_bContTransferToGenOn) || (_bSwitchLoadToGen))
-#define IS_GEN_CONTACTOR_LATCHED()              ((_bCloseGenContactor) || GEN_CONTACTOR_IS_ABOUT_TO_LATCH())
-#define GEN_CONTACTOR_NOT_LATCHED()             (!_bCloseGenContactor)
-#define LOAD_XFER_TO_GEN_NOT_INITIATED()        (!_bContTransferToGenOn)
 
 #define MAINS_CONTACTOR_IS_ABOUT_TO_LATCH()     ((_bContTransferToMainsOn) || (_bSwitchLoadToMains))
 #define IS_MAINS_CONTACTOR_LATCHED()            ((_bCloseMainsContactor) || MAINS_CONTACTOR_IS_ABOUT_TO_LATCH())
 #define MAINS_CONTACTOR_NOT_LATCHED()           (!_bCloseMainsContactor)
 #define LOAD_XFER_TO_MAINS_NOT_INITIATED()      (!_bContTransferToMainsOn)
 
-#define ENGINE_NOT_IN_COOLING_STAGE()           (prvEngineNotInCoolingStage())
-#define ENGINE_STOP_IS_NOT_TRIGERRED()          (!START_STOP::IsStopCommand())
-#define ENGINE_IS_RUNNING()                     ((START_STOP::GetStartStopSMDState()==START_STOP::ID_STATE_SS_ENG_ON) && ENGINE_NOT_IN_COOLING_STAGE() &&ENGINE_STOP_IS_NOT_TRIGERRED())
-#define IS_GEN_AVAILABLE()                      (_EngineMon.IsGenAvailable())
-
 #define IS_DEV_IN_MANUAL_MODE()                 (_eOperatingMode == MANUAL_MODE)
 #define IS_DEV_IN_AUTO_MODE()                   (_eOperatingMode != MANUAL_MODE)
 
 #define IS_AUTO_LOAD_XFER_ENABLED()             (IS_DEV_IN_MANUAL_MODE() && (CFGZ::CFGZ_ENABLE == _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_AUTO_LOAD_TRANSFER)))
-
-#define IS_RET_TO_MAINS_STARTED()               (UTILS_IsTimerEnabled(&_ReturnToMainsTimer))
-#define IS_RET_TO_MAINS_EXPIRED()               (UTILS_GetElapsedTimeInSec(&_ReturnToMainsTimer) >= 5U)
-#define CHK_RET_TO_MAINS()                      ((IS_RET_TO_MAINS_STARTED() && IS_RET_TO_MAINS_EXPIRED()) \
-                                                    || !IS_RET_TO_MAINS_STARTED())
 
 #define MAINS_MONITORING_ENABLED()              (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
 #define IS_MAINS_HEALTHY()                      (MAINS_MONITORING_ENABLED() && (_MainsStatus == MAINS_HELATHY))
@@ -244,48 +219,29 @@ void BASE_MODES::UpdateMainsStatus()
     {
         _MainsStatus = MAINS_HELATHY;
     }
-
-}
-
-bool BASE_MODES::prvEngineNotInCoolingStage()
-{
-    bool bEngineNotInCoolingStage = true;
-    switch(_eOperatingMode)
+    else
     {
-        case TEST_MODE:
-        case MANUAL_MODE:
-            if(_eManualState == STATE_MANUAL_ENGINE_COOLING)
-            {
-                bEngineNotInCoolingStage = false;
-            }
-            break;
-
-        case AUTO_MODE:
-            if(_eAutoState == STATE_AMF_ENGINE_COOLING)
-            {
-                bEngineNotInCoolingStage = false;
-            }
-            break;
-
-        case BTS_MODE:
-            if(_eBTSState == STATE_BTS_ENGINE_COOLING)
-            {
-                bEngineNotInCoolingStage = false;
-            }
-            break;
-
-        case CYCLIC_MODE:
-            if(_eCyclicState == STATE_CYCLIC_ENGINE_COOLING)
-            {
-                bEngineNotInCoolingStage = false;
-            }
-            break;
-
-        default:
-            break;
-
+        if(_MainsStatus == MAINS_UNHELATHY)
+        {
+            _MainsStatus = (MAINS_STATUS_t) ((!_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_UNDERVOLT_TRIP))
+                                  && (!_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_OVERVOLT_TRIP))
+                                  && (!_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_UNDERFREQ_TRIP))
+                                  && (!_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_OVERFREQ_TRIP))
+                                  && (!_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_LL_UNDERVOLT_TRIP))
+                                  && ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_PHASE_REVERSAL_DETECT) == CFGZ::CFGZ_DISABLE) ||
+                                          ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_PHASE_REVERSAL_DETECT) == CFGZ::CFGZ_ENABLE) && (!_hal.AcSensors.MAINS_GetPhaseRotStatus()))));
+        }
+        else
+        {
+            _MainsStatus = (MAINS_STATUS_t) !(
+                                        ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_UNDERVOLT_TRIP))
+                                    || (_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_OVERVOLT_TRIP))
+                                    || ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_UNDERFREQ_TRIP))
+                                    || ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_OVERFREQ_TRIP))
+                                    || (_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_LL_UNDERVOLT_TRIP))
+                                    || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_PHASE_REVERSAL_DETECT) == CFGZ::CFGZ_ENABLE) && (_hal.AcSensors.MAINS_GetPhaseRotStatus())));
+        }
     }
-    return bEngineNotInCoolingStage;
 }
 
 void BASE_MODES::prvUpdateContactorOutputs()
@@ -335,7 +291,6 @@ void BASE_MODES::prvUpdateContactorOutputs()
             _bCloseGenContactor = true;
         }
     }
-
 
     prvOpenGenMainLoad(&_bOpenGenLoad, &_bContTransferToGenOn, &_bCloseGenContactor);
     prvOpenGenMainLoad(&_bOpenMainsLoad, &_bContTransferToMainsOn, &_bCloseMainsContactor);
@@ -403,11 +358,6 @@ BASE_MODES::AMF_STATE_t BASE_MODES::GetAutoModeState()
 BASE_MODES::MANUAL_STATE_t BASE_MODES::GetManualModeState()
 {
     return _eManualState;
-}
-
-BASE_MODES::AUTO_EXE_STATE_t  BASE_MODES::GetAutoExeState()
-{
-    return _eAutoExeState;
 }
 BASE_MODES::BTS_STATE_t  BASE_MODES::GetBTSModeState()
 {
@@ -520,6 +470,7 @@ bool BASE_MODES::GenStartCondition()
 {
     if((_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
         || ((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+//        || _bMBStartCmdReceived
         )
     {
         return true;
@@ -545,14 +496,15 @@ bool BASE_MODES::IsMainsContactorClosed(void)
     return _bCloseMainsContactor;
 }
 
-
-
 bool BASE_MODES::GetPressureSensorStatusBeforeStart()
 {
     A_SENSE::SENSOR_RET_t stVal;
     stVal = _GCUAlarms.GetLOPSensorVal();
 
-    if(1)
+    if((_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::OIL_PRESS_MON].bResultInstant
+               &&( stVal.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT))
+        ||_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::LLOP_MON].bResultInstant
+        )
     {
         _GCUAlarms.ActivateHighOilPressAlarmSens();
         return false;
@@ -582,17 +534,6 @@ bool BASE_MODES::IsGenContactorConfigured()
 }
 
 
-
-bool BASE_MODES::GetMainsLowStatus()
-{
-   return _bMainsLow;
-}
-
-bool BASE_MODES::GetMainsHighStatus()
-{
-    return _bMainsHigh;
-}
-
 bool BASE_MODES::IsLoadOnMains()
 {
     if(_EngineMon.GetContactorLoadStatus() == ENGINE_MONITORING::LOAD_ON_MAINS)
@@ -612,11 +553,6 @@ void BASE_MODES::SetModeState(AMF_STATE_t eState)
     _eAutoState =eState;
 }
 
-void BASE_MODES::SetModeState(AUTO_EXE_STATE_t eState)
-{
-    _eAutoExeState=eState;
-}
-
 void BASE_MODES::SetModeState(BTS_STATE_t eState)
 {
     _eBTSState=eState;
@@ -625,42 +561,6 @@ void BASE_MODES::SetModeState(BTS_STATE_t eState)
 void BASE_MODES::SetModeState(CYCLIC_STATE_t eState)
 {
     _eCyclicState=eState;
-}
-bool BASE_MODES::GetIndividualPhaseStatus(PHASE_t ePhase)
-{
-    bool status= false;
-    switch(ePhase)
-    {
-        case R_PHASE:
-            status = _bRPhasHealthyStatus;
-            break;
-        case Y_PHASE:
-           status = _bYPhasHealthyStatus;
-           break;
-        case B_PHASE:
-           status = _bBPhasHealthyStatus;
-           break;
-        default: break;
-    }
-    return status;
-
-}
-
-uint8_t BASE_MODES::GetMainsHealthyPhaseCnt(void)
-{
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) == CFGZ::CFGZ_1_PHASE_SYSTEM)
-    {
-        return 0;
-    }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
-    {
-        return ((uint8_t)(_bRPhasHealthyStatus)
-                + (uint8_t)(_bYPhasHealthyStatus) + (uint8_t)(_bBPhasHealthyStatus));
-    }
-    else
-    {
-        return ((uint8_t)(_bRPhasHealthyStatus) + (uint8_t)(_bYPhasHealthyStatus));
-    }
 }
 
 void BASE_MODES::InitNightModeParam()

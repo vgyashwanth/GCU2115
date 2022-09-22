@@ -53,14 +53,11 @@ private:
 
     bool                _bGenOnDuetoBTS;    /*Need to shift to Start Stop*/
     bool                _bGenOnDueToSheltTemp;
-    bool                _bBattChargingOn;
-    bool                _bShelterTempTmrOn;
-    bool                _bBattChargTmrExpired;
-    bool                _bShelterTempTmrExpired;
-    uint32_t            _u32BattChargingCount;
-    uint32_t            _u32ShelterTempTimerCount;
+    stTimer             _stBatteryChargingTimer;
+    stTimer             _stShelterTempTimer;
 
     bool prvGenStartCondition();
+    void prvUpdateGenOnReason();
 };
 
 #endif  /*_BTS_MODE_H_*/

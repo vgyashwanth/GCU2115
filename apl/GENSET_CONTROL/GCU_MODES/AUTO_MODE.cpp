@@ -44,9 +44,11 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
     {
         BASE_MODES::Update();
         UTILS_ResetTimer(&_GCUSMUpdateTimer);
-        _bRemoteStartRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE) ;
+        _bRemoteStartRCVD = (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_SS].bEnableMonitoring
+                && _GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_SS].bResultInstant) ;
 
-        _bRemoteStopRCVD = (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE) ;
+        _bRemoteStopRCVD = (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_SS].bEnableMonitoring
+                &&(!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_SS].bResultInstant)) ;
         _bStartRequest = false;
         _bStopRequest = false;
 
@@ -54,6 +56,10 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
         switch(_eAutoState)
         {
             case STATE_AMF_GEN_OFF_MAINS_OFF:
+//                if(_bMBStopCmdReceived)
+//                {
+//                    _bMBStopCmdReceived = 0;
+//                }
                 if(_EngineMon.IsEngineOn() == 1U)
                 {
                     _eAutoState = STATE_AMF_GEN_START;
@@ -61,30 +67,9 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 }
                 else if(GenStartCondition())
                 {
-                    //prvGensetStartAction();
-                    //Todo:Make this a function called  prvGensetStartAction
-                    _bOpenMainsLoad = true;
-                    if(START_STOP::ID_STATE_SS_STOP_HOLD !=
-                                    _StartStop.GetStartStopSMDState())
-                    {
-                        //Todo: Add condition to check the start command from MODBUS
-                        if((!_GCUAlarms.IsCommonElectricTrip())
-                                && (!_GCUAlarms.IsCommonShutdown())
-                                &&(!_GCUAlarms.IsCommonWarning())
-                                && (!_bEmergencyStop)
-                                && GetPressureSensorStatusBeforeStart()
-                                && (!IsNightModeRestrictOn()))
-                        {
-                            _StartStop.StartCommand();
-                            _eAutoState = STATE_AMF_GEN_START;
-                            UTILS_DisableTimer(&_ReturnToMainsTimer);
-                        }
-                        //Todo: Update Status Gen not started in MODBUS.
-                    }
+                    prvGensetStartAction();
                 }
-                else if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                            CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) || (_bRemoteStopRCVD &&
-                                (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+                else if(IsMainsHealthyOrRemoteStopRcvd())
                 {
                     _eAutoState = STATE_AMF_GEN_OFF_MAINS_ON;
                     UTILS_ResetTimer(&_ReturnToMainsTimer);
@@ -102,7 +87,10 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 }
                 break;
             case STATE_AMF_GEN_OFF_MAINS_ON:
-                //Todo: Handle MODBUS stop command
+//                if(_bMBStopCmdReceived)
+//                {
+//                    _bMBStopCmdReceived = 0;
+//                }
 
                 if(_EngineMon.IsEngineOn() == 1U)
                 {
@@ -111,35 +99,7 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 }
                 else if(GenStartCondition())
                 {
-//                    prvGensetStartAction();
-
-                    _bOpenMainsLoad = true;
-                    if(START_STOP::ID_STATE_SS_STOP_HOLD !=
-                            _StartStop.GetStartStopSMDState())
-                    {
-                        //Todo: Add condition to check the start command from MODBUS
-                        if((!_GCUAlarms.IsCommonElectricTrip())
-                                && (!_GCUAlarms.IsCommonShutdown())
-                                &&(!_GCUAlarms.IsCommonWarning())
-                                && (!_bEmergencyStop)
-                                && GetPressureSensorStatusBeforeStart()
-                                && (!IsNightModeRestrictOn()))
-                        {
-                            _StartStop.StartCommand();
-                            _eAutoState = STATE_AMF_GEN_START;
-                            UTILS_DisableTimer(&_ReturnToMainsTimer);
-                        }
-                        else
-                        {
-                            _eAutoState = STATE_AMF_GEN_OFF_MAINS_OFF;
-                            UTILS_DisableTimer(&_ReturnToMainsTimer);
-                        }
-                        //Todo: Update Status Gen not started in MODBUS.
-                    }
-                    else
-                    {
-                        _eAutoState = STATE_AMF_GEN_OFF_MAINS_OFF;
-                    }
+                    prvGensetStartAction();
                 }
                 else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=  5U)
                 {
@@ -164,9 +124,8 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 }
                 break;
             case STATE_AMF_GEN_START:
-                if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
-                        CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) || (_bRemoteStopRCVD &&
-                        (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
+                if((IsMainsHealthyOrRemoteStopRcvd())
+//                        || _bMBStopCmdReceived
                         || (_GCUAlarms.IsCommonShutdown())
                         || (_GCUAlarms.IsCommonElectricTrip())
                         || (_GCUAlarms.IsCommonWarning())
@@ -174,7 +133,12 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 {
                     _StartStop.StopCommand();
 
-                    //Todo: MODBUS stop command received logic
+//                    if(_bMBStopCmdReceived)
+//                    {
+//                        _bMBStopCmdReceived = false;
+//                        _bMBStopCmdRequested = true;
+//                    }
+
                     if(_GCUAlarms.IsCommonShutdown())
                     {
                         _vars.GCUState = SHUTDOWN;
@@ -196,30 +160,24 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 else if(_EngineMon.IsWarmUpTimeExpired() && _EngineMon.IsEngineCranked())
                 {
                     SwitchLoadToGen();
-                    if((_bMBStartCmdReceived) || _bMBStartCmdRequested)
-                    {
-                        //Todo : update DG started to MODBUS status reg
-                        _bMBStartCmdRequested = false;
-                        _bMBStartCmdReceived = false;
-                    }
                     _eAutoState = STATE_AMF_GEN_ON_LOAD;
+//                    if((_bMBStartCmdReceived) || _bMBStartCmdRequested)
+//                    {
+//                        //Todo : update DG started to MODBUS status reg
+//                        _bMBStartCmdRequested = false;
+//                        _bMBStartCmdReceived = false;
+//                    }
                 }
                 else if(_GCUAlarms.IsCommonNotification())
                 {
                     _vars.GCUState = NOTIFICATION;
                 }
-                else if(_StartStop.IsGenMonOn() == 1U)
+
+                if(_StartStop.IsGenMonOn() == 1U)
                 {
-                    _vars.GCUState = ENGINE_ON_HEALTHY;
+//                    _vars.GCUState = ENGINE_ON_HEALTHY;
                     _vars.TimerState = NO_TIMER_RUNNING;
                 }
-//                else if(START_STOP::ID_STATE_SS_ENG_OFF_OK ==
-//                            _StartStop.GetStartStopSMDState())
-//                {
-//                    _vars.GCUState = ENGINE_OFF_READY;
-//                    _vars.TimerState = NO_TIMER_RUNNING;
-//                    _eAutoState = STATE_AMF_GEN_OFF_MAINS_OFF;
-//                }
 
                 break;
 
@@ -228,13 +186,13 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 {
                     prvShutdownAction();
                 }
-                else if(_GCUAlarms.IsCommonElectricTrip() || _bMBStopCmdReceived)
+                else if(_GCUAlarms.IsCommonElectricTrip()) // || _bMBStopCmdReceived)
                 {
-                    if(_bMBStopCmdReceived)
-                    {
-                        _bMBStopCmdReceived = false;
-                        _bMBStopCmdRequested = true;
-                    }
+//                    if(_bMBStopCmdReceived)
+//                    {
+//                        _bMBStopCmdReceived = false;
+//                        _bMBStopCmdRequested = true;
+//                    }
 
                     if(_GCUAlarms.IsCommonElectricTrip())
                     {
@@ -249,8 +207,7 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                     UTILS_ResetTimer(&_EngCoolDownTimer);
                     _eAutoState = STATE_AMF_ENGINE_COOLING;
                 }
-                else if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) ||
-                        (_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+                else if(IsMainsHealthyOrRemoteStopRcvd())
                 {
                     _eAutoState = STATE_AMF_RETURN_DELAY;
                     UTILS_ResetTimer(&_ReturnToMainsTimer);
@@ -277,30 +234,27 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                     }
                 }
 
-                if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-                        || (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+                if((IsMainsUnhealthyOrRemoteStartRcvd())
                         && (!_bCloseGenContactor) && (!_bContactorTransferOn))
                 {
                     SwitchLoadToGen();
                 }
 
-                //Todo://Update DG already ON in status register
                 break;
 
             case STATE_AMF_RETURN_DELAY:
                 if(_GCUAlarms.IsCommonShutdown() || (IsNightModeRestrictOn()))
                 {
                     prvShutdownAction();
-
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                 }
-                else if(_GCUAlarms.IsCommonElectricTrip() || _bMBStopCmdReceived)
+                else if(_GCUAlarms.IsCommonElectricTrip()) // || _bMBStopCmdReceived)
                 {
-                    if(_bMBStopCmdReceived)
-                    {
-                        _bMBStopCmdReceived = false;
-                        _bMBStopCmdRequested = true;
-                    }
+//                    if(_bMBStopCmdReceived)
+//                    {
+//                        _bMBStopCmdReceived = false;
+//                        _bMBStopCmdRequested = true;
+//                    }
 
                     if(_GCUAlarms.IsCommonElectricTrip())
                     {
@@ -316,9 +270,7 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                     _eAutoState = STATE_AMF_ENGINE_COOLING;
                 }
-                else if(((_MainsStatus == MAINS_UNHELATHY) && 
-                        (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) ||
-                        (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+                else if(IsMainsUnhealthyOrRemoteStartRcvd())
                 {
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                     _eAutoState = STATE_AMF_GEN_ON_LOAD;
@@ -334,6 +286,7 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = ENGINE_STOPPING;
                     _vars.TimerState = COOL_DOWN_TIMER;
                 }
+
                 if(_GCUAlarms.IsCommonWarning())
                 {
                     _vars.GCUState = WARNING;
@@ -342,9 +295,6 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 {
                     _vars.GCUState = NOTIFICATION;
                 }
-
-                //Todo//Update DG already ON in modbus status register
-
                 break;
             case STATE_AMF_ENGINE_COOLING:
                 _hal.actuators.Activate(ACTUATOR::ACT_COOLING_ON);
@@ -363,12 +313,11 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                     _eAutoState = STATE_AMF_ENGINE_STOP;
                     _hal.actuators.Deactivate(ACTUATOR::ACT_COOLING_ON);
                 }
-                if(_GCUAlarms.IsCommonElectricTrip())
+                else if(_GCUAlarms.IsCommonElectricTrip())
                 {
                     _vars.GCUState = ELECTRIC_TRIP;
                 }
-                else if(((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-                        || (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+                else if(IsMainsUnhealthyOrRemoteStartRcvd())
                 {
                     SwitchLoadToGen();
                     _eAutoState = STATE_AMF_GEN_ON_LOAD;
@@ -392,9 +341,6 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 {
                     _bOpenMainsLoad = true;
                 }
-
-                //todo          //Update DG already ON in modbus status register
-                //Todo  // Clear command received register
                 break;
 
             case STATE_AMF_ENGINE_STOP:
@@ -428,8 +374,7 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
 
 bool AUTO_MODE::prvIsMainsFailedAndOpenMainsCont()
 {
-    if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-            || (_bRemoteStartRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+    if((IsMainsUnhealthyOrRemoteStartRcvd())
             && (_bCloseMainsContactor) && (!_bContactorTransferOn))
     {
         return true;
@@ -442,8 +387,7 @@ bool AUTO_MODE::prvIsMainsFailedAndOpenMainsCont()
 
 bool AUTO_MODE::prvIsMainsHealthyAndCloseMainsCont()
 {
-    if((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-            || (_bRemoteStopRCVD && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+    if((IsMainsHealthyOrRemoteStopRcvd())
             && (!_bCloseMainsContactor) && (!_bContactorTransferOn))
     {
         return true;
@@ -456,11 +400,46 @@ bool AUTO_MODE::prvIsMainsHealthyAndCloseMainsCont()
 
 void AUTO_MODE::prvGensetStartAction()
 {
-//    if(_eAutoState == STATE_AMF_GEN_OFF_MAINS_ON)
-//    {
+    //    if(_eAutoState == STATE_AMF_GEN_OFF_MAINS_ON)
+    //    {
+            _bOpenMainsLoad = true;
+    //    }
 
-//    }
+        if(START_STOP::ID_STATE_SS_STOP_HOLD !=
+                _StartStop.GetStartStopSMDState())
+        {
+//            if(_bMBStartCmdReceived)
+//            {
+//                _bMBStartCmdReceived = false;
+//                _bMBStartCmdRequested = true;
+//            }
+            if((!_GCUAlarms.IsCommonElectricTrip())
+                    && (!_GCUAlarms.IsCommonShutdown())
+                    &&(!_GCUAlarms.IsCommonWarning())
+                    && (!_bEmergencyStop)
+                    && GetPressureSensorStatusBeforeStart()
+                    && (!IsNightModeRestrictOn()))
+            {
+                _StartStop.StartCommand();
+                _eAutoState = STATE_AMF_GEN_START;
+                UTILS_DisableTimer(&_ReturnToMainsTimer);
+            }
+            else if(_eAutoState == STATE_AMF_GEN_OFF_MAINS_ON)
+            {
+                _eAutoState = STATE_AMF_GEN_OFF_MAINS_OFF;
+                UTILS_DisableTimer(&_ReturnToMainsTimer);
+            }
 
+//            if(_bMBStartCmdRequested && (!_StartStop.IsStartCommand()))
+//            {
+//                _bMBStartCmdRequested = false;
+//            }
+        }
+        else if(_eAutoState == STATE_AMF_GEN_OFF_MAINS_ON)
+        {
+            _eAutoState = STATE_AMF_GEN_OFF_MAINS_OFF;
+            UTILS_DisableTimer(&_ReturnToMainsTimer);
+        }
 
 }
 
@@ -480,4 +459,28 @@ void AUTO_MODE::MBStartCMDReceived()
 void AUTO_MODE::MBStopCMDReceived()
 {
     _bMBStopCmdReceived = true;
+}
+
+bool AUTO_MODE::IsMainsHealthyOrRemoteStopRcvd()
+{
+    if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(
+            CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) || (_bRemoteStopRCVD &&
+                (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool AUTO_MODE::IsMainsUnhealthyOrRemoteStartRcvd()
+{
+    if(((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(
+            CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)) || (_bRemoteStartRCVD &&
+                (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+    {
+        return true;
+    }
+
+    return false;
 }

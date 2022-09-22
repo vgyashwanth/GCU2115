@@ -3462,32 +3462,18 @@ void EventWriteCB(EEPROM::EVENTS_t evt)
 A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLOPSensorVal()
 {
     A_SENSE::SENSOR_RET_t stLOP = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED} ;
-    if((_cfgz.GetEngType()!=CFGZ::ENG_CONVENTIONAL)
-            )
-     {
-        if(!gpJ1939->IsCommunicationFail())
-        {
 
-            stLOP.stValAndStatus.f32InstSensorVal = (float)gpJ1939->GetReadData(RX_PGN_EFL_P1_65263, 2) / 100.0f;
-            if((isnan(stLOP.stValAndStatus.f32InstSensorVal) == true) || (isinf(stLOP.stValAndStatus.f32InstSensorVal) == true))
-            {
-                stLOP.stValAndStatus.f32InstSensorVal =0;
-            }
-        }
-        else
-        {
-            stLOP.stValAndStatus.f32InstSensorVal =0;
-        }
-        stLOP.stValAndStatus.eState = ANLG_IP:: BSP_STATE_NORMAL;
-        stLOP.eStatus = A_SENSE::SENSOR_READ_SUCCESS;
-     }
-     else  if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
          stLOP = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE);
     }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
         stLOP =_hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE_4_20);
+    }
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    {
+        stLOP =_hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE_0_TO_5V);
     }
     return stLOP;
 }

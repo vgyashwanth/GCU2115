@@ -19,6 +19,7 @@ bool START_STOP::_bChargAltStopLatched = false;
 bool START_STOP::_bMonitorChargAlt = false;
 bool START_STOP::_bOPStopSolenoid = false;
 bool START_STOP::_bOPStartRelay = false;
+bool START_STOP::_bMonitorDGIdleRun = false;
 uint16_t START_STOP::_u16ConfiguredSafetyMonDelay = false;
 stTimer START_STOP::_SafetyMonTimer = {0};
 stTimer START_STOP::_EngStoppingTimer = {0};
@@ -56,13 +57,15 @@ _bAlarmAckPressed(false),
 _bAlarmAckReleased(false),
 _bAckAudblAlrmRecd(false),
 _bSimAckRecd(false),
+_bDGIdleRunDelayRunning(false),
 _PreheatTimer{0},
 _EngStartTimer{0},
 _EngCrankingTimer{0},
 _EngCrankRestTimer{0},
 _StartStopSMUpdateTimer{0},
 _StopHoldTimer{0},
-_PowerOnTimer{0}
+_PowerOnTimer{0},
+_DGIDleRunTimer{0}
 {
     UTILS_ResetTimer(&_PowerOnTimer);
     _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY);
@@ -87,6 +90,8 @@ void START_STOP::Update(bool bDeviceInConfigMode)
 
     if(UTILS_GetElapsedTimeInMs(&_StartStopSMUpdateTimer) >= FIFTY_MSEC)
     {
+        prvReqStartDGIdleRunTimer();
+        prvUpdateDGIDLERunStatus();
         prvUpdateSimStartStopStatus();
         UTILS_ResetTimer(&_StartStopSMUpdateTimer);
         stEngTemp = _hal.AnalogSensors.GetSensorValue(
@@ -111,8 +116,9 @@ void START_STOP::Update(bool bDeviceInConfigMode)
         switch(_State)
         {
             case ID_STATE_SS_ENG_OFF_OK:
-
                 prvSetOutputVariables(false, false, false, false);
+                _bMonitorDGIdleRun = false;
+                _bDGIdleRunDelayRunning = false;
                 if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
                 {
                     _EngineStartValidity.InitInvalidDgDetectionStateMachine();
@@ -121,25 +127,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
 
                 if(_EngineMon.IsEngineOn() == 1U)
                 {
-                    _bGenStarted = true;
-                    /* Following statements are commented since in case of tamper proofing logic enabled
-                     * we should increase the run hours thought the key is pressed from panel
-                     */
-                //  if(1 == RAM_Calib_Data[ID_ALT_WAVE_DETECTION_EN][ID_CALIB_COL_VAL])
-                //  {
-                ////        f_Invalid_DG_Start = 1;
-                //  }
-                //  else
-                    {
-                         _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, GCU_ALARMS::ID_NONE);
-                    }
-                    _ChargeAlt.StartExcitation();
-                    UTILS_ResetTimer(&_SafetyMonTimer);
-                    _State = ID_STATE_SS_ENG_ON;
-                    _vars.TimerState = BASE_MODES::START_DELAY_TIMER;
-                    _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
-
-
+                    prvEngineOnGenStartAction();
                 }
 
                 if((_bStopCommand) || (_bEmergencyStop &&
@@ -153,7 +141,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 {
                     _bStartCommand = false;
                     _u8NoOfCrankAttempts = 0;
-
                     _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, GCU_ALARMS::ID_NONE);
                     _bOPPreheat = false;
                     bPreheatTempLimitReached = false;
@@ -162,31 +149,22 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     _State = ID_STATE_SS_START_WAIT;
                     _vars.TimerState = BASE_MODES::START_DELAY_TIMER;
                     _vars.GCUState = BASE_MODES::ENGINE_STARTING;
-
                 }
                 break;
 
             case ID_STATE_SS_ENG_OFF_ERR:
                 prvSetOutputVariables(false, false, false, false);
-
                 _State = ID_STATE_SS_ENG_OFF_OK;
                 break;
 
             case ID_STATE_SS_PREHEAT:
-
                 prvSetOutputVariables(false, false, false, true);
-
                 _bStartCommand = false;
 
                 if(_EngineMon.IsEngineOn() == 1U)
                 {
                     UTILS_DisableTimer(&_PreheatTimer);
-                    _bGenStarted = true;
-                    _ChargeAlt.StartExcitation();
-                    UTILS_ResetTimer(&_SafetyMonTimer);
-                    _State = ID_STATE_SS_ENG_ON;
-                    _vars.TimerState = BASE_MODES::START_DELAY_TIMER;
-                    _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
+                    prvEngineOnGenStartAction();
                 }
                 else if((_bStopCommand)|| (_GCUAlarms.IsCommonWarning()))
                 {
@@ -210,21 +188,14 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 if(_EngineMon.IsEngineOn() == 1U)
                 {
                     UTILS_DisableTimer(&_EngStartTimer);
-                    _bGenStarted = true;
-                    _ChargeAlt.StartExcitation();
-                    UTILS_ResetTimer(&_SafetyMonTimer);
-                    _State = ID_STATE_SS_ENG_ON;
-                    _vars.TimerState = BASE_MODES::START_DELAY_TIMER;
-                    _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
+                    prvEngineOnGenStartAction();
                 }
                 else if((_bStopCommand) || (_GCUAlarms.IsCommonWarning()))
                 {
                    prvStopCommandAction();
                 }
-                else if(((UTILS_GetElapsedTimeInSec(&_EngStartTimer)) >=
-                        _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_MANUAL_START_DELAY) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)) ||
-                        ((UTILS_GetElapsedTimeInSec(&_EngStartTimer)) >=
-                                _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_AUTO_START_DELAY) && (BASE_MODES::GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE)))
+                else if((UTILS_GetElapsedTimeInSec(&_EngStartTimer)) >=
+                        GetCrankStartDelay())
                 {
                     UTILS_DisableTimer(&_EngStartTimer);
 
@@ -239,14 +210,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     }
                     else
                     {
-
-                        UTILS_ResetTimer(&_EngCrankingTimer);
-                        _State = ID_STATE_SS_CRANKING;
-                        _u8NoOfCrankAttempts++;
-                        _ChargeAlt.StartExcitation();
-                        _bChargAltStopLatched = false;
-                        _vars.GCUState = BASE_MODES::ENGINE_STARTING;
-                        _vars.TimerState = BASE_MODES::CRANK_START_TIMER;
+                        prvSkipPreheatStartCranking();
                     }
                 }
                 break;
@@ -317,7 +281,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                         _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_REST_TIME))
                 {
                     UTILS_DisableTimer(&_EngCrankRestTimer);
-
                     UTILS_ResetTimer(&_EngCrankingTimer);
                     _State = ID_STATE_SS_CRANKING;
                     _u8NoOfCrankAttempts++;
@@ -343,7 +306,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 prvSetOutputVariables(false, false, true, false);
                 _bStartCommand = false;
 
-
                 if(((UTILS_GetElapsedTimeInSec(&_SafetyMonTimer)) >= 
                         _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY))
                         && (_vars.TimerState == BASE_MODES::SAFETY_MON_TIMER))
@@ -360,11 +322,11 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 _bStopCommand = false;
                 prvSetOutputVariables(false, true, false, false);
                 UTILS_DisableTimer(&_SafetyMonTimer);
-
+                UTILS_DisableTimer(&_DGIDleRunTimer);
                 _EngineMon.DisableEngWarmUpTimer();
+
                 if(_EngineMon.IsEngineOn() == 0U)
                 {
-
                     UTILS_DisableTimer(&_EngStoppingTimer);
                     UTILS_ResetTimer(&_StopHoldTimer);
                     _State = ID_STATE_SS_STOP_HOLD;
@@ -376,13 +338,11 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 {
                     _bStartCommand = false;
                     UTILS_DisableTimer(&_EngStoppingTimer);
-                    UTILS_ResetTimer(&_StopHoldTimer);
                     _vars.GCUState = BASE_MODES::ENGINE_STOPPING;
                     _State = ID_STATE_SS_FAIL_TO_STOP;
                     _GCUAlarms.UpdateFailToStop();
                     _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
                 }
-
                 break;
 
             case ID_STATE_SS_STOP_HOLD:
@@ -393,15 +353,10 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     _bEmergencyStopLatched = true;
                 }
 
-                if(_EngineMon.IsEngineOn() != 0U)
+                if(_EngineMon.IsEngineOn() == 1U)
                 {
                     UTILS_DisableTimer(&_StopHoldTimer);
-                    _bGenStarted = true;
-                    _ChargeAlt.StartExcitation();
-                    UTILS_ResetTimer(&_SafetyMonTimer);
-                    _State = ID_STATE_SS_ENG_ON;
-                    _vars.TimerState = BASE_MODES::SAFETY_MON_TIMER;
-                    _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
+                    prvEngineOnGenStartAction();
                 }
                 else if((UTILS_GetElapsedTimeInSec(&_StopHoldTimer)) >=
                         _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_ADDN_STOPPING_TIME))
@@ -426,7 +381,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 {
                     _State = ID_STATE_SS_ENG_OFF_ERR;
                     UTILS_DisableTimer(&_StopHoldTimer);
-                    _hal.AnalogSensors.SkipPulses(10);
                 }
                 break;
 
@@ -457,6 +411,30 @@ bool START_STOP::IsGenStarted()
     return _bGenStarted;
 }
 
+void START_STOP::prvEngineOnGenStartAction()
+{
+    if(_State == ID_STATE_SS_ENG_OFF_OK)
+    {
+        /* Following statements are commented since in case of tamper proofing logic enabled
+         * we should increase the run hours thought the key is pressed from panel
+         */
+        //                        if(1 == RAM_Calib_Data[ID_ALT_WAVE_DETECTION_EN][ID_CALIB_COL_VAL])
+        //                        {
+        //                            f_Invalid_DG_Start = 1;
+        //                        }
+        //                        else
+        {
+            _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, GCU_ALARMS::ID_NONE);
+        }
+    }
+
+    _bGenStarted = true;
+    _ChargeAlt.StartExcitation();
+    UTILS_ResetTimer(&_SafetyMonTimer);
+    _State = ID_STATE_SS_ENG_ON;
+    _vars.TimerState = BASE_MODES::SAFETY_MON_TIMER;
+    _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
+}
 void START_STOP::prvStopCommandAction()
 {
     _bStopCommand = false;
@@ -499,7 +477,7 @@ void START_STOP::prvStopCommandAction()
             UTILS_DisableTimer(&_SafetyMonTimer);
             UTILS_ResetTimer(&_EngStoppingTimer);
             _State = ID_STATE_SS_STOPPING;
-//          _bChargAltStopLatched = false;  // Todo: Decide whether it should be added or removed . This was there in SGC420.
+           _bChargAltStopLatched = false;
             _vars.GCUState = BASE_MODES::ENGINE_STOPPING;
             _vars.TimerState = BASE_MODES::STOP_ACTION_TIMER;
             break;
@@ -598,8 +576,6 @@ bool START_STOP::IsFuelRelayOn()
     return _bOPFuelRelay;
 }
 
-
-
 uint32_t START_STOP::GetTimersRemainingTime(BASE_MODES::TIMER_STATE_t eTimer)
 {
     uint32_t RemainingTimeInSec = 0;
@@ -611,18 +587,8 @@ uint32_t START_STOP::GetTimersRemainingTime(BASE_MODES::TIMER_STATE_t eTimer)
             break;
 
         case BASE_MODES::START_DELAY_TIMER:
-            if(BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
-            {
-                RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_MANUAL_START_DELAY) -
+                RemainingTimeInSec = (GetCrankStartDelay() -
                                                     UTILS_GetElapsedTimeInSec(&_EngStartTimer));
-            }
-            else if((BASE_MODES::GetGCUOperatingMode() == BASE_MODES::AUTO_MODE)||
-                    (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::BTS_MODE)||
-                    (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::CYCLIC_MODE))
-            {
-                RemainingTimeInSec = (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_AUTO_START_DELAY) -
-                                                    UTILS_GetElapsedTimeInSec(&_EngStartTimer));
-            }
             break;
 
         case BASE_MODES::CRANK_START_TIMER:
@@ -674,7 +640,6 @@ void START_STOP::prvHandleEngineCranked()
     _bGenStarted = true;
     _ChargeAlt.StartExcitation();
     UTILS_ResetTimer(&_SafetyMonTimer);
-    UTILS_DisableTimer(&_EngCrankingTimer);
     _State = ID_STATE_SS_ENG_ON;
     _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
     _vars.TimerState = BASE_MODES::SAFETY_MON_TIMER;
@@ -707,6 +672,46 @@ bool START_STOP::IsAdditionalStopTimerRunnint()
     return _StopHoldTimer.bEnabled;
 }
 
+
+/**************************************************************************************************
+@Name           -   StartDGIDLERunDelay
+@brief          -   This function starts the DG IDLE Run delay timer only if Safety monitoring
+                    and warm up delay timers are over.
+@param          -   None
+@return         -   None
+**************************************************************************************************/
+void START_STOP::prvReqStartDGIdleRunTimer()
+{
+    if((!_bDGIdleRunDelayRunning)&& (IsGenMonOn()) && (_EngineMon.IsWarmUpTimeExpired()))
+    {
+        _bDGIdleRunDelayRunning = true;
+        UTILS_ResetTimer(&_DGIDleRunTimer);
+    }
+}
+
+/**************************************************************************************************
+@Name           -   UpdateDGIDLERunStatus
+@brief          -   This function tells when to start updating the DG IDLE Run status bit.
+                    True(start updating the DG IDLE Run status)
+@param          -   None
+@return         -   None
+**************************************************************************************************/
+void START_STOP::prvUpdateDGIDLERunStatus(void)
+{
+    if((UTILS_GetElapsedTimeInSec(&_DGIDleRunTimer) >= DG_IDLE_RUN_DELAY_IN_SEC) && _bDGIdleRunDelayRunning)
+    {
+        _bMonitorDGIdleRun = true;
+    }
+    else
+    {
+        _bMonitorDGIdleRun = false;
+    }
+}
+
+bool START_STOP::IsMonitorDGIdleRunTrue()
+{
+    return _bMonitorDGIdleRun;
+}
 void START_STOP::prvUpdateSimStartStopStatus()
 {
     if(!_bSimStartLatched)
@@ -834,6 +839,17 @@ void START_STOP::prvTurnOffPreheatStartCranking()
     _vars.TimerState = BASE_MODES::CRANK_START_TIMER;
 }
 
+void START_STOP::prvSkipPreheatStartCranking()
+{
+    UTILS_ResetTimer(&_EngCrankingTimer);
+    _State = ID_STATE_SS_CRANKING;
+    _u8NoOfCrankAttempts++;
+    _ChargeAlt.StartExcitation();
+    _bChargAltStopLatched = false;
+    _vars.GCUState = BASE_MODES::ENGINE_STARTING;
+    _vars.TimerState = BASE_MODES::CRANK_START_TIMER;
+}
+
 
 bool START_STOP::CheckPreheatTempCondition()
 {
@@ -854,12 +870,23 @@ bool START_STOP::CheckPreheatTempCondition()
                  && (sensVal.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT))
         )
         ||
-        (( IS_PRHEAT_RELAY_CONFIGURED())
-          && (IS_AMB_TEMP_ENABLED())
-          && (_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::AMB_TEMP_SWITCH)) ))
+        (( IS_PRHEAT_RELAY_CONFIGURED()) // Preheat output configured
+          && (IS_AMB_TEMP_ENABLED())     // Amb Temp enable
+          && (_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::AMB_TEMP_SWITCH)) // Amb Temp switch enable
+          && (!_GCUAlarms.AlarmResultInstat(GCU_ALARMS::AMB_TEMP_SWITCH)))) // Amb temp switch de-activated
     {
         return true;
     }
 
     return false;
+}
+
+uint32_t START_STOP::GetCrankStartDelay()
+{
+    if((BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)||(BASE_MODES::GetGCUOperatingMode() == BASE_MODES::TEST_MODE))
+    {
+       return (uint32_t)_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_MANUAL_START_DELAY);
+    }
+
+    return (uint32_t)_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_AUTO_START_DELAY);
 }

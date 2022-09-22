@@ -77,8 +77,6 @@ private:
                                                  == BASE_MODES::BTS_MODE )
     #define IS_GCU_CYCLIC_MODE()          (_ManualMode.GetGCUOperatingMode()\
                                              == BASE_MODES::CYCLIC_MODE )
-    #define IS_GCU_AUTO_EXE_MODE()        (_ManualMode.GetGCUOperatingMode()\
-                                               == BASE_MODES::AUTO_EXERCISE_MODE )
 
     #define IS_GCU_TEST_MODE()            (_ManualMode.GetGCUOperatingMode()\
                                                == BASE_MODES::TEST_MODE )

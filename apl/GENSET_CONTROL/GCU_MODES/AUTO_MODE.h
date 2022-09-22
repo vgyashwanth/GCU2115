@@ -37,6 +37,9 @@ public:
     void MBStartCMDReceived();
 
     void MBStopCMDReceived();
+
+    bool IsMainsHealthyOrRemoteStopRcvd();
+    bool IsMainsUnhealthyOrRemoteStartRcvd();
 private:
     HAL_Manager         &_hal;
     ENGINE_MONITORING   &_EngineMon;

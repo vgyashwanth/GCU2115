@@ -82,8 +82,7 @@ public:
         MANUAL_MODE,
         AUTO_MODE,
         BTS_MODE,
-        CYCLIC_MODE,
-        AUTO_EXERCISE_MODE
+        CYCLIC_MODE
     }GCU_OPERATING_MODE_t;
 
     typedef enum{
@@ -103,16 +102,6 @@ public:
         STATE_AMF_ENGINE_COOLING,
         STATE_AMF_ENGINE_STOP
     }AMF_STATE_t;
-
-    typedef enum ID_STATE_EXERCISER
-    {
-        ID_AUTO_EXE_DG_OFF = 0,
-        ID_AUTO_EXE_DG_START,
-        ID_AUTO_EXE_DG_ON_LOAD,
-        ID_AUTO_EXE_ENGINE_COOLING,
-        ID_AUTO_EXE_FAULT,
-        ID_AUTO_EXE_ENGINE_STOP
-    }AUTO_EXE_STATE_t;
 
 
     typedef enum
@@ -246,7 +235,6 @@ public:
     void DisableReturnToMains();
     AMF_STATE_t GetAutoModeState();
     MANUAL_STATE_t GetManualModeState();
-    AUTO_EXE_STATE_t GetAutoExeState();
     BTS_STATE_t GetBTSModeState();
     CYCLIC_STATE_t GetCyclicModeState();
     void AssignModechangeParameters();
@@ -265,17 +253,11 @@ public:
     bool GetPressureSensorStatusBeforeStart();
     bool IsMainsContactorConfigured();
     bool IsGenContactorConfigured();
-    static bool GetMainsLowStatus();
-    static bool GetMainsHighStatus();
     bool IsLoadOnMains();
     static void SetModeState(MANUAL_STATE_t eState);
     static void SetModeState(AMF_STATE_t eState);
-    static void SetModeState(AUTO_EXE_STATE_t eState);
     static void SetModeState(BTS_STATE_t eState);
     static void SetModeState(CYCLIC_STATE_t eState);
-    static bool GetIndividualPhaseStatus(PHASE_t ePhase);
-
-    uint8_t GetMainsHealthyPhaseCnt(void);
 protected:
     #define SM_UPDATE_TIME      50U
 
@@ -296,7 +278,6 @@ protected:
     static bool                 _bMBStopCmdReceived;
     static MANUAL_STATE_t       _eManualState;
     static AMF_STATE_t          _eAutoState;
-    static AUTO_EXE_STATE_t     _eAutoExeState;
     static BTS_STATE_t          _eBTSState;
     static CYCLIC_STATE_t       _eCyclicState;
     static MAINS_STATUS_t       _MainsStatus;
@@ -306,18 +287,10 @@ protected:
     static stTimer              _BaseModeUpdateTimer;
     static stTimer              _MainsMonUpdateTimer;
     static GCU_OPERATING_MODE_t _eOperatingMode;
-    static uint16_t             _u16SchOnTimeMin;
-    static uint16_t             _u16SchOnTimeHr;
     static uint16_t             _u16NightModeStartTime;
     static uint16_t             _u16NightModeStopTime;
     static uint16_t             _u16NightModeDurationHrsMin;
-    static uint32_t             _u32SchRemTime_sec;
     static bool                _bNightModeRestrict;
-
-    static bool               _bCLoseGenFlag;
-
-    static bool  _bStartPress;
-    static bool  _bStopPress;
     /**
      * Sets the GCU state according to the current active alarm.
      * @param  : None
@@ -341,11 +314,6 @@ private:
     static GCU_STATE_t  _ePrevGCUState;
 //    static TIMER_STATE_t _ePrevTimerState;
 //    static GCU_OPERATING_MODE_t _ePrevOperatingMode;
-    static bool         _bRPhasHealthyStatus;
-    static bool         _bYPhasHealthyStatus;
-    static bool         _bBPhasHealthyStatus;
-    static bool         _bMainsHigh ;
-    static bool         _bMainsLow  ;
 
     /**
      * This function updates the contactor status depending on the mains and
@@ -365,11 +333,6 @@ private:
     void prvOperatingModeOutputs();
 
     void prvUpdateNightModeRestrictStatus(void);
-
-    /**
-     * This function returns true if Engine is not in Cooling stage in any mode.
-     */
-    bool prvEngineNotInCoolingStage();
 
 };
 

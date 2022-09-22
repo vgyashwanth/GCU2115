@@ -15,7 +15,7 @@
 
 //-------------------------------------------------------------------------------------------------/
 
-/* */
+/* Supportive macros */
 
 #define IS_ENGINE_START_VALIDITY_ENABLED()       (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
 #define IS_GEN_IN_START_STATE()                  ((START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_CRANKING)   || \
@@ -119,7 +119,7 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
             {
                 if(GET_CURRENT_SPEED() >= _u16HigherSpeedThreshold_rpm)
                 {
-                    if(UTILS_GetElapsedTimeInMs(&_SpeedRampDetectTimer) >= ALLOWED_RAMP_TIME_FOR_VALID_START)
+                    if(UTILS_GetElapsedTimeInMs(&_SpeedRampDetectTimer) >= MINIMUM_RAMP_TIME_FOR_VALID_START)
                     {
                         bFoundValidEngineStart = true;
                         _eValidStartDetectionState = SV_SM_FOUND_VALID_START;
@@ -133,9 +133,9 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
                 else if((UTILS_GetElapsedTimeInSec(&_SpeedRampDetectTimer) >= TIMEOUT_FOR_RAMP_SPEED_DETECTION) &&
                         (GET_CURRENT_SPEED() >= _u16LowerSpeedThreshold_rpm))
                 {
-                    /* This intance of code shows that, even if engine is unable to cross upper threshold of speed,
-                     has atleast maintained speed greater than lower speed threshold for the configured portion of time.
-                     Hence, Engine will enter in ON state anyway and GCU consideres this as a valid start. */
+                    /* This instance of code shows that, even if engine is unable to cross upper threshold of speed,
+                     has at least maintained speed greater than lower speed threshold for the configured portion of time.
+                     Hence, Engine will enter in ON state anyway and GCU considers this as a valid start. */
                     bFoundValidEngineStart = true;
                     _eValidStartDetectionState = SV_SM_FOUND_VALID_START;
                 }
@@ -143,9 +143,9 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
                 {
                     /* execution reaches here, that means, engine is unable to gain required minimum
                         speed within given portion of timeout(crank hold time).
-                        So anyway GCU will start next attempt of cranck untill configured number of
+                        So anyway GCU will start next attempt of crank until configured number of
                         cranks completes.
-                        Hence reset the parameters and the wait in SV_SM_IDLE state for next attempt. */
+                        Hence reset the parameters and then wait in SV_SM_IDLE state for next attempt. */
                     _eValidStartDetectionState = SV_SM_RESET;
                 }
                 else
@@ -165,7 +165,7 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
                 }
                 else
                 {
-                    /* execution will reamin in same state untill engine gets off. */
+                    /* execution will reamain in same state until engine gets off. */
                 }
             }
             break;
@@ -180,7 +180,7 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
                 }
                 else
                 {
-                    /* execution will reamin in same state untill engine gets off. */
+                    /* execution will remain in same state until engine gets off. */
                 }
             }
             break;
@@ -188,6 +188,7 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
             {
                 /* Execution will come here only when engine is in off state or unable to start */
                 UTILS_DisableTimer(&_SpeedRampDetectTimer);
+                bFoundValidEngineStart = false;
                 _eValidStartDetectionState = SV_SM_IDLE;
             }
             break;
@@ -196,6 +197,7 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
             break;
         }
     }
+    else
     {
         /* no execution in config mode */
     }
@@ -214,3 +216,4 @@ bool ENGINE_START_VALIDITY::IsValidEngineStartFound()
        return false: if invalid engine start observed */
     return bFoundValidEngineStart;
 }
+

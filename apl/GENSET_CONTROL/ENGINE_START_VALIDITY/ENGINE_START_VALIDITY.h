@@ -24,7 +24,7 @@ class ENGINE_START_VALIDITY
     /* While start operation , Expected minimum time that should be taken by engine
         to traverse from lower threshold speed to higher threshold. If higher speed achieved
         before that, the engine start process is been tampered. */
-    #define ALLOWED_RAMP_TIME_FOR_VALID_START      (100U) /* 100 mili sec */
+    #define MINIMUM_RAMP_TIME_FOR_VALID_START      (100U) /* 100 mili sec */
 
 /* General constant values to be considered to check start validity , if user sets unpractical value */
     #define CONSTANT_LOWER_SPEED_THRESHOLD         (600U)  /* rpm */
@@ -61,7 +61,7 @@ public:
     static bool bFoundValidEngineStart;
 
 private:
-/* Private object refetences */
+/* Private object references */
     CFGZ            &_cfgz;
     GCU_ALARMS      &_GCUAlarms;
 

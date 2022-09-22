@@ -3,6 +3,10 @@
  *
  *  Created on: 03-Jun-2022
  *      Author: madhuri.abhang
+
+ *  Modification History:
+ *  Shubham Wader 22.09.2022
+ *  -Rearrenged code neately.
  */
 
 
@@ -11,228 +15,205 @@
 
 //-------------------------------------------------------------------------------------------------/
 
-bool ENGINE_START_VALIDITY::_bEngineStartWasInValid = false;
-bool ENGINE_START_VALIDITY::_bStartWaveDetection = false;
+/* Supportive macros */
+
+#define IS_ENGINE_START_VALIDITY_ENABLED()       (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
+#define IS_GEN_IN_START_STATE()                  ((START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_CRANKING)   || \
+                                                  (START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_CRANK_REST) || \
+                                                  (START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_ENG_ON))
+#define IS_UNDER_SPEED_DETECTION_ENABLED()       (CFGZ::CFGZ_ENABLE == _cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_SHUTDOWN))
+#define IS_ENGINE_TURNED_OFF()                   (START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_ENG_OFF_OK)
+#define GET_CONFIGURED_LOWER_SPEED()             (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
+#define GET_CONFIGURED_UPPER_SPEED()             (_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_THRESHOLD))
+#define GET_CURRENT_SPEED()                      (_GCUAlarms.GetSpeedValue())
+
+/* Time until which validity detection to be performed */
+#define TIMEOUT_FOR_RAMP_SPEED_DETECTION         (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME))
+
+
+
+bool ENGINE_START_VALIDITY::bStartValidDetectionEnaled = false;
+bool ENGINE_START_VALIDITY::bFoundValidEngineStart = false;
 
 ENGINE_START_VALIDITY::ENGINE_START_VALIDITY(CFGZ &cfgz, GCU_ALARMS &GCUAlarms):
 _cfgz(cfgz),
-_GCUAlarms(GCUAlarms)
+_GCUAlarms(GCUAlarms),
+_SpeedRampDetectTimer{0, false},
+_eValidStartDetectionState(SV_SM_IDLE),
+_u16LowerSpeedThreshold_rpm(0U),
+_u16HigherSpeedThreshold_rpm(0U)
 {
-    UpdateStartValidyParam();
+    InitEngineStartValidityConfig();
 }
 
-
-void ENGINE_START_VALIDITY:: InitEngineStartValidityParams(void)
+void ENGINE_START_VALIDITY::InitEngineStartValidityConfig()
 {
-    InitInvalidDgDetectionStateMachine();
-    _bEngineStartWasInValid = false;
-
-    /*
-     * Lower rpm threshold is assigned as  -
-     * either - 600rpm           - when crank disconnect rpm threshold is greater than 600
-     * or     - crank disconnect - when crank disconnect rpm threshold is less than 600
-     */
-    if(RPM_THRESHOLD_LOW_CONST < _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
+    if(IS_ENGINE_START_VALIDITY_ENABLED())
     {
-        _u16LowRpmThreshold = RPM_THRESHOLD_LOW_CONST;
+        if(CONSTANT_LOWER_SPEED_THRESHOLD > GET_CONFIGURED_LOWER_SPEED())
+        {
+            _u16LowerSpeedThreshold_rpm = CONSTANT_LOWER_SPEED_THRESHOLD;
+        }
+        else
+        {
+            _u16LowerSpeedThreshold_rpm = GET_CONFIGURED_LOWER_SPEED();
+        }
+
+        if((CONSTANT_UPPER_SPEED_THRESHOLD < GET_CONFIGURED_UPPER_SPEED()) &&
+            IS_UNDER_SPEED_DETECTION_ENABLED())
+        {
+            _u16HigherSpeedThreshold_rpm = GET_CONFIGURED_UPPER_SPEED();
+        }
+        else
+        {
+            _u16HigherSpeedThreshold_rpm = CONSTANT_UPPER_SPEED_THRESHOLD;
+        }
     }
     else
     {
-        _u16LowRpmThreshold = _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED);
+        /* No need to initialize anything */
     }
+}
 
-    /*
-     * Higher rpm threshold is assigned as  -
-     * either - 1200rpm     - when under speed threshold is less than 1200
-     * or     - under speed - when under speed threshold is greater than 1200
-     */
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_THRESHOLD)  < RPM_THRESHOLD_HIGH_CONST)
+
+void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
+{
+    if(!bDeviceInConfigMode)
     {
-        _u16HighRpmThreshold = RPM_THRESHOLD_HIGH_CONST;
-    }
-    else
-    {
-        _u16HighRpmThreshold = _cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_THRESHOLD);
-    }
-
-    /*
-     * Crank hold time is considered as timeout for rpm to reach from lower threshold to higher.
-     * After this time, engine start is considered as valid start.
-     */
-    _u32TimeoutForRpm1ToRpm2_us = (CNTS_FOR_1_SEC *_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME));
-}
-
-
-/**
- ** @brief  The function initializes variables to their default state for engine start validity SMD.
- **
- ** @param None
- ** @return void
- **/
-
-void ENGINE_START_VALIDITY::InitInvalidDgDetectionStateMachine(void)
-{
-    _bStrtTmrToDetectInvalidDgRun = false;
-
-    _u32TimeFromRpm1ToRpm2_ms = 0;
-    _bStartWaveDetection = false;
-    _eInvalidDgDetectionState = INVALID_DG_RUN_IDLE;
-}
-
-/*
-////////////////////////////////////////////////////////////////////////////////////////////////////
- **
- ** @brief  The function gives latest engine start validity status.
- **
- ** @param None
- ** @return bool - Invalid engine start status
- **                 true - Engine start was invalid
- **                 false - Engine start was valid
- **/
-////////////////////////////////////////////////////////////////////////////////////////////////////
-bool ENGINE_START_VALIDITY::GetEngineStartInvalidity(void)
-{
-    return _bEngineStartWasInValid;
-}
-
-/*
-////////////////////////////////////////////////////////////////////////////////////////////////////
- **
- ** @brief  The function sets latest engine start validity status.
- **
- ** @param bool - Invalid engine start status
- **                 true - Engine start was invalid
- **                 false - Engine start was valid
- ** @return void
- **/
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void ENGINE_START_VALIDITY::SetEngineStartInvalidity(bool bStatus)
-{
-    _bEngineStartWasInValid = bStatus;
-}
-
-/*
-////////////////////////////////////////////////////////////////////////////////////////////////////
- **
- ** @brief  The function gives status whether start wave is detected or not.
- **
- ** @param None
- ** @return bool - Start Wave Detection status
- **                 true - Start wave detected.
- **                 false - Start wave is not detected.
- **/
-////////////////////////////////////////////////////////////////////////////////////////////////////
-bool ENGINE_START_VALIDITY::GetStartWaveDetectionStatus(void)
-{
-    return _bStartWaveDetection;
-}
-
-/*
-////////////////////////////////////////////////////////////////////////////////////////////////////
- **
- ** @brief  The function sets Start Wave Detection status.
- **
- ** @param bool - Start Wave Detection status
- **                 true - Start wave detected.
- **                 false - Start wave is not detected
- ** @return void
- **/
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void ENGINE_START_VALIDITY::SetStartWaveDetectionStatus(bool bStatus)
-{
-    _bStartWaveDetection = bStatus;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- ** @brief  This is SMD to detect engine start validity. It has two states -
- **         1. INVALID_DG_RUN_IDLE - This is default state of SMD. Cranking or engine on conditions
- **            are checked. If any of the condition mets then it checks for lower rpm threshold.
- **            Once rpm reaches to lower threshold then timer has started and SMD is moves forward state.
-  **        2. INVALID_DG_RUN_CHECK_HIGH_THRSH - In this state, engine rpm is checked with higher threshold.
- **             If it reaches to higher threshold within 100msec, then engine start is declared as invalid.
- **             If it reaches to higher threshold after 100msec and it is greater than lower threshold,
- **             then engine start is declared as valid.
- **             If it does not reach to higher threshold till crank hold time, it is declared that engine
- **             is not even started.
- **             Previously there were 3 states in this SMD. There was no exit criteria for middle state,
- **             hence it is decided to have 2 state for this SMD.
- **
- ** @param  none
- ** @return void
- **/
-////////////////////////////////////////////////////////////////////////////////////////////////////
-void ENGINE_START_VALIDITY::SMDToChkEngStartValidity(void)
-{
-    switch(_eInvalidDgDetectionState)
-    {
-        case INVALID_DG_RUN_IDLE :
-            if((START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_CRANKING)        ||
-               (START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_CRANK_REST)      ||
-               (START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_ENG_ON))
+        switch(_eValidStartDetectionState)
+        {
+            case SV_SM_IDLE :
             {
-                if (_GCUAlarms.GetSpeedValue() >= _u16LowRpmThreshold)
+                if(IS_ENGINE_START_VALIDITY_ENABLED())
                 {
-                    _u32TimeFromRpm1ToRpm2_ms = 0;
-                    _bStrtTmrToDetectInvalidDgRun = true;
-                    _eInvalidDgDetectionState = INVALID_DG_RUN_CHECK_HIGH_THRSH;
-                }
-            }
-            break;
-        case INVALID_DG_RUN_CHECK_HIGH_THRSH :
-#ifdef DEBUG_RPM_TIME_ON_MB
-                gu32DbgTimeFromRpm1ToRpm2_ms = _u32TimeFromRpm1ToRpm2_ms;
-#endif
-            // Does engine rpm reaches to higher threshold within 100msec
-            if (_GCUAlarms.GetSpeedValue() >= _u16HighRpmThreshold)
-            {
-                // If engine rpm reaches to higher threshold within 100msec then it is invalid start
-                if (_u32TimeFromRpm1ToRpm2_ms >= MIN_CNTS_FOR_RPM1TORPM2)
-                {
-                    // engine start was valid
-                    _bEngineStartWasInValid = false;
-                    _bStartWaveDetection = true;
+                    bStartValidDetectionEnaled = true;
+                    if(IS_GEN_IN_START_STATE())
+                    {
+                        if(GET_CURRENT_SPEED() > _u16LowerSpeedThreshold_rpm)
+                        {
+                            UTILS_ResetTimer(&_SpeedRampDetectTimer);
+                            _eValidStartDetectionState = SV_SM_CHECK_VALID_START;
+                        }
+                        else
+                        {
+                            /* do nothing */
+                        }
+                    }
+                    else
+                    {
+                        /* do nothing */
+                    }
                 }
                 else
                 {
-                    // someone is cheating
-                    _bEngineStartWasInValid = true;
-                    _bStartWaveDetection = true;
+                    /* If validity check is disabled, every start to be considered as valid start.
+                       Skip validity check execution  */
+                    bStartValidDetectionEnaled = false;
+                    bFoundValidEngineStart = true;
+                    return;
                 }
-                _eInvalidDgDetectionState = INVALID_DU_RUN_FALSE;
-                _bStrtTmrToDetectInvalidDgRun = false;
-            }
-            // If engine rpm does not reach to the HIGH threshold in crank hold time, and
-            // engine rpm is greater than lower threshold then it is considered as Valid start
-            else if((_u32TimeFromRpm1ToRpm2_ms >= _u32TimeoutForRpm1ToRpm2_us)  &&
-                    (_GCUAlarms.GetSpeedValue() > _u16LowRpmThreshold))
-            {
-                // engine start was valid
-                _bEngineStartWasInValid = false;
-                _bStartWaveDetection = true;
-                _eInvalidDgDetectionState = INVALID_DU_RUN_FALSE;
-                _bStrtTmrToDetectInvalidDgRun = false;
-            }
-            // If engine rpm does not reach to the HIGH threshold in crank hold time, and
-            // engine rpm is reduced below lower threshold then do nothing and reinit SMD.
-            else if(_u32TimeFromRpm1ToRpm2_ms >= _u32TimeoutForRpm1ToRpm2_us)
-            {
-                InitInvalidDgDetectionStateMachine();
             }
             break;
-        case INVALID_DU_RUN_FALSE :
-            break;
-    }
-}
 
-void ENGINE_START_VALIDITY::UpdateStartValidyParam()
-{
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
-    {
-        InitEngineStartValidityParams();
+            case SV_SM_CHECK_VALID_START :
+            {
+                if(GET_CURRENT_SPEED() >= _u16HigherSpeedThreshold_rpm)
+                {
+                    if(UTILS_GetElapsedTimeInMs(&_SpeedRampDetectTimer) >= MINIMUM_RAMP_TIME_FOR_VALID_START)
+                    {
+                        bFoundValidEngineStart = true;
+                        _eValidStartDetectionState = SV_SM_FOUND_VALID_START;
+                    }
+                    else
+                    {
+                        bFoundValidEngineStart = false;
+                        _eValidStartDetectionState = SV_SM_FOUND_INVALID_START;
+                    }
+                }
+                else if((UTILS_GetElapsedTimeInSec(&_SpeedRampDetectTimer) >= TIMEOUT_FOR_RAMP_SPEED_DETECTION) &&
+                        (GET_CURRENT_SPEED() >= _u16LowerSpeedThreshold_rpm))
+                {
+                    /* This instance of code shows that, even if engine is unable to cross upper threshold of speed,
+                     has at least maintained speed greater than lower speed threshold for the configured portion of time.
+                     Hence, Engine will enter in ON state anyway and GCU considers this as a valid start. */
+                    bFoundValidEngineStart = true;
+                    _eValidStartDetectionState = SV_SM_FOUND_VALID_START;
+                }
+                else if(UTILS_GetElapsedTimeInSec(&_SpeedRampDetectTimer) >= TIMEOUT_FOR_RAMP_SPEED_DETECTION)
+                {
+                    /* execution reaches here, that means, engine is unable to gain required minimum
+                        speed within given portion of timeout(crank hold time).
+                        So anyway GCU will start next attempt of crank until configured number of
+                        cranks completes.
+                        Hence reset the parameters and then wait in SV_SM_IDLE state for next attempt. */
+                    _eValidStartDetectionState = SV_SM_RESET;
+                }
+                else
+                {
+                    /* do nothing */
+                }
+            }
+            break;
+            case SV_SM_FOUND_VALID_START :
+            {
+                /* For future purpose
+                 if any private functionality needs execution immidiate after
+                 valid start detection, should be called in this state */
+                if(IS_ENGINE_TURNED_OFF())
+                {
+                    _eValidStartDetectionState = SV_SM_RESET;
+                }
+                else
+                {
+                    /* execution will reamain in same state until engine gets off. */
+                }
+            }
+            break;
+            case SV_SM_FOUND_INVALID_START :
+            {
+                /* For future purpose
+                 if any private functionality needs execution immidiate after
+                 invalid start detection, should be called in this state */
+                if(IS_ENGINE_TURNED_OFF())
+                {
+                    _eValidStartDetectionState = SV_SM_RESET;
+                }
+                else
+                {
+                    /* execution will remain in same state until engine gets off. */
+                }
+            }
+            break;
+            case SV_SM_RESET :
+            {
+                /* Execution will come here only when engine is in off state or unable to start */
+                UTILS_DisableTimer(&_SpeedRampDetectTimer);
+                bFoundValidEngineStart = false;
+                _eValidStartDetectionState = SV_SM_IDLE;
+            }
+            break;
+
+            default:
+            break;
+        }
     }
     else
     {
-        SetStartWaveDetectionStatus(true);
+        /* no execution in config mode */
     }
+}
+
+bool ENGINE_START_VALIDITY::IsEngineStartValidityDetectionEnabled()
+{
+    /* return true : if Engine start validity detection is enabled
+       return false: if Engine start validity detection is disabled */
+    return bStartValidDetectionEnaled;
+}
+
+bool ENGINE_START_VALIDITY::IsValidEngineStartFound()
+{
+    /* return true : if valid engine start observed
+       return false: if invalid engine start observed */
+    return bFoundValidEngineStart;
 }
 

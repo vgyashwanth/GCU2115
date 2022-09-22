@@ -71,10 +71,8 @@ void APL_Manager::Update()
     {
         if((!_cfgc.IsC02Error()) && (!_cfgz.IsC03Error()) )
         {
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
-            {
-                _EngineStartValidity.SMDToChkEngStartValidity();
-            }
+
+            _EngineStartValidity.EngineStartValiditySM(bDeviceInConfigMode);
             _engineMonitoring.Update(bDeviceInConfigMode);
             _startStop.Update(bDeviceInConfigMode);
             _gcuAlarms.Update(bDeviceInConfigMode);

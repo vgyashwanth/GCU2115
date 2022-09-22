@@ -112,6 +112,10 @@ _stEventLog{0}
     UTILS_ResetTimer(&_FuelTheftOneHourTimer);
     _hal.Objeeprom.RequestRead(EXT_EEPROM_CURRENT_EVENT_NO_ADDRESS,(uint8_t*) &_u32EventNumber, 4, ReadEventNumber);
     _hal.Objeeprom.RequestRead(EXT_EEPROM_ROLLED_OVER_ADDRESS,(uint8_t*) &_u32RolledOverByte, 4, ReadRollOver);
+#if TEST_ALARM
+    UTILS_ResetTimer(&_AlaramtestTimer);
+#endif
+
 }
 
 void GCU_ALARMS::Update(bool bDeviceInConfigMode)
@@ -218,6 +222,9 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
 
                 prvCoolantTempCtrlFunction();
                 prvMainsHighLowOutputs();
+#if TEST_ALARM
+                prvTestAlarm();
+#endif
                 FillDisplayAlarmArray();
             }
         }
@@ -2014,7 +2021,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
 
 
 
-    _ArrAlarmValue[INVALID_GEN_START_STATUS].u8Value = (uint8_t)(ENGINE_START_VALIDITY::GetEngineStartInvalidity());
+    _ArrAlarmValue[INVALID_GEN_START_STATUS].u8Value = (uint8_t)(ENGINE_START_VALIDITY::IsValidEngineStartFound());
 
 
     _ArrAlarmValue[MPU_LOSS_STATUS].u8Value = _u8MPULossAlarm;
@@ -3519,3 +3526,34 @@ void GCU_ALARMS::UpdateFuelTheftCalculation()
      *  which updates the fuel theft calculations*/
     _bUpdateFuelTheftCalc = true;
 }
+
+
+#if TEST_ALARM
+void GCU_ALARMS::prvTestAlarm()
+{
+/* Shubham Wader 21.09.2022
+ This function is written for testing the Alarm UI. This will intentionally trigger all the alarms
+ consecutively with delay of 1 Sec.
+ */
+    static uint16_t u16index = 0;
+    if(UTILS_GetElapsedTimeInSec(&_AlaramtestTimer) >= 1U)
+    {
+        *_ArrAlarmStatus[u16index] = 1;
+        UTILS_ResetTimer(&_AlaramtestTimer);
+        if(u16index < ID_ALL_ALARMS_LAST)
+        {
+            u16index++;
+            //*_ArrAlarmStatus[u16index-1] = 0;
+        }
+        else
+        {
+            u16index = 0;
+        }
+    }
+    else
+    {
+        /* Do nothing */
+    }
+}
+#endif
+

@@ -38,7 +38,9 @@ public:
     uint32_t GetCyclicModeTime(BASE_MODES::TIMER_STATE_t eTimer);
     void ClearCyclicModeVars(void);
     void SwitchFromManualToCyclic();
+    bool IsCyclicOnTimerExpired();
 
+    bool IsCyclicOffTimerExpired();
 private:
     HAL_Manager         &_hal;
     ENGINE_MONITORING   &_EngineMon;
@@ -47,12 +49,8 @@ private:
     START_STOP          &_StartStop;
     GCU_MODE_VARS_t     &_vars;
 
-    uint32_t            _u32CyclicOnCount;
-    uint32_t            _u32CyclicOffCount;
-    bool                _bCyclicOffTimerExpired;
-    bool                _bCyclicOnTimerExpired;
-    bool                _bCyclicModeGenOnStatus;
-    bool                _bCyclicModeGenOffStatus;
+    stTimer             _CyclicOnTimer;
+    stTimer             _CyclicOffTimer;
     bool                _bStartOffTimer;
 };
 

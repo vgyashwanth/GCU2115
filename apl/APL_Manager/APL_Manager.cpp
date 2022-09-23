@@ -38,9 +38,7 @@ _PowerOnUpdateTimer{0}
 
     //  HSD_K_FACTOR        (470.0F)   //VNQ5E250AJTR-E HSD
     //  HSD_K_Factor        (1250.0f)  //VNQ7050AJ
-    if((_cfgc.IsSGC110() && (_cfgc.GetPCBPID()==12430))
-       ||(_cfgc.IsSGC120() && (_cfgc.GetPCBPID()==12429))
-               ||(_cfgc.IsSGC421())||(_cfgc.IsSGC420()))
+    if(_cfgc.GetPCBPID()==12209)
     {
 //        AnlgIp.SetHSDKFactor(470.0F);
 
@@ -51,15 +49,6 @@ _PowerOnUpdateTimer{0}
         AnlgIp.SetHSDKFactor(1250.0F);
     }
 
-
-    if(_cfgc.IsSGC110())
-    {
-        _stFirmwareInfo.u32PLMID=12808;
-    }
-    else if(_cfgc.IsSGC120())
-    {
-        _stFirmwareInfo.u32PLMID=13195;
-    }
     prvCheckFirmwareInfo();
 }
 
@@ -82,10 +71,10 @@ void APL_Manager::Update()
             _CyclicMode.Update(bDeviceInConfigMode);
 
             _cfgc.Update();
-            if(_cfgc.IsSGC421())
-            {
-                _Egov.Update();
-            }
+//            if(_cfgc.IsSGC421())
+//            {
+//                _Egov.Update();
+//            }
 
         }
     }

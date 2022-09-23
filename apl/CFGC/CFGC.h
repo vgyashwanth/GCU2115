@@ -105,11 +105,6 @@ public:
 
     bool IsC02Error();
 
-    static bool IsSGC110();
-    static bool IsSGC120();
-    static bool IsSGC421();
-    static bool IsSGC420();
-
 private:
     #define MAX_EVENT_100           100
     #define MAX_EVENT_30            30

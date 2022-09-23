@@ -42,7 +42,7 @@ _PowerOnUpdateTimer{0}
     {
 //        AnlgIp.SetHSDKFactor(470.0F);
 
-        AnlgIp.SetHSDKFactor(1528.0F);
+        AnlgIp.SetHSDKFactor(1547.0F);
     }
     else
     {

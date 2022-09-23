@@ -1830,7 +1830,7 @@ void MON_UI::prvNormalMonScreens()
                 sprintf(arrTemp,"%s",strTimerStatus[_u8LanguageIndex][_manualMode.GetTimerState()]);
                 _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
-                _Disp.gotoxy(GLCD_X(70),GLCD_Y(38));
+                _Disp.gotoxy(GLCD_X(100),GLCD_Y(38));
                 sprintf(arrTemp," %d",(uint16_t)_startStop.GetTimersRemainingTime(_manualMode.GetTimerState()));
                 _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
             }
@@ -3035,8 +3035,13 @@ void MON_UI::prvStartKeyPressAction()
 
 void MON_UI::prvAutoKeyPressAction()
 {
+    /* Shubham Wader 23.09.2022
+        Mode switching logic rearrenged referencing GC2111 NXP
+    */
     _bMBModeChnageCMDRcvd = false;
     _startStop.ClearSimAutoPulse();
+    /*   todo: In GC2111 NXP, we are doing clear Alarms here */
+
     if(_eOpMode == BASE_MODES::MANUAL_MODE)
     {
         if( (!_GCUAlarms.IsCommonShutdown()) && (!_GCUAlarms.IsCommonElectricTrip()))
@@ -3050,6 +3055,11 @@ void MON_UI::prvAutoKeyPressAction()
                 {
                     _BTSMode.ManualToBTSOnLoad();
                 }
+                else
+                {
+                    /* do nothing */
+                }
+
             }
             else if(_manualMode.GetGCUOperatingMode()==BASE_MODES::CYCLIC_MODE)
             {
@@ -3061,94 +3071,162 @@ void MON_UI::prvAutoKeyPressAction()
             {
                 _eOpMode = BASE_MODES::AUTO_MODE;
             }
+            else
+            {
+                /* do nothing */
+            }
+        }
+        else
+        {
+            /* ignore command if shutdown/trip present */
         }
     }
     else if(_eOpMode == BASE_MODES::AUTO_MODE)
     {
-        if((_manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_OFF_MAINS_ON)
-                ||(_manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_OFF_MAINS_OFF))
+        _eOpMode = BASE_MODES::MANUAL_MODE;
+
+        if(   (_manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_OFF_MAINS_ON)
+           || (_manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_OFF_MAINS_OFF) )
         {
-            _eOpMode = BASE_MODES::MANUAL_MODE;
             _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
             _manualMode.DisableReturnToMains();
+            _manualMode.OpenGenLoad();
+            _manualMode.OpenMainsLoad();
         }
-        else if(_manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_ON_LOAD)
+        else if( _manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_ON_LOAD ||
+                 _manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_START   ||
+                 _manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_RETURN_DELAY  )
         {
-            _eOpMode = BASE_MODES::MANUAL_MODE;
-            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_READY);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_AUTO_LOAD_TRANSFER) == CFGZ::CFGZ_ENABLE)
+            if(_manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_START)
             {
-                _manualMode.SwitchLoadToGen();
+                _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_START);
             }
             else
             {
-                _manualMode.OpenGenLoad();
-                _manualMode.OpenMainsLoad();
+                _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_READY);
+
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_AUTO_LOAD_TRANSFER) == CFGZ::CFGZ_ENABLE)
+                {
+                    _manualMode.SwitchLoadToGen();
+                }
+                else
+                {
+                    _manualMode.OpenGenLoad();
+                    _manualMode.OpenMainsLoad();
+                }
             }
             _manualMode.DisableReturnToMains();
+        }
+        else if( _manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_ENGINE_COOLING)
+        {
+            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_ENGINE_COOLING);
+        }
+        else if (_manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_ENGINE_STOP)
+        {
+            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_ENGINE_STOP);
+        }
+        else
+        {
+            /* do nothing */
         }
     }
     else if(_eOpMode == BASE_MODES::BTS_MODE)
     {
-        if((_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_OFF_MAINS_OFF)
-                ||(_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_OFF_MAINS_ON))
+
+        if(  (_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_OFF_MAINS_OFF)
+           ||(_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_OFF_MAINS_ON))
         {
             _eOpMode = BASE_MODES::MANUAL_MODE;
             _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
             _manualMode.DisableReturnToMains();
         }
-        else if(_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_ON_LOAD)
+        else if( _manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_START     ||
+                 _manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_ON_LOAD   ||
+                 _manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_RETURN_DELAY  )
         {
-             if(_BTSMode.IsGenOnDuetoBTS())
-             {
-                 _BTSMode.TurnOffBattCharging(); // Clear BTS run time.
-             }
-             else if(_BTSMode.IsGenOnDueToSheltTemp())
-             {
-                 _BTSMode.TurnOffBattCharging(); // Clear BTS run time.
-             }
+            if(_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_START)
+            {
+                _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_START);
+            }
+            else
+            {
+                _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_READY);
 
-             _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_READY);
-             if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_AUTO_LOAD_TRANSFER) == CFGZ::CFGZ_ENABLE)
-             {
-                 _manualMode.SwitchLoadToGen();
-             }
-             else
-             {
-                 _manualMode.OpenGenLoad();
-                 _manualMode.OpenMainsLoad();
-             }
-             _eOpMode = BASE_MODES::MANUAL_MODE;
-             _manualMode.DisableReturnToMains();
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_AUTO_LOAD_TRANSFER) == CFGZ::CFGZ_ENABLE)
+                {
+                    _manualMode.SwitchLoadToGen();
+                }
+                else
+                {
+                    _manualMode.OpenGenLoad();
+                    _manualMode.OpenMainsLoad();
+                }
+            }
+            _manualMode.DisableReturnToMains();
+        }
+        else if( _manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_ENGINE_COOLING)
+        {
+            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_ENGINE_COOLING);
+        }
+        else if (_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_ENGINE_STOP)
+        {
+            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_ENGINE_STOP);
+        }
+        else
+        {
+            /* do nothing */
         }
     }
     else if(_eOpMode == BASE_MODES::CYCLIC_MODE)
     {
         _cyclicMode.ClearCyclicModeVars();
-        if((_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_OFF_MAINS_OFF)
-                ||(_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_OFF_MAINS_ON))
+        if(  (_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_OFF_MAINS_OFF)
+           ||(_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_OFF_MAINS_ON))
         {
             _eOpMode = BASE_MODES::MANUAL_MODE;
             _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
             _manualMode.DisableReturnToMains();
         }
-        else if((_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_ON_LOAD)
-                ||(_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_RETURN_DELAY))
+        else if( _manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_START     ||
+                 _manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_ON_LOAD   ||
+                 _manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_RETURN_DELAY  )
         {
-            _eOpMode = BASE_MODES::MANUAL_MODE;
-            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_READY);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_AUTO_LOAD_TRANSFER) == CFGZ::CFGZ_ENABLE)
+            if(_manualMode.GetCyclicModeState() == BASE_MODES::STATE_BTS_GEN_START)
             {
-                _manualMode.SwitchLoadToGen();
+                _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_START);
             }
             else
             {
-                _manualMode.OpenGenLoad();
-                _manualMode.OpenMainsLoad();
+                _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_READY);
+
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_AUTO_LOAD_TRANSFER) == CFGZ::CFGZ_ENABLE)
+                {
+                    _manualMode.SwitchLoadToGen();
+                }
+                else
+                {
+                    _manualMode.OpenGenLoad();
+                    _manualMode.OpenMainsLoad();
+                }
             }
             _manualMode.DisableReturnToMains();
-
         }
+        else if( _manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_ENGINE_COOLING)
+        {
+            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_ENGINE_COOLING);
+        }
+        else if (_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_ENGINE_STOP)
+        {
+            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_ENGINE_STOP);
+        }
+        else
+        {
+            /* do nothing */
+        }
+    }
+    else
+    {
+        /* no more modes to switch */
     }
 
     _manualMode.SetGCUOperatingMode(_eOpMode);

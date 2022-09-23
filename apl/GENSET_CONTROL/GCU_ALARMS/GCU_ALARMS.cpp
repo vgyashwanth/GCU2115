@@ -216,7 +216,7 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
             {
                 UTILS_ResetTimer(&_UpdateAlarmMonTimer);
                 prvUpdateGCUAlarmsValue();
-                prvUpdateAlarmStatus();
+//                prvUpdateAlarmStatus();
                 prvUpdateOutputs();
                 prvIsFuelTheftAlarm();
 

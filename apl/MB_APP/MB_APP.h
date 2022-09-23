@@ -90,7 +90,7 @@ public:
         MB_MAINS_RUN_MINUTES,
         MB_BATTERY_VOLTAGE,
         MB_BTS_CHARGE_STATE,
-        MB_FUEL_LEVEL,
+        MB_FUEL_IN_LIT,
         MB_MAINS_L1_POWER,
       	MB_MAINS_L2_POWER,
       	MB_MAINS_L3_POWER,
@@ -134,7 +134,7 @@ offset 14.
         MB_GEN_L2_PF,
         MB_GEN_L3_PF,
         MB_GEN_AVERAGE_PF,
-        MB_FUEL_IN_LIT, //
+        MD_FUEL_PERCENTAGE,
 
 #if AUTOMATION
 
@@ -335,6 +335,7 @@ private:
     void prvUpdateEngSensorAlarms(uint8_t u8AlarmID1, uint8_t u8Offset);
     void prvUpdateAlarmRegValue(uint8_t u8AlarmID, uint8_t u8Offset);
     void prvUpdateAlarmRegStatus(uint8_t u8AlarmID, uint8_t u8Offset);
+
 
     void prvUpadateDIGInOut();
     void prvUpdateBtsParams();

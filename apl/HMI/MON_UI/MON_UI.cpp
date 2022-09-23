@@ -2922,7 +2922,6 @@ void MON_UI::prvPrintSensorStatus(A_SENSE::SENSOR_RET_t stTemp,char *str,
 
 void MON_UI::prvStopKeyPressAction()
 {
-
     _startStop.StopKeyPressed();
 
     if(eDisplayMode == DISP_MON_MODE)
@@ -2931,7 +2930,14 @@ void MON_UI::prvStopKeyPressAction()
         _startStop.ClearSimAutoPulse();
         _startStop.ClearSimStopPulse();
         _startStop.ClearSimStartPulse();
-        _manualMode.Stop();
+        if(_eOpMode == BASE_MODES::MANUAL_MODE)
+        {
+            _manualMode.Stop();
+        }
+        else
+        {
+            /* do nothing */
+        }
 
         if(_eOpMode == BASE_MODES::AUTO_MODE)
         {
@@ -2939,8 +2945,8 @@ void MON_UI::prvStopKeyPressAction()
             _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_READY);
             _manualMode.DisableEngCoolTimer();
             _manualMode.DisableReturnToMains();
-            if((_manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_OFF_MAINS_OFF)
-                    ||(_manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_OFF_MAINS_ON))
+            if(   (_manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_OFF_MAINS_OFF)
+               || (_manualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_GEN_OFF_MAINS_ON)  )
             {
                 _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
             }
@@ -2948,18 +2954,12 @@ void MON_UI::prvStopKeyPressAction()
                     &&(_manualMode.GetAutoModeState() != BASE_MODES::STATE_AMF_RETURN_DELAY))
             {
                 _manualMode.SwitchToManualMode();
+                _manualMode.Stop();
             }
-        }
-        else if(_eOpMode == BASE_MODES::AUTO_EXERCISE_MODE)
-        {
-            _eOpMode = BASE_MODES::MANUAL_MODE;
-            _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_READY);
-            _manualMode.DisableEngCoolTimer();
-            if(_manualMode.GetAutoExeState() != BASE_MODES::ID_AUTO_EXE_DG_ON_LOAD)
+            else
             {
-                _manualMode.SwitchToManualMode();
+                _manualMode.Stop();
             }
-
         }
         else if(_eOpMode == BASE_MODES::BTS_MODE)
         {
@@ -2968,21 +2968,22 @@ void MON_UI::prvStopKeyPressAction()
             _manualMode.DisableEngCoolTimer();
             _manualMode.DisableReturnToMains();
             _BTSMode.ClearBTSVars();
-            if((_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_OFF_MAINS_OFF)
-                    ||(_manualMode.GetBTSModeState() == BASE_MODES:: STATE_BTS_GEN_OFF_MAINS_ON))
+            if(   (_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_OFF_MAINS_OFF)
+                ||(_manualMode.GetBTSModeState() == BASE_MODES:: STATE_BTS_GEN_OFF_MAINS_ON) )
             {
                 _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
                 _manualMode.OpenGenLoad();
+                _manualMode.OpenMainsLoad();
             }
             else if((_manualMode.GetBTSModeState()!= BASE_MODES::STATE_BTS_GEN_ON_LOAD)
                     &&(_manualMode.GetBTSModeState()!= BASE_MODES::STATE_BTS_RETURN_DELAY))
             {
                 _manualMode.SwitchToManualMode();
-                //_startStop.StopCommand();
+                _startStop.StopCommand();
             }
             else
             {
-               // _startStop.StopCommand();
+               _startStop.StopCommand();
             }
         }
         else if(_eOpMode == BASE_MODES::CYCLIC_MODE)
@@ -2993,11 +2994,12 @@ void MON_UI::prvStopKeyPressAction()
             _manualMode.DisableReturnToMains();
             _cyclicMode.ClearCyclicModeVars();
 
-            if((_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_OFF_MAINS_OFF)
-                    ||(_manualMode.GetCyclicModeState() == BASE_MODES:: STATE_CYCLIC_GEN_OFF_MAINS_ON))
+            if(  (_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_OFF_MAINS_OFF)
+               ||(_manualMode.GetCyclicModeState() == BASE_MODES:: STATE_CYCLIC_GEN_OFF_MAINS_ON) )
             {
                 _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
                 _manualMode.OpenGenLoad();
+                _manualMode.OpenMainsLoad();
                 _manualMode.SetTimerState(BASE_MODES::NO_TIMER_RUNNING);
             }
             else if(_manualMode.GetCyclicModeState() != BASE_MODES::STATE_CYCLIC_GEN_ON_LOAD)
@@ -3020,6 +3022,17 @@ void MON_UI::prvStopKeyPressAction()
         _hal.ledManager.led3.TurnOff();
         _hal.ledManager.led4.TurnOn();
         _manualMode.SetGCUOperatingMode(_eOpMode);
+    }
+    else
+    {
+        /* shubham wader 23.09.2022
+        todo: do nothing.
+        There are 2 possibilities for eDisplayMode, 1. Normal Monitering mode 2. Alaram mode.
+        We are accepting stop key command and executing mode specific actions only if the eDisplayMode
+        is in Normal monitering mode. Ref from MAIN_UI: if the program is in Alaram mode, on pressing stop key
+        it will change the mode to normal monitering mode. hence, wheneve execution comes to this specific
+        function call, we are getting eDisplayMode as Normal monitoring mode.
+        So, need to think, is it necesarry to check this here ? */
     }
 }
 
@@ -3062,8 +3075,7 @@ void MON_UI::prvAutoKeyPressAction()
                 if(_BTSMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_ON_LOAD)
                 {
                     _BTSMode.ManualToBTSOnLoad();
-                }
-                else
+                }                else
                 {
                     /* do nothing */
                 }

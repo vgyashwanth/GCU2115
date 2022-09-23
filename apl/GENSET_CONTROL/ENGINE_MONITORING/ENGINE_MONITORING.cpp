@@ -222,7 +222,7 @@ void ENGINE_MONITORING::UpdateContactorLoadStatus()
     static bool eTampStatusPrv = false;
     bool eTampStatusCurrent = eTampStatusPrv;
 
-    eTampStatusCurrent = IsGenStartValid(); /* stores true if tampered start */
+    eTampStatusCurrent = !IsGenStartValid(); /* stores true if tampered start */
     if(eTampStatusCurrent != eTampStatusPrv)
     {
         ReadEnergySetEnergyOffset(false);
@@ -1072,9 +1072,7 @@ bool ENGINE_MONITORING::prvDisconnectCranckByLOPSwitch()
     {
         return  false;
     }
-
 }
-
 
 bool ENGINE_MONITORING::IsGenStartValid()
 {
@@ -1083,7 +1081,7 @@ bool ENGINE_MONITORING::IsGenStartValid()
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE)
     {
         return ((true == ENGINE_START_VALIDITY::IsEngineStartValidityDetectionEnabled())
-                && (false == ENGINE_START_VALIDITY::IsValidEngineStartFound()));
+                && (true == ENGINE_START_VALIDITY::IsValidEngineStartFound()));
     }
     else
     {

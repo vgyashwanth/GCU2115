@@ -349,7 +349,7 @@ void MB_APP::prvUpdateAnalogParams()
     /*Initialize registers to zero*/
     SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
     SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
-    SetReadRegisterValue(MB_FUEL_LEVEL, u16Tmp);
+    SetReadRegisterValue(MD_FUEL_PERCENTAGE, u16Tmp);
     SetReadRegisterValue(MB_FUEL_IN_LIT, u16Tmp);
 
     A_SENSE::SENSOR_RET_t sensorVal = _gcuAlarm.GetLOPSensorVal();
@@ -390,7 +390,7 @@ void MB_APP::prvUpdateAnalogParams()
     {
         /*Scale factor is 0.1*/
         u16Tmp = (uint16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal));
-        SetReadRegisterValue(MB_FUEL_LEVEL, u16Tmp);
+        SetReadRegisterValue(MD_FUEL_PERCENTAGE, u16Tmp);
 
         u16Tmp = (uint16_t)round(sensorVal.stValAndStatus.f32InstSensorVal *_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)/10);
         SetReadRegisterValue(MB_FUEL_IN_LIT, u16Tmp);
@@ -561,6 +561,7 @@ void MB_APP::prvUpdateEngSensorAlarms(uint8_t u8AlarmID1, uint8_t u8Offset)
         _u16TempAlarmVal |= (uint16_t)(ALARM_DISABLED << u8Offset);
     }
 }
+
 
 void MB_APP::prvUpdateBtsParams()
 {

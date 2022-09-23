@@ -214,7 +214,7 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
             {
                 UTILS_ResetTimer(&_UpdateAlarmMonTimer);
                 prvUpdateGCUAlarmsValue();
-                prvUpdateAlarmStatus();
+//                prvUpdateAlarmStatus();
                 prvUpdateOutputs();
                 prvIsFuelTheftAlarm();
                 if((_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)

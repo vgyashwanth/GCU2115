@@ -418,51 +418,119 @@ BASE_MODES::CYCLIC_STATE_t  BASE_MODES::GetCyclicModeState()
     return _eCyclicState;
 }
 
+/* Shubham Wader: making supportive macros for better understanding of the logic */
+#define IS_BASE_MODE_CONFIG_ENABLED()          ( (_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE) \
+                                                  || (_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION)         \
+                                                      == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2) )
+#define IS_CYCLIC_MODE_CONFIG_ENABLED()        (_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_CYCLIC_MODE) == CFGZ::CFGZ_ENABLE)
+
+#define SET_GCU_OPERATING_MODE(mode_)          (_eOperatingMode = mode_)
+#define SET_BTS_MODE_STATE(state_)             (_eBTSState = state_)
+#define SET_CYCLIC_MODE_STATE(state_)          (_eCyclicState = state_)
+#define SET_AUTO_MODE_STATE(state_)            (_eAutoState = state_)
+
 void BASE_MODES::AssignModechangeParameters()
 {
+/* Shubham Wader 23.09.2022
+Below mode and state related assignments done by referencing the GC2111 NXP code.
+*/
     switch(_eManualState)
     {
-         case BASE_MODES::STATE_MANUAL_GEN_OFF:
-             if(_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
-             {
-                 _eOperatingMode =BTS_MODE;
-                 _eBTSState = STATE_BTS_GEN_OFF_MAINS_OFF;
-             }
-             else if(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_CYCLIC_MODE) == CFGZ::CFGZ_ENABLE)
-             {
-                 _eOperatingMode = BASE_MODES::CYCLIC_MODE;
-                 _eCyclicState = STATE_CYCLIC_GEN_OFF_MAINS_OFF;
-             }
-             else
-             {
-                 _eOperatingMode =AUTO_MODE;
-                 _eAutoState = STATE_AMF_GEN_OFF_MAINS_OFF;
-             }
-
-        break;
-        case BASE_MODES::STATE_MANUAL_GEN_READY:
-//            _GCUAlarms.ResetMainsMonParams();
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
-                || (_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
+        case STATE_MANUAL_GEN_OFF:
+        {
+            if(IS_BASE_MODE_CONFIG_ENABLED())
             {
-                _eOperatingMode =BTS_MODE;
-                _eBTSState = STATE_BTS_GEN_ON_LOAD;
+                SET_GCU_OPERATING_MODE(BTS_MODE);
+                SET_BTS_MODE_STATE(STATE_BTS_GEN_OFF_MAINS_ON);
             }
-            else if(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_CYCLIC_MODE) == CFGZ::CFGZ_ENABLE)
+            else if(IS_CYCLIC_MODE_CONFIG_ENABLED())
             {
-                _eOperatingMode = BASE_MODES::CYCLIC_MODE;
-                _eCyclicState = STATE_CYCLIC_GEN_ON_LOAD;
+                SET_GCU_OPERATING_MODE(CYCLIC_MODE);
+                SET_CYCLIC_MODE_STATE(STATE_CYCLIC_GEN_OFF_MAINS_ON);
             }
             else
             {
-                _eOperatingMode =AUTO_MODE;
-                _eAutoState = STATE_AMF_GEN_ON_LOAD;
+                SET_GCU_OPERATING_MODE(AUTO_MODE);
+                SET_AUTO_MODE_STATE(STATE_AMF_GEN_OFF_MAINS_ON);
             }
+        }
         break;
-        default: break;
-    }
-    UTILS_ResetTimer(&_MainsMonUpdateTimer);
 
+        case STATE_MANUAL_GEN_START:
+        {
+            if(IS_BASE_MODE_CONFIG_ENABLED())
+            {
+                SET_GCU_OPERATING_MODE(BTS_MODE);
+                SET_BTS_MODE_STATE(STATE_BTS_GEN_START);
+            }
+            else if(IS_CYCLIC_MODE_CONFIG_ENABLED())
+            {
+                SET_GCU_OPERATING_MODE(CYCLIC_MODE);
+                SET_CYCLIC_MODE_STATE(STATE_CYCLIC_GEN_START);
+            }
+            else
+            {
+                SET_GCU_OPERATING_MODE(AUTO_MODE);
+                SET_AUTO_MODE_STATE(STATE_AMF_GEN_START);
+            }
+        }
+        break;
+
+        case STATE_MANUAL_GEN_READY:
+        {
+            if(IS_BASE_MODE_CONFIG_ENABLED())
+            {
+                SET_GCU_OPERATING_MODE(BTS_MODE);
+                SET_BTS_MODE_STATE(STATE_BTS_GEN_ON_LOAD);
+            }
+            else if(IS_CYCLIC_MODE_CONFIG_ENABLED())
+            {
+                SET_GCU_OPERATING_MODE(CYCLIC_MODE);
+                SET_CYCLIC_MODE_STATE(STATE_CYCLIC_GEN_ON_LOAD);
+            }
+            else
+            {
+                SET_GCU_OPERATING_MODE(AUTO_MODE);
+                SET_AUTO_MODE_STATE(STATE_AMF_GEN_ON_LOAD);
+            }
+        }
+        break;
+
+        case STATE_MANUAL_ENGINE_COOLING:
+        {
+
+        }
+        break;
+
+        case STATE_MANUAL_ENGINE_STOP:
+        {
+            if(IS_BASE_MODE_CONFIG_ENABLED())
+            {
+                SET_GCU_OPERATING_MODE(BTS_MODE);
+                SET_BTS_MODE_STATE(STATE_BTS_ENGINE_STOP);
+            }
+            else if(IS_CYCLIC_MODE_CONFIG_ENABLED())
+            {
+                SET_GCU_OPERATING_MODE(CYCLIC_MODE);
+                SET_CYCLIC_MODE_STATE(STATE_CYCLIC_ENGINE_STOP);
+            }
+            else
+            {
+                SET_GCU_OPERATING_MODE(AUTO_MODE);
+                SET_AUTO_MODE_STATE(STATE_AMF_ENGINE_STOP);
+            }
+        }
+        break;
+
+        default:
+        {
+            SET_GCU_OPERATING_MODE(MANUAL_MODE);
+        }
+        break;
+    }
+    /* todo: need to test the whole functionality with below function call. */
+    _GCUAlarms.ResetMainsMonParams();
+    UTILS_ResetTimer(&_MainsMonUpdateTimer);
 }
 
 void BASE_MODES::OpenGenLoad()

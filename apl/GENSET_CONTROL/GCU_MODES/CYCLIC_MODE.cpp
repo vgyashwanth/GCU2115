@@ -605,3 +605,9 @@ bool CYCLIC_MODE::IsCyclicOffTimerExpired()
 {
     return (bool)(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)>=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60));
 }
+
+void CYCLIC_MODE::ClearStartOffTimerFlag()
+{
+    _bStartOffTimer = false;
+
+}

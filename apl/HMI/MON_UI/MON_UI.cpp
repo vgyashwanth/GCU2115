@@ -3018,6 +3018,7 @@ void MON_UI::prvStopKeyPressAction()
         else if(_eOpMode == BASE_MODES::TEST_MODE)
         {
             _manualMode.ComeOutOfTestMode();
+            _startStop.StopCommand();
             _manualMode.DisableTestModeTimer();
             _eOpMode = BASE_MODES::MANUAL_MODE;
         }
@@ -3065,10 +3066,13 @@ void MON_UI::prvAutoKeyPressAction()
     _bMBModeChnageCMDRcvd = false;
     _startStop.ClearSimAutoPulse();
     /*   todo: In GC2111 NXP, we are doing clear Alarms here */
+    _GCUAlarms.ClearAllAlarms();
 
     if(_eOpMode == BASE_MODES::MANUAL_MODE)
     {
-        if( (!_GCUAlarms.IsCommonShutdown()) && (!_GCUAlarms.IsCommonElectricTrip()))
+        if( (!_GCUAlarms.IsCommonShutdown())
+                && (!_GCUAlarms.IsCommonElectricTrip())
+                && (!_GCUAlarms.IsCommonWarning()))
         {
             _manualMode.AssignModechangeParameters();
             if(_manualMode.GetGCUOperatingMode()==BASE_MODES::BTS_MODE)
@@ -3078,7 +3082,8 @@ void MON_UI::prvAutoKeyPressAction()
                 if(_BTSMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_ON_LOAD)
                 {
                     _BTSMode.ManualToBTSOnLoad();
-                }                else
+                }
+                else
                 {
                     /* do nothing */
                 }
@@ -3203,18 +3208,21 @@ void MON_UI::prvAutoKeyPressAction()
     else if(_eOpMode == BASE_MODES::CYCLIC_MODE)
     {
         _cyclicMode.ClearCyclicModeVars();
+        _eOpMode = BASE_MODES::MANUAL_MODE;
         if(  (_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_OFF_MAINS_OFF)
            ||(_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_OFF_MAINS_ON))
         {
-            _eOpMode = BASE_MODES::MANUAL_MODE;
+
             _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
             _manualMode.DisableReturnToMains();
+            _manualMode.OpenGenLoad();
+            _manualMode.OpenMainsLoad();
         }
         else if( _manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_START     ||
                  _manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_ON_LOAD   ||
                  _manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_RETURN_DELAY  )
         {
-            if(_manualMode.GetCyclicModeState() == BASE_MODES::STATE_BTS_GEN_START)
+            if(_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_GEN_START)
             {
                 _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_START);
             }
@@ -3236,10 +3244,12 @@ void MON_UI::prvAutoKeyPressAction()
         }
         else if( _manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_ENGINE_COOLING)
         {
+            _cyclicMode.ClearStartOffTimerFlag();
             _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_ENGINE_COOLING);
         }
         else if (_manualMode.GetCyclicModeState() == BASE_MODES::STATE_CYCLIC_ENGINE_STOP)
         {
+            _cyclicMode.ClearStartOffTimerFlag();
             _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_ENGINE_STOP);
         }
         else

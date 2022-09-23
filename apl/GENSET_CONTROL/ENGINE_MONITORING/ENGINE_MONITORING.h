@@ -40,16 +40,6 @@ public:
        POWER_LAST/**< POWER_LAST */
     }POWER_TP_t;
 
-    typedef enum
-    {
-        ID_HIST_1 = 0,
-        ID_HIST_2,
-        ID_HIST_3,
-        ID_HIST_4,
-        ID_HIST_5,
-        ID_HIST_6,
-        ID_HIST_LAST
-    }HISTOGRAM_t;
 
     typedef struct
     {
@@ -167,8 +157,6 @@ private:
     #define MAX_NO_OF_STARTS            (65000)
     #define MAX_NO_OF_TRIPS             (65000)
     #define TMR_COUNT_FOR_TWO_SECS      (40)
-    #define HISTO_RANGE_MIN             (0)
-    #define HISTO_RANGE_MAX             (20)
     #define CHECK_GEN_MIN_HEALTHY_FREQ()  (_hal.AnalogSensors.GetGensetFreqThruCompartor() > _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_FREQ))
     #define CHECK_GEN_MIN_HEALTHY_VTG()   (_GCUAlarms.GetMinGensetVoltage() > _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_VOLT))
 
@@ -194,8 +182,6 @@ private:
         float f32TamprGenKWH;
         float f32TamprGenKVAH;
         float f32TamprGenKVARH;
-
-        uint16_t u16ArrHistogram[ID_HIST_LAST]; /* todo: discuss wheather to keep or remove */
 
         uint32_t u32GenNumberOfTrips;
         uint32_t u32GenNumberOfStarts;
@@ -281,9 +267,6 @@ private:
      */
     void prvUpdateGenReady();
     void prvGetCumulativeCnt();
-
-    void prvLoadHistogram();
-    void prvClearHistogram();
     uint16_t prvCheckTimeSlot(uint32_t u32RunTime);
 
     void prvUpdateLOPSensor();

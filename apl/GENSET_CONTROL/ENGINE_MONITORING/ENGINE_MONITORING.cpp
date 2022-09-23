@@ -859,26 +859,6 @@ void ENGINE_MONITORING::StoreMainsEnery(POWER_TP_t eTyep, uint32_t u32cnt)
     }
 }
 
-void ENGINE_MONITORING::prvLoadHistogram(void)
-{
-    uint8_t u8LocalHistogramCnt =0;
-    uint8_t u8HistogramMax = HISTO_RANGE_MAX;
-    uint8_t u8HistogramMin = HISTO_RANGE_MIN;
-    float f32TotalPercentKw =0;
-
-    f32TotalPercentKw = (uint8_t)_hal.AcSensors.GENSET_GetPercentPower();
-
-    for(u8LocalHistogramCnt = ID_HIST_1 ;u8LocalHistogramCnt <= ID_HIST_6; u8LocalHistogramCnt++)
-    {
-      if((f32TotalPercentKw >= u8HistogramMin) && ((f32TotalPercentKw <= u8HistogramMax)|| (u8LocalHistogramCnt==5)))
-        {
-          _stCummulativeCnt.u16ArrHistogram[u8LocalHistogramCnt]+=1;
-          break;
-        }
-      u8HistogramMin = u8HistogramMax + 1U;
-      u8HistogramMax +=HISTO_RANGE_MAX;
-    }
-}
 
 
 void ENGINE_MONITORING::prvUpdateEngineRunHrs()

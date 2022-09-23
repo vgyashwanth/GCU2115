@@ -212,7 +212,14 @@ void BASE_MODES::UpdateMainsStatus()
     //for the same condition.
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)
     {
-        _MainsStatus = MAINS_HELATHY;
+        if((_eOperatingMode == BTS_MODE) || (_eOperatingMode == AUTO_MODE))
+        {
+           _MainsStatus = MAINS_UNHELATHY;
+        }
+        else
+        {
+            _MainsStatus = MAINS_HELATHY;
+        }
     }
     else if(_hal.DigitalSensors.GetDigitalSensorState(
             DigitalSensor::DI_SIMULATE_MAINS) ==  DigitalSensor::SENSOR_LATCHED)

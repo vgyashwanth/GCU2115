@@ -644,31 +644,7 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
         { CFGZ_BTS_BATTERY_HYBRID_MODE           , ACTUATOR::ACT_BTS_BATTERY_HYBRID_MODE    },
         { CFGZ_PREHEAT                           , ACTUATOR::ACT_PREHEAT                    },
         { CFGZ_ECU_START                         , ACTUATOR::ACT_ECU_START                  },
-        { CFGZ_MIL                               , ACTUATOR::ACT_MIL                        },
-//        { CFGZ_CALLING_FOR_SCHEDULER_RUN         , ACTUATOR::ACT_CALLING_FOR_SCHEDULER_RUN  },
-//        { CFGZ_STOP_PANEL_LOCK_OP                , ACTUATOR::ACT_STOP_PANEL_LOCK            },
-//        { CFGZ_EXTERNAL_PANEL_LOCK               , ACTUATOR::ACT_EXTERNAL_PANEL_LOCK        },
-//        { CFGZ_FAIL_TO_CLOSE_GEN_CONT            , ACTUATOR::ACT_FAIL_TO_CLOSE_GEN_CONT     },
-//        { CFGZ_FAIL_TO_CLOSE_MAINS_CONT          , ACTUATOR::ACT_FAIL_TO_CLOSE_MAINS_CONT   },
-//        { CFGZ_LOADING_VTG_NOT_REACHED           , ACTUATOR::ACT_LOADING_VTG_NOT_REACHED    },
-//        { CFGZ_LOADING_FREQ_NOT_REACHED          , ACTUATOR::ACT_LOADING_FREQ_NOT_REACHED   },
-//        { CFGZ_MPU_LOSS                          , ACTUATOR::ACT_MPU_LOSS                   },
-
-//        { CFGZ_AUTOMATIC_FUEL_TRANSFER           , ACTUATOR::ACT_AUTOMATIC_FUEL_TRANSFER    },
-//        { CFGZ_ISV_PULL_SIGNAL                   , ACTUATOR::ACT_ISV_PULL_SIGNAL            },
-//        { CFGZ_ISV_HOLD_SIGNAL                   , ACTUATOR::ACT_ISV_HOLD_SIGNAL            },
-//        { CFGZ_LOW_IDLE_MODE                     , ACTUATOR::ACT_LOW_IDLE_MODE              },
-//
-//        { CFGZ_CLNT_TEMP_CTRL                    , ACTUATOR::ACT_CLNT_TEMP_CTRL             },
-//        { CFGZ_KEY_SWITCH                        , ACTUATOR::ACT_KEY_SWITCH                 },
-//
-//        { CFGZ_OPEN_GEN_BREAKER_PULSE             , ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE     },
-//        { CFGZ_CLOSE_GEN_BREAKER_PULSE            , ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE    },
-//        { CFGZ_OPEN_MAINS_BREAKER_PULSE           , ACTUATOR::ACT_OPEN_MAINS_BREAKER_PULSE   },
-//        { CFGZ_CLOSE_MAINS_BREAKER_PULSE          , ACTUATOR::ACT_CLOSE_MAINS_BREAKER_PULSE  },
-//
-//        { CFGZ_IDLE_MODE_ON_PULSE                , ACTUATOR::ACT_IDLE_MODE_ON_PULSE         },
-//        {CFGZ_IDLE_MODE_OFF_PULSE                , ACTUATOR::ACT_IDLE_MODE_OFF_PULSE        }
+        { CFGZ_MIL                               , ACTUATOR::ACT_MIL                        }
        };
 
     for(uint8_t i=0;i<(sizeof(dsenseMap)/sizeof(ACTUATOR_MAP_ROW_t));i++)

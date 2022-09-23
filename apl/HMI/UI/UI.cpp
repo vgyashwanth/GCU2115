@@ -136,7 +136,6 @@ static const char* strOutputSources[1][67] =
   "Charge Alt Warning",
   "Close Gen Contactor",
   "Close Mains Contactor",
-
   "Mains Failure",
   "Common Alarm",
   "Common Electrical Trip",

@@ -482,28 +482,6 @@ void ENGINE_MONITORING::prvCheckEngineOff()
             {
                 /* do nothing */
             }
-
-            if(CFGC::IsSGC421())
-            {
-                EGOV::ResetEgovVars();
-            }
-            else
-            {
-                /* do nothing */
-            }
-        }
-    }
-    else
-    {
-        /* todo: need to confirm abount EGOVE functionality. IF it is not there then need to remove
-                 below function call */
-        if(CFGC::IsSGC421())
-        {
-            EGOV::ResetEgovVars();
-        }
-        else
-        {
-            /* do nothing */
         }
     }
 }

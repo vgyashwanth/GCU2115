@@ -25,12 +25,8 @@ _cfgz(cfgz),
 _GCUAlarms(GCUAlarms),
 _StartStop(StartStop),
 _vars(vars),
-_u32CyclicOnCount(0),
-_u32CyclicOffCount(0),
-_bCyclicOffTimerExpired(false),
-_bCyclicOnTimerExpired(false),
-_bCyclicModeGenOnStatus(false),
-_bCyclicModeGenOffStatus(false),
+_CyclicOnTimer{0, false},
+_CyclicOffTimer{0, false},
 _bStartOffTimer(false)
 {
 
@@ -53,33 +49,6 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
 
         UTILS_ResetTimer(&_GCUSMUpdateTimer);
 
-        /***START: GEN ON timer count in Cyclic mode ***/
-        if(_bCyclicModeGenOnStatus)
-        {
-            _u32CyclicOnCount++;
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION)*60*20) <= _u32CyclicOnCount)
-            {
-                _bCyclicOnTimerExpired= 1;
-            }
-        }
-
-        /***END: GEN ON timer count in Cyclic mode ***/
-
-        /***START: GEN OFF timer count in Cyclic mode ***/
-        if(_bCyclicModeGenOffStatus)
-        {
-            _u32CyclicOffCount++;
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60*20) <= _u32CyclicOffCount)
-            {
-                _bCyclicOffTimerExpired= 1;
-            }
-        }
-        else
-        {
-            _u32CyclicOffCount = 0;
-        }
-        /***END: GEN OFF timer count in Cyclic mode ***/
-
         /* Ignore Remote start / stop */
         _bRemoteStartRCVD = false;
         _bRemoteStopRCVD  = false;
@@ -100,7 +69,9 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                             && (!_GCUAlarms.IsCommonShutdown())
                             && (!_bEmergencyStop)
                             &&(!_GCUAlarms.IsCommonWarning())
-                            && GetPressureSensorStatusBeforeStart() && (!IsNightModeRestrictOn()))
+                            && GetPressureSensorStatusBeforeStart()
+                            && (!IsNightModeRestrictOn())
+                            && (START_STOP::ID_STATE_SS_STOP_HOLD != _StartStop.GetStartStopSMDState()))
                     {
                         _StartStop.StartCommand();
                         _eCyclicState = STATE_CYCLIC_GEN_START;
@@ -117,16 +88,12 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                 }
 
-                if(_bCyclicModeGenOnStatus && _bCyclicOnTimerExpired)
+                if(UTILS_GetElapsedTimeInSec(&_CyclicOnTimer)>=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION)*60))
                 {
                     /* Clear the Cyclic GEN ON timer */
-                    _bCyclicModeGenOnStatus = false;
-                    _bCyclicOnTimerExpired  = false;
-
+                    UTILS_DisableTimer(&_CyclicOnTimer);
                     /* Start the Cyclic GEN OFF timer */
-                    _bCyclicModeGenOffStatus = true;
-                    _u32CyclicOffCount = 0;
-                    _bCyclicOffTimerExpired  = false;
+                    UTILS_ResetTimer(&_CyclicOffTimer);
                 }
 
                 if(_GCUAlarms.IsAlarmPresent())
@@ -136,11 +103,12 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     {
                         _vars.TimerState = NO_TIMER_RUNNING;
                     }
-                    else if(_bCyclicModeGenOnStatus)
+                    else if(UTILS_IsTimerEnabled(&_CyclicOnTimer))
                     {
                         _vars.TimerState = CYCLIC_ON_TIMER;
                     }
-                    else if(_bCyclicModeGenOffStatus && (!_bCyclicOffTimerExpired))
+                    else if(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
+                            >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60))
                     {
                         _vars.TimerState = CYCLIC_OFF_TIMER;
                     }
@@ -153,11 +121,12 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     {
                         _vars.TimerState = NO_TIMER_RUNNING;
                     }
-                    else if(_bCyclicModeGenOnStatus)
+                    else if(UTILS_IsTimerEnabled(&_CyclicOnTimer))
                     {
                         _vars.TimerState = CYCLIC_ON_TIMER;
                     }
-                    else if(_bCyclicModeGenOffStatus && (!_bCyclicOffTimerExpired))
+                    else if(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
+                            >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60))
                     {
                         _vars.TimerState = CYCLIC_OFF_TIMER;
                     }
@@ -178,19 +147,20 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _eCyclicState = STATE_CYCLIC_GEN_OFF_MAINS_ON;
                     UTILS_ResetTimer(&_ReturnToMainsTimer);
 
-                    if(_bCyclicModeGenOffStatus)
+                    if((UTILS_IsTimerEnabled(&_CyclicOffTimer))&&(START_STOP::ID_STATE_SS_STOP_HOLD !=
+                            _StartStop.GetStartStopSMDState()))
                     {
                         _vars.TimerState = NO_TIMER_RUNNING;
                     }
-
-                    _bCyclicModeGenOffStatus = false;
-                    _bCyclicOffTimerExpired  = false;
-                    _bCyclicModeGenOnStatus  = false;
-                    _bCyclicOnTimerExpired   = false;
+                    UTILS_DisableTimer(&_CyclicOffTimer);
+                    UTILS_DisableTimer(&_CyclicOnTimer);
                 }
-                else if((_bCyclicOffTimerExpired || ((!_bCyclicModeGenOffStatus)&&((_MainsStatus == MAINS_UNHELATHY))))
+                else if(((UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
+                        >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60)) || ((!(UTILS_IsTimerEnabled(&_CyclicOffTimer))&&(_MainsStatus == MAINS_UNHELATHY))))
                         &&(!_GCUAlarms.IsCommonElectricTrip())
-                        && (!_GCUAlarms.IsCommonShutdown()) && (!_bEmergencyStop)
+                        &&(!_GCUAlarms.IsCommonWarning())
+                        && (!_GCUAlarms.IsCommonShutdown())
+                        && (!_bEmergencyStop)
                         && GetPressureSensorStatusBeforeStart()
                         && (!IsNightModeRestrictOn())
                         && (START_STOP::ID_STATE_SS_STOP_HOLD !=
@@ -198,8 +168,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 {
                     _StartStop.StartCommand();
                     _eCyclicState = STATE_CYCLIC_GEN_START;
-                    _bCyclicModeGenOffStatus = false;
-                    _bCyclicOffTimerExpired  = false;
+                    UTILS_DisableTimer(&_CyclicOffTimer);
                 }
 
                 if(_GCUAlarms.IsAlarmPresent())
@@ -209,15 +178,17 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     {
                         _vars.TimerState = NO_TIMER_RUNNING;
                     }
-                    else if(_bCyclicModeGenOnStatus)
+                    else if(UTILS_IsTimerEnabled(&_CyclicOnTimer))
                     {
                         _vars.TimerState = CYCLIC_ON_TIMER;
                     }
-                    else if(_bCyclicModeGenOffStatus && (!_bCyclicOffTimerExpired))
+                    else if(UTILS_IsTimerEnabled(&_CyclicOffTimer) && (!(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
+                            >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60))))
                     {
                         _vars.TimerState = CYCLIC_OFF_TIMER;
                     }
-                    else if(_bCyclicModeGenOffStatus && _bCyclicOffTimerExpired)
+                    else if(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
+                            >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60))
                     {
                         _vars.TimerState = NO_TIMER_RUNNING;
                     }
@@ -230,11 +201,12 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     {
                         _vars.TimerState = NO_TIMER_RUNNING;
                     }
-                    else if(_bCyclicModeGenOnStatus)
+                    else if(UTILS_IsTimerEnabled(&_CyclicOnTimer))
                     {
                         _vars.TimerState = CYCLIC_ON_TIMER;
                     }
-                    else if(_bCyclicModeGenOffStatus && (!_bCyclicOffTimerExpired))
+                    else if(UTILS_IsTimerEnabled(&_CyclicOffTimer) && (!(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
+                            >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60))))
                     {
                         _vars.TimerState = CYCLIC_OFF_TIMER;
                     }
@@ -250,7 +222,6 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _StartStop.StopCommand();
                     if(_GCUAlarms.IsCommonShutdown())
                     {
-
                         _vars.GCUState = SHUTDOWN;
                     }
                     else if(_GCUAlarms.IsCommonWarning())
@@ -278,14 +249,11 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     SwitchLoadToGen();
                     _eCyclicState = STATE_CYCLIC_GEN_ON_LOAD;
 
-                    if(!_bCyclicModeGenOnStatus)
+                    if(!UTILS_IsTimerEnabled(&_CyclicOnTimer))
                     {
-                        _bCyclicModeGenOnStatus = true;
-                        _u32CyclicOnCount = 0;
+                        UTILS_ResetTimer(&_CyclicOnTimer);
                     }
-                    _bCyclicOffTimerExpired  = false;
-                    _bCyclicModeGenOffStatus = false;
-                    _bCyclicOnTimerExpired   = false;
+                    UTILS_DisableTimer(&_CyclicOffTimer);
                 }
                 else if(_GCUAlarms.IsCommonNotification())
                 {
@@ -303,7 +271,6 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 {
                     if(_GCUAlarms.IsCommonShutdown())
                     {
-
                         _vars.GCUState = SHUTDOWN;
                     }
                     else if(IsNightModeRestrictOn())
@@ -315,20 +282,19 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _eCyclicState = STATE_CYCLIC_ENGINE_STOP;
                     _bOpenGenLoad = true;
 
-                    if(_bCyclicModeGenOnStatus)
+                    if(UTILS_IsTimerEnabled(&_CyclicOnTimer))
                     {
-                        _bCyclicModeGenOnStatus = false;
+                        UTILS_DisableTimer(&_CyclicOnTimer);
                     }
                 }
                 else if((_GCUAlarms.IsCommonElectricTrip())
-                        ||(_bCyclicOnTimerExpired && _bCyclicModeGenOnStatus)
+                        ||(IsCyclicOnTimerExpired())
                         || (_MainsStatus == MAINS_HELATHY))
                 {
-                    if(_bCyclicOnTimerExpired && _bCyclicModeGenOnStatus)
+                    if(IsCyclicOnTimerExpired())
                     {
                         _bStartOffTimer = true;
-                        _bCyclicModeGenOnStatus = false;
-                        _bCyclicOnTimerExpired  = false;
+                        UTILS_DisableTimer(&_CyclicOnTimer);
 
                         _vars.GCUState = ENGINE_STOPPING;
                         _vars.TimerState = COOL_DOWN_TIMER;
@@ -345,8 +311,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     }
                     else if(_GCUAlarms.IsCommonElectricTrip())
                     {
-                        _bCyclicModeGenOnStatus = false;
-                        _bCyclicOnTimerExpired  = false;
+                        UTILS_DisableTimer(&_CyclicOnTimer);
                         _vars.GCUState = ELECTRIC_TRIP;
                         _vars.TimerState = COOL_DOWN_TIMER;
                         _bOpenGenLoad = true;
@@ -367,7 +332,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = ENGINE_ON_HEALTHY;
                 }
 
-                if(_bCyclicModeGenOnStatus)
+                if(UTILS_IsTimerEnabled(&_CyclicOnTimer))
                 {
                     _vars.TimerState = CYCLIC_ON_TIMER;
                 }
@@ -409,7 +374,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     {
                         _vars.TimerState = NO_TIMER_RUNNING;
                     }
-                    else if(_bCyclicModeGenOnStatus)
+                    else if(UTILS_IsTimerEnabled(&_CyclicOnTimer))
                     {
                         _eCyclicState    = STATE_CYCLIC_GEN_ON_LOAD;
                         _vars.GCUState   = ENGINE_ON_HEALTHY;
@@ -417,7 +382,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     }
                     else
                     {
-                        _bCyclicModeGenOffStatus = true;
+                        UTILS_ResetTimer(&_CyclicOffTimer);
                         _eCyclicState    = STATE_CYCLIC_GEN_OFF_MAINS_OFF;
                         _vars.TimerState = CYCLIC_OFF_TIMER;
                     }
@@ -427,7 +392,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     SwitchLoadToMains();
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
 
-                    if(_bCyclicModeGenOnStatus)
+                    if(UTILS_IsTimerEnabled(&_CyclicOnTimer))
                     {
                         _eCyclicState    = STATE_CYCLIC_ENGINE_COOLING;
                         UTILS_ResetTimer(&_EngCoolDownTimer);
@@ -436,8 +401,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     }
                     else
                     {
-                        _bCyclicModeGenOffStatus = false;
-                        _bCyclicOffTimerExpired  = false;
+                        UTILS_DisableTimer(&_CyclicOffTimer);
                         _eCyclicState    = STATE_CYCLIC_GEN_OFF_MAINS_ON;
                         _vars.GCUState = ENGINE_OFF_READY;
                         _vars.TimerState = NO_TIMER_RUNNING;
@@ -463,7 +427,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     if(_GCUAlarms.IsCommonShutdown())
                     {
                         _bStartOffTimer = false; // Clearing flag
-                        _bCyclicOffTimerExpired = true;
+                        UTILS_DisableTimer(&_CyclicOffTimer);
                         _vars.GCUState = SHUTDOWN;
 
                     }
@@ -477,17 +441,16 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _eCyclicState = STATE_CYCLIC_ENGINE_STOP;
                     UTILS_DisableTimer(&_EngCoolDownTimer);
 
-                    if(_bCyclicModeGenOnStatus)
+                    if(UTILS_IsTimerEnabled(&_CyclicOnTimer))
                     {
-                        _bCyclicModeGenOnStatus = false;
-                        _bCyclicOnTimerExpired = false;
+                        UTILS_DisableTimer(&_CyclicOnTimer);
                     }
                 }
                 else if(_GCUAlarms.IsCommonElectricTrip())
                 {
                     _bStartOffTimer = false; // Clearing flag
                     _vars.GCUState = ELECTRIC_TRIP;
-                    _bCyclicOffTimerExpired = true;
+                    UTILS_DisableTimer(&_CyclicOffTimer);
                 }
                 else if(_bStartOffTimer && (_MainsStatus == MAINS_UNHELATHY))
                 {
@@ -495,11 +458,10 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 }
                 else if((_MainsStatus == MAINS_UNHELATHY) && (!_GCUAlarms.IsCommonElectricTrip()))
                 {
-                    // Todo: Decide whether the below condition is required.
-//                    if(!_bCyclicModeGenOnStatus)
-//                    {
-//                        _bCyclicModeGenOnStatus = true;
-//                    }
+                    if(!UTILS_IsTimerEnabled(&_CyclicOnTimer))
+                    {
+                        UTILS_ResetTimer(&_CyclicOnTimer);
+                    }
 
                     _bStartOffTimer = false;
                     SwitchLoadToGen();
@@ -540,19 +502,15 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                         _bStartOffTimer = false;
                         _eCyclicState = STATE_CYCLIC_GEN_OFF_MAINS_OFF;
 
-                        if(!_bCyclicModeGenOnStatus)
+                        if(!UTILS_IsTimerEnabled(&_CyclicOnTimer))
                         {
-                            _bCyclicModeGenOffStatus = true;
-                            _u32CyclicOffCount = 0;
+                            UTILS_ResetTimer(&_CyclicOffTimer);
                         }
                     }
                     else
                     {
-                        _bCyclicOffTimerExpired = false;
-                        _bCyclicModeGenOffStatus = false;
-                        _bCyclicOnTimerExpired = false;
-                        _bCyclicModeGenOnStatus = false;
-                        _u32CyclicOnCount = 0;
+                        UTILS_DisableTimer(&_CyclicOffTimer);
+                        UTILS_DisableTimer(&_CyclicOnTimer);
                         _eCyclicState = STATE_CYCLIC_GEN_OFF_MAINS_OFF;
                     }
 
@@ -599,11 +557,11 @@ uint32_t CYCLIC_MODE::GetCyclicModeTime(BASE_MODES::TIMER_STATE_t eTimer)
     switch(eTimer)
     {
        case BASE_MODES::CYCLIC_ON_TIMER:
-           RemainingTimeInSec = ((((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION)*1200) - _u32CyclicOnCount) /1200) + 1);
+           RemainingTimeInSec = (uint32_t)(ceil((float)((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION)*60) - UTILS_GetElapsedTimeInSec(&_CyclicOnTimer)) /60.0f));
            break;
 
        case BASE_MODES::CYCLIC_OFF_TIMER:
-           RemainingTimeInSec = ((((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*1200) - _u32CyclicOffCount) /1200) + 1);
+           RemainingTimeInSec = (uint32_t)(ceil((float)((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60) - UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)) /60.0f));
            break;
 
        default:
@@ -615,10 +573,8 @@ uint32_t CYCLIC_MODE::GetCyclicModeTime(BASE_MODES::TIMER_STATE_t eTimer)
 
 void CYCLIC_MODE::ClearCyclicModeVars(void)
 {
-    _u32CyclicOnCount = 0;
-    _u32CyclicOffCount = 0;
-    _bCyclicOffTimerExpired = false;
-    _bCyclicOnTimerExpired = false;
+    UTILS_DisableTimer(&_CyclicOffTimer);
+    UTILS_DisableTimer(&_CyclicOnTimer);
 
 }
 
@@ -626,23 +582,26 @@ void CYCLIC_MODE::SwitchFromManualToCyclic()
 {
      if(_eCyclicState == STATE_CYCLIC_GEN_OFF_MAINS_OFF)
      {
-         _bCyclicOffTimerExpired = true;
-         _bCyclicModeGenOffStatus = false;
-         _bCyclicOnTimerExpired = false;
-         _bCyclicModeGenOnStatus = false;
+         UTILS_DisableTimer(&_CyclicOffTimer);
+         UTILS_DisableTimer(&_CyclicOnTimer);
 
      }
      else if(_eCyclicState == STATE_CYCLIC_GEN_ON_LOAD)
      {
-          if(!_bCyclicModeGenOnStatus)
+          if(!UTILS_IsTimerEnabled(&_CyclicOnTimer))
           {
-              _bCyclicModeGenOnStatus = true;
-              _u32CyclicOnCount = 0;
+              UTILS_ResetTimer(&_CyclicOnTimer);
           }
-
-          _bCyclicOffTimerExpired =  false;
-          _bCyclicModeGenOffStatus = false;
-
-          _bCyclicOnTimerExpired = false;
+          UTILS_DisableTimer(&_CyclicOffTimer);
      }
+}
+
+bool CYCLIC_MODE::IsCyclicOnTimerExpired()
+{
+    return (bool)(UTILS_GetElapsedTimeInSec(&_CyclicOnTimer)>=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION)*60));
+}
+
+bool CYCLIC_MODE::IsCyclicOffTimerExpired()
+{
+    return (bool)(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)>=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60));
 }

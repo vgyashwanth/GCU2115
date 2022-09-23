@@ -141,38 +141,6 @@ bool CFGC::IsC02Error()
     return _bIntegrityCheckFailed;
 }
 
-bool CFGC::IsSGC110()
-{
-    if(GetProductID() == SGC110)
-    {
-        return true;
-    }
-    return false;
-}
-bool CFGC::IsSGC120()
-{
-    if(GetProductID() == SGC120)
-    {
-        return true;
-    }
-    return false;
-}
-bool CFGC::IsSGC421()
-{
-    if(GetProductID() == SGC421)
-    {
-        return true;
-    }
-    return false;
-}
-bool CFGC::IsSGC420()
-{
-    if(GetProductID() == SGC420)
-    {
-        return true;
-    }
-    return false;
-}
 void cb(DFLASH::FLASH_STATUS_t evt)
 {
     eStatus = evt;

@@ -641,7 +641,7 @@ void MB_APP::prvUpdateGCUAlarms()
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SMOKE_FIRE].bAlarmActive << 1);
     _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::LLOP_SWITCH].bAlarmActive) << 2);
     _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_D].bAlarmActive) << 3);
-    _u16TempAlarmVal |=   (uint16_t)(0 << 4); // f_out_dg_contactor_close
+    _u16TempAlarmVal |=   (uint16_t)(_Automode.IsGenContactorClosed() << 4);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::V_BELT_BROKEN_SWITCH].bAlarmActive << 5);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_F].bAlarmActive << 6);
     _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::LFL_SWITCH].bAlarmActive ||

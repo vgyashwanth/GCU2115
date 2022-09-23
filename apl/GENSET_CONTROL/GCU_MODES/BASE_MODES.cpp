@@ -376,9 +376,8 @@ BASE_MODES::CYCLIC_STATE_t  BASE_MODES::GetCyclicModeState()
 }
 
 /* Shubham Wader: making supportive macros for better understanding of the logic */
-#define IS_BASE_MODE_CONFIG_ENABLED()          ( (_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE) \
-                                                  || (_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION)         \
-                                                      == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2) )
+#define IS_BTS_MODE_CONFIG_ENABLED()          ( (_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE))
+
 #define IS_CYCLIC_MODE_CONFIG_ENABLED()        (_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_CYCLIC_MODE) == CFGZ::CFGZ_ENABLE)
 
 #define SET_GCU_OPERATING_MODE(mode_)          (_eOperatingMode = mode_)
@@ -395,7 +394,7 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
     {
         case STATE_MANUAL_GEN_OFF:
         {
-            if(IS_BASE_MODE_CONFIG_ENABLED())
+            if(IS_BTS_MODE_CONFIG_ENABLED())
             {
                 SET_GCU_OPERATING_MODE(BTS_MODE);
                 SET_BTS_MODE_STATE(STATE_BTS_GEN_OFF_MAINS_ON);
@@ -415,7 +414,7 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
 
         case STATE_MANUAL_GEN_START:
         {
-            if(IS_BASE_MODE_CONFIG_ENABLED())
+            if(IS_BTS_MODE_CONFIG_ENABLED())
             {
                 SET_GCU_OPERATING_MODE(BTS_MODE);
                 SET_BTS_MODE_STATE(STATE_BTS_GEN_START);
@@ -435,7 +434,7 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
 
         case STATE_MANUAL_GEN_READY:
         {
-            if(IS_BASE_MODE_CONFIG_ENABLED())
+            if(IS_BTS_MODE_CONFIG_ENABLED())
             {
                 SET_GCU_OPERATING_MODE(BTS_MODE);
                 SET_BTS_MODE_STATE(STATE_BTS_GEN_ON_LOAD);
@@ -455,7 +454,7 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
 
         case STATE_MANUAL_ENGINE_COOLING:
         {
-            if(IS_BASE_MODE_CONFIG_ENABLED())
+            if(IS_BTS_MODE_CONFIG_ENABLED())
             {
                 SET_GCU_OPERATING_MODE(BTS_MODE);
                 SET_BTS_MODE_STATE(STATE_BTS_ENGINE_COOLING);
@@ -475,7 +474,7 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
 
         case STATE_MANUAL_ENGINE_STOP:
         {
-            if(IS_BASE_MODE_CONFIG_ENABLED())
+            if(IS_BTS_MODE_CONFIG_ENABLED())
             {
                 SET_GCU_OPERATING_MODE(BTS_MODE);
                 SET_BTS_MODE_STATE(STATE_BTS_ENGINE_STOP);

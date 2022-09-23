@@ -436,8 +436,7 @@ void CFGZ::prvConfigureASENSE()
     const ASENSOR_MAP_ROW_t aPIN14MAP [] = {
                                             {CFGZ_ANLG_SENSOR_NOT_USED, AnalogSensor::A_SENSE_NOT_USED},
                                             {CFGZ_ANLG_DIG_IN           , AnalogSensor::A_SENSE_DIG_M   },
-                                            {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_S1_SENSOR},
-                                            {CFGZ_ANLG_CUSTOM_SENSOR2  , AnalogSensor::A_SENSE_SHELTER_TEMPERATURE}};
+                                            {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_SHELTER_TEMPERATURE}};
 
     u8MapSize = sizeof(aPIN14MAP)/sizeof(ASENSOR_MAP_ROW_t);
     cfg.stAIConfig[A_SENSE::HAL_PIN_14].eSensor = prGetAnalogSensor(ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION, aPIN14MAP,u8MapSize);
@@ -461,9 +460,8 @@ void CFGZ::prvConfigureASENSE()
    const ASENSOR_MAP_ROW_t aPIN21MAP [] = {
                                            {CFGZ_ANLG_SENSOR_NOT_USED, AnalogSensor::A_SENSE_NOT_USED},
                                            {CFGZ_ANLG_DIG_IN           , AnalogSensor::A_SENSE_DIG_O   },
-                                           {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_S3_4_20_SENSOR},
-                                           {CFGZ_ANLG_CUSTOM_SENSOR2  , AnalogSensor::A_SENSE_S3_0_5_SENSOR},
-                                           {CFGZ_ANLG_CUSTOM_SENSOR3 , AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE_4_20}};
+                                           {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE_4_20},
+                                           {CFGZ_ANLG_CUSTOM_SENSOR2  , AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE_0_TO_5V}};
 
    u8MapSize = sizeof(aPIN21MAP)/sizeof(ASENSOR_MAP_ROW_t);
    cfg.stAIConfig[A_SENSE::HAL_PIN_21].eSensor = prGetAnalogSensor(ID_AUX_S3_DIG_O_SENSOR_SELECTION, aPIN21MAP,u8MapSize);
@@ -476,8 +474,7 @@ void CFGZ::prvConfigureASENSE()
    const ASENSOR_MAP_ROW_t aPIN23MAP [] = {
                                            {CFGZ_ANLG_SENSOR_NOT_USED, AnalogSensor::A_SENSE_NOT_USED},
                                            {CFGZ_ANLG_DIG_IN           , AnalogSensor::A_SENSE_DIG_P   },
-                                           {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_S4_4_20_SENSOR},
-                                           {CFGZ_ANLG_CUSTOM_SENSOR2  , AnalogSensor::A_SENSE_S4_0_5_SENSOR}
+                                           {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V}
    };
 
 u8MapSize = sizeof(aPIN23MAP)/sizeof(ASENSOR_MAP_ROW_t);

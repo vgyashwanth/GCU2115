@@ -36,7 +36,7 @@
 #define CFGZ_DFLT_MODBUS_SLAVE_ID (2U)
 
 #define PULSE_IP_SENSOR    A_SENSE::MPU_TYPE
-#define DUMMY_ITEMS       0U
+#define DUMMY_ITEMS       2U
 
 class CFGZ
 {

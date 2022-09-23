@@ -583,6 +583,36 @@ class CFGZ
     } CFGZ_SENSOR_POLARITY_t;
 
     typedef enum{
+        CFGZ_ACTION_NONE_NoWESN = 0,
+        CFGZ_ACTION_WARNING_NoWESN,
+        CFGZ_ACTION_ELECTRICAL_TRIP_NoWESN,
+        CFGZ_ACTION_SHUTDOWN_NoWESN,
+        CFGZ_ACTION_NOTIFICATION_NoWESN,
+        CFGZ_ACTION_NoWESN_LAST
+    } CFGZ_SENSOR_ACTION_NoWESN_t;
+
+    typedef enum{
+        CFGZ_ACTION_NONE_NoWS = 0,
+        CFGZ_ACTION_WARNING_NoWS,
+        CFGZ_ACTION_SHUTDOWN_NoWS,
+    } CFGZ_SENSOR_ACTION_NoWS_t;
+
+    typedef enum{
+        CFGZ_ACTION_WARNING_WS = 0,
+        CFGZ_ACTION_SHUTDOWN_WS,
+    } CFGZ_SENSOR_ACTION_WS_t;
+
+    typedef enum{
+        CFGZ_ACTION_NOTIFICATION_NW = 0,
+        CFGZ_ACTION_WARNING_NW,
+    } CFGZ_SENSOR_ACTION_NW_t;
+
+    typedef enum{
+        CFGZ_ACTION_NONE_NoN = 0,
+        CFGZ_ACTION_NOTIFICATION_NoN,
+    } CFGZ_SENSOR_ACTION_NoN_t;
+
+    typedef enum{
         CFGZ_ACTION_NONE          = 0,
         CFGZ_ACTION_NOTIFICATION,
         CFGZ_ACTION_WARNING,

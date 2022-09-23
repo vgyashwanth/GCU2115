@@ -135,7 +135,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 {
                     _bStartCommand = false;
                     _u8NoOfCrankAttempts = 0;
-                    _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, GCU_ALARMS::ID_NONE);
+                    _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, CFGZ::CFGZ_ACTION_NONE_NoWESN);
                     _bOPPreheat = false;
                     bPreheatTempLimitReached = false;
                     UTILS_DisableTimer(&_PreheatTimer);
@@ -418,7 +418,7 @@ void START_STOP::prvEngineOnGenStartAction()
         //                        }
         //                        else
         {
-            _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, GCU_ALARMS::ID_NONE);
+            _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, CFGZ::CFGZ_ACTION_NONE_NoWESN);
         }
     }
 

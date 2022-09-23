@@ -30,26 +30,6 @@ public:
         ID_ACTION_LAST
     }ALARM_ACTION_t;
 
-    typedef enum
-    {
-       ID_NOTIFICATION1,
-       ID_WARNING1,
-       ID_ELECTRICAL_TRIP1,
-       ID_SHUTDOWN1,
-       ID_ACTION_LAST1
-   }ALARM_ACTION1_t;
-
-   typedef enum
-   {
-       ID_NONE2,
-       ID_NOTIFICATION2,
-       ID_WARNING2,
-       ID_ELECTRICAL_TRIP2,
-       ID_SHUTDOWN2,
-       ID_ACTION_LAST2
-   }ALARM_ACTION2_t;
-
-
     typedef enum{
         FLOAT_TYPE,
         TWO_BYTE_INT,
@@ -825,8 +805,11 @@ private:
             bool bMonitoringPolarity, uint8_t u8LoggingID, 
                 float f32Threshold, uint16_t u16CounterMax);
 
-    void prvSetAlarmAction(uint8_t u8AlarmIndex, uint8_t u8AlarmAction);
-    void prvSetAlarmActionfor4to20mASens(uint8_t u8AlarmIndex, uint8_t u8AlarmAction);
+    void prvSetAlarmAction_NoWESN(uint8_t u8AlarmIndex, uint8_t u8AlarmAction);
+    void prvSetAlarmAction_NoWS(uint8_t u8AlarmIndex, uint8_t u8AlarmAction);
+    void prvSetAlarmAction_WS(uint8_t u8AlarmIndex, uint8_t u8AlarmAction);
+    void prvSetAlarmAction_NW(uint8_t u8AlarmIndex, uint8_t u8AlarmAction);
+    void prvSetAlarmAction_NoN(uint8_t u8AlarmIndex, uint8_t u8AlarmAction);
 
     void prvSetAlarmActivation(uint8_t u8AlarmIndex, uint8_t u8AlarmActivation);
 

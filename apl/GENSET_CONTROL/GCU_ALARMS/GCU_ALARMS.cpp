@@ -129,30 +129,10 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
     _u8LopSensMon = (uint8_t)(_u8MonOn && (((stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)&&(stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_SHORT_TO_BAT))
                                              ));
     _u8FuelSensMon = (uint8_t)(stFuel.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT);
-    A_SENSE::SENSOR_RET_t stAuxSensS1 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S1_SENSOR);
     A_SENSE::SENSOR_RET_t stAuxSensS2 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S2_SENSOR);
     A_SENSE::SENSOR_RET_t stAuxSensS3 = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};
     A_SENSE::SENSOR_RET_t stAuxSensS4 = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};
 
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-    {
-        stAuxSensS3 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S3_4_20_SENSOR);
-    }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
-    {
-        stAuxSensS3 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S3_0_5_SENSOR);
-    }
-
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-    {
-        stAuxSensS4 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S4_4_20_SENSOR);
-    }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
-    {
-        stAuxSensS4 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S4_0_5_SENSOR);
-    }
-
-    _u8AuxSensS1 = (uint8_t)(stAuxSensS1.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT);
     _u8AuxSensS2 = (uint8_t)(stAuxSensS2.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT);
     _u8AuxSensS3 = (uint8_t)((stAuxSensS3.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)&&(stAuxSensS3.stValAndStatus.eState != ANLG_IP::BSP_STATE_SHORT_TO_BAT));
     _u8AuxSensS4 = (uint8_t)((stAuxSensS4.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)&&(stAuxSensS4.stValAndStatus.eState != ANLG_IP::BSP_STATE_SHORT_TO_BAT));
@@ -2057,39 +2037,9 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
         _ArrAlarmValue[MAINT_DATE].u8Value = 0;
     }
 
-    _ArrAlarmValue[AUX_SENS_S1_OPEN_CKT].u8Value = (uint8_t)(stAuxSensS1.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT);
+    _ArrAlarmValue[AUX_SENS_S1_OPEN_CKT].u8Value = (uint8_t)(stShelterTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT);
     _ArrAlarmValue[AUX_SENS_S2_OPEN_CKT].u8Value = (uint8_t)(stAuxSensS2.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT);
-    if((stAuxSensS3.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT))
-       {
-           _ArrAlarmValue[AUX_SENS_S3_OPEN_CKT].u8Value = 1;
-           _ArrAlarmValue[AUX_SENS_S3_STB].u8Value = 0;
-       }
-       else if(stAuxSensS3.stValAndStatus.eState == ANLG_IP::BSP_STATE_SHORT_TO_BAT)
-       {
-           _ArrAlarmValue[AUX_SENS_S3_STB].u8Value = 1;
-           _ArrAlarmValue[AUX_SENS_S3_OPEN_CKT].u8Value = 0;
-       }
-       else
-       {
-           _ArrAlarmValue[AUX_SENS_S3_STB].u8Value = 0;
-           _ArrAlarmValue[AUX_SENS_S3_OPEN_CKT].u8Value = 0;
-       }
 
-       if((stAuxSensS4.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT))
-       {
-           _ArrAlarmValue[AUX_SENS_S4_OPEN_CKT].u8Value = 1;
-           _ArrAlarmValue[AUX_SENS_S4_STB].u8Value = 0;
-       }
-       else if(stAuxSensS4.stValAndStatus.eState == ANLG_IP::BSP_STATE_SHORT_TO_BAT)
-       {
-           _ArrAlarmValue[AUX_SENS_S4_STB].u8Value = 1;
-           _ArrAlarmValue[AUX_SENS_S4_OPEN_CKT].u8Value = 0;
-       }
-       else
-       {
-           _ArrAlarmValue[AUX_SENS_S4_STB].u8Value = 0;
-           _ArrAlarmValue[AUX_SENS_S4_OPEN_CKT].u8Value = 0;
-       }
     _ArrAlarmValue[PIN23_SENSOR_CURRENT_VAL].f32Value = _hal.AnalogSensors.GetPin23CurrentValMilliAmp();
 
     _ArrAlarmValue[J1939_PROTECT_LAMP_STATUS].u8Value = gpJ1939->IsProtectLampON();

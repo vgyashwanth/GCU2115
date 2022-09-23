@@ -476,7 +476,7 @@ void ENGINE_MONITORING::prvCheckEngineOff()
             UTILS_DisableTimer(&_TimerOneMin);
             if((!_GCUAlarms.IsCommonShutdown()) && START_STOP::IsStopRelayON())
             {
-                _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Stop_id, GCU_ALARMS::ID_NONE);
+                _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Stop_id, CFGZ::CFGZ_ACTION_NONE_NoWESN);
             }
             else
             {

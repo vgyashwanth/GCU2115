@@ -50,13 +50,13 @@ private:
     CFGC        &_cfgc;
     GCU_ALARMS  &_gcuAlarms;
     CFGZ        &_cfgz;
-    const char *strAlaramType[GCU_ALARMS::ID_ACTION_LAST]=
+    const char *strAlaramType[CFGZ::CFGZ_ACTION_NoWESN_LAST]=
     {
         " ",
-        "-N",
         "-W",
         "-E",
-        "-S"
+        "-S",
+        "-N"
     };
 
     /** Variables for fetching the event log

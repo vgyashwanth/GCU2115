@@ -94,7 +94,7 @@ void MAIN_UI::prvExitFromConfigMode()
 
     if(CEditableItem::IsAnyConfigValueEdited())
     {
-      _GCUAlarms.LogEvent(GCU_ALARMS::Config_Modified_By_User_id,GCU_ALARMS::ID_NONE);
+      _GCUAlarms.LogEvent(GCU_ALARMS::Config_Modified_By_User_id,CFGZ::CFGZ_ACTION_NONE_NoWESN);
     }
     else
     {

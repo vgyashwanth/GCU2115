@@ -71,8 +71,7 @@ void A_SENSE::ConfigureSensor(CFG_t &cfg)
     {
         if(i == HAL_PIN_21)
         {
-            if((cfg.stAIConfig[HAL_PIN_21].eSensor == AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE_4_20)||
-                    (cfg.stAIConfig[HAL_PIN_21].eSensor == AnalogSensor::A_SENSE_S3_4_20_SENSOR))
+            if(cfg.stAIConfig[HAL_PIN_21].eSensor == AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE_4_20)
             {
                 _AnlgIp.ConfigPin21(ANLG_IP::BSP_MODE_CURRENT);
             }
@@ -83,13 +82,9 @@ void A_SENSE::ConfigureSensor(CFG_t &cfg)
         }
         if(i == HAL_PIN_23)
         {
-            if(cfg.stAIConfig[HAL_PIN_23].eSensor == AnalogSensor::A_SENSE_S4_4_20_SENSOR)
+            if(cfg.stAIConfig[HAL_PIN_23].eSensor == AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V)
             {
-                _AnlgIp.ConfigPin23(ANLG_IP::BSP_MODE_CURRENT);
-            }
-            else
-            {
-               _AnlgIp.ConfigPin23(ANLG_IP::BSP_MODE_VOLTAGE);
+                _AnlgIp.ConfigPin23(ANLG_IP::BSP_MODE_VOLTAGE);
             }
         }
 

@@ -1877,28 +1877,9 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     A_SENSE::SENSOR_RET_t stFuel = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
     A_SENSE::SENSOR_RET_t stEngTemp = GetSelectedTempSensVal();
     A_SENSE::SENSOR_RET_t stShelterTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_SHELTER_TEMPERATURE);
-    A_SENSE::SENSOR_RET_t stAuxSensS1 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S1_SENSOR);
+
     A_SENSE::SENSOR_RET_t stAuxSensS2 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S2_SENSOR);
-    A_SENSE::SENSOR_RET_t stAuxSensS3 = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};
     A_SENSE::SENSOR_RET_t stAuxSensS4 = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};
-
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-    {
-        stAuxSensS3 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S3_4_20_SENSOR);
-    }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
-    {
-        stAuxSensS3 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S3_0_5_SENSOR);
-    }
-
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-    {
-        stAuxSensS4 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S4_4_20_SENSOR);
-    }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
-    {
-        stAuxSensS4 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S4_0_5_SENSOR);
-    }
 
     stLOP = GetLOPSensorVal();
 
@@ -2003,10 +1984,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
 
 
     _ArrAlarmValue[SHELTER_TEMP_VAL].f32Value = stShelterTemp.stValAndStatus.f32InstSensorVal;
-    _ArrAlarmValue[ANLG_SENS_S1_VAL].f32Value = stAuxSensS1.stValAndStatus.f32InstSensorVal;
     _ArrAlarmValue[ANLG_SENS_S2_VAL].f32Value = stAuxSensS2.stValAndStatus.f32InstSensorVal;
-    _ArrAlarmValue[ANLG_SENS_S3_VAL].f32Value = stAuxSensS3.stValAndStatus.f32InstSensorVal;
-    _ArrAlarmValue[ANLG_SENS_S4_VAL].f32Value = stAuxSensS4.stValAndStatus.f32InstSensorVal;
 
     _ArrAlarmValue[SHELT_TEMP_OPEN_CKT].u8Value = (uint8_t)(stShelterTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT);
 

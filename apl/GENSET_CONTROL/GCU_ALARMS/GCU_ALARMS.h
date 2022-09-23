@@ -681,7 +681,6 @@ private:
         AUX_SENS_S4_OPEN_CKT,
         AUX_SENS_S3_STB,
         AUX_SENS_S4_STB,
-        ANLG_SENS_S1_VAL,
         ANLG_SENS_S2_VAL,
         ANLG_SENS_S3_VAL,
         ANLG_SENS_S4_VAL,

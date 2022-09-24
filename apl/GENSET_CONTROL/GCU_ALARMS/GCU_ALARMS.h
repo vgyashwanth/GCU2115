@@ -16,19 +16,8 @@
 #include "CFGZ.h"
 #include "productSelection.h"
 
-#define TEST_ALARM       (0)
-
 class GCU_ALARMS{
 public:
-
-    typedef enum{
-        ID_NONE,
-        ID_NOTIFICATION,
-        ID_WARNING,
-        ID_ELECTRICAL_TRIP,
-        ID_SHUTDOWN,
-        ID_ACTION_LAST
-    }ALARM_ACTION_t;
 
     typedef enum{
         FLOAT_TYPE,
@@ -45,7 +34,7 @@ public:
     typedef union{
         float f32Value;
         uint16_t u16Value;
-        int16_t s16Value;
+        int16_t s16Value; //Todo: If param Threshold has s16 values, then Param values also should have s16 and accordingly Threshold type adjusted to support it.
         uint8_t u8Value;
     }PARAM_THRESHOLD_t;
 
@@ -397,7 +386,6 @@ public:
 
     ALARM_MONITORING_t ArrAlarmMonitoring[ALARM_LIST_LAST];
 
-
     /**
      * Constructor of GCU_ALARMS.
      * @param : None
@@ -483,6 +471,9 @@ public:
      */
     void ResetMainsMonParams();
 
+    void ResetMainsTrip(uint8_t u8Index);
+    void ResetMainsReturn(uint8_t u8Index);
+
     uint16_t GetMinGensetVoltage();
 
     /**
@@ -541,9 +532,7 @@ public:
      */
     void ConfigureGCUAlarms(uint8_t u8AlarmIndex);
 
-
     void AssignAlarmsForDisplay(uint8_t AlarmID);
-
 
     void InitGCUAlarms();
 
@@ -833,11 +822,6 @@ private:
     void prvActDeactCLNTTempCtrlOutput();
 
     void prvCheckTripAction(uint8_t u8ReturnIndex, uint8_t u8TripIndex, bool status);
-
-#if TEST_ALARM
-    stTimer    _AlaramtestTimer;
-    void prvTestAlarm();
-#endif
 
 };
 #endif

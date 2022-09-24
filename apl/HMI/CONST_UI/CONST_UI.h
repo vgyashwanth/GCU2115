@@ -13,7 +13,6 @@
 #include "CFGZ.h"
 #include "J1939_APP/J1939_Database.h"
 
-extern const uint8_t u8BmpLogo[8][32];
 extern const uint8_t u8BmpLogoInfo[3][20];
 extern const uint8_t u8BmpLogoGen[3][20];
 extern const uint8_t u8BmpLogoMains[3][20];
@@ -58,7 +57,7 @@ extern const char *StrAutoRemoteCmd[2];
 
 extern const char *StrNoEvents[2];
 extern const char *StrInfoDate[2];
-extern const char *StrMaintDate[2][2];
+extern const char *StrMaintDate[1][2];
 
 typedef enum
 {
@@ -135,8 +134,6 @@ extern uint8_t gau8Icon4[4][20] ;
 extern uint8_t gau8Icon6[6][27] ;
 extern uint8_t gau8Icon7[6][27] ;
 extern uint8_t gau8Icon8[6][27] ;
-
-
 
 typedef struct
 {

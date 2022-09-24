@@ -621,18 +621,6 @@ class CFGZ
 
     } CFGZ_SENSOR_ACTION_t;
 
-    typedef enum{
-            CFGZ_ACTION_NONE_SENS         = 0,
-            CFGZ_ACTION_WARNING_SENS,
-            CFGZ_ACTION_SHUTDOWN_SENS,
-        } CFGZ_SENSOR_ACTION_SENS_t;
-
-    typedef enum
-    {
-        CFGZ_ACTION_NONE_1 =0,
-        CFGZ_ACTION_NOTIFICATION_2,
-        CFGZ_ACTION_WARNING_2,
-    }CFGZ_MAINTENANCE_ACTION;
     typedef enum {
         CFGZ_NEVER_ACTIVATE    = 0,
         CFGZ_FROM_ENGINE_START,

@@ -166,6 +166,8 @@ public:
 
     static bool IsEngineOnFailToStopAck();
 
+    static bool IsMonitorDGIdleRunTrue();
+
     void UpdateGcuStatusAndTimerDisplay(BASE_MODES::GCU_STATE_t eGcuState, BASE_MODES::TIMER_STATE_t eTimerDisplay);
 
     static bool IsStopCommand();
@@ -249,7 +251,7 @@ private:
 
     void prvUpdateDGIDLERunStatus();
 
-    static bool IsMonitorDGIdleRunTrue();
+
 
     void prvEngineOnGenStartAction();
 

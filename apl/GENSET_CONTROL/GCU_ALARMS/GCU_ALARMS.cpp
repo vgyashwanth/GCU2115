@@ -2497,6 +2497,11 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
 
 }
 
+bool GCU_ALARMS::IsSounderAlarmOn()
+{
+    return _bOPSounderAlarm;
+}
+
 void GCU_ALARMS::prvCheckTripAction(uint8_t u8ReturnIndex, uint8_t u8TripIndex, bool status)
 {
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) == CFGZ::CFGZ_1_PHASE_SYSTEM)

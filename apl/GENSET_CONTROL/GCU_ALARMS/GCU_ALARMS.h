@@ -561,6 +561,7 @@ public:
     bool IsBTSBattHealthy();
     bool IsShelterTempHigh();
     bool IsShelterTempLow();
+    bool IsSounderAlarmOn();
 
 
     void UpdateFuelTheftCalculation();

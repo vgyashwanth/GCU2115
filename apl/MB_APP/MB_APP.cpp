@@ -1022,17 +1022,17 @@ void MB_APP::prvUpadateDIGInOut()
 {
     /* SOLID STATE Output */
     _u16TempAlarmVal = 0;
-   // TODO: as variables are not their so assigning 0 value to that bit
 
-    _u16TempAlarmVal |=   (uint16_t)((0) << 3);
+    _u16TempAlarmVal |=   (uint16_t)(((START_STOP::IsMonitorDGIdleRunTrue() && (_hal.AcSensors.GENSET_GetPercentPower() <5)
+                                   && (_Automode.EngineNotInCoolingStage())) || START_STOP::IsEngineOnFailToStopAck()) << 3);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.IsCommonAlarm() << 4);
-    _u16TempAlarmVal |=   (uint16_t)((0) << 5);
+    _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.IsSounderAlarmOn()) << 5);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FAIL_TO_START].bResultLatched << 6);
-    _u16TempAlarmVal |=   (uint16_t)((0) << 7);
-    _u16TempAlarmVal |=   (uint16_t)((0) << 8);
-    _u16TempAlarmVal |=   (uint16_t)((0) << 9);
-    _u16TempAlarmVal |=   (uint16_t)((0) << 10);
-    _u16TempAlarmVal |=   (uint16_t)((0) << 11);
+    _u16TempAlarmVal |=   (uint16_t)((START_STOP::IsStartPreheatON()) << 7);
+    _u16TempAlarmVal |=   (uint16_t)((START_STOP::IsStopRelayON()) << 8);
+    _u16TempAlarmVal |=   (uint16_t)((START_STOP::IsStartRelayON()) << 9);
+    _u16TempAlarmVal |=   (uint16_t)((_Automode.IsGenContactorClosed()) << 10);
+    _u16TempAlarmVal |=   (uint16_t)((_Automode.IsMainsContactorClosed()) << 11);
 
     SetReadRegisterValue(SOLID_STATE_OP_REG, _u16TempAlarmVal);
 

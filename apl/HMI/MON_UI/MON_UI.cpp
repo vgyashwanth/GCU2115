@@ -392,7 +392,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
 /* Shubham Wader 15.09.2022
  todo: Adding below macro to use while development. While release, remove that */
-#define ENABLE_ALL_MON_SCREENS     (1)
+#define ENABLE_ALL_MON_SCREENS     (0)
 void MON_UI::prvConfigureScreenEnable()
 {
     static uint8_t u8Screen;

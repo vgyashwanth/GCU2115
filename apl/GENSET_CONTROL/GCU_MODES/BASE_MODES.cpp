@@ -737,4 +737,45 @@ bool BASE_MODES::IsNightModeRestrictOn()
     return _bNightModeRestrict;
 }
 
+bool BASE_MODES::EngineNotInCoolingStage()
+{
+    bool bEngineNotInCoolingStage = true;
+    switch(_eOperatingMode)
+    {
+        case TEST_MODE:
+        case MANUAL_MODE:
+            if(_eManualState == STATE_MANUAL_ENGINE_COOLING)
+            {
+                bEngineNotInCoolingStage = false;
+            }
+            break;
+
+        case AUTO_MODE:
+            if(_eAutoState == STATE_AMF_ENGINE_COOLING)
+            {
+                bEngineNotInCoolingStage = false;
+            }
+            break;
+
+        case BTS_MODE:
+            if(_eBTSState == STATE_BTS_ENGINE_COOLING)
+            {
+                bEngineNotInCoolingStage = false;
+            }
+            break;
+
+        case CYCLIC_MODE:
+            if(_eCyclicState == STATE_CYCLIC_ENGINE_COOLING)
+            {
+                bEngineNotInCoolingStage = false;
+            }
+            break;
+
+        default:
+            break;
+
+    }
+    return bEngineNotInCoolingStage;
+}
+
 

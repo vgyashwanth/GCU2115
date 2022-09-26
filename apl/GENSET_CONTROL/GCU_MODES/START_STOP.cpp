@@ -25,6 +25,7 @@ stTimer START_STOP::_SafetyMonTimer = {0};
 stTimer START_STOP::_EngStoppingTimer = {0};
 bool START_STOP::_bOPPreheat = false;
 bool START_STOP::_bOPFuelRelay= false;
+bool START_STOP::_bEngineOnFailToStopAck = false
 
 bool START_STOP::_bStopCommand = false;
 START_STOP::SS_STATE_t START_STOP::_State =ID_STATE_SS_ENG_OFF_OK;
@@ -221,21 +222,18 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 {
                     UTILS_DisableTimer(&_EngCrankingTimer);
                     prvHandleEngineCranked();
-                    _hal.ObjGlcd.TurnOnBackLight();
                 }
                 else if((UTILS_GetElapsedTimeInSec(&_EngCrankingTimer)) >= 
                         _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME))
                 {
                     if(_u8NoOfCrankAttempts >= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_START_ATTEMPTS))
                     {
-                        _hal.ObjGlcd.TurnOnBackLight();
                         _GCUAlarms.UpdateFailToStart();
                         _State = ID_STATE_SS_ENG_OFF_ERR;
                         _vars.TimerState = BASE_MODES::NO_TIMER_RUNNING;
                     }
                     else
                     {
-                        _hal.ObjGlcd.TurnOnBackLight();
                         UTILS_ResetTimer(&_EngCrankRestTimer);
                         _State = ID_STATE_SS_CRANK_REST;
                         _vars.GCUState = BASE_MODES::ENGINE_STARTING;
@@ -258,7 +256,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 break;
 
             case ID_STATE_SS_CRANK_REST:
-                _hal.ObjGlcd.TurnOnBackLight();
                 prvSetOutputVariables(false, false, false, false);
                 _bStartCommand = false;
                 if((_bStopCommand)||(_GCUAlarms.IsCommonWarning()))
@@ -375,6 +372,11 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 {
                     _State = ID_STATE_SS_ENG_OFF_ERR;
                     UTILS_DisableTimer(&_StopHoldTimer);
+                    _bEngineOnFailToStopAck = false;
+                }
+                else
+                {
+                    _bEngineOnFailToStopAck = true;
                 }
                 break;
 
@@ -434,7 +436,6 @@ void START_STOP::prvStopCommandAction()
     _bStopCommand = false;
     _bGenStarted = false;
     _ChargeAlt.StopExcitation();
-    _hal.ObjGlcd.TurnOnBackLight();
     switch(_State)
     {
         case ID_STATE_SS_ENG_OFF_OK:
@@ -812,6 +813,11 @@ bool START_STOP::IsStartRelayON()
 bool START_STOP::IsStartPreheatON()
 {
     return _bOPPreheat;
+}
+
+bool START_STOP::IsEngineOnFailToStopAck()
+{
+    return _bEngineOnFailToStopAck;
 }
 
 void START_STOP::UpdateGcuStatusAndTimerDisplay(BASE_MODES::GCU_STATE_t eGcuState, BASE_MODES::TIMER_STATE_t eTimerDisplay)

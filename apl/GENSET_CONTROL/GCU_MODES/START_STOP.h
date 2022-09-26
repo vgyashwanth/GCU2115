@@ -164,6 +164,8 @@ public:
 
     static bool IsStartPreheatON();
 
+    static bool IsEngineOnFailToStopAck();
+
     void UpdateGcuStatusAndTimerDisplay(BASE_MODES::GCU_STATE_t eGcuState, BASE_MODES::TIMER_STATE_t eTimerDisplay);
 
     static bool IsStopCommand();
@@ -206,6 +208,7 @@ private:
     bool                        _bSimAckRecd;
     bool                       _bDGIdleRunDelayRunning;
     static bool                 _bMonitorDGIdleRun;
+    static bool                _bEngineOnFailToStopAck;
 
     stTimer                     _PreheatTimer;
     stTimer                     _EngStartTimer;

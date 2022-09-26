@@ -222,6 +222,11 @@ public:
      * @return None */
     void UpdateMainsStatus();
 
+    /**
+     * This function returns true if Engine is not in Cooling stage in any mode.
+     */
+    bool EngineNotInCoolingStage();
+
     void SetGCUOperatingMode(GCU_OPERATING_MODE_t eGCUMode);
 
     static GCU_OPERATING_MODE_t GetGCUOperatingMode();

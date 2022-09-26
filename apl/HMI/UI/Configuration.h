@@ -21,12 +21,86 @@
 // use TARGET_DESKTOP for (partial) validation on computer
 // use TARGET_GCU for validation on GCU
 #define RUNNING_ON                      TARGET_GCU
-#define MENU_STACK_DEPTH                4
-#define STRING_PARAM_MAX_LEN            20
-#define MAX_EDITABLE_ITEMS_PER_SCREEN   3
-#define MAX_MENU_ITEMS                  37
+#define MENU_STACK_DEPTH                    4
+#define STRING_PARAM_MAX_LEN               20
+#define MAX_EDITABLE_ITEMS_PER_SCREEN       3
+#define MAX_MENU_ITEMS                     37
 
+#define SUBMENUS_IN_MODULE                  7
+#define SUBMENUS_IN_INPUTS                 16
+#define SUBMENUS_IN_OUTPUTS                 7
+#define SUBMENUS_IN_TIMERS                  2
+#define SUBMENUS_IN_GENERATOR               6
+#define SUBMENUS_IN_MAINS                   5
+#define SUBMENUS_IN_ENGINE                  5
+#define SUBMENUS_IN_MAINTENANCE             2
+#define SUBMENUS_IN_PASSWORD                3
+#define SUBMENUS_IN_SELECT_PROFILE_MENU     1
 
+ /*Module*/
+#define LEAFNODES_IN_GENERAL                4
+#define LEAFNODES_IN_DISPLAY                2
+#define LEAFNODES_IN_MODBUS_COMM            4
+#define LEAFNODES_IN_CAN_J1939_COMM        12
+#define LEAFNODES_IN_BTS_CONFIG             4
+#define LEAFNODES_IN_CYCLIC_CONFIG          3
+#define LEAFNODES_IN_NIGHT_MODE_CONFIG      3
+ /*Inputs*/
+#define LEAFNODES_IN_DIG_IN_A               5
+#define LEAFNODES_IN_DIG_IN_B               5
+#define LEAFNODES_IN_DIG_IN_C               5
+#define LEAFNODES_IN_DIG_IN_D               5
+#define LEAFNODES_IN_DIG_IN_E               5
+#define LEAFNODES_IN_DIG_IN_F               5
+#define LEAFNODES_IN_DIG_IN_G               5
+#define LEAFNODES_IN_DIG_IN_H               5
+#define LEAFNODES_IN_DIG_IN_I               5
+#define LEAFNODES_IN_LOP_RES_DIG_J         31
+#define LEAFNODES_IN_FUEL_LVL_DIG_K        35
+#define LEAFNODES_IN_ENG_TEMP_DIG_L        29
+#define LEAFNODES_IN_SHEL_TEMP_DIG_M       31
+#define LEAFNODES_IN_AUX_S2_RES_DIG_N      30
+#define LEAFNODES_IN_AUX_S3_DIG_O          31
+#define LEAFNODES_IN_AUX_S4_DIG_P          22
+ /*Outputs*/
+#define LEAFNODES_IN_OUT_A                  2
+#define LEAFNODES_IN_OUT_B                  2
+#define LEAFNODES_IN_OUT_C                  2
+#define LEAFNODES_IN_OUT_D                  2
+#define LEAFNODES_IN_OUT_E                  2
+#define LEAFNODES_IN_OUT_F                  2
+#define LEAFNODES_IN_OUT_G                  2
+ /*Timer*/
+#define LEAFNODES_IN_CRANKING_TIMER         4
+#define LEAFNODES_IN_GENERAL_TIMER         14
+ /*Generator*/
+#define LEAFNODES_IN_ALT_CONFIG             9
+#define LEAFNODES_IN_VOLT_MONITOR           8
+#define LEAFNODES_IN_FREQ_MONITOR           8
+#define LEAFNODES_IN_CURRENT_MONITOR        6
+#define LEAFNODES_IN_FAN_CURR_MONITOR       7
+#define LEAFNODES_IN_LOAD_MONITOR           9
+ /*Mains*/
+#define LEAFNODES_IN_MAINS_CONFIG           5
+#define LEAFNODES_IN_UNDER_VOLT_MON         3
+#define LEAFNODES_IN_OVER_VOLT_MON          3
+#define LEAFNODES_IN_UNDER_FREQ_MON         3
+#define LEAFNODES_IN_OVER_FREQ_MON          3
+ /*Engine*/
+#define LEAFNODES_IN_CRANK_DISCONNECT      11
+#define LEAFNODES_IN_SPEED_MONITOR          8
+#define LEAFNODES_IN_BATTERY_MONITOR        7
+#define LEAFNODES_IN_CHARGE_ALT_MON         4
+#define LEAFNODES_IN_PREHEAT                4
+ /*Maintenance*/
+#define LEAFNODES_IN_MAINT_ALARM            2
+#define LEAFNODES_IN_ALARM_DUE_DATE         1
+ /*ID*/
+#define LEAFNODES_IN_ENG_SR_NO              1
+#define LEAFNODES_IN_PASSWORD_1             1
+#define LEAFNODES_IN_PASSWORD_2             1
+ /*Slect Profile*/
+#define LEAFNODES_IN_SELECT_PROFILE         1
 
  typedef enum
    {
@@ -480,7 +554,7 @@
        SID_PREHEAT_ENG_TEMP_THRESHOLD,
        SID_PREHEAT_AMB_TEMPERATURE,
 
-       SID_MAINT_ALARM_ACTION_S,
+       SID_MAINT_ALARM_ACTION,
        SID_MAINT_ALARM_DUE_AT_ENGINE_HOURS,
        SID_ALARM_DUE_DATE_SERVICE_DATE_1,
        SID_ALARM_DUE_DATE_SERVICE_DATE_2,

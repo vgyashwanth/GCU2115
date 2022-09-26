@@ -18,7 +18,6 @@
 #include "CYCLIC_MODE.h"
 #include "SLEEP_Handler.h"
 #include "../CFGC/CFGC.h"
-#include "../EGOV/EGOV.h"
 #include "../J1939_APP/J1939APP.h"
 #include "../ENGINE_START_VALIDITY/ENGINE_START_VALIDITY.h"
 
@@ -45,7 +44,6 @@ private:
     CYCLIC_MODE                 _CyclicMode;
     Display                     _display;
     MAIN_UI                     _MainUI;
-    EGOV                        _Egov;
     J1939APP                    _J1939;
     ENGINE_START_VALIDITY       _EngineStartValidity;
     stTimer                     _PowerOnUpdateTimer;

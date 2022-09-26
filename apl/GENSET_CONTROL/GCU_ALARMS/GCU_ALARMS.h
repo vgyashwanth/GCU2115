@@ -551,8 +551,6 @@ public:
 
     bool IsMainsSeqFail();
 
-    void CheckMPULossAlarm();
-
     uint8_t GetAlarmId(uint8_t u8Val);
 
     static bool         _bEventNumberReadDone;
@@ -749,7 +747,6 @@ private:
     uint8_t       *_ArrAlarmStatus[ID_ALL_ALARMS_LAST];
     PARAM_VALUE_t _ArrAlarmValue[ALARM_VALUE_LAST];
     uint8_t       _ArrAlarmForDisplay[ID_ALL_ALARMS_LAST];
-    static uint8_t _u8PossibleMPULossCounter;
     uint32_t     _u32EventNumber;
     uint32_t     _u32RolledOverByte ;
     EVENT_LOG_t  _stEventLog;

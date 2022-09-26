@@ -177,6 +177,8 @@ public:
 
     uint32_t GetCrankStartDelay();
 
+    static bool IsMonitorDGIdleRunTrue();
+
 private:
     HAL_Manager                 &_hal;
     ENGINE_MONITORING           &_EngineMon;
@@ -248,8 +250,6 @@ private:
     void prvReqStartDGIdleRunTimer();
 
     void prvUpdateDGIDLERunStatus();
-
-    static bool IsMonitorDGIdleRunTrue();
 
     void prvEngineOnGenStartAction();
 

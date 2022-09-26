@@ -23,7 +23,7 @@ bool MAIN_UI::_sbKeyEventAvailable = false;
 
 MAIN_UI::MAIN_UI(HAL_Manager &hal, CFGZ &pcfgz, GCU_ALARMS &GCUAlarms,
         ENGINE_MONITORING  &EngMon, START_STOP &StartStop,MANUAL_MODE &ManualMode,
-        Display &Disp, CFGC &CFGC, SLEEP_Handler &sleep, EGOV &Egov,
+        Display &Disp, CFGC &CFGC, SLEEP_Handler &sleep,
         J1939APP &j1939 , BTS_MODE &BTSMode , CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity):
 _hal(hal),
 _cfgz(pcfgz),
@@ -32,7 +32,6 @@ _ManualMode(ManualMode),
 _EngMon(EngMon),
 _GCUAlarms(GCUAlarms),
 _StartStop(StartStop),
-_Egov(Egov),
 _j1939(j1939),
 _BTSMode(BTSMode),
 _CyclicMode(CyclicMode),
@@ -87,7 +86,6 @@ void MAIN_UI::prvExitFromConfigMode()
     /* todo: Shift below prv functions to the respective classes once all other files become ready */
     prvUpadteBaseModeConfigDependency(); /* base mode related function call made with manual mode obj referenece*/
     _EngineStartValidity.InitEngineStartValidityConfig();
-    _Egov.InitEgovParameters();
     _StartStop.Init();
 
     _MonUI.Init(); /* MON UI need to be updated at the end */

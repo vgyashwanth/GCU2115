@@ -14,7 +14,6 @@
 #include "ENGINE_MONITORING.h"
 #include "config.h"
 #include "START_STOP.h"
-#include "../EGOV/EGOV.h"
 #include "CFGC/CFGC.h"
 #include "J1939_APP/J1939APP.h"
 #include "../ENGINE_START_VALIDITY/ENGINE_START_VALIDITY.h"

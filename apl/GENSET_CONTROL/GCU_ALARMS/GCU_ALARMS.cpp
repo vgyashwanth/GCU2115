@@ -15,7 +15,6 @@
 #include "START_STOP.h"
 #include "CHARGING_ALT.h"
 #include "BASE_MODES.h"
-#include "../EGOV/EGOV.h"
 #include "CFGC/CFGC.h"
 #include "J1939_APP/J1939APP.h"
 extern J1939APP *gpJ1939;
@@ -29,7 +28,6 @@ CircularQueue<GCU_ALARMS::EVENT_LOG_Q_t> GCU_ALARMS::_EventQueue = {GCU_ALARMS::
 GCU_ALARMS::EVENT_LOG_Q_t GCU_ALARMS::_EventQArr[EVENT_LOG_Q_SIZE]={0};
 
 bool GCU_ALARMS:: bEventWrittenSuccessfully = true;
-uint8_t GCU_ALARMS::_u8PossibleMPULossCounter = 0;
 
 uint8_t Trouble_Index = 0;
 GCU_ALARMS::GCU_ALARMS(HAL_Manager &hal, CFGZ &cfgz):
@@ -174,10 +172,6 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
             _bUpdateFuelTheftCalc = true;
             UTILS_ResetTimer(&_FuelTheftWakeUpTimer);
         }
-
-        _u8PossibleMPULossCounter = EGOV::GetCompCBCount();
-
-        CheckMPULossAlarm();
 
         if((UTILS_GetElapsedTimeInMs(&_UpdateAlarmMonTimer) >= FIFTY_MSEC) && (bAlarmUpdate))
         {
@@ -3332,10 +3326,6 @@ bool GCU_ALARMS::prvIsNeedToCheckSensFltAlarm()
     return false;
 }
 
-void GCU_ALARMS::CheckMPULossAlarm()
-{
-        _u8MPULossAlarm = 0;
-}
 void ReadEventNumber(EEPROM::EVENTS_t evt)
 {
     if(evt ==EEPROM::READ_COMPLETE)

@@ -31,7 +31,7 @@ bool J1939APP::bAvrFault               = false;
 MB_APP::KEY_MB_CAN_EVENT_t J1939APP::stCANEvent={0};
 
 J1939APP::J1939APP(HAL_Manager &hal, CFGC &cfgc, CFGZ &cfgz, ENGINE_MONITORING &engineMonitoring,
-         GCU_ALARMS &gcuAlarm ,MB_APP &mbApp, AUTO_MODE  &Automode, EGOV &egov):
+         GCU_ALARMS &gcuAlarm ,MB_APP &mbApp, AUTO_MODE  &Automode):
 J1939DRIVER(hal),
 _hal(hal),
 _ObjCfgc(cfgc),
@@ -40,7 +40,6 @@ _ObjmbApp(mbApp),
 _engMon(engineMonitoring),
 _gcuAlarm(gcuAlarm),
 _Automode(Automode),
-_egov(egov),
 ubypReadTxPgns
 {
         (J1939_PGNs)&(gstPGNs.PGNGC1_64915),        //0

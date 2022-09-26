@@ -13,7 +13,6 @@
  * @copyright   SEDEMAC Mechatronics Pvt Ltd
  **/
 #include "START_STOP.h"
-#include "../EGOV/EGOV.h"
 #include "J1939_APP/J1939APP.h"
 bool START_STOP::_bChargAltStopLatched = false;
 bool START_STOP::_bMonitorChargAlt = false;
@@ -25,7 +24,7 @@ stTimer START_STOP::_SafetyMonTimer = {0};
 stTimer START_STOP::_EngStoppingTimer = {0};
 bool START_STOP::_bOPPreheat = false;
 bool START_STOP::_bOPFuelRelay= false;
-bool START_STOP::_bEngineOnFailToStopAck = false
+bool START_STOP::_bEngineOnFailToStopAck = false;
 
 bool START_STOP::_bStopCommand = false;
 START_STOP::SS_STATE_t START_STOP::_State =ID_STATE_SS_ENG_OFF_OK;

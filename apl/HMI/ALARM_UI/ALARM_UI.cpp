@@ -245,8 +245,7 @@ void ALARM_UI::prvDisplayAlarmScreen()
 
         //Print screen name
         _Disp.gotoxy(GLCD_X(60),GLCD_Y(5));
-        _Disp.printStringCenterAligned((char *)strAlarms[_cfgz.GetArrLanguageIndex()],
-                    FONT_ARIAL);
+        _Disp.printStringCenterAligned((char *)strAlarms[_cfgz.GetArrLanguageIndex()],FONT_ARIAL);
     }
 
 
@@ -273,9 +272,7 @@ void ALARM_UI::prvDisplayAlarmScreen()
 
     {
         _Disp.gotoxy(GLCD_X(64),GLCD_Y(37));
-        _Disp.printStringCenterAligned(
-                (char *)strAlaram[_cfgz.GetArrLanguageIndex()][_alarm.GetAlarmId(u8AlarmScreenNum)],
-                FONT_VERDANA);
+        _Disp.printStringCenterAligned((char *)strAlaram[_cfgz.GetArrLanguageIndex()][_alarm.GetAlarmId(u8AlarmScreenNum)],FONT_VERDANA);
 
         arrTemp[0]='\0';
         switch(_alarm.GetAlarmId(u8AlarmScreenNum))
@@ -312,8 +309,6 @@ void ALARM_UI::prvDisplayAlarmScreen()
         _Disp.gotoxy(GLCD_X(126),GLCD_Y(50));
         _Disp.printStringRightAligned((char *)arrTemp, FONT_VERDANA);
     }
-
-
 }
 
 void ALARM_UI::ClearAlarmScreenNum()

@@ -68,7 +68,7 @@ public:
        address.
      */
     typedef enum {
-        DIG_ALARM_1_REG = 0, //
+        DIG_ALARM_1_REG = 16384, //
         DIG_ALARM_2_REG, //
         SOLID_STATE_OP_REG, //
         MB_MAINS_L1_N_VOLTAGE,

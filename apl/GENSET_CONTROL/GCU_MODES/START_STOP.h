@@ -166,6 +166,8 @@ public:
 
     static bool IsEngineOnFailToStopAck();
 
+    static bool IsMonitorDGIdleRunTrue();
+
     void UpdateGcuStatusAndTimerDisplay(BASE_MODES::GCU_STATE_t eGcuState, BASE_MODES::TIMER_STATE_t eTimerDisplay);
 
     static bool IsStopCommand();
@@ -176,8 +178,6 @@ public:
     void StopKeyPressed();
 
     uint32_t GetCrankStartDelay();
-
-    static bool IsMonitorDGIdleRunTrue();
 
 private:
     HAL_Manager                 &_hal;

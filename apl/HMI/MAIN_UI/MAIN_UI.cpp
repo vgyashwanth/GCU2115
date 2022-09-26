@@ -250,6 +250,16 @@ bool MAIN_UI::Update()
     }
 
 
+    /* During cranking turn off the back light to reduce the GCU current. (Hardware specific)*/
+   if(_ManualMode.GetTimerState() == BASE_MODES::CRANK_START_TIMER )
+   {
+       _hal.ObjGlcd.TurnOffBackLight();
+   }
+   else
+   {
+       _hal.ObjGlcd.TurnOnBackLight();
+   }
+
     MB_APP::KEY_MB_CAN_EVENT_t  stMBEvent;
     MB_APP::GetMBEventStatus(&stMBEvent);
      if(_sbKeyEventAvailable || stMBEvent.bKeyEvent)
@@ -260,15 +270,7 @@ bool MAIN_UI::Update()
         UTILS_ResetTimer(&_ScreenChangeOverTimer);
         UTILS_ResetTimer(&_PoweSaveModeTimer);
 
-         /* During cranking turn off the back light to reduce the GCU current. (Hardware specific)*/
-        if(_ManualMode.GetTimerState() == BASE_MODES::CRANK_START_TIMER )
-        {
-            _hal.ObjGlcd.TurnOffBackLight();
-        }
-        else
-        {
-            _hal.ObjGlcd.TurnOnBackLight();
-        }
+
 
 /* Shubham Wader 17.09.2022
    below condition is confirmed with Mihir B. (SYSE). SW will execute screen changeover delay from config only if it is

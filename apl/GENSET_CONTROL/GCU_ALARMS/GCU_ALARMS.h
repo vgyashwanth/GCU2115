@@ -563,6 +563,9 @@ public:
     bool IsShelterTempLow();
     bool IsSounderAlarmOn();
 
+/* Public functions accessible to objects, return true if event monitoring enabled and event occured.*/
+    bool RemoteStartReceived();
+    bool RemoteStopReceived();
 
     void UpdateFuelTheftCalculation();
 private:

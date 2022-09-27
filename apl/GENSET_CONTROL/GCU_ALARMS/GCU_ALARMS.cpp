@@ -3483,3 +3483,27 @@ void GCU_ALARMS::UpdateFuelTheftCalculation()
      *  which updates the fuel theft calculations*/
     _bUpdateFuelTheftCalc = true;
 }
+
+bool GCU_ALARMS::RemoteStartReceived()
+{
+    if(ArrAlarmMonitoring[REMOTE_SS].bEnableMonitoring)
+    {
+        return ArrAlarmMonitoring[REMOTE_SS].bResultInstant;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool GCU_ALARMS::RemoteStopReceived()
+{
+    if(ArrAlarmMonitoring[REMOTE_SS].bEnableMonitoring)
+    {
+        return (!ArrAlarmMonitoring[REMOTE_SS].bResultInstant);
+    }
+    else
+    {
+        return false;
+    }
+}

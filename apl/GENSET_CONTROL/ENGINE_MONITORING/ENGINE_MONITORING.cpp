@@ -1022,7 +1022,7 @@ bool ENGINE_MONITORING::prvDisconnectCranckByLOPSwitch()
         {
             if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) == DigitalSensor::SENSOR_LATCHED)
             {
-                /* todo: test LLOP functionality for cranck disconnet specifically  */
+                /* todo: test LLOP functionality for crank disconnect specifically  */
                 UTILS_DisableTimer(&_LLOPCrankingTimer);
             }
             else

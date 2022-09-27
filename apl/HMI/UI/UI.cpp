@@ -1989,20 +1989,19 @@ void UI::MenuVisiblituyOfMainsThresh(uint16_t u16Index)
 }
 void UI::HandleMenuVisibility(void)
 {
-    bool bEn_Ds=true;
+    LowestLevelMenuEnDis(INDEX_OF_GENERAL_PROFILE_NAME,INDEX_OF_ALARM_DUE_DATE_SERVICE_DATE,true);
 
-    bEn_Ds = (ArrEditableItem[INDEX_OF_MODBUS_COMM_COMM_MODE].value.u8Val == CFGZ::CFGZ_ENABLE );
-    LowestLevelMenuEnDis(INDEX_OF_MODBUS_COMM_MODBUS_SLAVE_ID,INDEX_OF_MODBUS_COMM_PARITY,bEn_Ds);
-
-    bEn_Ds  = (ArrEditableItem[INDEX_OF_BTS_CONFIG_BATTERY_MON].value.u8Val ==  CFGZ::CFGZ_ENABLE );
-    LowestLevelMenuEnDis(INDEX_OF_BTS_CONFIG_LOW_BATT_THRESHOLD,INDEX_OF_BTS_CONFIG_DG_RUN_DURATION,bEn_Ds);
-
-    bEn_Ds  = (ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE].value.u8Val ==  CFGZ::CFGZ_ENABLE );
-    LowestLevelMenuEnDis(INDEX_OF_CYCLIC_CONFIG_DG_OFF_DURATION,INDEX_OF_CYCLIC_CONFIG_DG_ON_DURATION,bEn_Ds);
-
-    bEn_Ds  = (ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE].value.u8Val ==  CFGZ::CFGZ_ENABLE );
-    LowestLevelMenuEnDis(INDEX_OF_NIGHT_MODE_CONFIG_START_TIME,INDEX_OF_NIGHT_MODE_CONFIG_OFF_DURATION,bEn_Ds);
-
+    /*................................Module Menu........................................................................................................*/
+    if(ArrEditableItem[INDEX_OF_MODBUS_COMM_COMM_MODE].value.u8Val == CFGZ::CFGZ_DISABLE)
+        LowestLevelMenuEnDis(INDEX_OF_MODBUS_COMM_MODBUS_SLAVE_ID,INDEX_OF_MODBUS_COMM_PARITY,false);
+    if(ArrEditableItem[INDEX_OF_BTS_CONFIG_BATTERY_MON].value.u8Val == CFGZ::CFGZ_DISABLE)
+        LowestLevelMenuEnDis(INDEX_OF_BTS_CONFIG_LOW_BATT_THRESHOLD,INDEX_OF_BTS_CONFIG_DG_RUN_DURATION,false);
+    if(ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE].value.u8Val == CFGZ::CFGZ_DISABLE)
+        LowestLevelMenuEnDis(INDEX_OF_CYCLIC_CONFIG_DG_OFF_DURATION,INDEX_OF_CYCLIC_CONFIG_DG_ON_DURATION,false);
+    if(ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFIG_NIGHT_MODE].value.u8Val == CFGZ::CFGZ_DISABLE)
+        LowestLevelMenuEnDis(INDEX_OF_NIGHT_MODE_CONFIG_START_TIME,INDEX_OF_NIGHT_MODE_CONFIG_OFF_DURATION,false);
+    /*.......................................................................................................................................................*/
+    /*................................Inputs Menu........................................................................................................*/
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_A_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_B_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_C_SOURCE);
@@ -2013,82 +2012,300 @@ void UI::HandleMenuVisibility(void)
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_H_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_I_SOURCE);
 
-
-
+//Sensor J
     if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
-    {
         LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE,INDEX_OF_LOP_RES_DIG_J_V10,false);
-    }
-    else if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN)
+    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE].value.u8Val == CFGZ::CFGZ_SENSOR_NOT_USED)
+        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_DIG_POLARITY,INDEX_OF_LOP_RES_DIG_J_V10,false);
+    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
     {
-        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION,INDEX_OF_LOP_RES_DIG_J_V10,false);
-        menuItemsLowestLevel[INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE     ].isEnabled = true;
-        bEn_Ds = (ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE].value.u8Val!=CFGZ::CFGZ_SENSOR_NOT_USED);
-        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_DIG_POLARITY,INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY,bEn_Ds);
+        DigitalInputMenuVisiblity(INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE);
+        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_SHUTDOWN,INDEX_OF_LOP_RES_DIG_J_V10,false);
     }
-    else
-    {
-        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION,INDEX_OF_LOP_RES_DIG_J_V10,true);
-        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE,INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY, false);
-    }
+    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+        LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE,INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY,false);
+    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 && ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
+        menuItemsLowestLevel[INDEX_OF_LOP_RES_DIG_J_SHUTDOWN_THRESHOLD].isEnabled = false;
+    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 && ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_WARNING].value.u8Val == CFGZ::CFGZ_DISABLE)
+        menuItemsLowestLevel[INDEX_OF_LOP_RES_DIG_J_WARNING_THRESHOLD].isEnabled = false;
 
+    //Sensor K
     if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
-    {
-
         LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE,INDEX_OF_FUEL_LVL_DIG_K_L10,false);
-
-    }
-    else if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN)
+    if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE].value.u8Val == CFGZ::CFGZ_SENSOR_NOT_USED)
+        LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_DIG_POLARITY,INDEX_OF_FUEL_LVL_DIG_K_L10,false);
+    if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
     {
-
+        DigitalInputMenuVisiblity(INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE);
         LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_SHUTDOWN,INDEX_OF_FUEL_LVL_DIG_K_L10,false);
-        menuItemsLowestLevel[INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE].isEnabled = true;
-        bEn_Ds = (ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE].value.u8Val!=CFGZ::CFGZ_SENSOR_NOT_USED);
-        LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_DIG_POLARITY,INDEX_OF_FUEL_LVL_DIG_K_DIG_ACTIVATION_DELAY,bEn_Ds);
     }
-    else
-    {
-        LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_SHUTDOWN,INDEX_OF_FUEL_LVL_DIG_K_L10,true);
-        LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE,INDEX_OF_FUEL_LVL_DIG_K_DIG_ACTIVATION_DELAY, false);
-        menuItemsLowestLevel[INDEX_OF_FUEL_LVL_DIG_K_SHUTDOWN_THRESHOLD].isEnabled= (bool)(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SHUTDOWN].value.u8Val == CFGZ::CFGZ_ENABLE );
-        menuItemsLowestLevel[INDEX_OF_FUEL_LVL_DIG_K_NOTIFICATION_THRESHOLD].isEnabled= (bool)(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_NOTIFICATION].value.u8Val == CFGZ::CFGZ_ENABLE );
-        menuItemsLowestLevel[INDEX_OF_FUEL_LVL_DIG_K_FUEL_THEFT_THRESHOLD].isEnabled= (bool)(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_FUEL_THEFT_WARNING].value.u8Val == CFGZ::CFGZ_ENABLE );
-    }
+    if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+        LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE,INDEX_OF_FUEL_LVL_DIG_K_DIG_ACTIVATION_DELAY,false);
+    if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 && ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
+        menuItemsLowestLevel[INDEX_OF_FUEL_LVL_DIG_K_SHUTDOWN_THRESHOLD].isEnabled = false;
+    if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 && ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_NOTIFICATION].value.u8Val == CFGZ::CFGZ_DISABLE)
+        menuItemsLowestLevel[INDEX_OF_FUEL_LVL_DIG_K_NOTIFICATION_THRESHOLD].isEnabled = false;
+    if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 && ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_FUEL_THEFT_WARNING].value.u8Val == CFGZ::CFGZ_DISABLE)
+        menuItemsLowestLevel[INDEX_OF_FUEL_LVL_DIG_K_FUEL_THEFT_THRESHOLD].isEnabled = false;
 
+    //Sensor L
     if(ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
-    {
-
         LowestLevelMenuEnDis(INDEX_OF_ENG_TEMP_DIG_L_DIG_SOURCE,INDEX_OF_ENG_TEMP_DIG_L_T10,false);
-    }
-    else if(ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN)
+    if(ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_DIG_SOURCE].value.u8Val == CFGZ::CFGZ_SENSOR_NOT_USED)
+        LowestLevelMenuEnDis(INDEX_OF_ENG_TEMP_DIG_L_DIG_POLARITY,INDEX_OF_ENG_TEMP_DIG_L_T10,false);
+    if(ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
     {
-
+        DigitalInputMenuVisiblity(INDEX_OF_ENG_TEMP_DIG_L_DIG_SOURCE);
         LowestLevelMenuEnDis(INDEX_OF_ENG_TEMP_DIG_L_ACTION,INDEX_OF_ENG_TEMP_DIG_L_T10,false);
-        menuItemsLowestLevel[INDEX_OF_ENG_TEMP_DIG_L_DIG_SOURCE].isEnabled = true;
-        bEn_Ds = (ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_DIG_SOURCE].value.u8Val!=CFGZ::CFGZ_SENSOR_NOT_USED);
-        LowestLevelMenuEnDis(INDEX_OF_ENG_TEMP_DIG_L_DIG_POLARITY,INDEX_OF_ENG_TEMP_DIG_L_DIG_ACTIVATION_DELAY,bEn_Ds);
     }
-    else
+    if(ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+        LowestLevelMenuEnDis(INDEX_OF_ENG_TEMP_DIG_L_DIG_SOURCE,INDEX_OF_ENG_TEMP_DIG_L_DIG_ACTIVATION_DELAY,false);
+    if(ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 && ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
+        menuItemsLowestLevel[INDEX_OF_ENG_TEMP_DIG_L_THRESHOLD].isEnabled = false;
+
+    //Sensor M
+    if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
+        LowestLevelMenuEnDis(INDEX_OF_SHEL_TEMP_DIG_M_DIG_SOURCE,INDEX_OF_SHEL_TEMP_DIG_M_T10,false);
+    if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_DIG_SOURCE].value.u8Val == CFGZ::CFGZ_SENSOR_NOT_USED)
+        LowestLevelMenuEnDis(INDEX_OF_SHEL_TEMP_DIG_M_DIG_POLARITY,INDEX_OF_SHEL_TEMP_DIG_M_T10,false);
+    if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
     {
-        LowestLevelMenuEnDis(INDEX_OF_ENG_TEMP_DIG_L_ACTION,INDEX_OF_ENG_TEMP_DIG_L_T10,true);
-        LowestLevelMenuEnDis(INDEX_OF_ENG_TEMP_DIG_L_DIG_SOURCE,INDEX_OF_ENG_TEMP_DIG_L_DIG_ACTIVATION_DELAY, false);
-
+        DigitalInputMenuVisiblity(INDEX_OF_SHEL_TEMP_DIG_M_DIG_SOURCE);
+        LowestLevelMenuEnDis(INDEX_OF_SHEL_TEMP_DIG_M_HIGH_TEMP_THRESHOLD,INDEX_OF_SHEL_TEMP_DIG_M_T10,false);
     }
+    if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+        LowestLevelMenuEnDis(INDEX_OF_SHEL_TEMP_DIG_M_DIG_SOURCE,INDEX_OF_SHEL_TEMP_DIG_M_DIG_ACTIVATION,false);
 
-
-    ResetDigitalInputSource(INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION);
-    ResetDigitalInputSource(INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION);
-    ResetDigitalInputSource(INDEX_OF_ENG_TEMP_DIG_L_SENSOR_SELECTION);
-    ResetDigitalInputSource(INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION);
-    ResetDigitalInputSource(INDEX_OF_AUX_S2_RES_DIG_N_SENSOR_SELECTION);
-    ResetDigitalInputSource(INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION);
-    ResetDigitalInputSource(INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION);
-
-    //Digital O/P
-    for(uint16_t i = INDEX_OF_OUT_A_SOURCE;i<=INDEX_OF_OUT_G_SOURCE;i=i+2)
+    //Sensor N
+    if(ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S2_RES_DIG_N_DIG_SOURCE,INDEX_OF_AUX_S2_RES_DIG_N_V10,false);
+    if(ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_DIG_SOURCE].value.u8Val == CFGZ::CFGZ_SENSOR_NOT_USED)
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S2_RES_DIG_N_DIG_POLARITY,INDEX_OF_AUX_S2_RES_DIG_N_V10,false);
+    if(ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
     {
-        DigitalOutputMenuVisiblity(i);
+        DigitalInputMenuVisiblity(INDEX_OF_AUX_S2_RES_DIG_N_DIG_SOURCE);
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S2_RES_DIG_N_ACTION,INDEX_OF_AUX_S2_RES_DIG_N_V10,false);
     }
+    if(ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S2_RES_DIG_N_DIG_SOURCE,INDEX_OF_AUX_S2_RES_DIG_N_DIG_ACTIVATION_DELAY,false);
+    if(ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 && ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
+        menuItemsLowestLevel[INDEX_OF_AUX_S2_RES_DIG_N_THRESHOLD].isEnabled = false;
+    //Sensor O
+    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S3_DIG_O_DIG_SOURCE,INDEX_OF_AUX_S3_DIG_O_P10,false);
+    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_DIG_SOURCE].value.u8Val == CFGZ::CFGZ_SENSOR_NOT_USED)
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S3_DIG_O_DIG_POLARITY,INDEX_OF_AUX_S3_DIG_O_P10,false);
+    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
+    {
+        DigitalInputMenuVisiblity(INDEX_OF_AUX_S3_DIG_O_DIG_SOURCE);
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S3_DIG_O_SHUTDOWN,INDEX_OF_AUX_S3_DIG_O_P10,false);
+    }
+    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 || ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S3_DIG_O_DIG_SOURCE,INDEX_OF_AUX_S3_DIG_O_DIG_ACTIVATION_DELAY,false);
+    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
+        menuItemsLowestLevel[INDEX_OF_AUX_S3_DIG_O_SHUTDOWN_THRESHOLD].isEnabled = false;
+    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_WARNING].value.u8Val == CFGZ::CFGZ_DISABLE)
+        menuItemsLowestLevel[INDEX_OF_AUX_S3_DIG_O_WARNING_THRESHOLD].isEnabled = false;
+
+    //Sensor P
+    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S4_DIG_P_DIG_SOURCE,INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2,false);
+    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_DIG_SOURCE].value.u8Val == CFGZ::CFGZ_SENSOR_NOT_USED)
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S4_DIG_P_DIG_POLARITY,INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2,false);
+    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
+    {
+        DigitalInputMenuVisiblity(INDEX_OF_AUX_S4_DIG_P_DIG_SOURCE);
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S4_DIG_P_SHUTDOWN,INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2,false);
+    }
+    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S4_DIG_P_DIG_SOURCE,INDEX_OF_AUX_S4_DIG_P_DIG_ACTIVATION_DELAY,false);
+    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
+        menuItemsLowestLevel[INDEX_OF_AUX_S4_DIG_P_SHUTDOWN_THRESHOLD].isEnabled = false;
+    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_NOTIFICATION].value.u8Val == CFGZ::CFGZ_DISABLE)
+        menuItemsLowestLevel[INDEX_OF_AUX_S4_DIG_P_NOTIFICATION_THRESHOLD].isEnabled = false;
+    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_FUEL_THEFT_WARNING].value.u8Val == CFGZ::CFGZ_DISABLE)
+        menuItemsLowestLevel[INDEX_OF_AUX_S4_DIG_P_FUEL_THEFT_THRESHOLD].isEnabled = false;
+    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_TANK_WITH_STEP].value.u8Val == CFGZ::CFGZ_DISABLE)
+        LowestLevelMenuEnDis(INDEX_OF_AUX_S4_DIG_P_TANK_LENGTH_2,INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2,false);
+    /*.......................................................................................................................................................*/
+    /*................................Outputs Menu........................................................................................................*/
+    menuItemsLowestLevel[INDEX_OF_OUT_A_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_A_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
+    menuItemsLowestLevel[INDEX_OF_OUT_B_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_B_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
+    menuItemsLowestLevel[INDEX_OF_OUT_C_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_C_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
+    menuItemsLowestLevel[INDEX_OF_OUT_D_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_D_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
+    menuItemsLowestLevel[INDEX_OF_OUT_E_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_E_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
+    menuItemsLowestLevel[INDEX_OF_OUT_F_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_F_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
+    menuItemsLowestLevel[INDEX_OF_OUT_G_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_G_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
+    /*.......................................................................................................................................................*/
+    /*................................Timers Menu........................................................................................................*/
+
+    /*.......................................................................................................................................................*/
+    /*................................Generator Menu........................................................................................................*/
+    if(ArrEditableItem[INDEX_OF_ALT_CONFIG_ALT_PRESENT].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_ALT_CONFIG_NUMBER_OF_POLES,INDEX_OF_ALT_CONFIG_ALT_WAVE_DETECTION,false);
+    }
+    if(ArrEditableItem[INDEX_OF_ALT_CONFIG_ALT_AC_SYSTEM].value.u8Val == CFGZ::CFGZ_1_PHASE_SYSTEM)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_ALT_CONFIG_PHASE_REVERSAL_DETECT,INDEX_OF_ALT_CONFIG_PHASE_REVERSAL_ACTION,false);
+    }
+    if(ArrEditableItem[INDEX_OF_ALT_CONFIG_ALT_AC_SYSTEM].value.u8Val == CFGZ::CFGZ_3_PHASE_SYSTEM && ArrEditableItem[INDEX_OF_ALT_CONFIG_PHASE_REVERSAL_DETECT].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_ALT_CONFIG_PHASE_REVERSAL_ACTION].isEnabled = false;
+    }
+
+    //Voltage Mon.
+
+    if(ArrEditableItem[INDEX_OF_VOLT_MONITOR_UNDER_VOLT_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_VOLT_MONITOR_UV_SHUTDOWN_THRESHOLD].isEnabled = false;
+    }
+    if(ArrEditableItem[INDEX_OF_VOLT_MONITOR_UNDER_VOLT_WARNING].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_VOLT_MONITOR_UV_WARNING_THRESHOLD].isEnabled = false;
+    }
+    if(ArrEditableItem[INDEX_OF_VOLT_MONITOR_OVER_VOLT_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_VOLT_MONITOR_OV_SHUTDOWN_THRESHOLD].isEnabled = false;
+    }
+    if(ArrEditableItem[INDEX_OF_VOLT_MONITOR_OVER_VOLT_WARNING].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_VOLT_MONITOR_OV_WARNING_THRESHOLD].isEnabled = false;
+    }
+    //Freq. mon.
+    if(ArrEditableItem[INDEX_OF_FREQ_MONITOR_UNDER_FREQ_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_FREQ_MONITOR_UF_SHUTDOWN_THRESHOLD].isEnabled = false;
+    }
+    if(ArrEditableItem[INDEX_OF_FREQ_MONITOR_UNDER_FREQ_WARNING].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_FREQ_MONITOR_UF_WARNING_THRESHOLD].isEnabled = false;
+    }
+    if(ArrEditableItem[INDEX_OF_FREQ_MONITOR_OVER_FREQ_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_FREQ_MONITOR_OF_SHUTDOWN_THRESHOLD].isEnabled = false;
+    }
+    if(ArrEditableItem[INDEX_OF_FREQ_MONITOR_OVER_FREQ_WARNING].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_FREQ_MONITOR_OF_WARNING_THRESHOLD].isEnabled = false;
+    }
+    //currunt mon.
+
+    if(ArrEditableItem[INDEX_OF_CURRENT_MONITOR_OVER_CURR_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_CURRENT_MONITOR_OVER_CURR_THRESHOLD,INDEX_OF_CURRENT_MONITOR_OVER_CURR_DELAY,false);
+    }
+    //Fan Curr mon
+    if(ArrEditableItem[INDEX_OF_FAN_CURR_MONITOR_FAN_CURRENT_MON].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_FAN_CURR_MONITOR_FAN_MON_CT_RATIO,INDEX_OF_FAN_CURR_MONITOR_CURR_MON_DELAY,false);
+    }
+    if(ArrEditableItem[INDEX_OF_FAN_CURR_MONITOR_HIGH_CURR_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
+    {
+        menuItemsLowestLevel[INDEX_OF_FAN_CURR_MONITOR_HIGH_CURR_THRESHOLD].isEnabled = false;
+    }
+    if(ArrEditableItem[INDEX_OF_FAN_CURR_MONITOR_LOW_CURR_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
+    {
+        menuItemsLowestLevel[INDEX_OF_FAN_CURR_MONITOR_LOW_CURR_THRESHOLD].isEnabled = false;
+    }
+    //Load monitoring
+    if(ArrEditableItem[INDEX_OF_LOAD_MONITOR_OVERLOAD_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_LOAD_MONITOR_OVERLOAD_THRESHOLD,INDEX_OF_LOAD_MONITOR_OVERLOAD_MON_DELAY,false);
+    }
+    if(ArrEditableItem[INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD,INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_ACT_THRESH,false);
+    }
+    /*.......................................................................................................................................................*/
+    /*................................Mains Menu........................................................................................................*/
+    //Configuration
+    if(ArrEditableItem[INDEX_OF_MAINS_CONFIG_MAINS_MONITORING].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_MAINS_CONFIG_MAINS_AC_SYSTEM,INDEX_OF_MAINS_CONFIG_3PH_CALC_EN_FOR_1PH,false);
+    }
+    if(ArrEditableItem[INDEX_OF_MAINS_CONFIG_MAINS_AC_SYSTEM].value.u8Val == CFGZ::CFGZ_1_PHASE_SYSTEM)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_MAINS_CONFIG_PHASE_REVERSAL_DETECT,INDEX_OF_MAINS_CONFIG_PHASE_REVERSAL_ACTION,false);
+    }
+    if(ArrEditableItem[INDEX_OF_MAINS_CONFIG_MAINS_AC_SYSTEM].value.u8Val == CFGZ::CFGZ_3_PHASE_SYSTEM)
+    {
+        menuItemsLowestLevel[INDEX_OF_MAINS_CONFIG_3PH_CALC_EN_FOR_1PH].isEnabled = false;
+        if(ArrEditableItem[INDEX_OF_MAINS_CONFIG_PHASE_REVERSAL_DETECT].value.u8Val == CFGZ::CFGZ_DISABLE)
+        {
+            menuItemsLowestLevel[INDEX_OF_MAINS_CONFIG_PHASE_REVERSAL_ACTION].isEnabled = false;
+        }
+    }
+    //Voltage Monitoring
+    if(ArrEditableItem[INDEX_OF_UNDER_VOLT_MON_ENABLE].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_UNDER_VOLT_MON_TRIP,INDEX_OF_UNDER_VOLT_MON_RETURN,false);
+    }
+    if(ArrEditableItem[INDEX_OF_OVER_VOLT_MON_ENABLE].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_OVER_VOLT_MON_TRIP,INDEX_OF_OVER_VOLT_MON_RETURN,false);
+    }
+    //Freq Monitoring
+    if(ArrEditableItem[INDEX_OF_UNDER_FREQ_MON_ENABLE].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_UNDER_FREQ_MON_TRIP,INDEX_OF_UNDER_FREQ_MON_RETURN,false);
+    }
+    if(ArrEditableItem[INDEX_OF_OVER_FREQ_MON_ENABLE].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_OVER_FREQ_MON_TRIP,INDEX_OF_OVER_FREQ_MON_RETURN,false);
+    }
+    /*.......................................................................................................................................................*/
+    /*................................Engine Menu........................................................................................................*/
+    //Crank Disconnect
+    if(ArrEditableItem[INDEX_OF_CRANK_DISCONNECT_DISCONN_ON_LOP_SENS].value.u8Val == CFGZ::CFGZ_DISABLE && ArrEditableItem[INDEX_OF_CRANK_DISCONNECT_MON_LOP_BEFORE_CRANK].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_CRANK_DISCONNECT_DISCONN_LOP_SENS].isEnabled = false;
+    }
+    if(ArrEditableItem[INDEX_OF_CRANK_DISCONNECT_DISCONN_ON_LLOP_SW].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_CRANK_DISCONNECT_LLOP_SW_TRANS_TIME].isEnabled = false;
+    }
+    if(ArrEditableItem[INDEX_OF_CRANK_DISCONNECT_DISCONN_ON_CHG_ALT_VOLT].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_CRANK_DISCONNECT_CHG_ALT_THRESHOLD].isEnabled = false;
+    }
+    //Speed Monitoring
+    if(ArrEditableItem[INDEX_OF_SPEED_MONITOR_UNDER_SPEED_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_SPEED_MONITOR_UNDER_SPEED_THRESHOLD,INDEX_OF_SPEED_MONITOR_UNDER_SPEED_DELAY,false);
+    }
+    //Battery Monitoring
+    if(ArrEditableItem[INDEX_OF_BATTERY_MONITOR_LOW_VOLT_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_BATTERY_MONITOR_LOW_VOLT_THRESHOLD,INDEX_OF_BATTERY_MONITOR_LOW_VOLT_DELAY,false);
+    }
+    if(ArrEditableItem[INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
+    {
+        LowestLevelMenuEnDis(INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_THRESHOLD,INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_DELAY,false);
+    }
+    if(ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTION_AMBER].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        menuItemsLowestLevel[INDEX_OF_BATTERY_MONITOR_BATTERY_MON_BY_J1939].isEnabled = false;
+    }
+    //Charging Alternator
+    if(ArrEditableItem[INDEX_OF_CHARGE_ALT_MON_FAIL_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
+        LowestLevelMenuEnDis(INDEX_OF_CHARGE_ALT_MON_FAIL_THRESHOLD,INDEX_OF_CHARGE_ALT_MON_FAIL_DELAY,false);
+    if(ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTION_AMBER].value.u8Val == CFGZ::CFGZ_DISABLE)
+        menuItemsLowestLevel[INDEX_OF_CHARGE_ALT_MON_CHARGE_ALT_MON_BY_J1939].isEnabled = false;
+
+    //Preheat
+   // if(ArrEditableItem[INDEX_OF_OUT_A_SOURCE].value.u8Val == CFGZ::CFGZ_PREHEAT || ArrEditableItem[INDEX_OF_OUT_B_SOURCE].value.u8Val == CFGZ::CFGZ_PREHEAT || ArrEditableItem[INDEX_OF_OUT_C_SOURCE].value.u8Val == CFGZ::CFGZ_PREHEAT || ArrEditableItem[INDEX_OF_OUT_D_SOURCE].value.u8Val == CFGZ::CFGZ_PREHEAT || ArrEditableItem[INDEX_OF_OUT_E_SOURCE].value.u8Val == CFGZ::CFGZ_PREHEAT || ArrEditableItem[INDEX_OF_OUT_F_SOURCE].value.u8Val == CFGZ::CFGZ_PREHEAT || ArrEditableItem[INDEX_OF_OUT_G_SOURCE].value.u8Val == CFGZ::CFGZ_PREHEAT)
+   //     LowestLevelMenuEnDis(INDEX_OF_PREHEAT_PREHEAT_TIMER,INDEX_OF_PREHEAT_AMB_TEMPERATURE,false);
+    if(ArrEditableItem[INDEX_OF_PREHEAT_ENG_TEMPERATURE].value.u8Val == CFGZ::CFGZ_ENABLE)
+        menuItemsLowestLevel[INDEX_OF_PREHEAT_AMB_TEMPERATURE].isEnabled = false;
+    if(ArrEditableItem[INDEX_OF_PREHEAT_AMB_TEMPERATURE].value.u8Val == CFGZ::CFGZ_ENABLE)
+        LowestLevelMenuEnDis(INDEX_OF_PREHEAT_ENG_TEMPERATURE,INDEX_OF_PREHEAT_ENG_TEMP_THRESHOLD,false);
+
+    /*.......................................................................................................................................................*/
+    /*................................Maintenance Menu........................................................................................................*/
+
+    /*.......................................................................................................................................................*/
+
 }
 
 void UI::ConfigCheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)

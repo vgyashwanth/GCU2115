@@ -3546,3 +3546,27 @@ bool GCU_ALARMS::IsBPhaseUnderVoltAlarmActive()
 {
    return (_u8BPhaseUnderVoltAlarm == 1);
 }
+
+bool GCU_ALARMS::RemoteStartReceived()
+{
+    if(ArrAlarmMonitoring[REMOTE_SS].bEnableMonitoring)
+    {
+        return ArrAlarmMonitoring[REMOTE_SS].bResultInstant;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool GCU_ALARMS::RemoteStopReceived()
+{
+    if(ArrAlarmMonitoring[REMOTE_SS].bEnableMonitoring)
+    {
+        return (!ArrAlarmMonitoring[REMOTE_SS].bResultInstant);
+    }
+    else
+    {
+        return false;
+    }
+}

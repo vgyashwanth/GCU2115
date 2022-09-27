@@ -560,6 +560,7 @@ public:
     bool IsShelterTempHigh();
     bool IsShelterTempLow();
     bool IsSounderAlarmOn();
+
     bool IsLowFuelLevelAlarmActive();
     bool IsHighEngTempAlarmActive();
     bool IsLowOilPresAlarmActive();
@@ -569,6 +570,11 @@ public:
     bool IsRPhaseUnderVoltAlarmActive();
     bool IsYPhaseUnderVoltAlarmActive();
     bool IsBPhaseUnderVoltAlarmActive();
+
+/* Public functions accessible to objects, return true if event monitoring enabled and event occured.*/
+    bool RemoteStartReceived();
+    bool RemoteStopReceived();
+
     void UpdateFuelTheftCalculation();
 private:
     #define FUEL_THEFT_WAKEUP_TIMER         (4U)

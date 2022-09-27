@@ -1827,11 +1827,45 @@ void MON_UI::prvNormalMonScreens()
 
             if(_manualMode.GetTimerState() != BASE_MODES::NO_TIMER_RUNNING)
             {
-                sprintf(arrTemp,"%s",strTimerStatus[_u8LanguageIndex][_manualMode.GetTimerState()]);
-                _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+                if((_manualMode.GetTimerState() > BASE_MODES::TEST_MODE_TIMER) && ((_eOpMode == BASE_MODES::BTS_MODE)  || (_eOpMode == BASE_MODES::CYCLIC_MODE)))
+                {
+                    sprintf(arrTemp,"%s",strTimerStatus[_u8LanguageIndex][_manualMode.GetTimerState()]);
+                    _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+                }
+                else
+                {
+                    sprintf(arrTemp,"%s",strTimerStatus[_u8LanguageIndex][_manualMode.GetTimerState()]);
+                    _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+                }
 
                 _Disp.gotoxy(GLCD_X(100),GLCD_Y(38));
-                sprintf(arrTemp," %d",(uint16_t)_startStop.GetTimersRemainingTime(_manualMode.GetTimerState()));
+                if(_manualMode.GetTimerState() == BASE_MODES::COOL_DOWN_TIMER)
+                {
+                    sprintf(arrTemp," %d",(uint16_t)_manualMode.GetEngCoolDownRemTime());
+                }
+                else if(_manualMode.GetTimerState() == BASE_MODES::TEST_MODE_TIMER)
+                {
+                    sprintf(arrTemp," %d",(int)((_manualMode.GetTestModeRemTime()/ 60) + 1));
+                }
+                else if(_manualMode.GetTimerState() > BASE_MODES::TEST_MODE_TIMER)
+                {
+                    if(_eOpMode == BASE_MODES::BTS_MODE)
+                    {
+                        sprintf(arrTemp," %d",(int)(_BTSMode.GetBTSModeTime(_manualMode.GetTimerState())));
+                    }
+                    else if(_eOpMode == BASE_MODES::CYCLIC_MODE)
+                    {
+                        sprintf(arrTemp," %d", (int)(_cyclicMode.GetCyclicModeTime(_manualMode.GetTimerState())));
+                    }
+                    else
+                    {
+                        /* program should not enter here */
+                    }
+                }
+                else
+                {
+                    sprintf(arrTemp," %d",(uint16_t)_startStop.GetTimersRemainingTime(_manualMode.GetTimerState()));
+                }
                 _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
             }
             else
@@ -1970,23 +2004,26 @@ void MON_UI::prvNormalMonScreens()
                         (char *)strPhase[u8Local],
                         abs(_hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)u8Local)));
                     _Disp.gotoxy(GLCD_X(55),GLCD_Y(u8Position));
-                    _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+                    _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
                     u8Position = u8Position + 15;
                 }
             }
             else
             {
+                _Disp.printImage((uint8_t *)gau8GenPFLogo, 5, 32, 26, 7);
                 sprintf(arrTemp,"%s-%s    %0.1f",(char *)StrPF,
                    (char *)strPhase[R_PHASE],
                 _hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)R_PHASE));
-                _Disp.gotoxy(GLCD_X(45),GLCD_Y(35));
-                _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+                _Disp.gotoxy(GLCD_X(48),GLCD_Y(35));
+                _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
             }
         }
         break;
 
         case DISP_MON_GEN_CURRENT:
         {
+            static float f32GenMinFreq = 0.0f;
+            f32GenMinFreq = _GCUAlarms.GetMinGenFreq();
             u8Position = 22;
             SOURCE_TYPE_t eSysType=GENSET;
             _pGET_VAL_t ArrGetCurrentVal[TYPE_LAST]=
@@ -2021,15 +2058,23 @@ void MON_UI::prvNormalMonScreens()
             }
             else
             {
-                _Disp.gotoxy(GLCD_X(20),GLCD_Y(35));
+                /* Below logo will be displayed for Gen and Mains as well */
+                _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 26, 7);
+
+                _Disp.gotoxy(GLCD_X(40),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],
                                              FONT_VERDANA);
-                _Disp.gotoxy(GLCD_X(90),GLCD_Y(35));
+                _Disp.gotoxy(GLCD_X(72),GLCD_Y(35));
                 sprintf(arrTemp,"%0.1f",
                         ((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)R_PHASE));
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(92),GLCD_Y(35));
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+                _Disp.gotoxy(GLCD_X(75),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
+
+                _Disp.gotoxy(GLCD_X(95),GLCD_Y(35));
+                sprintf(arrTemp,"%0.1f Hz",f32GenMinFreq);
+                _Disp.printStringLeftAligned((char *)arrTemp, FONT_VERDANA);;
+
             }
         }
         break;
@@ -2085,6 +2130,8 @@ void MON_UI::prvNormalMonScreens()
         break;
         case DISP_MON_MAINS_CURRENT :
         {
+            static float f32MainsFreq = 0.0f;
+            f32MainsFreq = _GCUAlarms.GetMinMainsFreq();
             u8Position = 22;
             SOURCE_TYPE_t eSysType = MAINS;
             _pGET_VAL_t ArrGetCurrentVal[TYPE_LAST]=
@@ -2097,30 +2144,36 @@ void MON_UI::prvNormalMonScreens()
             {
                 for(u8Local = R_PHASE; u8Local < PHASE_END ; u8Local++)
                 {
-                    _Disp.gotoxy(GLCD_X(20),GLCD_Y(u8Position));
+                    _Disp.gotoxy(GLCD_X(10),GLCD_Y(u8Position));
                     _Disp.printStringLeftAligned((char *)strPhase[u8Local],
                                                  FONT_VERDANA);
-                    _Disp.gotoxy(GLCD_X(90),GLCD_Y(u8Position));
+                    _Disp.gotoxy(GLCD_X(50),GLCD_Y(u8Position));
                     sprintf(arrTemp,"%.0f",
                             ((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)u8Local));
                     _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                    _Disp.gotoxy(GLCD_X(92),GLCD_Y(u8Position));
+                    _Disp.gotoxy(GLCD_X(52),GLCD_Y(u8Position));
                     _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
                     u8Position = u8Position + 15;
                 }
             }
             else
             {
-                _Disp.gotoxy(GLCD_X(20),GLCD_Y(35));
+                _Disp.gotoxy(GLCD_X(10),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],
                                              FONT_VERDANA);
-                _Disp.gotoxy(GLCD_X(90),GLCD_Y(35));
+                _Disp.gotoxy(GLCD_X(50),GLCD_Y(35));
                 sprintf(arrTemp,"%0.1f",
                         ((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)R_PHASE));
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(92),GLCD_Y(35));
+                _Disp.gotoxy(GLCD_X(52),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
             }
+
+            _Disp.gotoxy(GLCD_X(100),GLCD_Y(35));
+           sprintf(arrTemp,"%0.1f", f32MainsFreq);
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+            _Disp.gotoxy(GLCD_X(102),GLCD_Y(35));
+            _Disp.printStringLeftAligned((char *)"Hz", FONT_VERDANA);
         }
         break;
 
@@ -2223,9 +2276,18 @@ void MON_UI::prvNormalMonScreens()
         case DISP_MON_SITE_BAT_RUN_HRS:
         {
             _Disp.printImage((uint8_t *)u8ArrEngineHours, 4, 32, 26, 7);
-                _Disp.gotoxy(GLCD_X(120),GLCD_Y(35));
-                sprintf(arrTemp,"%ld Hrs  %d min ",(_EngineMon.GetBTSRunTimeMin()/60),(uint8_t)(_EngineMon.GetBTSRunTimeMin()%60));
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+
+                _Disp.gotoxy(GLCD_X(70),GLCD_Y(35));
+                sprintf(arrTemp, "%ld",(_EngineMon.GetBTSRunTimeMin()/60));
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                _Disp.gotoxy(GLCD_X(72),GLCD_Y(35));
+                _Disp.printStringLeftAligned((char *)"Hrs",FONT_VERDANA);
+
+                _Disp.gotoxy(GLCD_X(100),GLCD_Y(35));
+                sprintf(arrTemp, "%ld",(_EngineMon.GetBTSRunTimeMin()%60));
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                _Disp.gotoxy(GLCD_X(102),GLCD_Y(35));
+                _Disp.printStringLeftAligned((char *)"Min",FONT_VERDANA);
         }
         break;
         case DISP_MON_TAMPERED_RUN_HRS:
@@ -2524,10 +2586,9 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
     uint8_t u8Position;
     uint8_t u8Local;
     static float f32GenMinFreq = 0.0f;
-    static float f32MainsFreq = 0.0f;
+    // static float f32MainsFreq = 0.0f;
 
     f32GenMinFreq = _GCUAlarms.GetMinGenFreq();
-    f32MainsFreq = _GCUAlarms.GetMinMainsFreq();
 
 
     char arrTemp[32];  //Local variable for storing the sprintf output
@@ -2580,7 +2641,7 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
 
     if(u8AcSystemType == CFGZ::CFGZ_3_PHASE_SYSTEM)
     {
-        _Disp.drawVerticalLine(GLCD_X(70), GLCD_Y(19), GLCD_Y(64));
+        _Disp.drawVerticalLine(GLCD_X(65), GLCD_Y(19), GLCD_Y(64));
         u8Position = 22;
         for(u8Local = R_PHASE; u8Local < PHASE_END ; u8Local++)
         {
@@ -2592,7 +2653,7 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
              {
                  sprintf(arrTemp,"%d",(uint16_t)
                         ((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local));
-                 _Disp.gotoxy(GLCD_X(35),GLCD_Y(u8Position));
+                 _Disp.gotoxy(GLCD_X(50),GLCD_Y(u8Position));
                  _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                  _Disp.printChar('V',FONT_VERDANA);
              }
@@ -2600,7 +2661,7 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
              {
                  sprintf(arrTemp,"%.1f",(float)
                         (((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local))/1000.0f);
-                 _Disp.gotoxy(GLCD_X(35),GLCD_Y(u8Position));
+                 _Disp.gotoxy(GLCD_X(50),GLCD_Y(u8Position));
                  _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                  _Disp.printStringLeftAligned((char *)"kV",FONT_VERDANA);
              }
@@ -2626,7 +2687,7 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
         u8Position = 22;
         for(ePhPh = R_TO_Y; ePhPh < PH_PH_VTG_LAST ; ePhPh++)
         {
-             _Disp.gotoxy(GLCD_X(73),GLCD_Y(u8Position));
+             _Disp.gotoxy(GLCD_X(68),GLCD_Y(u8Position));
              _Disp.printStringLeftAligned((char *)strPh_Ph[ePhPh],FONT_VERDANA);
              if(!prvIsValDigitsGreaterThan3((uint16_t)
                                             ((&_hal.AcSensors)->*ArrGetPhToPhVal[eSource][ePhPh])()))
@@ -2651,10 +2712,13 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
     }
     else
     {
-        _Disp.gotoxy(GLCD_X(30),GLCD_Y(37));
+        /* Below logo will be displayed for Gen and Mains as well */
+        _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 26, 7);
+
+        _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));
         _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
 
-        _Disp.gotoxy(GLCD_X(70),GLCD_Y(37));
+        _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
         if(!prvIsValDigitsGreaterThan3((uint16_t)((&_hal.AcSensors)->*ArrGetVtgVal[eSource])(R_PHASE)))
         {
             sprintf(arrTemp,"%d",(uint16_t)((&_hal.AcSensors)->*ArrGetVtgVal[eSource])(R_PHASE));
@@ -2763,14 +2827,18 @@ void MON_UI::prvPrintPower(POWER_TYPE_t eType, uint8_t u8AcSystemType, SOURCE_TY
     }
     else
     {
+
+        /* Below logo will be displayed for Gen and Mains as well */
+        _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 26, 7);
+
         if((eType == ACTIVE)&& (eSourceType != MAINS))
         {
-            _Disp.gotoxy(GLCD_X(35),GLCD_Y(37));
+            _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));
             _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
 
 
             sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetVal[eSourceType][eType])(R_PHASE)/1000);
-            _Disp.gotoxy(GLCD_X(95),GLCD_Y(25));
+            _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
             _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
             _Disp.printStringLeftAligned((char *)strPower[eType],FONT_VERDANA);
 
@@ -2783,12 +2851,12 @@ void MON_UI::prvPrintPower(POWER_TYPE_t eType, uint8_t u8AcSystemType, SOURCE_TY
         }
         else
         {
-            _Disp.gotoxy(GLCD_X(35),GLCD_Y(37));
+            _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));
             _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
 
 
             sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetVal[eSourceType][eType])(R_PHASE)/1000);
-            _Disp.gotoxy(GLCD_X(95),GLCD_Y(37));
+            _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
             _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
             _Disp.printStringLeftAligned((char *)strPower[eType],FONT_VERDANA);
         }

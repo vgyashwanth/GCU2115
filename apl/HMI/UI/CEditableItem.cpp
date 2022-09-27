@@ -73,8 +73,8 @@ CEditableItem::CEditableItem()
     u8MaxOneScreenEditItems = 0;
     initTempValue();
 }
-CEditableItem::CEditableItem(char chVal, const char* promptMessage,
-        const char* unitOfMeasurement, const char* formatString,
+CEditableItem::CEditableItem(char chVal, const char* PromptMessage,
+        const char* UnitOfMeasurement, const char* FormatString,
         char minChVal, char maxChVal, PASS_t  ePassLevel)
 {
     CEditableItem();
@@ -82,15 +82,15 @@ CEditableItem::CEditableItem(char chVal, const char* promptMessage,
     this->minVal.chVal = minChVal;
     this->maxVal.chVal = maxChVal;
     this->dataType = DT_CHAR;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MaxOneScreenEditItems = 0;
     initTempValue();
 }
-CEditableItem::CEditableItem(uint8_t u8Val, const char* promptMessage,
-        const char* unitOfMeasurement, const char* formatString,
+CEditableItem::CEditableItem(uint8_t u8Val, const char* PromptMessage,
+        const char* UnitOfMeasurement, const char* FormatString,
         uint8_t minU8Val, uint8_t maxU8Val, PASS_t  ePassLevel)
 {
     CEditableItem();
@@ -98,15 +98,15 @@ CEditableItem::CEditableItem(uint8_t u8Val, const char* promptMessage,
     this->minVal.u8Val = minU8Val;
     this->maxVal.u8Val = maxU8Val;
     this->dataType = DT_UINT8;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MaxOneScreenEditItems = 0;
     initTempValue();
 }
-CEditableItem::CEditableItem(int16_t i16Val, const char* promptMessage,
-        const char* unitOfMeasurement, const char* formatString,
+CEditableItem::CEditableItem(int16_t i16Val, const char* PromptMessage,
+        const char* UnitOfMeasurement, const char* FormatString,
         int16_t minI16val, int16_t maxI16val, PASS_t  ePassLevel)
 {
     CEditableItem();
@@ -114,15 +114,15 @@ CEditableItem::CEditableItem(int16_t i16Val, const char* promptMessage,
     this->minVal.i16Val = minI16val;
     this->maxVal.i16Val = maxI16val;
     this->dataType = DT_INT16;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MaxOneScreenEditItems = 0;
     initTempValue();
 }
-CEditableItem::CEditableItem(uint16_t u16Val, const char* promptMessage,
-        const char* unitOfMeasurement, const char* formatString,
+CEditableItem::CEditableItem(uint16_t u16Val, const char* PromptMessage,
+        const char* UnitOfMeasurement, const char* FormatString,
         uint16_t minU16val, uint16_t maxU16val, PASS_t  ePassLevel)
 {
     CEditableItem();
@@ -130,15 +130,15 @@ CEditableItem::CEditableItem(uint16_t u16Val, const char* promptMessage,
     this->minVal.u16Val = minU16val;
     this->maxVal.u16Val = maxU16val;
     this->dataType = DT_UINT16;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MaxOneScreenEditItems = 0;
     initTempValue();
 }
-CEditableItem::CEditableItem(uint16_t u16Val, const char* promptMessage,
-        const char* unitOfMeasurement, const char* formatString,
+CEditableItem::CEditableItem(uint16_t u16Val, const char* PromptMessage,
+        const char* UnitOfMeasurement, const char* FormatString,
         uint16_t minU16val, uint16_t maxU16val, bool bflag ,PASS_t  ePassLevel)
 {
     CEditableItem();
@@ -146,47 +146,47 @@ CEditableItem::CEditableItem(uint16_t u16Val, const char* promptMessage,
     this->minVal.u16Val = minU16val;
     this->maxVal.u16Val = maxU16val;
     this->dataType = DT_TIME_HRS_MINS;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MaxOneScreenEditItems =0;
     initTempValue();
 }
-CEditableItem::CEditableItem(PASSWORD_t stVal, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, PASSWORD_t stminval ,  PASSWORD_t stmaxval , PASS_t  ePassLevel  )
+CEditableItem::CEditableItem(PASSWORD_t stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASSWORD_t stminval ,  PASSWORD_t stmaxval , PASS_t  ePassLevel  )
 {
     CEditableItem();
     this->value.stPassword = stVal;
     this->minVal.stPassword  = stminval;
     this->maxVal.stPassword = stmaxval;
     this->dataType = DT_PASSWORD;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MultiItemEditIndex= 0;
     u8MaxOneScreenEditItems = 4;
     initTempValue();
 }
 
-CEditableItem::CEditableItem(ENG_SR_NO_t stVal, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, ENG_SR_NO_t stminval ,  ENG_SR_NO_t stmaxval , PASS_t  ePassLevel  )
+CEditableItem::CEditableItem(ENG_SR_NO_t stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, ENG_SR_NO_t stminval ,  ENG_SR_NO_t stmaxval , PASS_t  ePassLevel  )
 {
     CEditableItem();
     this->value.stEngSrNo = stVal;
     this->minVal.stEngSrNo = stminval;
     this->maxVal.stEngSrNo = stmaxval;
     this->dataType = DT_ENG_SR_NO;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MultiItemEditIndex= 0;
     u8MaxOneScreenEditItems = 12;
     initTempValue();
 }
 
-CEditableItem::CEditableItem(int32_t i32Val, const char* promptMessage,
-        const char* unitOfMeasurement, const char* formatString,
+CEditableItem::CEditableItem(int32_t i32Val, const char* PromptMessage,
+        const char* UnitOfMeasurement, const char* FormatString,
         int32_t minI32val, int32_t maxI32val, PASS_t  ePassLevel)
 {
     CEditableItem();
@@ -194,15 +194,15 @@ CEditableItem::CEditableItem(int32_t i32Val, const char* promptMessage,
     this->minVal.i32Val = minI32val;
     this->maxVal.i32Val = maxI32val;
     this->dataType = DT_INT32;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MaxOneScreenEditItems = 0;
     initTempValue();
 }
-CEditableItem::CEditableItem(uint32_t u32Val, const char* promptMessage,
-        const char* unitOfMeasurement, const char* formatString,
+CEditableItem::CEditableItem(uint32_t u32Val, const char* PromptMessage,
+        const char* UnitOfMeasurement, const char* FormatString,
         uint32_t minU32val, uint32_t maxU32val, PASS_t  ePassLevel)
 {
     CEditableItem();
@@ -210,15 +210,15 @@ CEditableItem::CEditableItem(uint32_t u32Val, const char* promptMessage,
     this->minVal.u32Val = minU32val;
     this->maxVal.u32Val = maxU32val;
     this->dataType = DT_UINT32;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MaxOneScreenEditItems = 0;
     initTempValue();
 }
-CEditableItem::CEditableItem(float fVal, const char* promptMessage,
-        const char* unitOfMeasurement, const char* formatString,
+CEditableItem::CEditableItem(float fVal, const char* PromptMessage,
+        const char* UnitOfMeasurement, const char* FormatString,
         float minFval, float maxFval, float fValLC, PASS_t  ePassLevel)
 {
     CEditableItem();
@@ -229,9 +229,9 @@ CEditableItem::CEditableItem(float fVal, const char* promptMessage,
     this->maxVal.fVal = maxFval;
     this->fValLC = fValLC;
     this->dataType = DT_FLOAT;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MaxOneScreenEditItems = 0;
     initTempValue();
@@ -260,25 +260,25 @@ CEditableItem::CEditableItem(float fVal, const char* promptMessage,
 //    this->u8PasswordLevel = ePassLevel;
 //    initTempValue();
 //}
-CEditableItem::CEditableItem( uint32_t u32CurrentOption, const char* promptMessage,
-        const char* unitOfMeasurement, const char* formatString,
-        const char** stringFixedOptions, uint32_t numOfStringFixedOptions, PASS_t  ePassLevel)
+CEditableItem::CEditableItem( uint32_t u32CurrentOption, const char* PromptMessage,
+        const char* UnitOfMeasurement, const char* FormatString,
+        const char** StringFixedOptions, uint32_t NumOfStringFixedOptions, PASS_t  ePassLevel)
 {
     CEditableItem();
     this->dataType = DT_STRING_FIXED;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
-    this->numOfStringFixedOptions = numOfStringFixedOptions;
-    this->stringFixedOptions = stringFixedOptions;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
+    this->numOfStringFixedOptions = NumOfStringFixedOptions;
+    this->stringFixedOptions = StringFixedOptions;
     this->value.u32IndexIntoFixedOptions = u32CurrentOption;
     this->u8PasswordLevel = ePassLevel;
     u8MaxOneScreenEditItems = 0;
     initTempValue();
 }
 
-CEditableItem::CEditableItem(DATE_t stVal, const char* promptMessage,
-        const char* unitOfMeasurement, const char* formatString,
+CEditableItem::CEditableItem(DATE_t stVal, const char* PromptMessage,
+        const char* UnitOfMeasurement, const char* FormatString,
         DATE_t stminval ,  DATE_t stmaxval , PASS_t  ePassLevel  )
 {
     CEditableItem();
@@ -286,9 +286,9 @@ CEditableItem::CEditableItem(DATE_t stVal, const char* promptMessage,
     this->minVal.stDate  = stminval;
     this->maxVal.stDate = stmaxval;
     this->dataType = DT_DATE;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MultiItemEditIndex= 0;
     u8MaxOneScreenEditItems = 3;

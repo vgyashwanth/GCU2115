@@ -30,24 +30,12 @@ class J1939APP: public J1939DRIVER
 
 public:
     #define IS_START_STOP_RELAY_J1939_CONFIGURED()   0
-//    ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::ENG_CONVENTIONAL) && 1)
 
-//    _cfgz.GetCFGZ_Param(CFGZ::ID_START_STOP_TO_ECU))
+    #define IS_PREHEAT_J1939_CONFIGURED()         0
 
+    #define IS_ENG_TEMP_J1939_CONFIGURED()        0
 
-   #define IS_PREHEAT_J1939_CONFIGURED()          0
-//    ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::ENG_CONVENTIONAL)  && 1)
-
-//    (_cfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_TO_ECU)))
-
-   #define IS_ENG_TEMP_J1939_CONFIGURED()         0
-//    ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::ENG_CONVENTIONAL) \
-                                                 && (1))
-//                                                 && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG)))
-   #define IS_ENG_LOP_J1939_CONFIGURED()         0
-//    ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::ENG_CONVENTIONAL) \
-		                                         && (1))
-//                                                && (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)))
+    #define IS_ENG_LOP_J1939_CONFIGURED()         0
 
     #define     DPFC1_PGN           (64892)
     #define     EEC1_PGN            (61444)

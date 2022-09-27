@@ -16,7 +16,7 @@
 #include "CMenu.h"
 
 extern Display *gpDisplay;
-extern CMenu* pCurMenu;
+//extern CMenu* pCurMenu;
 extern uint16_t u16IndexOfEditableItems,u16NumberofEditableItems;
 CEditableItemsScreen::CEditableItemsScreen()
 {
@@ -24,10 +24,14 @@ CEditableItemsScreen::CEditableItemsScreen()
 	indexOfSelectedEditableItem = 0;
 	pScreenTitle = NULL;
 	pEditableItems = NULL;
+	pXpositions = NULL;
+	pYpositions = NULL;
+	xPos = 0;
+	yPos = 0;
 }
-CEditableItemsScreen::CEditableItemsScreen(const char* pScreenTitle, int numOfEditableItems, CEditableItem editableItems[], int xPositions[], int yPositions[])
+CEditableItemsScreen::CEditableItemsScreen(const char* ScreenTitle, int NumOfEditableItems, CEditableItem editableItems[], int xPositions[], int yPositions[])
 {
-	if (numOfEditableItems < 0)
+	if (NumOfEditableItems < 0)
 	{
 		this->numOfEditableItems = 0;
 	}
@@ -37,24 +41,27 @@ CEditableItemsScreen::CEditableItemsScreen(const char* pScreenTitle, int numOfEd
 	}
 	else
 	{
-		this->numOfEditableItems = numOfEditableItems;
+		this->numOfEditableItems = NumOfEditableItems;
 	}
 	this->pEditableItems = &(editableItems[0]);
 	this->indexOfSelectedEditableItem = 0;
-	this->pScreenTitle = pScreenTitle;
+	this->pScreenTitle = ScreenTitle;
 	this->pXpositions = &(xPositions[0]);
 	this->pYpositions = &(yPositions[0]);
 	this->xPos = 0;
 	this->yPos = 0;
 }
-CEditableItemsScreen::CEditableItemsScreen(const char* pScreenTitle, CEditableItem* pEditableItem, int xPosition, int yPosition)
+CEditableItemsScreen::CEditableItemsScreen(const char* ScreenTitle, CEditableItem* EditableItem, int xPosition, int yPosition)
 {
 	this->numOfEditableItems = 1;
-	this->pEditableItems = pEditableItem;
+	this->pEditableItems = EditableItem;
 	this->indexOfSelectedEditableItem = 0;
-	this->pScreenTitle = pScreenTitle;
+	this->pScreenTitle = ScreenTitle;
 	this->xPos = xPosition;
 	this->yPos = yPosition;
+
+	this->pXpositions = NULL;
+	this->pYpositions = NULL;
 }
 void CEditableItemsScreen::initTempValues()
 {

@@ -1,4 +1,3 @@
-
 /**
  * @file        [ui]
  * @brief
@@ -2285,7 +2284,7 @@ void UI::Handler(int keyCode)
                 u16IndexOfEditableItems = (uint16_t) pCurMenu->indexOfSelectedMenuItem;
                 uint16_t i = (uint16_t)pCurMenu->indexOfSelectedMenuItem;
                 uint16_t j = 1;
-                /* Following logic is implemented to update the indexofEditableItems on Escape keypress
+                /* Following logic is implemented to update the indexofEditableItems on Escape key press
                  * This logic checks if any of the menus before the current menu are disabled by traversing backwards till the first menu item.
                  * Then depending on the number of menus disabled , 1 is decremented from the indexofEditableItem(Menu index)*/
                 while(i>0)

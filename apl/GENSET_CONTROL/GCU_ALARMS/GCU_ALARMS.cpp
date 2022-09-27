@@ -2475,7 +2475,11 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
        else
         {
            A_SENSE::SENSOR_RET_t stLOP1 = GetLOPSensorVal();
-          if(1)
+          if(!((ArrAlarmMonitoring[GCU_ALARMS::HIGH_OIL_PRESS_DETECTED].bResultInstant
+                  &&( stLOP1.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT))
+           ||ArrAlarmMonitoring[GCU_ALARMS::LLOP_MON].bResultInstant
+           )
+         )
           {
               _u8HighOilPressDetectedAlarm = 0;
           }
@@ -3256,7 +3260,7 @@ void GCU_ALARMS::InitGCUAlarms()
     UTILS_ResetTimer(&_FuelSettlingTimer);
 
 /* Shubham Wader 16.09.2022 '
-   shifting below snippet of code here which was initially in MAIN_UI.  Keeping MAIN UI abstact.*/
+   shifting below snippet of code here which was initially in MAIN_UI.  Keeping MAIN UI abstract.*/
     for(uint8_t u8AlarmIndex = 0; u8AlarmIndex < GCU_ALARMS::ALARM_LIST_LAST; u8AlarmIndex++)
     {
       ConfigureGCUAlarms(u8AlarmIndex);
@@ -3317,7 +3321,7 @@ void GCU_ALARMS::prvCoolantTempCtrlFunction(void)
 
 void GCU_ALARMS::prvActDeactCLNTTempCtrlOutput(void)
 {
-    A_SENSE::SENSOR_RET_t stTemp = GetSelectedTempSensVal();
+//    A_SENSE::SENSOR_RET_t stTemp = GetSelectedTempSensVal();
 
 //    if(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_CTRL) == CFGZ::CFGZ_HEATER_CONTROL)
 //    {

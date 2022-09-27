@@ -33,9 +33,9 @@ public:
     CEditableItem* pEditableItems;
     CEditableItemsScreen();
     // use the constructor below if the screen has multiple "editable items"
-    CEditableItemsScreen(const char* pScreenTitle, int numOfEditableItems, CEditableItem editableItems[], int xPositions[], int yPositions[]);
+    CEditableItemsScreen(const char* ScreenTitle, int NumOfEditableItems, CEditableItem editableItems[], int xPositions[], int yPositions[]);
     // use the constructor below if the screen has only one "editable items"
-    CEditableItemsScreen(const char* pScreenTitle, CEditableItem* pEditableItem, int xPosition, int yPosition);
+    CEditableItemsScreen(const char* ScreenTitle, CEditableItem* EditableItem, int xPosition, int yPosition);
     void showNthEditableItem(int n, bool bTemp);
     void show();
     void show(bool bTemp);

@@ -40,8 +40,6 @@ _PowerOnUpdateTimer{0}
     //  HSD_K_Factor        (1250.0f)  //VNQ7050AJ
     if(_cfgc.GetPCBPID()==12209)
     {
-//        AnlgIp.SetHSDKFactor(470.0F);
-
         AnlgIp.SetHSDKFactor(1547.0F);
     }
     else
@@ -71,11 +69,6 @@ void APL_Manager::Update()
             _CyclicMode.Update(bDeviceInConfigMode);
 
             _cfgc.Update();
-//            if(_cfgc.IsSGC421())
-//            {
-//                _Egov.Update();
-//            }
-
         }
     }
 

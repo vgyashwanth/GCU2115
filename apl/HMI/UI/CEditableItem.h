@@ -133,20 +133,20 @@ public:
     uint8_t u8MaxOneScreenEditItems;
 
     CEditableItem();
-    CEditableItem(DATE_t stVal, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, DATE_t stminval ,  DATE_t stmaxval , PASS_t  ePassLevel);
-    CEditableItem(char chVal, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, char minChVal = -128, char maxChVal = 127, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
-    CEditableItem(uint8_t u8Val, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, uint8_t minU8Val = 0, uint8_t maxU8Val = 255, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
-    CEditableItem(int16_t i16val, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, int16_t minI16val = -32768, int16_t maxI16val = 32767, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
-    CEditableItem(uint16_t u16val, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, uint16_t minU16val = 0, uint16_t maxU16val = 65535, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
-    CEditableItem(uint16_t u16Val, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, uint16_t minU16val = 0 , uint16_t maxU16val = 65535, bool bflag = true ,PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED);
+    CEditableItem(DATE_t stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, DATE_t stminval ,  DATE_t stmaxval , PASS_t  ePassLevel);
+    CEditableItem(char chVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, char minChVal = -128, char maxChVal = 127, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
+    CEditableItem(uint8_t u8Val, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, uint8_t minU8Val = 0, uint8_t maxU8Val = 255, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
+    CEditableItem(int16_t i16val, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, int16_t minI16val = -32768, int16_t maxI16val = 32767, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
+    CEditableItem(uint16_t u16val, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, uint16_t minU16val = 0, uint16_t maxU16val = 65535, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
+    CEditableItem(uint16_t u16Val, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, uint16_t minU16val = 0 , uint16_t maxU16val = 65535, bool bflag = true ,PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED);
 
-    CEditableItem(int32_t i32val, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, int32_t minI32val = -2147483648L, int32_t maxI32val = 2147483647L, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
-    CEditableItem(uint32_t u32val, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, uint32_t minU32val = 0, uint32_t maxU32val = 4294967295UL, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
-    CEditableItem(float fVal, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, float minFVal = -999999999999.0f, float maxFVal = 999999999999.0f, float fValLC = 0.1f, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
-    CEditableItem(PASSWORD_t stVal, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, PASSWORD_t stminval = {0,0,0,0} ,  PASSWORD_t stmaxval = {9,9,9,9} , PASS_t  ePassLevel  = PIN1_PIN2_PIN3_ALLOWED);
-    CEditableItem(ENG_SR_NO_t stVal, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, ENG_SR_NO_t stminval = {1,1,1,1,1,1,1,1,1,1,1,1} ,  ENG_SR_NO_t stmaxval = {255,255,255,255,255,255,255,255,255,255,255,255} , PASS_t  ePassLevel  = PIN1_PIN2_PIN3_ALLOWED);
-    //CEditableItem(char *pStrVal, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, unsigned int minLength = 1, unsigned int maxLength = STRING_PARAM_MAX_LEN, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
-    CEditableItem(uint32_t u32CurrentOption, const char* promptMessage, const char* unitOfMeasurement, const char* formatString, const char** stringFixedOptions, uint32_t numOfStringFixedOptions, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
+    CEditableItem(int32_t i32val, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, int32_t minI32val = -2147483648L, int32_t maxI32val = 2147483647L, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
+    CEditableItem(uint32_t u32val, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, uint32_t minU32val = 0, uint32_t maxU32val = 4294967295UL, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
+    CEditableItem(float fVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, float minFVal = -999999999999.0f, float maxFVal = 999999999999.0f, float fValLC = 0.1f, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
+    CEditableItem(PASSWORD_t stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASSWORD_t stminval = {0,0,0,0} ,  PASSWORD_t stmaxval = {9,9,9,9} , PASS_t  ePassLevel  = PIN1_PIN2_PIN3_ALLOWED);
+    CEditableItem(ENG_SR_NO_t stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, ENG_SR_NO_t stminval = {1,1,1,1,1,1,1,1,1,1,1,1} ,  ENG_SR_NO_t stmaxval = {255,255,255,255,255,255,255,255,255,255,255,255} , PASS_t  ePassLevel  = PIN1_PIN2_PIN3_ALLOWED);
+    //CEditableItem(char *pStrVal, const char* promptMessage, const char* UnitOfMeasurement, const char* formatString, unsigned int minLength = 1, unsigned int maxLength = STRING_PARAM_MAX_LEN, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
+    CEditableItem(uint32_t u32CurrentOption, const char* promptMessage, const char* UnitOfMeasurement, const char* FormatString, const char** StringFixedOptions, uint32_t NumOfStringFixedOptions, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
              // converts value to string and returns the string
     const char* getString(EditableItemValue_t aValue);   // converts given value
     const char* getString();    // converts the member 'value'

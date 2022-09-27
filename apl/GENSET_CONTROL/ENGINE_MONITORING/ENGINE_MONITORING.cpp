@@ -677,17 +677,17 @@ void ENGINE_MONITORING::ReadEnergySetEnergyOffset(bool bFromEeprom)
     }
     else
     {
-        _stTampEnergyRegister.f32InitialActiveEnergyWH = _hal.AcSensors.GENSET_GetTotalTamperedActiveEnergySinceInitWH();
-        _stTampEnergyRegister.f32InitialApparentEnergyVA = _hal.AcSensors.GENSET_GetTotalTamperedApparentEnergySinceInitVAH();
-        _stTampEnergyRegister.f32InitialReactiveEnergyVAR  = _hal.AcSensors.GENSET_GetTotalTamperedReactiveEnergySinceInitVARH();
+        _stTampEnergyRegister.f32InitialActiveEnergyWH = (float)(_hal.AcSensors.GENSET_GetTotalTamperedActiveEnergySinceInitWH());
+        _stTampEnergyRegister.f32InitialApparentEnergyVA = (float)(_hal.AcSensors.GENSET_GetTotalTamperedApparentEnergySinceInitVAH());
+        _stTampEnergyRegister.f32InitialReactiveEnergyVAR  = (float)(_hal.AcSensors.GENSET_GetTotalTamperedReactiveEnergySinceInitVARH());
 
-        _stEnergyRegister.f32InitialActiveEnergyWH = _hal.AcSensors.GENSET_GetTotalActiveEnergySinceInitWH();
-        _stEnergyRegister.f32InitialApparentEnergyVA = _hal.AcSensors.GENSET_GetTotalApparentEnergySinceInitVAH();
-        _stEnergyRegister.f32InitialReactiveEnergyVAR  = _hal.AcSensors.GENSET_GetTotalReactiveEnergySinceInitVARH();
+        _stEnergyRegister.f32InitialActiveEnergyWH = (float)(_hal.AcSensors.GENSET_GetTotalActiveEnergySinceInitWH());
+        _stEnergyRegister.f32InitialApparentEnergyVA = (float)(_hal.AcSensors.GENSET_GetTotalApparentEnergySinceInitVAH());
+        _stEnergyRegister.f32InitialReactiveEnergyVAR  = (float)(_hal.AcSensors.GENSET_GetTotalReactiveEnergySinceInitVARH());
 
-        _stMainsEnergyRegister.f32InitialActiveEnergyWH = _hal.AcSensors.MAINS_GetTotalActiveEnergySinceInitWH();
-        _stMainsEnergyRegister.f32InitialApparentEnergyVA = _hal.AcSensors.MAINS_GetTotalApparentEnergySinceInitVAH();
-        _stMainsEnergyRegister.f32InitialReactiveEnergyVAR = _hal.AcSensors.MAINS_GetTotalReactiveEnergySinceInitVARH();
+        _stMainsEnergyRegister.f32InitialActiveEnergyWH = (float)( _hal.AcSensors.MAINS_GetTotalActiveEnergySinceInitWH());
+        _stMainsEnergyRegister.f32InitialApparentEnergyVA = (float)(_hal.AcSensors.MAINS_GetTotalApparentEnergySinceInitVAH());
+        _stMainsEnergyRegister.f32InitialReactiveEnergyVAR = (float)(_hal.AcSensors.MAINS_GetTotalReactiveEnergySinceInitVARH());
     }
         _hal.AcSensors.SetEnergyOffsets(_stTampEnergyRegister,_stEnergyRegister, _stMainsEnergyRegister);
 }
@@ -1048,10 +1048,7 @@ bool ENGINE_MONITORING::prvDisconnectCranckByLOPSwitch()
             }
         }
     }
-    else
-    {
         return  false;
-    }
 }
 
 bool ENGINE_MONITORING::IsGenStartValid()

@@ -502,14 +502,14 @@ public:
     /**
      * Provides the status of fail to start alarm.
      * @param : None
-     * @return : return true if engine fails to start. 
+     * @return : return true if engine fails to start.
      */
     bool IsFailToStart();
 
     /**
      * Fill the array with the currently active alarms entry.
      * @param : None
-     * @return : return the number of active alarms. 
+     * @return : return the number of active alarms.
      */
     void FillDisplayAlarmArray();
 
@@ -517,7 +517,7 @@ public:
      * This API log the generated alarm in memory.
      * @param : u8EventID : Logging ID of the alarm.
      *          u8EventType : Alarm action.
-     * @return : None. 
+     * @return : None.
      */
     void LogEvent(uint8_t u8EventID, uint8_t u8EventType);
 
@@ -528,7 +528,7 @@ public:
     /**
      * This API configures all GCU alarms.
      * @param : u8AlarmIndex : Index of the alarm which is to be configured.
-     * @return : None. 
+     * @return : None.
      */
     void ConfigureGCUAlarms(uint8_t u8AlarmIndex);
 
@@ -562,8 +562,15 @@ public:
     bool IsShelterTempHigh();
     bool IsShelterTempLow();
     bool IsSounderAlarmOn();
-
-
+    bool IsLowFuelLevelAlarmActive();
+    bool IsHighEngTempAlarmActive();
+    bool IsLowOilPresAlarmActive();
+    bool IsRPhaseOverVoltAlarmActive();
+    bool IsYPhaseOverVoltAlarmActive();
+    bool IsBPhaseOverVoltAlarmActive();
+    bool IsRPhaseUnderVoltAlarmActive();
+    bool IsYPhaseUnderVoltAlarmActive();
+    bool IsBPhaseUnderVoltAlarmActive();
     void UpdateFuelTheftCalculation();
 private:
     #define FUEL_THEFT_WAKEUP_TIMER         (4U)
@@ -764,15 +771,15 @@ private:
     void prvUpdateGCUAlarmsValue();
 
     void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-            bool bMonitoringPolarity, uint8_t u8LoggingID, uint8_t u8Threshold, 
+            bool bMonitoringPolarity, uint8_t u8LoggingID, uint8_t u8Threshold,
                 uint16_t u16CounterMax);
 
     void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-            bool bMonitoringPolarity, uint8_t u8LoggingID, 
+            bool bMonitoringPolarity, uint8_t u8LoggingID,
                 uint16_t u16Threshold, uint16_t u16CounterMax);
 
     void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-            bool bMonitoringPolarity, uint8_t u8LoggingID, 
+            bool bMonitoringPolarity, uint8_t u8LoggingID,
                 float f32Threshold, uint16_t u16CounterMax);
 
     void prvSetAlarmAction_NoWESN(uint8_t u8AlarmIndex, uint8_t u8AlarmAction);
@@ -783,8 +790,8 @@ private:
 
     void prvSetAlarmActivation(uint8_t u8AlarmIndex, uint8_t u8AlarmActivation);
 
-    void prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSource, 
-            uint8_t u8Activation, uint8_t u8ActivationDelay, 
+    void prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSource,
+            uint8_t u8Activation, uint8_t u8ActivationDelay,
                 uint8_t u8AlarmAction, uint8_t u8LoggingID);
 
     float prvGetMinMainsFreq();

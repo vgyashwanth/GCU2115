@@ -13,7 +13,6 @@
 
 #include "../../apl/CFGZ/CFGZ.h"
 #include "../../apl/config.h"
-#include "../EGOV/EGOV.h"
 
 CFGZ *pcfgz;
 
@@ -48,20 +47,7 @@ _stMiscParam{0}
 
 bool CFGZ::IsC03Error()
 {
-    if(_CFGZ_Verification_status == BSP_FAIL)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-BSP_STATUS_t CFGZ::ReadCFGZFromDflash(CFGZ_PARAMS_t* Param)
-{
-    return (_hal.ObjDflash.Read(DFLASH_ACTIVE_PROFILE_START_ADDRESS,
-              (uint8_t*)Param,  sizeof(CFGZ_PARAMS_t)));
+    return (_CFGZ_Verification_status == BSP_FAIL);
 }
 
 BSP_STATUS_t CFGZ::ReadCFGZFromEEprom(CFGZ_PARAMS_t* Param)

@@ -922,14 +922,6 @@ class CFGZ
 
    void EnableDisableMainsParam();
 
-   /**
-   * This function is used to read the whole CFGZ parameters from D-Flash
-   * memory and store the values in _All_Param structure.
-   * @return
-   * On Successful read it will return BSP_SUCCESS, otherwise BSP_FAIL,
-   */
-   BSP_STATUS_t ReadCFGZFromDflash(CFGZ_PARAMS_t* Param);
-
    BSP_STATUS_t ReadCFGZFromEEprom(CFGZ_PARAMS_t* Param);
 
    void ReadMiscParam(MISC_PARAM_t *stParam);

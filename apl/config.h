@@ -25,11 +25,6 @@
 													+ DFLASH_PASSWORD_LENGTH)
 #define DFLASH_CFGC_LENGTH                      (128U)
 
-
-#define DFLASH_ACTIVE_PROFILE_START_ADDRESS     (DFLASH_CFGC_START_ADDRESS \
-													+ DFLASH_CFGC_LENGTH)
-#define DFLASH_ACTIVE_PROFILE_LENGTH            (2048U)
-
 /******************************************************************************/
 
 /**********************************EEPROM Address**********************************/

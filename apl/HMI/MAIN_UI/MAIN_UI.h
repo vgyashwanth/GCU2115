@@ -23,7 +23,6 @@
 #include "../UI/UI.h"
 #include "../UI/CKeyCodes.h"
 #include "../../SLEEP_Handler/SLEEP_Handler.h"
-#include "../GENSET_CONTROL/EGOV/EGOV.h"
 #include "../ENGINE_START_VALIDITY/ENGINE_START_VALIDITY.h"
 
 #define SCREEN_CHANGE_OVER_PAUSE (2*60U) // 2 Min time.
@@ -43,7 +42,7 @@ public:
     MAIN_UI(HAL_Manager &hal, CFGZ &pcfgz, GCU_ALARMS &GCUAlarms,
             ENGINE_MONITORING  &EngMon, START_STOP &StartStop,
             MANUAL_MODE &ManualMode,
-            Display &Disp, CFGC &CFGC, SLEEP_Handler &sleep, EGOV &Egov,
+            Display &Disp, CFGC &CFGC, SLEEP_Handler &sleep,
             J1939APP &j1939 , BTS_MODE &BTSMode , CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity);
 
     static bool _sbKeyEventAvailable;
@@ -86,7 +85,6 @@ private:
     ENGINE_MONITORING   &_EngMon;
     GCU_ALARMS          &_GCUAlarms;
     START_STOP          &_StartStop;
-    EGOV                &_Egov;
     //Objects of different display modes
     J1939APP             &_j1939;
     BTS_MODE             &_BTSMode;

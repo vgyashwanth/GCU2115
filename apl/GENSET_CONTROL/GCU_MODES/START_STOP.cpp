@@ -13,7 +13,6 @@
  * @copyright   SEDEMAC Mechatronics Pvt Ltd
  **/
 #include "START_STOP.h"
-#include "../EGOV/EGOV.h"
 #include "J1939_APP/J1939APP.h"
 bool START_STOP::_bChargAltStopLatched = false;
 bool START_STOP::_bMonitorChargAlt = false;

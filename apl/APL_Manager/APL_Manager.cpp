@@ -21,9 +21,8 @@ _BTSMode(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
 _CyclicMode(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
 _display(this->ObjGlcd),
 _MainUI(*this,_cfgz, _gcuAlarms,_engineMonitoring, _startStop,
-         _ManualMode, _display, _cfgc, _sleep, _Egov, _J1939,_BTSMode,_CyclicMode, _EngineStartValidity),
-_Egov(*this, _cfgz,_engineMonitoring, _startStop),
-_J1939(*this, _cfgc, _cfgz, _engineMonitoring,_gcuAlarms,_MbApp,_AutoMode, _Egov ),
+         _ManualMode, _display, _cfgc, _sleep,_J1939,_BTSMode,_CyclicMode, _EngineStartValidity),
+_J1939(*this, _cfgc, _cfgz, _engineMonitoring,_gcuAlarms,_MbApp,_AutoMode ),
 _EngineStartValidity(_cfgz, _gcuAlarms),
 _PowerOnUpdateTimer{0}
 {
@@ -36,7 +35,6 @@ _PowerOnUpdateTimer{0}
     ObjRTC.Init();
 
 
-    //  HSD_K_FACTOR        (470.0F)   //VNQ5E250AJTR-E HSD
     //  HSD_K_Factor        (1250.0f)  //VNQ7050AJ
     if(_cfgc.GetPCBPID()==12209)
     {
@@ -67,7 +65,6 @@ void APL_Manager::Update()
             _AutoMode.Update(bDeviceInConfigMode);
             _BTSMode.Update(bDeviceInConfigMode);
             _CyclicMode.Update(bDeviceInConfigMode);
-
             _cfgc.Update();
         }
     }

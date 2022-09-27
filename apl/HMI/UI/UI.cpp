@@ -15,7 +15,6 @@
 #include "config.h"
 #include "../CONST_UI/CONST_UI.h"
 #include "../../CFGC/CFGC.h"
-#include "../EGOV/EGOV.h"
 
 #define CONFIG_VAL_INC_DEC_TIMER_MS (300U)
 CMenuItem UI::menuItemsLowestLevel[INDEX_LAST];

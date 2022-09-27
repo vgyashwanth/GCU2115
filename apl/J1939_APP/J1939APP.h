@@ -23,7 +23,6 @@
 #include "HAL_Manager.h"
 #include "MB_APP.h"
 #include "../GENSET_CONTROL/ENGINE_MONITORING/ENGINE_MONITORING.h"
-#include "../EGOV/EGOV.h"
 
 class J1939APP: public J1939DRIVER
 {
@@ -623,7 +622,7 @@ public:
     static MB_APP::KEY_MB_CAN_EVENT_t stCANEvent;
 
     J1939APP(HAL_Manager &hal, CFGC &cfgc, CFGZ &cfgz, ENGINE_MONITORING &_engineMonitoring,
-            GCU_ALARMS &gcuAlarm,MB_APP &mbApp,  AUTO_MODE  &Automode, EGOV &egov);
+            GCU_ALARMS &gcuAlarm,MB_APP &mbApp,  AUTO_MODE  &Automode);
     void Update(bool bDeviceInconfig);
     void InitAfterConfigChange();
 
@@ -702,7 +701,6 @@ private:
     ENGINE_MONITORING &_engMon;
     AUTO_MODE         &_Automode;
     GCU_ALARMS        &_gcuAlarm;
-    EGOV              &_egov;
 
 
 

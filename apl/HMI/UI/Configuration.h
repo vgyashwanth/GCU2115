@@ -34,8 +34,8 @@
 #define SUBMENUS_IN_MAINS                   5
 #define SUBMENUS_IN_ENGINE                  5
 #define SUBMENUS_IN_MAINTENANCE             2
-#define SUBMENUS_IN_PASSWORD                3
-#define SUBMENUS_IN_SELECT_PROFILE_MENU     1
+#define SUBMENUS_IN_ID                      3
+#define SUBMENUS_IN_MISC                    1
 
  /*Module*/
 #define LEAFNODES_IN_GENERAL                4

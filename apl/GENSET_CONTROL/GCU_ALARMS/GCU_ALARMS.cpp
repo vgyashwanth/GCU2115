@@ -2460,9 +2460,13 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
 
     }
         _bCommonAlarm = (_bCommonWarning || _bCommonElectricTrip || _bCommonShutdown);
-        _u8LowFuelLevelAlarm = ArrAlarmMonitoring[GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[GCU_ALARMS::LFL_SWITCH].bAlarmActive || ArrAlarmMonitoring[GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION].bAlarmActive;
-        _u8HighEngTempAlarm = ArrAlarmMonitoring[GCU_ALARMS::HIGH_WATER_TEMP].bAlarmActive || ArrAlarmMonitoring[GCU_ALARMS::HWT_SWITCH].bAlarmActive;
-        _u8LowOilPressAlarm = ArrAlarmMonitoring[GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[GCU_ALARMS::LOW_OIL_PRESS_WARNING].bAlarmActive || ArrAlarmMonitoring[GCU_ALARMS::LLOP_SWITCH].bAlarmActive;
+
+        _u8LowOilPressAlarm = ArrAlarmMonitoring[LOW_OIL_PRESS_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[LOW_OIL_PRESS_WARNING].bAlarmActive || ArrAlarmMonitoring[LLOP_SWITCH].bAlarmActive;
+
+        _u8LowFuelLevelAlarm = ArrAlarmMonitoring[LOW_FUEL_LEVEL_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[LOW_FUEL_LEVEL_NOTIFICATION].bAlarmActive || ArrAlarmMonitoring[LFL_SWITCH].bAlarmActive;
+
+        _u8HighEngTempAlarm = ArrAlarmMonitoring[HIGH_WATER_TEMP].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive;
+
         _u8AuxSensS1Alarm =  0;
         _u8AuxSensS2Alarm =  0;
         _u8AuxSensS3Alarm = 0;
@@ -2485,11 +2489,6 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
               _u8HighOilPressDetectedAlarm = 0;
           }
         }
-        _u8LowOilPressAlarm = ArrAlarmMonitoring[LOW_OIL_PRESS_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[LOW_OIL_PRESS_WARNING].bAlarmActive || ArrAlarmMonitoring[LLOP_SWITCH].bAlarmActive;
-
-        _u8LowFuelLevelAlarm = ArrAlarmMonitoring[LOW_FUEL_LEVEL_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[LOW_FUEL_LEVEL_NOTIFICATION].bAlarmActive;
-
-        _u8HighEngTempAlarm = ArrAlarmMonitoring[HIGH_WATER_TEMP].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive;
 
         _u8MaintAlarm = ArrAlarmMonitoring[FILT_MAINTENANCE].bAlarmActive || ArrAlarmMonitoring[FILT_MAINTENANCE_BY_DATE].bAlarmActive;
 
@@ -2523,7 +2522,6 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
        _bOPSounderAlarm = false;
        UTILS_DisableTimer(&_SounderAlarmTimer);
     }
-
 
 }
 
@@ -3516,108 +3514,45 @@ void GCU_ALARMS::UpdateFuelTheftCalculation()
 
 bool GCU_ALARMS::IsLowFuelLevelAlarmActive()
 {
-   if(_u8LowFuelLevelAlarm == 1)
-   {
-       return true;
-   }
-   else
-   {
-       return false;
-   }
+   return (_u8LowFuelLevelAlarm == 1);
 }
 
 bool GCU_ALARMS::IsHighEngTempAlarmActive()
 {
-   if(_u8HighEngTempAlarm == 1)
-   {
-       return true;
-   }
-   else
-   {
-       return false;
-   }
+   return (_u8HighEngTempAlarm == 1);
 }
 
 bool GCU_ALARMS::IsLowOilPresAlarmActive()
 {
-   if(_u8LowOilPressAlarm == 1)
-   {
-       return true;
-   }
-   else
-   {
-       return false;
-   }
+   return (_u8LowOilPressAlarm == 1);
 }
 
 bool GCU_ALARMS::IsRPhaseOverVoltAlarmActive()
 {
-   if(_u8RPhaseOverVoltAlarm == 1)
-   {
-       return true;
-   }
-   else
-   {
-       return false;
-   }
+   return (_u8RPhaseOverVoltAlarm == 1);
 }
 
 bool GCU_ALARMS::IsYPhaseOverVoltAlarmActive()
 {
-   if(_u8YPhaseOverVoltAlarm == 1)
-   {
-       return true;
-   }
-   else
-   {
-       return false;
-   }
+   return (_u8YPhaseOverVoltAlarm == 1);
 }
 
 bool GCU_ALARMS::IsBPhaseOverVoltAlarmActive()
 {
-   if(_u8BPhaseOverVoltAlarm == 1)
-   {
-       return true;
-   }
-   else
-   {
-       return false;
-   }
+   return (_u8BPhaseOverVoltAlarm == 1);
 }
 
 bool GCU_ALARMS::IsRPhaseUnderVoltAlarmActive()
 {
-   if(_u8RPhaseUnderVoltAlarm == 1)
-   {
-       return true;
-   }
-   else
-   {
-       return false;
-   }
+   return (_u8RPhaseUnderVoltAlarm == 1);
 }
 
 bool GCU_ALARMS::IsYPhaseUnderVoltAlarmActive()
 {
-   if(_u8YPhaseUnderVoltAlarm == 1)
-   {
-       return true;
-   }
-   else
-   {
-       return false;
-   }
+   return (_u8YPhaseUnderVoltAlarm == 1);
 }
 
 bool GCU_ALARMS::IsBPhaseUnderVoltAlarmActive()
 {
-   if(_u8BPhaseUnderVoltAlarm == 1)
-   {
-       return true;
-   }
-   else
-   {
-       return false;
-   }
+   return (_u8BPhaseUnderVoltAlarm == 1);
 }

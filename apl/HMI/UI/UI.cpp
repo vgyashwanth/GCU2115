@@ -92,7 +92,8 @@ uint8_t SubmenusInMenus[ID_MAIN_MENU_LAST] =
  SUBMENUS_IN_MAINS,
  SUBMENUS_IN_ENGINE,
  SUBMENUS_IN_MAINTENANCE,
- SUBMENUS_IN_PASSWORD
+ SUBMENUS_IN_ID,
+ SUBMENUS_IN_MISC
 };
 
 //End
@@ -153,24 +154,24 @@ enum
 };
 enum
 {
-  ID_PERCENT,
-  ID_OHM,
-  ID_DEG_C,
-  ID_SEC,
-  ID_MINS,
-  ID_HZ,
-  ID_RPM,
-  ID_V,
-  ID_HRS,
-  ID_KW,
-  ID_V_PH_N ,
-  ID_AMPERE,
-  ID_BAR,
-  ID_PERCENT_RPM_ERROR,
-  ID_ACT_SPEED_UNIT,
-  ID_MILLI_AMPERE,
-  ID_MM,
-  ID_UNIT_LST
+    ID_PERCENT,
+    ID_OHM,
+    ID_DEG_C,
+    ID_SEC,
+    ID_MINS,
+    ID_HZ,
+    ID_RPM,
+    ID_V,
+    ID_HRS,
+    ID_KW,
+    ID_V_PH_N ,
+    ID_AMPERE,
+    ID_BAR,
+    ID_PERCENT_RPM_ERROR,
+    ID_ACT_SPEED_UNIT,
+    ID_MILLI_AMPERE,
+    ID_MM,
+    ID_UNIT_LST
 };
 
 static const char* arrUnit[ID_UNIT_LST]=
@@ -316,10 +317,7 @@ static const char* strOptions[1][ID_LAST][8]=
    "Disable",
    "Enable"
   },
-  {
-   "None",
-   "MODBUS"
-  },
+  {"None", "MODBUS-SEDEMAC"},
   {
    "None",
    "Even",
@@ -367,17 +365,8 @@ static const char* strOptions[1][ID_LAST][8]=
    "LOP Sensor",
    "LOP by J1939"
   },
-  {
-   "Not used",
-   "Dig In K",
-   "Fuel LVL Sensor"
-  },
-  {
-   "Not used",
-   "Dig In L",
-   "Eng CLNT Temp",
-   "Coolant Temp by J1939"
-  },
+  {"Not used","Dig In K", "Anlg In Fuel LVL"},
+  {"Not used","Dig In L", "Anlg In Eng Temp","Coolant Temp by J1939"},
   {
    "Not used",
    "Dig in M",
@@ -431,10 +420,7 @@ static const char* strOptions[1][ID_LAST][8]=
    "Magnetic pickup",
    "W Point Frequency"
   },
-  {
-   "Alternator Freq",
-   "Speed Mon by J1939"
-  },
+  {"Alt Freq","Speed Mon By J1939"},
   {
    "None",
    "Warning",
@@ -532,15 +518,14 @@ static const char* strMainMenu[1][ID_MAIN_MENU_LAST]
         "ENGINE",
         "MAINTENANCE",
         "ID",
-        "SELECT PROFILE"
+        "MISC"
     }
 };
 
 static const char* strSubMenu[1][ID_SUB_MENU_LAST]
 {
     {
-        //RushiStart
-        /*Module*/
+        //Module
         "GENERAL",
         "DISPLAY",
         "MODBUS COMM",
@@ -548,7 +533,7 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "BTS CONFIG",
         "CYCLIC CONFIG",
         "NIGHT MODE CONFIG",
-        /*Inputs*/
+        //Inputs
         "DIG IN A",
         "DIG IN B",
         "DIG IN C",
@@ -558,14 +543,14 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "DIG IN G",
         "DIG IN H",
         "DIG IN I",
-        "LOP RES DIG J",
-        "FUEL LVL DIG K",
-        "ENG TEMP DIG M",
-        "SHEL TEMP DIG N",
-        "AUX S2 RES DIG N",
-        "AUX S3 DIG O",
-        "AUX S4 DIG P",
-        /*Outputs*/
+        "LOP RES / DIG J",
+        "FUEL LVL / DIG K",
+        "ENG TEMP / DIG L",
+        "SHEL TEMP /DIG M",
+        "AUX S2 RES /DIG N",
+        "AUX S3/DIG O",
+        "AUX S4/DIG P",
+        //Outputs
         "OUT A",
         "OUT B",
         "OUT C",
@@ -573,54 +558,57 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "OUT E",
         "OUT F",
         "OUT G",
-        /*Timer*/
+        //Timers
         "CRANKING TIMER",
         "GENERAL TIMER",
-        /*Generator*/
+        //Generator
         "ALT CONFIG",
         "VOLT MONITOR",
         "FREQ MONITOR",
         "CURRENT MONITOR",
-        "FAN CURR MONITOR",
+        "FAN CURR MON",
         "LOAD MONITOR",
-        /*Mains*/
+        //Mains
         "MAINS CONFIG",
         "UNDER VOLT MON",
         "OVER VOLT MON",
         "UNDER FREQ MON",
         "OVER FREQ MON",
-        /*Engine*/
+        //Engine
         "CRANK DISCONNECT",
         "SPEED MONITOR",
         "BATTERY MONITOR",
         "CHARGE ALT MON",
         "PREHEAT",
-        /*Maintenance*/
+        //Maintenance
         "MAINT ALARM",
         "ALARM DUE DATE",
-        /*ID*/
+        //ID
         "ENG SR NO",
-        "PASSWORD 1",
-        "PASSWORD 2",
-        /*Select Profile*/
+        "MASTER PIN",
+        "USER PIN",
+        //MISC
         "SELECT PROFILE"
-        //RushiEnd
     }
 };
 
 static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
 {
     {
+        //"GENERAL",
         "PROFILE NAME",
         "POWER ON MODE",
         "POWER ON LAMP TEST",
         "PASSWORD LOCK",
+        //"DISPLAY",
         "CONTRAST",
         "POWER SAVE MODE",
+        //"COMMUNICATION",
         "COMM MODE",
         "MODBUS SLAVE ID",
         "MODBUS BAUDRATE",
         "PARITY",
+        //"CAN J1939",
         "ACTION (AMBER)",
         "ACTIVATION (AMBER)",
         "ACT DELAY (AMBER)",
@@ -630,64 +618,77 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "ACTION (MIL)",
         "ACTIVATION (MIL)",
         "ACT DELAY (MIL)",
-        "ACTION (PROTECT)",
-        "ACTIVATION_(PROTECT)",
-        "ACT DELAY (PROTECT)",
+        "ACTION (PREOTECT)",
+        "ACTIVATION (PREOTECT)",
+        "ACT DELAY (PREOTECT)",
+        //"BTS CONFIG",
         "BATTERY MON",
         "LOW BATT THRESHOLD",
         "LOW BATT MON DELAY",
         "DG RUN DURATION",
+        //"CYCLIC CONFIG",
         "CYCLIC MODE",
         "DG OFF DURATION",
         "DG ON DURATION",
+        //"NIGHT MODE CONFIG",
         "NIGHT MODE",
         "START TIME",
         "OFF DURATION",
+        //"DIG IN A"
         "SOURCE",
         "POLARITY",
         "ACTION",
         "ACTIVATION",
-        "ACTIVATION DELAY",
+        "ACTIVATION  DELAY",
+        //"DIG IN B"
         "SOURCE",
         "POLARITY",
         "ACTION",
         "ACTIVATION",
-        "ACTIVATION DELAY",
+        "ACTIVATION  DELAY",
+        //"DIG IN C"
         "SOURCE",
         "POLARITY",
         "ACTION",
         "ACTIVATION",
-        "ACTIVATION DELAY",
+        "ACTIVATION  DELAY",
+        //"DIG IN D"
         "SOURCE",
         "POLARITY",
         "ACTION",
         "ACTIVATION",
-        "ACTIVATION DELAY",
+        "ACTIVATION  DELAY",
+        //"DIG IN E"
         "SOURCE",
         "POLARITY",
         "ACTION",
         "ACTIVATION",
-        "ACTIVATION DELAY",
+        "ACTIVATION  DELAY",
+        //"DIG IN F"
         "SOURCE",
         "POLARITY",
         "ACTION",
         "ACTIVATION",
-        "ACTIVATION DELAY",
+        "ACTIVATION  DELAY",
+        //"DIG IN G"
         "SOURCE",
         "POLARITY",
         "ACTION",
         "ACTIVATION",
-        "ACTIVATION DELAY",
+        "ACTIVATION  DELAY",
+        //"DIG IN H"
         "SOURCE",
         "POLARITY",
         "ACTION",
         "ACTIVATION",
-        "ACTIVATION DELAY",
+        "ACTIVATION  DELAY",
+        //"DIG IN I"
         "SOURCE",
         "POLARITY",
         "ACTION",
         "ACTIVATION",
-        "ACTIVATION DELAY",
+        "ACTIVATION  DELAY",
+        //"LOP RES /DIG J",
         "SENSOR SELECTION",
         "(DIG) SOURCE",
         "(DIG) POLARITY",
@@ -719,6 +720,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "V9",
         "R10",
         "V10",
+        //"FUEL LVL / DIG K"
         "SENSOR SELECTION",
         "(DIG) SOURCE",
         "(DIG) POLARITY",
@@ -754,6 +756,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "L9",
         "R10",
         "L10",
+        //"ENG TEMP / DIG L",
         "SENSOR SELECTION",
         "(DIG) SOURCE",
         "(DIG) POLARITY",
@@ -783,6 +786,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "T9",
         "R10",
         "T10",
+        //"SHEL TEMP /DIG M",
         "SENSOR SELECTION",
         "(DIG) SOURCE",
         "(DIG) POLARITY",
@@ -814,6 +818,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "T9",
         "R10",
         "T10",
+        //"AUX S2 RES/DIG N",
         "SENSOR SELECTION",
         "(DIG) SOURCE",
         "(DIG) POLARITY",
@@ -844,6 +849,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "V9",
         "R10",
         "V10",
+        //"AUX S3/DIG O",
         "SENSOR SELECTION",
         "(DIG) SOURCE",
         "(DIG) POLARITY",
@@ -855,26 +861,27 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "WARNING",
         "WARNING THRESHOLD",
         "CIRCUIT FAULT ACTION",
-        "I1/V1",
-        "P1",
-        "I2/V2",
-        "P2",
-        "I3/V3",
-        "P3",
-        "I4/V4",
-        "P4",
-        "I5/V5",
-        "P5",
-        "I6/V6",
-        "P6",
-        "I7/V7",
-        "P7",
-        "I8/V8",
-        "P8",
-        "I9/V9",
-        "P9",
-        "I10/V10",
-        "P10",
+        " I1/V1",
+        " P1",
+        " I2/V2",
+        " P2",
+        " I3/V3",
+        " P3",
+        " I4/V4",
+        " P4",
+        " I5/V5",
+        " P5",
+        " I6/V6",
+        " P6",
+        " I7/V7",
+        " P7",
+        " I8/V8",
+        " P8",
+        " I9/V9",
+        " P9",
+        " I10/V10",
+        " P10",
+        //"AUX S4 /DIG P",
         "SENSOR SELECTION",
         "(DIG) SOURCE",
         "(DIG) POLARITY",
@@ -897,24 +904,33 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "TANK HEIGHT 1",
         "TANK LENGTH 2",
         "TANK HEIGHT 2",
+        //"OUT A"
         "SOURCE",
         "ON ACTIVATION",
+        //"OUT B"
         "SOURCE",
         "ON ACTIVATION",
+        //"OUT C"
         "SOURCE",
         "ON ACTIVATION",
+        //"OUT D"
         "SOURCE",
         "ON ACTIVATION",
+        //"OUT E"
         "SOURCE",
         "ON ACTIVATION",
+        //"OUT F"
         "SOURCE",
         "ON ACTIVATION",
+        //"OUT G"
         "SOURCE",
         "ON ACTIVATION",
+        //"CRANKING"
         "CRANK HOLD TIME",
         "CRANK REST TIME",
         "MANUAL START DELAY",
         "AUTO START DELAY",
+        //"GENERAL"
         "SAFETY MONITOR DELAY",
         "MAINS DETECT DELAY",
         "ALT DETECT DELAY",
@@ -926,9 +942,10 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "LOAD TRANSFER DELAY",
         "PWR SAVE MODE DELAY",
         "SCRN CHNGOVER TIME",
-        " DEEP SLP MODE DELAY",
+        "RESERVED", //"DEEP SLP MODE DELAY",
         "SOUNDER ALARM TIMER",
         "TEST MODE TIMER",
+        //"ALT CONFIG"
         "ALT PRESENT",
         "NUMBER OF  POLES",
         "ALT AC SYSTEM",
@@ -938,28 +955,32 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "PHASE REVERSAL ACTION",
         "AUTO LOAD TRANSFER",
         "ALT WAVE DETECTION",
+        //"VOLT MON"
         "UNDER VOLT SHUTDOWN",
         "UV SHUTDOWN THRESHOLD",
         "UNDER VOLT WARNING",
         "UV WARNING THRESHOLD",
-        "OVER VOLT SHUTDOWN ",
+        "OVER VOLT SHUTDOWN",
         "OV SHUTDOWN THRESHOLD",
-        "OVER VOLT WARNING ",
+        "OVER VOLT WARNING",
         "OV WARNING THRESHOLD",
-        "UNDER FREQ SHUTDOWN ",
+        //"FREQ MON"
+        "UNDER FREQ SHUTDOWN",
         "UF SHUTDOWN THRESHOLD",
-        "UNDER FREQ WARNING ",
+        "UNDER FREQ WARNING",
         "UF WARNING THRESHOLD",
-        "OVER FREQ SHUTDOWN ",
+        "OVER FREQ SHUTDOWN",
         "OF SHUTDOWN THRESHOLD",
-        "OVER FREQ WARNING ",
+        "OVER FREQ WARNING",
         "OF WARNING THRESHOLD",
+        //"CURRENT MON"
         "LOAD CT RATIO",
         "OVER CURR ACTION",
         "OVER CURR THRESHOLD",
         "OVER CURR DELAY",
         "CT CORRECTION FACTOR",
         "CT LOCATION",
+        //"FAN CURR MON"
         "FAN CURRENT MON",
         "FAN MON CT RATIO",
         "HIGH CURR THRESHOLD",
@@ -967,6 +988,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "LOW CURR THRESHOLD",
         "LOW CURR ACTION",
         "CURR MON DELAY",
+        //"LOAD MON"
         "GEN  RATING",
         "FULL LOAD CURRENT",
         "OVERLOAD ACTION",
@@ -975,43 +997,51 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "UNBAL LOAD ACTION",
         "UNBAL LOAD THRESHOLD",
         "UNBAL LOAD DELAY",
-        "UNBAL LOAD ACT THRESH",
+        "UNBAL LOAD ACT THRES",
+        //“MAINS CONFIG “
         "MAINS MONITORING",
         "MAINS AC SYSTEM",
         "PHASE REVERSAL DETECT",
         "PHASE REVERSAL ACTION",
         "3PH CALC EN FOR 1PH",
+        //"UV MON"
         "ENABLE",
         "TRIP",
         "RETURN",
+        //"OV MON"
         "ENABLE",
         "TRIP",
         "RETURN",
+        //"UF MON"
         "ENABLE",
         "TRIP",
         "RETURN",
+        //"OF MON"
         "ENABLE",
         "TRIP",
         "RETURN",
+        //"CRANK DISCONNECT",
         "START ATTEMPTS",
         "DISCONN ON LOP SENS",
         "DISCONN LOP SENS",
-        "MON LLOP BEFOR CRANK",
+        "MON LLOP BEFORE CRANK",
         "MON LOP BEFORE CRANK",
         "DISCONN ON LLOP SW",
         "LLOP SW TRANS TIME",
         "ALT FREQUENCY",
         "ENGINE SPEED",
-        "DISCON ON CH ALT VOLT",
+        "DISCONN ON CHG ALT VOLT",
         "CHG ALT THRESHOLD",
+        //"SPEED MON",
         "SPEED SENSE SOURCE",
-        "RESERVED",
+        "RESERVED", //"FLYWHEEL TEETH",
         "UNDER SPEED SHUTDOWN",
         "UNDER SPEED THRESHOLD",
         "UNDER SPEED DELAY",
         "OVER SPEED THRESHOLD",
         "OVER SPEED DELAY",
         "GROSS OS THRESHOLD",
+        //"BATTERY MON",
         "LOW VOLT ACTION",
         "LOW VOLT THRESHOLD",
         "LOW VOLT DELAY",
@@ -1019,23 +1049,26 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "HIGH VOLT THRESHOLD",
         "HIGH VOLT DELAY",
         "BATTERY MON BY J1939",
+        //"CHARGE ALT MON",
         "FAIL ACTION",
         "FAIL THRESHOLD",
         "FAIL DELAY",
-        "CHG ALT MON BY J1939",
+        "CHARGE ALT MON BY J1939",
+        //"PREHEAT",
         "PREHEAT TIMER",
         "ENG TEMPERATURE",
         "ENG TEMP THRESHOLD",
         "AMB TEMPERATURE",
+        //"MAINT ALARM",
         "ACTION",
         "DUE AT ENGINE HOURS",
+        //"ALARM DUE DATE",
         "SERVICE DATE #1",
         "SERVICE DATE #2",
         "SERVICE DATE #3",
 
-
         /*Select Profile*/
-        "PROFILE NAME"
+        "PROFILE"
     }
 };
 

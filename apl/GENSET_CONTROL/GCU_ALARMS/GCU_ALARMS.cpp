@@ -2461,8 +2461,9 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
 
     }
         _bCommonAlarm = (_bCommonWarning || _bCommonElectricTrip || _bCommonShutdown);
-        _u8LowFuelLevelAlarm = 0;
-        _u8LowOilPressAlarm = 0;
+        _u8LowFuelLevelAlarm = ArrAlarmMonitoring[GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[GCU_ALARMS::LFL_SWITCH].bAlarmActive || ArrAlarmMonitoring[GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION].bAlarmActive;
+        _u8HighEngTempAlarm = ArrAlarmMonitoring[GCU_ALARMS::HIGH_WATER_TEMP].bAlarmActive || ArrAlarmMonitoring[GCU_ALARMS::HWT_SWITCH].bAlarmActive;
+        _u8LowOilPressAlarm = ArrAlarmMonitoring[GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[GCU_ALARMS::LOW_OIL_PRESS_WARNING].bAlarmActive || ArrAlarmMonitoring[GCU_ALARMS::LLOP_SWITCH].bAlarmActive;
         _u8AuxSensS1Alarm =  0;
         _u8AuxSensS2Alarm =  0;
         _u8AuxSensS3Alarm = 0;
@@ -3482,4 +3483,112 @@ void GCU_ALARMS::UpdateFuelTheftCalculation()
      * This function is used to set _bUpdateFuelTheftCalc
      *  which updates the fuel theft calculations*/
     _bUpdateFuelTheftCalc = true;
+}
+
+bool GCU_ALARMS::IsLowFuelLevelAlarmActive()
+{
+   if(_u8LowFuelLevelAlarm == 1)
+   {
+       return true;
+   }
+   else
+   {
+       return false;
+   }
+}
+
+bool GCU_ALARMS::IsHighEngTempAlarmActive()
+{
+   if(_u8HighEngTempAlarm == 1)
+   {
+       return true;
+   }
+   else
+   {
+       return false;
+   }
+}
+
+bool GCU_ALARMS::IsLowOilPresAlarmActive()
+{
+   if(_u8LowOilPressAlarm == 1)
+   {
+       return true;
+   }
+   else
+   {
+       return false;
+   }
+}
+
+bool GCU_ALARMS::IsRPhaseOverVoltAlarmActive()
+{
+   if(_u8RPhaseOverVoltAlarm == 1)
+   {
+       return true;
+   }
+   else
+   {
+       return false;
+   }
+}
+
+bool GCU_ALARMS::IsYPhaseOverVoltAlarmActive()
+{
+   if(_u8YPhaseOverVoltAlarm == 1)
+   {
+       return true;
+   }
+   else
+   {
+       return false;
+   }
+}
+
+bool GCU_ALARMS::IsBPhaseOverVoltAlarmActive()
+{
+   if(_u8BPhaseOverVoltAlarm == 1)
+   {
+       return true;
+   }
+   else
+   {
+       return false;
+   }
+}
+
+bool GCU_ALARMS::IsRPhaseUnderVoltAlarmActive()
+{
+   if(_u8RPhaseUnderVoltAlarm == 1)
+   {
+       return true;
+   }
+   else
+   {
+       return false;
+   }
+}
+
+bool GCU_ALARMS::IsYPhaseUnderVoltAlarmActive()
+{
+   if(_u8YPhaseUnderVoltAlarm == 1)
+   {
+       return true;
+   }
+   else
+   {
+       return false;
+   }
+}
+
+bool GCU_ALARMS::IsBPhaseUnderVoltAlarmActive()
+{
+   if(_u8BPhaseUnderVoltAlarm == 1)
+   {
+       return true;
+   }
+   else
+   {
+       return false;
+   }
 }

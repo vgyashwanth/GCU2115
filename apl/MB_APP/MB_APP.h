@@ -68,18 +68,18 @@ public:
        address.
      */
     typedef enum {
-        DIG_ALARM_1_REG = 0, //
-        DIG_ALARM_2_REG, //
-        SOLID_STATE_OP_REG, //
+        DIG_ALARM_1_REG = 16384,
+        DIG_ALARM_2_REG,
+        SOLID_STATE_OP_REG,
         MB_MAINS_L1_N_VOLTAGE,
         MB_MAINS_L2_N_VOLTAGE,
         MB_MAINS_L3_N_VOLTAGE,
         MB_GEN_L1_N_VOLATGE,
         MB_GEN_L2_N_VOLATGE,
         MB_GEN_L3_N_VOLATGE,
-        MB_GEN_L1_CURRENT,
-        MB_GEN_L2_CURRENT,
-        MB_GEN_L3_CURRENT,
+        MB_LOAD_L1_CURRENT,
+        MB_LOAD_L2_CURRENT,
+        MB_LOAD_L3_CURRENT,
         MB_MAINS_CUMM_ACTIVE_ENERGY_1,
         MB_MAINS_CUMM_ACTIVE_ENERGY_2,
         MB_GEN_CUMM_ACTIVE_ENERGY_1,
@@ -186,7 +186,7 @@ offset 14.
 
     typedef enum name {
         MB_COMMAND = 0,
-        MB_MODE_REG, //
+        MB_MODE_REG,
         MB_DATE_TIME1,
         MB_DATE_TIME2,
         MB_DATE_TIME3,

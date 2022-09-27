@@ -182,12 +182,11 @@ void MB_APP::prvUpdateElectricalParams()
     u16Tmp = (uint16_t)(ac.GENSET_GetApproxFreq(B_PHASE)*10);
     SetReadRegisterValue(MB_GEN_B_FREQUENCY, u16Tmp);
 
-    /*Resolution 0.1*/
-    u16Tmp = (uint16_t)(ac.GENSET_GetVoltageVolts(R_PHASE)*10);
+    u16Tmp = (uint16_t)(ac.GENSET_GetVoltageVolts(R_PHASE));
     SetReadRegisterValue(MB_GEN_L1_N_VOLATGE, u16Tmp);
-    u16Tmp = (uint16_t)(ac.GENSET_GetVoltageVolts(Y_PHASE)*10);
+    u16Tmp = (uint16_t)(ac.GENSET_GetVoltageVolts(Y_PHASE));
     SetReadRegisterValue(MB_GEN_L2_N_VOLATGE, u16Tmp);
-    u16Tmp = (uint16_t)(ac.GENSET_GetVoltageVolts(B_PHASE)*10);
+    u16Tmp = (uint16_t)(ac.GENSET_GetVoltageVolts(B_PHASE));
     SetReadRegisterValue(MB_GEN_L3_N_VOLATGE, u16Tmp);
 
 #if AUTOMATION
@@ -202,85 +201,77 @@ void MB_APP::prvUpdateElectricalParams()
 
 #endif
 
-    if(_engineMonitoring.GetContactorLoadStatus()==ENGINE_MONITORING::LOAD_ON_GEN)
+    /*Resolution of 0.1 KW , i.e 10/1000=> 1/100 */
+    u16Tmp = (uint16_t)(ac.MAINS_GetDispActivePowerWatts(R_PHASE)/100);
+    SetReadRegisterValue(MB_MAINS_L1_POWER, u16Tmp);
+    u16Tmp = (uint16_t)(ac.MAINS_GetDispActivePowerWatts(Y_PHASE)/100);
+    SetReadRegisterValue(MB_MAINS_L2_POWER, u16Tmp);
+    u16Tmp = (uint16_t)(ac.MAINS_GetDispActivePowerWatts(B_PHASE)/100);
+    SetReadRegisterValue(MB_MAINS_L3_POWER, u16Tmp);
+
+
+    /*Resolution of 0.1 KW , i.e 10/1000=> 1/100 */
+    u16Tmp = (uint16_t)(ac.GENSET_GetDispActivePowerWatts(R_PHASE)/100);
+    SetReadRegisterValue(MB_GEN_L1_POWER, u16Tmp);
+    u16Tmp = (uint16_t)(ac.GENSET_GetDispActivePowerWatts(Y_PHASE)/100);
+    SetReadRegisterValue(MB_GEN_L2_POWER, u16Tmp);
+    u16Tmp = (uint16_t)(ac.GENSET_GetDispActivePowerWatts(B_PHASE)/100);
+    SetReadRegisterValue(MB_GEN_L3_POWER, u16Tmp);
+
+    /*Resolution of 0.1 KVA , i.e 10/1000=> 1/100 */
+    u16Tmp = (uint16_t)(ac.GENSET_GetDispApparentPowerVA(R_PHASE)/100);
+    SetReadRegisterValue(MB_GEN_L1_APPARENT_POWER, u16Tmp);
+    u16Tmp = (uint16_t)(ac.GENSET_GetDispApparentPowerVA(Y_PHASE)/100);
+    SetReadRegisterValue(MB_GEN_L2_APPARENT_POWER, u16Tmp);
+    u16Tmp = (uint16_t)(ac.GENSET_GetDispApparentPowerVA(B_PHASE)/100);
+    SetReadRegisterValue(MB_GEN_L3_APPARENT_POWER, u16Tmp);
+
+    /*Resolution of 0.1 KVAr , i.e 10/1000=> 1/100 */
+    u16Tmp = (uint16_t)(ac.GENSET_GetDispReactivePowerVAR(R_PHASE)/100);
+    SetReadRegisterValue(MB_GEN_L1_REACTIVE_POWER, u16Tmp);
+    u16Tmp = (uint16_t)(ac.GENSET_GetDispReactivePowerVAR(Y_PHASE)/100);
+    SetReadRegisterValue(MB_GEN_L2_REACTIVE_POWER, u16Tmp);
+    u16Tmp = (uint16_t)(ac.GENSET_GetDispReactivePowerVAR(B_PHASE)/100);
+    SetReadRegisterValue(MB_GEN_L3_REACTIVE_POWER, u16Tmp);
+
+    if(((_Automode.IsMainsContactorClosed()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE) && (_Automode.IsMainsContactorConfigured()) && (_Automode.GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE)) ||
+       ((_Automode.IsMainsContactorClosed()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE) && (_Automode.IsMainsContactorConfigured()) && (!_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring)) ||
+       ((_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE) && (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring) && (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bResultInstant) && (_Automode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)))
     {
-        /*Resolution 0.1*/
-        u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(R_PHASE)*10);
-        SetReadRegisterValue(MB_GEN_L1_CURRENT, u16Tmp);
-        u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(Y_PHASE)*10);
-        SetReadRegisterValue(MB_GEN_L2_CURRENT, u16Tmp);
-        u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(B_PHASE)*10);
-        SetReadRegisterValue(MB_GEN_L3_CURRENT, u16Tmp);
 
-        /*Resolution of 0.1 KW , i.e 10/1000=> 1/100 */
-        u16Tmp = (uint16_t)(ac.MAINS_GetDispActivePowerWatts(R_PHASE)/100);
-        SetReadRegisterValue(MB_MAINS_L1_POWER, u16Tmp);
-        u16Tmp = (uint16_t)(ac.MAINS_GetDispActivePowerWatts(Y_PHASE)/100);
-        SetReadRegisterValue(MB_MAINS_L2_POWER, u16Tmp);
-        u16Tmp = (uint16_t)(ac.MAINS_GetDispActivePowerWatts(B_PHASE)/100);
-        SetReadRegisterValue(MB_MAINS_L3_POWER, u16Tmp);
-
-
-        /*Resolution of 0.1 KW , i.e 10/1000=> 1/100 */
-        u16Tmp = (uint16_t)(ac.GENSET_GetDispActivePowerWatts(R_PHASE)/100);
-        SetReadRegisterValue(MB_GEN_L1_POWER, u16Tmp);
-        u16Tmp = (uint16_t)(ac.GENSET_GetDispActivePowerWatts(Y_PHASE)/100);
-        SetReadRegisterValue(MB_GEN_L2_POWER, u16Tmp);
-        u16Tmp = (uint16_t)(ac.GENSET_GetDispActivePowerWatts(B_PHASE)/100);
-        SetReadRegisterValue(MB_GEN_L3_POWER, u16Tmp);
-
-        /*Resolution of 0.1 KVA , i.e 10/1000=> 1/100 */
-        u16Tmp = (uint16_t)(ac.GENSET_GetDispApparentPowerVA(R_PHASE)/100);
-        SetReadRegisterValue(MB_GEN_L1_APPARENT_POWER, u16Tmp);
-        u16Tmp = (uint16_t)(ac.GENSET_GetDispApparentPowerVA(Y_PHASE)/100);
-        SetReadRegisterValue(MB_GEN_L2_APPARENT_POWER, u16Tmp);
-        u16Tmp = (uint16_t)(ac.GENSET_GetDispApparentPowerVA(B_PHASE)/100);
-        SetReadRegisterValue(MB_GEN_L3_APPARENT_POWER, u16Tmp);
-
-        /*Resolution of 0.1 KVAr , i.e 10/1000=> 1/100 */
-        u16Tmp = (uint16_t)(ac.GENSET_GetDispReactivePowerVAR(R_PHASE)/100);
-        SetReadRegisterValue(MB_GEN_L1_REACTIVE_POWER, u16Tmp);
-        u16Tmp = (uint16_t)(ac.GENSET_GetDispReactivePowerVAR(Y_PHASE)/100);
-        SetReadRegisterValue(MB_GEN_L2_REACTIVE_POWER, u16Tmp);
-        u16Tmp = (uint16_t)(ac.GENSET_GetDispReactivePowerVAR(B_PHASE)/100);
-        SetReadRegisterValue(MB_GEN_L3_REACTIVE_POWER, u16Tmp);
+        u16Tmp = (uint16_t)(ac.MAINS_GetCurrentAmps(R_PHASE));
+        SetReadRegisterValue(MB_LOAD_L1_CURRENT, u16Tmp);
+        u16Tmp = (uint16_t)(ac.MAINS_GetCurrentAmps(Y_PHASE));
+        SetReadRegisterValue(MB_LOAD_L2_CURRENT, u16Tmp);
+        u16Tmp = (uint16_t)(ac.MAINS_GetCurrentAmps(B_PHASE));
+        SetReadRegisterValue(MB_LOAD_L3_CURRENT, u16Tmp);
 
     }
-    else if(_engineMonitoring.GetContactorLoadStatus()==ENGINE_MONITORING::LOAD_ON_MAINS)
+    else if(((!_Automode.IsGenContactorConfigured()) && (!_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring)
+             && (!(((_Automode.IsMainsContactorClosed()) && (_Automode.IsMainsContactorConfigured()) && (!_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring))
+                   || ((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring) && (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bResultInstant) && (_Automode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)))))
+            || ((_Automode.IsGenContactorClosed()) && (_Automode.IsGenContactorConfigured()) && (_Automode.GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE))
+            || ((_Automode.IsGenContactorClosed()) && (_Automode.IsGenContactorConfigured()) && (!_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring))
+            || ((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring) && (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bResultInstant) && (_Automode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)))
     {
-           /*Resolution 0.1*/
-           u16Tmp = (uint16_t)(ac.MAINS_GetCurrentAmps(R_PHASE)*10);
-           SetReadRegisterValue(MB_GEN_L1_CURRENT, u16Tmp);
-           u16Tmp = (uint16_t)(ac.MAINS_GetCurrentAmps(Y_PHASE)*10);
-           SetReadRegisterValue(MB_GEN_L2_CURRENT, u16Tmp);
-           u16Tmp = (uint16_t)(ac.MAINS_GetCurrentAmps(B_PHASE)*10);
-           SetReadRegisterValue(MB_GEN_L3_CURRENT, u16Tmp);
 
-           /*Resolution of 0.1 KW , i.e 10/1000=> 1/100 */
-           u16Tmp = (uint16_t)(ac.MAINS_GetDispActivePowerWatts(R_PHASE)/100);
-           SetReadRegisterValue(MB_GEN_L1_POWER, u16Tmp);
-           u16Tmp = (uint16_t)(ac.MAINS_GetDispActivePowerWatts(Y_PHASE)/100);
-           SetReadRegisterValue(MB_GEN_L2_POWER, u16Tmp);
-           u16Tmp = (uint16_t)(ac.MAINS_GetDispActivePowerWatts(B_PHASE)/100);
-           SetReadRegisterValue(MB_GEN_L3_POWER, u16Tmp);
-
-           /*Resolution of 0.1 KVA , i.e 10/1000=> 1/100 */
-           u16Tmp = (uint16_t)(ac.MAINS_GetDispApparentPowerVA(R_PHASE)/100);
-           SetReadRegisterValue(MB_GEN_L1_APPARENT_POWER, u16Tmp);
-           u16Tmp = (uint16_t)(ac.MAINS_GetDispApparentPowerVA(Y_PHASE)/100);
-           SetReadRegisterValue(MB_GEN_L2_APPARENT_POWER, u16Tmp);
-           u16Tmp = (uint16_t)(ac.MAINS_GetDispApparentPowerVA(B_PHASE)/100);
-           SetReadRegisterValue(MB_GEN_L3_APPARENT_POWER, u16Tmp);
-
-           /*Resolution of 0.1 KVAr , i.e 10/1000=> 1/100 */
-           u16Tmp = (uint16_t)(ac.MAINS_GetDispReactivePowerVAR(R_PHASE)/100);
-           SetReadRegisterValue(MB_GEN_L1_REACTIVE_POWER, u16Tmp);
-           u16Tmp = (uint16_t)(ac.MAINS_GetDispReactivePowerVAR(Y_PHASE)/100);
-           SetReadRegisterValue(MB_GEN_L2_REACTIVE_POWER, u16Tmp);
-           u16Tmp = (uint16_t)(ac.MAINS_GetDispReactivePowerVAR(B_PHASE)/100);
-           SetReadRegisterValue(MB_GEN_L3_REACTIVE_POWER, u16Tmp);
-
+        u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(R_PHASE));
+        SetReadRegisterValue(MB_LOAD_L1_CURRENT, u16Tmp);
+        u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(Y_PHASE));
+        SetReadRegisterValue(MB_LOAD_L2_CURRENT, u16Tmp);
+        u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(B_PHASE));
+        SetReadRegisterValue(MB_LOAD_L3_CURRENT, u16Tmp);
     }
+    else
+    {
+        u16Tmp = (uint16_t)(0);
+        SetReadRegisterValue(MB_LOAD_L1_CURRENT, u16Tmp);
+        u16Tmp = (uint16_t)(0);
+        SetReadRegisterValue(MB_LOAD_L2_CURRENT, u16Tmp);
+        u16Tmp = (uint16_t)(0);
+        SetReadRegisterValue(MB_LOAD_L3_CURRENT, u16Tmp);
+    }
+
     /*Resolution 0.01*/
     u16Tmp = (uint16_t)(abs(ac.GENSET_GetDispPowerFactor(R_PHASE)*100));
     SetReadRegisterValue(MB_GEN_L1_PF, u16Tmp);
@@ -293,10 +284,11 @@ void MB_APP::prvUpdateElectricalParams()
     u16Tmp = (uint16_t)(abs(ac.GENSET_GetDispAveragePowerFactor()*100));
     SetReadRegisterValue(MB_GEN_AVERAGE_PF, (uint16_t)(u16Tmp));
 
+    uint32_t u32Tmp = (uint32_t)(ac.GENSET_GetTotalActiveEnergySinceInitWH()/1000);
+    SetReadRegisterValue(MB_GEN_CUMM_ACTIVE_ENERGY_1, (uint16_t)(u32Tmp & 0xFFFFU));
+    SetReadRegisterValue(MB_GEN_CUMM_ACTIVE_ENERGY_2, (uint16_t)(u32Tmp>>16));
+
     /*KWH in 0.1 resolution*/
-    uint32_t u32Tmp = (uint32_t)(ac.GENSET_GetTotalActiveEnergySinceInitWH()/100);
-    SetReadRegisterValue(MB_GEN_CUMM_ACTIVE_ENERGY_1, (uint16_t)(u32Tmp>>16));
-    SetReadRegisterValue(MB_GEN_CUMM_ACTIVE_ENERGY_2, (uint16_t)(u32Tmp & 0xFFFFU));
 
     u32Tmp = (uint32_t)(ac.GENSET_GetTotalApparentEnergySinceInitVAH()/100);
     SetReadRegisterValue(MB_GEN_CUMM_APPARENT_ENERGY_1, (uint16_t)(u32Tmp>>16));
@@ -306,17 +298,15 @@ void MB_APP::prvUpdateElectricalParams()
     SetReadRegisterValue(MB_GEN_CUMM_REACTIVE_ENERGY_1, (uint16_t)(u32Tmp>>16));
     SetReadRegisterValue(MB_GEN_CUMM_REACTIVE_ENERGY_2, (uint16_t)(u32Tmp & 0xFFFFU));
 
+    u32Tmp = (uint32_t)(_hal.AcSensors.MAINS_GetTotalActiveEnergySinceInitWH()/1000);
+    SetReadRegisterValue(MB_MAINS_CUMM_ACTIVE_ENERGY_1, (uint16_t)(u32Tmp & 0xFFFFU));
+    SetReadRegisterValue(MB_MAINS_CUMM_ACTIVE_ENERGY_2, (uint16_t)(u32Tmp>>16));
 
-    /*KWH in 0.1 resolution*/
-    u32Tmp = (uint32_t)(_hal.AcSensors.MAINS_GetTotalActiveEnergySinceInitWH()/100);
-    SetReadRegisterValue(MB_MAINS_CUMM_ACTIVE_ENERGY_1, (uint16_t)(u32Tmp>>16));
-    SetReadRegisterValue(MB_MAINS_CUMM_ACTIVE_ENERGY_2, (uint16_t)(u32Tmp & 0xFFFFU));
-
-    u16Tmp = (uint16_t)(ac.MAINS_GetVoltageVolts(R_PHASE)*10);
+    u16Tmp = (uint16_t)(ac.MAINS_GetVoltageVolts(R_PHASE));
     SetReadRegisterValue(MB_MAINS_L1_N_VOLTAGE, u16Tmp);
-    u16Tmp = (uint16_t)(ac.MAINS_GetVoltageVolts(Y_PHASE)*10);
+    u16Tmp = (uint16_t)(ac.MAINS_GetVoltageVolts(Y_PHASE));
     SetReadRegisterValue(MB_MAINS_L2_N_VOLTAGE, u16Tmp);
-    u16Tmp = (uint16_t)(ac.MAINS_GetVoltageVolts(B_PHASE)*10);
+    u16Tmp = (uint16_t)(ac.MAINS_GetVoltageVolts(B_PHASE));
     SetReadRegisterValue(MB_MAINS_L3_N_VOLTAGE, u16Tmp);
 
 #if AUTOMATION
@@ -459,6 +449,15 @@ void MB_APP::prvUpdateMBCommandStatus()
        SetWriteRegisterValue(MB_APP::MB_COMMAND, 0);
 
    }
+
+   if(GetRegisterValue(MB_APP::MB_MODE_REG) == 1U)
+   {
+       stMBEvent.bAutoKey = true;
+       stMBEvent.bKeyEvent =true;
+
+       SetWriteRegisterValue(MB_APP::MB_MODE_REG, 0);
+   }
+
 #if (AUTOMATION==1)
     if(GetRegisterValue(MB_APP::MB_DATE_TIME5)== 1U)
     {
@@ -573,17 +572,12 @@ void MB_APP::prvUpdateBtsParams()
 
 void MB_APP::prvUpdateTmpParams()
 {
-#if AUTOMATION
-
-    SetReadRegisterValue(MB_TMP_RUN_HOURS, (uint16_t)(_engineMonitoring.GetTamperedRunTimeMin()/60);
+    SetReadRegisterValue(MB_TMP_RUN_HOURS, (uint16_t)(_engineMonitoring.GetTamperedRunTimeMin()/60));
     SetReadRegisterValue(MB_TMP_RUN_MINUTES, (uint16_t)(_engineMonitoring.GetTamperedRunTimeMin()%60));
 
-    /*KWH in 0.1 resolution*/
-    u32Tmp = (uint32_t)(_engineMonitoring.GetTamprEEPromCummEnergy()/100);
-    SetReadRegisterValue(MB_GEN_TMP_ACTIVE_ENERGY_1, (uint16_t)(u32Tmp>>16));
-    SetReadRegisterValue(MB_GEN_TMP_ACTIVE_ENERGY_2, (uint16_t)(u32Tmp & 0xFFFFU));
-
-#endif
+    uint32_t u32Tmp = (uint32_t)(_engineMonitoring.GetTamprEEPromCummEnergy()/1000);
+    SetReadRegisterValue(MB_GEN_TMP_ACTIVE_ENERGY_1, (uint16_t)(u32Tmp & 0xFFFFU));
+    SetReadRegisterValue(MB_GEN_TMP_ACTIVE_ENERGY_2, (uint16_t)(u32Tmp>>16));
 }
 
 void MB_APP::prvUpdateAUXSensorVal()
@@ -634,13 +628,12 @@ void MB_APP::prvUpdateAUXSensorVal()
 void MB_APP::prvUpdateGCUAlarms()
 {
     /* DIG ALARM 1 */
-    //Todo :  _u8LowFuelLevelAlarm and _u8HighEngTempAlarm varible is private so cannot be accessed so implementation pending. f_out_dg_contactor_close variable is also not their
     _u16TempAlarmVal =0;
 
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_H].bAlarmActive << 0);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SMOKE_FIRE].bAlarmActive << 1);
-    _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::LLOP_SWITCH].bAlarmActive) << 2);
-    _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_D].bAlarmActive) << 3);
+    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.IsLowOilPresAlarmActive() << 2);
+    _u16TempAlarmVal |=   (uint16_t)(((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_D].bAlarmActive) || (_gcuAlarm.IsHighEngTempAlarmActive()) )<< 3);
     _u16TempAlarmVal |=   (uint16_t)(_Automode.IsGenContactorClosed() << 4);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::V_BELT_BROKEN_SWITCH].bAlarmActive << 5);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_F].bAlarmActive << 6);
@@ -674,7 +667,6 @@ void MB_APP::prvUpdateGCUAlarms()
 
     /* DIG ALARM 2 */
     _u16TempAlarmVal =0;
-    // TODO : _u8RPhaseUnderVoltAlarm, etc aren't configured
 
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bResultInstant << 0);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::OVERLOAD].bAlarmActive << 1);
@@ -688,7 +680,7 @@ void MB_APP::prvUpdateGCUAlarms()
     _u16TempAlarmVal |=   (uint16_t)(0 << 9);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_SS].bAlarmActive << 10);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_G].bAlarmActive << 11);
-    _u16TempAlarmVal |=   (uint16_t)(0 << 12);     // _u8RPhaseUnderVoltAlarm, etc
+    _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.IsRPhaseOverVoltAlarmActive() || _gcuAlarm.IsYPhaseOverVoltAlarmActive() || _gcuAlarm.IsBPhaseOverVoltAlarmActive() || _gcuAlarm.IsRPhaseUnderVoltAlarmActive() || _gcuAlarm.IsYPhaseUnderVoltAlarmActive() || _gcuAlarm.IsBPhaseUnderVoltAlarmActive()) << 12);
     _u16TempAlarmVal |=   (uint16_t)(0 << 13);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::BATT_CHG_FAIL].bAlarmActive << 14);
     _u16TempAlarmVal |=   (uint16_t)(0 << 15);

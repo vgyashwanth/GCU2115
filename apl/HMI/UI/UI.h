@@ -110,5 +110,6 @@ private:
 
     void prvFetchProfileNames();
     uint16_t prvMaxDaysInMonth(uint8_t u8Month ,uint16_t u16Year);
+    static uint16_t GetEditableItemIndex();
 };
 #endif /* _UI_H_ */

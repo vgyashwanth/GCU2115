@@ -40,11 +40,11 @@ CMenuItem::CMenuItem(CEditableItemsScreen* EditableItemsScreen)
     isEnabled = true;
 }
 
-CMenuItem::CMenuItem(const char* ItemName, CMenu* pMenu)
+CMenuItem::CMenuItem(const char* ItemName, CMenu* Menu)
 {
 	this->pItemName = ItemName;
 	isLeafNode = false;
 	this->pEditableItemsScreen = NULL;
-	this->pMenu = pMenu;
+	this->pMenu = Menu;
 	isEnabled = true;
 }

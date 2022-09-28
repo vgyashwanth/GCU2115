@@ -38,8 +38,8 @@ _ObjCfgc(cfgc),
 _cfgz(cfgz),
 _ObjmbApp(mbApp),
 _engMon(engineMonitoring),
-_gcuAlarm(gcuAlarm),
 _Automode(Automode),
+_gcuAlarm(gcuAlarm),
 ubypReadTxPgns
 {
         (J1939_PGNs)&(gstPGNs.PGNGC1_64915),        //0
@@ -231,7 +231,7 @@ void J1939APP::InitAfterConfigChange()
         for(gu8SPNNumber = 0; gu8SPNNumber < MAX_NO_SPN_IN_PGN; gu8SPNNumber++)
         {
             _ArrSpnErrorNAStatus[gu8PGNNumber][gu8SPNNumber] = NOT_AVAILABLE;
-            (void)memset((void *)(&_ArrPgnReadData[gu8PGNNumber][gu8SPNNumber]), 0xFFFFFFFFF, sizeof(double));
+            (void)memset((void *)(&_ArrPgnReadData[gu8PGNNumber][gu8SPNNumber]), 0xFFFFFFFF, sizeof(double));
         }
     }
 }
@@ -971,7 +971,8 @@ void J1939APP::ExtractReadFrame(void)
     static uint8_t u8CntPropB5EIndex = 0;
     static uint8_t u8NumberOfPacket = 0,u8ReadData=0;
 
-    uint8_t u8PS, u8PF,u8SourceAddress;
+    uint8_t u8PS, u8PF;
+//    uint8_t u8SourceAddress;
     bool bECUSourceAddressMatched = false;
     static uint8_t u8PrevPackateNo =0;
     uint8_t u8ReceivedPgnNo = RX_PGN_LAST;
@@ -993,7 +994,7 @@ void J1939APP::ExtractReadFrame(void)
         u8PS =(uint8_t)( uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN & 0x00FF);    // PDU Specific
         u8PF =(uint8_t) ((uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN >>8)& 0x00FF); //PDU Format
 
-        u8SourceAddress = (uint8_t) (uPDU_ID_Data.tPDUIdFrame.ubyPDU_SA);
+//        u8SourceAddress = (uint8_t) (uPDU_ID_Data.tPDUIdFrame.ubyPDU_SA);
         /* If the received source address is same as the configured ECU Source address then only received the data.  */
 //        if(u8SourceAddress == _cfgz.GetCFGZ_Param(CFGZ::ID_ECU_SOURCE_ADDRESS))
         {
@@ -1010,13 +1011,13 @@ void J1939APP::ExtractReadFrame(void)
 
         if((u8PF <=255)&&(u8PF >=240))
         {
-            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
-                                                   + (((uint16_t)u8PF)<<8U)+ u8PS;
+            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (uint16_t)((((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
+                                                   + (((uint16_t)u8PF)<<8U)+ u8PS);
         }
         else if((u8PF <=239)&&(u8PF >=0))
         {
-            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
-                                               + (((uint16_t)u8PF)<<8U) ;
+            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (uint16_t)((((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
+                                               + (((uint16_t)u8PF)<<8U));
         }
         if(bECUSourceAddressMatched)
         {
@@ -1025,7 +1026,7 @@ void J1939APP::ExtractReadFrame(void)
             {
 
                 case PGN_TPCM: //TPCM Transfer protocol - connection management ---> BAM-Braudcast Announce message
-                    u16LocalPGN = (((uint16_t)CAN_RxQueueBuffer.data[6]) << 8U) + CAN_RxQueueBuffer.data[5];
+                    u16LocalPGN = (uint16_t)((((uint16_t)CAN_RxQueueBuffer.data[6]) << 8U) + CAN_RxQueueBuffer.data[5]);
                     if((u16LocalPGN == PGN_DM01)|| (u16LocalPGN == PGN_DM02) || (u16LocalPGN == PROPB_5E_PGN))
                     {
                         u8ReadData = 1;
@@ -1949,7 +1950,7 @@ uint8_t J1939APP::GetPCDAlarmCount(void)
     uint8_t u8NoOfPCDAlarms = 0;
     for(u8index = PCD_REMOVAL_OF_DPF_SYSTEM; u8index <= PCD_FAILURE_OF_PCD_SYSTEM; u8index++)
     {
-        if(_ArrPgnReadData[RX_PGN_PROPB51_65361][u8index] == 1)
+        if((uint8_t)_ArrPgnReadData[RX_PGN_PROPB51_65361][u8index] == 1)
         {
             u8NoOfPCDAlarms++;
         }
@@ -1964,7 +1965,7 @@ uint8_t J1939APP::GetNCDAlarmCount(void)
     uint8_t u8NoOfNCDAlarms = 0;
     for(u8index = NCD_REMOVAL_OF_EGR_SYSTEM; u8index <= NCD_REMOVAL_OF_MAF_SENSOR; u8index++)
     {
-        if(_ArrPgnReadData[RX_PGN_PROPB51_65361][u8index] == 1)
+        if((uint8_t)_ArrPgnReadData[RX_PGN_PROPB51_65361][u8index] == 1)
         {
             u8NoOfNCDAlarms++;
         }
@@ -2023,11 +2024,11 @@ void J1939APP::CalculateTsc1Checksum(void)
      *             + Msg_ID_low_byte + Msg_ID_mid_low_byte + Msg_ID_mid_high_byte + Msg_ID_high_byte)
      * Message Checksum = (((Checksum >> 6) & 0x03) + (Checksum >> 3) + Checksum) & 0x07             */
 
-    u8Checksum = u8Checksum + (_u8PGN0MessageCounter & 0x0F) + (uint8_t)(_u32TSC1CANMessageID & 0x000000FF) +
+    u8Checksum = (uint8_t)(u8Checksum + (_u8PGN0MessageCounter & 0x0F) + (uint8_t)(_u32TSC1CANMessageID & 0x000000FF) +
                   (uint8_t)((_u32TSC1CANMessageID & 0x0000FF00) >> 8) + (uint8_t)((_u32TSC1CANMessageID & 0x00FF0000) >> 16)
-                  + (uint8_t)((_u32TSC1CANMessageID & 0xFF000000) >> 24);
+                  + (uint8_t)((_u32TSC1CANMessageID & 0xFF000000) >> 24));
 
-    _f32Pgn0Data[PGN_0_MESSAGE_CHECKSUM] = ((((u8Checksum >> 6) & 0x03) + (u8Checksum >> 3) + u8Checksum) & 0x07);
+    _f32Pgn0Data[PGN_0_MESSAGE_CHECKSUM] =(float)((((u8Checksum >> 6) & 0x03) + (u8Checksum >> 3) + u8Checksum) & 0x07);
 }
 
 
@@ -2065,11 +2066,11 @@ void J1939APP::CalculatePropB_F7Checksum()
      *             + Msg_ID_low_byte + Msg_ID_mid_low_byte + Msg_ID_mid_high_byte + Msg_ID_high_byte)
      * Message Checksum = (((Checksum >> 6) & 0x03) + (Checksum >> 3) + Checksum) & 0x07             */
 
-    u8ChecksumPGNFFF7 = u8ChecksumPGNFFF7 + (_u8PGN0xFFF7MessageCounter & 0x0F) + (uint8_t)(_u32PropBF7CANMessageID & 0x000000FF) +
+    u8ChecksumPGNFFF7 = (uint8_t)(u8ChecksumPGNFFF7 + (_u8PGN0xFFF7MessageCounter & 0x0F) + (uint8_t)(_u32PropBF7CANMessageID & 0x000000FF) +
             (uint8_t)((_u32PropBF7CANMessageID & 0x0000FF00) >> 8) + (uint8_t)((_u32PropBF7CANMessageID & 0x00FF0000) >> 16)
-            + (uint8_t)((_u32PropBF7CANMessageID & 0xFF000000) >> 24);
+            + (uint8_t)((_u32PropBF7CANMessageID & 0xFF000000) >> 24));
 
-    _f32Pgn65527Data[PGN_0_MESSAGE_CHECKSUM] = ((((u8ChecksumPGNFFF7 >> 6) & 0x03) + (u8ChecksumPGNFFF7 >> 3) + u8ChecksumPGNFFF7) & 0x07);
+    _f32Pgn65527Data[PGN_0_MESSAGE_CHECKSUM] = (float)((((u8ChecksumPGNFFF7 >> 6) & 0x03) + (u8ChecksumPGNFFF7 >> 3) + u8ChecksumPGNFFF7) & 0x07);
 }
 
 void  J1939APP::prvExtractDmMsg(uint16_t u16DmMsgNo, uint8_t u8NoOfSpnInDmMsg)
@@ -2228,7 +2229,7 @@ uint32_t J1939APP::prvExtractSPN(uint8_t *pCANData, uint8_t ubyPGN, uint8_t ubyS
     uint32_t ulErrorCheckValue = 0xFB;
     uint32_t ulNotAvailableCheckVal = 0xFF;
 
-    ubyStartByte =  (ubyStartBit / 8);                          // Calculate the byte number in which data is present
+    ubyStartByte = (uint8_t) (ubyStartBit / 8);                          // Calculate the byte number in which data is present
     ubyTemp1 = (ubyStartBit % 8);
 
     // Remove the bits from start byte which are not is that SPN
@@ -2460,7 +2461,7 @@ void J1939APP::prvHandleEngineStartStop()
         case START_STOP::ID_STATE_SS_ENG_OFF_ERR:
             break;
         case START_STOP::ID_STATE_SS_PREHEAT:
-            if((_cfgz.GetEngType() ==CFGZ::ENG_IVECO) && (_ArrPgnReadData[RX_PGN_IVECO_PREHEAT_65281][6] == 0))
+            if((_cfgz.GetEngType() ==CFGZ::ENG_IVECO) && ((uint8_t)_ArrPgnReadData[RX_PGN_IVECO_PREHEAT_65281][6] == 0))
             {
                 _bEngineStartPreheatStatus = false;
             }
@@ -2510,7 +2511,7 @@ void J1939APP::prvCalculateAccPedalPosChecksum(void)
    uint16_t u16AccPedalPosChecksum = 0;
    const uint16_t  u16ConstPedalPos=0x1ff; //ie. 50%
    u16AccPedalPosChecksum = (uint8_t)(u16ConstPedalPos & 0x00FF) + (uint8_t)((u16ConstPedalPos & 0xFF00)>>8) + (_u8AccPedalCounter & 0x0F);
-   _f32Pgn65350Data[PGN_65350_ACCELERATOR_PEDAL_CHECKSUM] = ((((u16AccPedalPosChecksum >> 6) & 0x03) + (u16AccPedalPosChecksum >> 3) + u16AccPedalPosChecksum) & 0x07);
+   _f32Pgn65350Data[PGN_65350_ACCELERATOR_PEDAL_CHECKSUM] = (float)((((u16AccPedalPosChecksum >> 6) & 0x03) + (u16AccPedalPosChecksum >> 3) + u16AccPedalPosChecksum) & 0x07);
 
 }
 

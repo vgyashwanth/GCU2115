@@ -170,7 +170,7 @@ private:
 
     bool prvIsSleepEnabled();
     void prvUpadteBaseModeConfigDependency();
-    void prvHandleKeyPressEvent(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent);
+    void prvHandleKeyPressEvent(KEYPAD::KEYPAD_EVENTS_t sKeyEvent);
     void prvHandleDisplayModes();
     void prvHandleScreenChangeover();
 };

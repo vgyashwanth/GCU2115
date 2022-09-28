@@ -1797,7 +1797,7 @@ void MON_UI::prvAssignNoOfDigitAfterDP(SPNData_t *StrArrayPtr, uint8_t u8PGNEnum
         }
 
 
-        StrArrayPtr->u8DPInResolution = uiNoOfFractionalDigits;
+        StrArrayPtr->u8DPInResolution = (uint8_t) uiNoOfFractionalDigits;
         StrArrayPtr->SPNStatusErrorNA = _j1939.GetSPNErrorStatus((DATABASE_RX_PGN_LIST_t)u8PGNEnumNo,u8SpnNo);
 }
 void MON_UI::prvNormalMonScreens()
@@ -2593,10 +2593,11 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
 {
     uint8_t u8Position;
     uint8_t u8Local;
-    static float f32GenMinFreq = 0.0f;
+
     // static float f32MainsFreq = 0.0f;
 
-    f32GenMinFreq = _GCUAlarms.GetMinGenFreq();
+//    static float f32GenMinFreq = 0.0f;
+//    f32GenMinFreq = _GCUAlarms.GetMinGenFreq();
 
 
     char arrTemp[32];  //Local variable for storing the sprintf output

@@ -601,17 +601,21 @@ private:
     float             _fGenPTMultiplier;
     float             _fMainsPTMultiplier;
     float             _fGenRating;
+
+    ANLG_IP &_AnlgIp;
     stTimer           _st200ms;
     float             _f32DCOffserFiltV;
+
+    AC_SYSTEM_TYP_t   _eGenSystemType;
+    AC_SYSTEM_TYP_t   _eMainsSystemType;
+    AC_SYSTEM_TYP_t   _ePrvGenSysType;
 
     uint16_t          _u16EarthCurrentDCOffsetSampleCount;
     uint16_t          _u16LatchedECurrentOffsetValue;
     /*Accumulator of current sample values, used in deducing DC offset*/
     uint32_t          _u32ECurrentOffsetAccumulator;
     uint16_t          _u16EarthCurrentDCOffsetWindowSize;
-    AC_SYSTEM_TYP_t   _eGenSystemType;
-    AC_SYSTEM_TYP_t   _eMainsSystemType;
-    AC_SYSTEM_TYP_t   _ePrvGenSysType;
+
     /**
      * Function that clips the ADC sample within the upper and lower limits.
      * @param - u16Sample - Reference to the ADC sample value
@@ -633,7 +637,7 @@ private:
     void prvCheckPhaseReversal(PHASE_ROT_VARS_t &_phaseRotData, int16_t i16RCnt, 
                            int16_t i16YCnt, int16_t i16BCnt, int16_t i16NCnt, bool GensetMainsSource);
     void prvUpdateEarthCurrentDCOffset(uint16_t u16Sample );
-    ANLG_IP &_AnlgIp;
+
 
     bool prvIsPhaseAvilableInSelectedACSys(PHASE_t Phase, AC_SYSTEM_TYP_t etype);
     bool prvIsACSyte1Phaseor1Phase3Wire(AC_SYSTEM_TYP_t etype);

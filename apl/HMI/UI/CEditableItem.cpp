@@ -579,139 +579,18 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
         break;
 
     case DT_ENG_SR_NO:
-        if(u8MultiItemEditIndex == 0)
+        if(u8MultiItemEditIndex < 12)
         {
-            if( aValue.stEngSrNo.u8EngSrNoChar1 < maxVal.stEngSrNo.u8EngSrNoChar1)
+            if( aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] < maxVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex])
             {
-                aValue.stEngSrNo.u8EngSrNoChar1++;
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex]++;
             }
             else
             {
-                aValue.stEngSrNo.u8EngSrNoChar1 = minVal.stEngSrNo.u8EngSrNoChar1;
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = minVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex];
             }
         }
-        else if(u8MultiItemEditIndex == 1)
-        {
-            if( aValue.stEngSrNo.u8EngSrNoChar2 < maxVal.stEngSrNo.u8EngSrNoChar2)
-            {
-                aValue.stEngSrNo.u8EngSrNoChar2++;
-            }
-            else
-            {
-                aValue.stEngSrNo.u8EngSrNoChar2 = minVal.stEngSrNo.u8EngSrNoChar2;
-            }
-        }
-        else if(u8MultiItemEditIndex == 2)
-        {
-            if( aValue.stEngSrNo.u8EngSrNoChar3 < maxVal.stEngSrNo.u8EngSrNoChar3)
-            {
-                aValue.stEngSrNo.u8EngSrNoChar3++;
-            }
-            else
-            {
-                aValue.stEngSrNo.u8EngSrNoChar3 = minVal.stEngSrNo.u8EngSrNoChar3;
-            }
-        }
-        else if(u8MultiItemEditIndex == 3)
-        {
-            if( aValue.stEngSrNo.u8EngSrNoChar4 < maxVal.stEngSrNo.u8EngSrNoChar4)
-            {
-                aValue.stEngSrNo.u8EngSrNoChar4++;
-            }
-            else
-            {
-                aValue.stEngSrNo.u8EngSrNoChar4 = minVal.stEngSrNo.u8EngSrNoChar4;
-            }
-        }
-        else if(u8MultiItemEditIndex == 4)
-        {
-            if( aValue.stEngSrNo.u8EngSrNoChar5 < maxVal.stEngSrNo.u8EngSrNoChar5)
-            {
-                aValue.stEngSrNo.u8EngSrNoChar5++;
-            }
-            else
-            {
-                aValue.stEngSrNo.u8EngSrNoChar5 = minVal.stEngSrNo.u8EngSrNoChar5;
-            }
-        }
-        else if(u8MultiItemEditIndex == 5)
-        {
-            if( aValue.stEngSrNo.u8EngSrNoChar6 < maxVal.stEngSrNo.u8EngSrNoChar6)
-            {
-                aValue.stEngSrNo.u8EngSrNoChar6++;
-            }
-            else
-            {
-                aValue.stEngSrNo.u8EngSrNoChar6 = minVal.stEngSrNo.u8EngSrNoChar6;
-            }
-        }
-        else if(u8MultiItemEditIndex == 6)
-        {
-            if( aValue.stEngSrNo.u8EngSrNoChar7 < maxVal.stEngSrNo.u8EngSrNoChar7)
-            {
-                aValue.stEngSrNo.u8EngSrNoChar7++;
-            }
-            else
-            {
-                aValue.stEngSrNo.u8EngSrNoChar7 = minVal.stEngSrNo.u8EngSrNoChar7;
-            }
-        }
-        else if(u8MultiItemEditIndex == 7)
-        {
-            if( aValue.stEngSrNo.u8EngSrNoChar8 < maxVal.stEngSrNo.u8EngSrNoChar8)
-            {
-                aValue.stEngSrNo.u8EngSrNoChar8++;
-            }
-            else
-            {
-                aValue.stEngSrNo.u8EngSrNoChar8 = minVal.stEngSrNo.u8EngSrNoChar8;
-            }
-        }
-        else if(u8MultiItemEditIndex == 8)
-        {
-            if( aValue.stEngSrNo.u8EngSrNoChar9 < maxVal.stEngSrNo.u8EngSrNoChar9)
-            {
-                aValue.stEngSrNo.u8EngSrNoChar9++;
-            }
-            else
-            {
-                aValue.stEngSrNo.u8EngSrNoChar9 = minVal.stEngSrNo.u8EngSrNoChar9;
-            }
-        }
-        else if(u8MultiItemEditIndex == 9)
-        {
-            if( aValue.stEngSrNo.u8EngSrNoChar10 < maxVal.stEngSrNo.u8EngSrNoChar10)
-            {
-                aValue.stEngSrNo.u8EngSrNoChar10++;
-            }
-            else
-            {
-                aValue.stEngSrNo.u8EngSrNoChar10 = minVal.stEngSrNo.u8EngSrNoChar10;
-            }
-        }
-        else if(u8MultiItemEditIndex == 10)
-        {
-            if( aValue.stEngSrNo.u8EngSrNoChar11 < maxVal.stEngSrNo.u8EngSrNoChar11)
-            {
-                aValue.stEngSrNo.u8EngSrNoChar11++;
-            }
-            else
-            {
-                aValue.stEngSrNo.u8EngSrNoChar11 = minVal.stEngSrNo.u8EngSrNoChar11;
-            }
-        }
-        else if(u8MultiItemEditIndex == 11)
-        {
-            if( aValue.stEngSrNo.u8EngSrNoChar12 < maxVal.stEngSrNo.u8EngSrNoChar12)
-            {
-                aValue.stEngSrNo.u8EngSrNoChar12++;
-            }
-            else
-            {
-                aValue.stEngSrNo.u8EngSrNoChar12 = minVal.stEngSrNo.u8EngSrNoChar12;
-            }
-        }
-            break;
+        break;
     }
     return aValue;
 }
@@ -948,138 +827,17 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
         }
         break;
     case DT_ENG_SR_NO:
-            if(u8MultiItemEditIndex == 0)
+        if(u8MultiItemEditIndex < 12)
+        {
+            if( aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] > minVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex])
             {
-                if( aValue.stEngSrNo.u8EngSrNoChar1 > minVal.stEngSrNo.u8EngSrNoChar1)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar1--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar1 = maxVal.stEngSrNo.u8EngSrNoChar1;
-                }
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex]--;
             }
-            else if(u8MultiItemEditIndex == 1)
+            else
             {
-                if( aValue.stEngSrNo.u8EngSrNoChar2 > minVal.stEngSrNo.u8EngSrNoChar2)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar2--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar2 = maxVal.stEngSrNo.u8EngSrNoChar2;
-                }
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = maxVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex];
             }
-            else if(u8MultiItemEditIndex == 2)
-            {
-                if( aValue.stEngSrNo.u8EngSrNoChar3 > minVal.stEngSrNo.u8EngSrNoChar3)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar3--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar3 = maxVal.stEngSrNo.u8EngSrNoChar3;
-                }
-            }
-            else if(u8MultiItemEditIndex == 3)
-            {
-                if( aValue.stEngSrNo.u8EngSrNoChar4 > minVal.stEngSrNo.u8EngSrNoChar4)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar4--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar4 = maxVal.stEngSrNo.u8EngSrNoChar4;
-                }
-            }
-            else if(u8MultiItemEditIndex == 4)
-            {
-                if( aValue.stEngSrNo.u8EngSrNoChar5 > minVal.stEngSrNo.u8EngSrNoChar5)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar5--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar5 = maxVal.stEngSrNo.u8EngSrNoChar5;
-                }
-            }
-            else if(u8MultiItemEditIndex == 5)
-            {
-                if( aValue.stEngSrNo.u8EngSrNoChar6 > minVal.stEngSrNo.u8EngSrNoChar6)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar6--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar6 = maxVal.stEngSrNo.u8EngSrNoChar6;
-                }
-            }
-            else if(u8MultiItemEditIndex == 6)
-            {
-                if( aValue.stEngSrNo.u8EngSrNoChar7 > minVal.stEngSrNo.u8EngSrNoChar7)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar7--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar7 = maxVal.stEngSrNo.u8EngSrNoChar7;
-                }
-            }
-            else if(u8MultiItemEditIndex == 7)
-            {
-                if( aValue.stEngSrNo.u8EngSrNoChar8 > minVal.stEngSrNo.u8EngSrNoChar8)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar8--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar8 = maxVal.stEngSrNo.u8EngSrNoChar8;
-                }
-            }
-            else if(u8MultiItemEditIndex == 8)
-            {
-                if( aValue.stEngSrNo.u8EngSrNoChar9 > minVal.stEngSrNo.u8EngSrNoChar9)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar9--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar9 = maxVal.stEngSrNo.u8EngSrNoChar9;
-                }
-            }
-            else if(u8MultiItemEditIndex == 9)
-            {
-                if( aValue.stEngSrNo.u8EngSrNoChar10 > minVal.stEngSrNo.u8EngSrNoChar10)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar10--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar10 = maxVal.stEngSrNo.u8EngSrNoChar10;
-                }
-            }
-            else if(u8MultiItemEditIndex == 10)
-            {
-                if( aValue.stEngSrNo.u8EngSrNoChar11 > minVal.stEngSrNo.u8EngSrNoChar11)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar11--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar11 = maxVal.stEngSrNo.u8EngSrNoChar11;
-                }
-            }
-            else if(u8MultiItemEditIndex == 11)
-            {
-                if( aValue.stEngSrNo.u8EngSrNoChar12 > minVal.stEngSrNo.u8EngSrNoChar12)
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar12--;
-                }
-                else
-                {
-                    aValue.stEngSrNo.u8EngSrNoChar12 = maxVal.stEngSrNo.u8EngSrNoChar12;
-                }
-            }
+        }
                 break;
     case DT_TIME_HRS_MINS:
 
@@ -1440,41 +1198,11 @@ void CEditableItem::print(EditableItemValue_t val)
         }
         else if(dataType == DT_ENG_SR_NO)
         {
-            gpDisplay->gotoxy(GLCD_X(10),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar1);
-
-            gpDisplay->gotoxy(GLCD_X(20),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar2);
-
-            gpDisplay->gotoxy(GLCD_X(30),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar3);
-
-            gpDisplay->gotoxy(GLCD_X(40),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar4);
-
-            gpDisplay->gotoxy(GLCD_X(50),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar5);
-
-            gpDisplay->gotoxy(GLCD_X(60),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar6);
-
-            gpDisplay->gotoxy(GLCD_X(70),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar7);
-
-            gpDisplay->gotoxy(GLCD_X(80),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar8);
-
-            gpDisplay->gotoxy(GLCD_X(90),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar9);
-
-            gpDisplay->gotoxy(GLCD_X(100),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar10);
-
-            gpDisplay->gotoxy(GLCD_X(110),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar11);
-
-            gpDisplay->gotoxy(GLCD_X(120),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar12);
+            for(int i=0;i<12;i++)
+            {
+                gpDisplay->gotoxy(GLCD_X(10+10*i),GLCD_Y(37));
+                DisplayEngSrChar(val.stEngSrNo.u8EngSrNo[i]);
+            }
 
             gpDisplay->drawHorizontalLine(GLCD_X(6+u8MultiItemEditIndex*10), GLCD_Y(47), GLCD_Y(13+u8MultiItemEditIndex*10));
             gpDisplay->drawHorizontalLine(GLCD_X(6+u8MultiItemEditIndex*10), GLCD_Y(48), GLCD_Y(13+u8MultiItemEditIndex*10));
@@ -1522,44 +1250,11 @@ void CEditableItem::print(EditableItemValue_t val)
         }
         else if(dataType == DT_ENG_SR_NO)
         {
-            gpDisplay->gotoxy(GLCD_X(10),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar1);
-
-            gpDisplay->gotoxy(GLCD_X(20),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar2);
-
-            gpDisplay->gotoxy(GLCD_X(30),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar3);
-
-            gpDisplay->gotoxy(GLCD_X(40),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar4);
-
-            gpDisplay->gotoxy(GLCD_X(50),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar5);
-
-            gpDisplay->gotoxy(GLCD_X(60),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar6);
-
-            gpDisplay->gotoxy(GLCD_X(70),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar7);
-
-            gpDisplay->gotoxy(GLCD_X(80),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar8);
-
-            gpDisplay->gotoxy(GLCD_X(90),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar9);
-
-            gpDisplay->gotoxy(GLCD_X(100),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar10);
-
-            gpDisplay->gotoxy(GLCD_X(110),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar11);
-
-            gpDisplay->gotoxy(GLCD_X(120),GLCD_Y(37));
-            DisplayEngSrChar(val.stEngSrNo.u8EngSrNoChar12);
-
-//            gpDisplay->drawHorizontalLine(GLCD_X(6+u8MultiItemEditIndex*10), GLCD_Y(47), GLCD_Y(13+u8MultiItemEditIndex*10));
-//            gpDisplay->drawHorizontalLine(GLCD_X(6+u8MultiItemEditIndex*10), GLCD_Y(48), GLCD_Y(13+u8MultiItemEditIndex*10));
+            for(int i=0;i<12;i++)
+            {
+                gpDisplay->gotoxy(GLCD_X(10+10*i),GLCD_Y(37));
+                DisplayEngSrChar(val.stEngSrNo.u8EngSrNo[i]);
+            }
 
             gpDisplay->gotoxy(GLCD_X(10+u8MultiItemEditIndex*10), GLCD_Y(37));
             sprintf(arrTemp," %c",32);

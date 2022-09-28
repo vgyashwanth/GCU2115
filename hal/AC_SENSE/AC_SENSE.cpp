@@ -148,34 +148,34 @@ void AC_SENSE::ConfigureACSystem(AC_SYSTEM_TYP_t eGenSystemType, AC_SYSTEM_TYP_t
     {
         if(_ePrvGenSysType == PHASE_1_SYSTEM)
         {
-            _gensetEnergyOffset.f32InitialActiveEnergyWH += _fCTMultiplier*_fGenPTMultiplier*_aPowers[R_PHASE].GetGensetActiveEnergy();
-            _gensetEnergyOffset.f32InitialApparentEnergyVA += _fCTMultiplier*_fGenPTMultiplier*_aPowers[R_PHASE].GetGensetApparentEnergy();
-            _gensetEnergyOffset.f32InitialReactiveEnergyVAR += _fCTMultiplier*_fGenPTMultiplier*_aPowers[R_PHASE].GetGensetReactiveEnergy();
+            _gensetEnergyOffset.f32InitialActiveEnergyWH += (float)( _fCTMultiplier*_fGenPTMultiplier*_aPowers[R_PHASE].GetGensetActiveEnergy());
+            _gensetEnergyOffset.f32InitialApparentEnergyVA += (float)(_fCTMultiplier*_fGenPTMultiplier*_aPowers[R_PHASE].GetGensetApparentEnergy());
+            _gensetEnergyOffset.f32InitialReactiveEnergyVAR += (float)( _fCTMultiplier*_fGenPTMultiplier*_aPowers[R_PHASE].GetGensetReactiveEnergy());
         }
         else if(_ePrvGenSysType == SPLIT_PHASE_SYSTEM)
         {
-            _gensetEnergyOffset.f32InitialActiveEnergyWH += _fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetActiveEnergy() +
-                                               _aPowers[Y_PHASE].GetGensetActiveEnergy() );
+            _gensetEnergyOffset.f32InitialActiveEnergyWH += (float)(_fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetActiveEnergy() +
+                                               _aPowers[Y_PHASE].GetGensetActiveEnergy() ));
 
-            _gensetEnergyOffset.f32InitialApparentEnergyVA += _fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetApparentEnergy() +
-                                              _aPowers[Y_PHASE].GetGensetApparentEnergy());
+            _gensetEnergyOffset.f32InitialApparentEnergyVA += (float)(_fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetApparentEnergy() +
+                                              _aPowers[Y_PHASE].GetGensetApparentEnergy()));
 
-            _gensetEnergyOffset.f32InitialReactiveEnergyVAR += _fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetReactiveEnergy() +
-                                               _aPowers[Y_PHASE].GetGensetReactiveEnergy() );
+            _gensetEnergyOffset.f32InitialReactiveEnergyVAR += (float)( _fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetReactiveEnergy() +
+                                               _aPowers[Y_PHASE].GetGensetReactiveEnergy() ));
         }
         else
         {
-            _gensetEnergyOffset.f32InitialActiveEnergyWH += _fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetActiveEnergy() +
+            _gensetEnergyOffset.f32InitialActiveEnergyWH += (float)(_fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetActiveEnergy() +
                                        _aPowers[Y_PHASE].GetGensetActiveEnergy() +
-                                           _aPowers[B_PHASE].GetGensetActiveEnergy());
+                                           _aPowers[B_PHASE].GetGensetActiveEnergy()));
 
-            _gensetEnergyOffset.f32InitialApparentEnergyVA += _fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetApparentEnergy() +
+            _gensetEnergyOffset.f32InitialApparentEnergyVA += (float)(_fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetApparentEnergy() +
                                        _aPowers[Y_PHASE].GetGensetApparentEnergy() +
-                                           _aPowers[B_PHASE].GetGensetApparentEnergy());
+                                           _aPowers[B_PHASE].GetGensetApparentEnergy()));
 
-            _gensetEnergyOffset.f32InitialReactiveEnergyVAR += _fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetReactiveEnergy() +
+            _gensetEnergyOffset.f32InitialReactiveEnergyVAR += (float)(_fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetReactiveEnergy() +
                                        _aPowers[Y_PHASE].GetGensetReactiveEnergy() +
-                                           _aPowers[B_PHASE].GetGensetReactiveEnergy());
+                                           _aPowers[B_PHASE].GetGensetReactiveEnergy()));
         }
 
        _aPowers[R_PHASE].ClearCumulativeEnergy();

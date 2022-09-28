@@ -673,12 +673,12 @@ void BASE_MODES::InitNightModeParam()
         {
             u16IncrementReqHours = 0;
         }
-        u16RequiredHours = (_u16NightModeStartTime/100 ) + (_u16NightModeDurationHrsMin/100) + u16IncrementReqHours;
+        u16RequiredHours = (uint16_t)((_u16NightModeStartTime/100 ) + (_u16NightModeDurationHrsMin/100) + u16IncrementReqHours);
         if(u16RequiredHours >= 24)
         {
             u16RequiredHours = u16RequiredHours - 24;
         }
-        _u16NightModeStopTime = (u16RequiredHours*100) + u16RequiredMins;
+        _u16NightModeStopTime = (uint16_t)((u16RequiredHours*100) + u16RequiredMins);
     }
     else
     {

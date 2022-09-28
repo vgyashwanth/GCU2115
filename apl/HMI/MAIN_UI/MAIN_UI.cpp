@@ -42,8 +42,9 @@ _DispEventLog(hal, Disp, CFGC, GCUAlarms, pcfgz),
 _PasswordEntry(hal, pcfgz, Disp),
 _objUI(hal,_PasswordEntry,pcfgz,Disp ,EngMon),
 _bRefresh(true),
-_u16ScreenChangeTime(SCREEN_CHANGE_OVER_PAUSE),
-_bEventLogEntry(false)
+_bEventLogEntry(false),
+_u16ScreenChangeTime(SCREEN_CHANGE_OVER_PAUSE)
+
 {
     UTILS_ResetTimer(&_RefreshTimer);
     UTILS_ResetTimer(&_PoweSaveModeTimer);
@@ -576,11 +577,11 @@ bool MAIN_UI::prvIsSleepEnabled()
     }
 }
 
-void MAIN_UI::prvHandleKeyPressEvent(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
+void MAIN_UI::prvHandleKeyPressEvent(KEYPAD::KEYPAD_EVENTS_t sKeyEvent)
 {
 
 /* Immidiate actions on keypress */
-    switch(_sKeyEvent)
+    switch(sKeyEvent)
     {
        case KEYPAD::STOP_KEY_LONG_PRESS: /* enter/exit config mode */
        {

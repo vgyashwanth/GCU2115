@@ -320,7 +320,7 @@ void MODBUS::prvProcessRequest()
         case MB_WRITE_HOLDING_REGISTERS:
         {
             prvProcessWriteReq();
-            ADDRESS_GROUP_t &_addrGrp = _AddressGrp.pau8Registers[_CurrentAddressGroup];
+//            ADDRESS_GROUP_t &_addrGrp = _AddressGrp.pau8Registers[_CurrentAddressGroup];
 
              if(_ParseStatus != MB_VALID_PACKET)
             {

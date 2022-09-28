@@ -35,7 +35,7 @@ public:
     CMenuItem();
     CMenuItem(const char *ItemName, CEditableItemsScreen *EditableItemsScreen);
     CMenuItem(CEditableItemsScreen *EditableItemsScreen);
-    CMenuItem(const char *ItemName, CMenu *pMenu);
+    CMenuItem(const char *ItemName, CMenu *Menu);
 };
 
 

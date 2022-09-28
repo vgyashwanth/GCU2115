@@ -15,14 +15,6 @@ extern UI_STATES_t uiState;
 extern Display *gpDisplay;
 
 extern uint16_t u16IndexOfEditableItems,u16NumberofEditableItems;
-static const uint8_t gau8ChineseConfiguration[5][15] =
-{
-        {0x00,  0x07,   0x01,   0x01,   0x07,   0x05,   0x05,   0x05,   0x06,   0x04,   0x04,   0x07,   0x04,   0x04,   0x07},
-        {0x00,  0xF3,   0x40,   0x40,   0xF0,   0x50,   0x53,   0x52,   0x72,   0x12,   0x12,   0xF2,   0x12,   0x12,   0xF1},
-        {0x07,  0xE4,   0x27,   0x20,   0x27,   0x20,   0xE0,   0x04,   0x04,   0x04,   0x04,   0x04,   0x14,   0x14,   0xF7},
-        {0xFF,  0x44,   0xFF,   0x10,   0xFF,   0x10,   0xFF,   0x80,   0xFF,   0x80,   0xFF,   0x80,   0xFF,   0x00,   0xFF},
-        {0xE0,  0x20,   0xE0,   0x00,   0xF0,   0x00,   0x80,   0x80,   0x80,   0x80,   0x80,   0x80,   0x80,   0x00,   0xF0},
-};
 
 CMenu::CMenu()
 {
@@ -30,27 +22,28 @@ CMenu::CMenu()
     this->numOfMenuItems = 0;
     indexOfSelectedMenuItem = 0;
     isEnabled = false;
+    pMenuItems = NULL;
 }
-CMenu::CMenu( const char *MenuTitle, int numOfMenuItems, CMenuItem menuItems[])
+CMenu::CMenu( const char *MenuTitle, int NumOfMenuItems, CMenuItem menuItems[])
 {
     this->pMenuTitle = MenuTitle;
-    if (numOfMenuItems < 0)
+    if (NumOfMenuItems < 0)
     {
         this->numOfMenuItems = 0;
     }
-    else if (numOfMenuItems > MAX_MENU_ITEMS)
+    else if (NumOfMenuItems > MAX_MENU_ITEMS)
     {
         this->numOfMenuItems = MAX_MENU_ITEMS;
     }
     else
     {
-        this->numOfMenuItems = numOfMenuItems;
+        this->numOfMenuItems = NumOfMenuItems;
     }
     pMenuItems = menuItems;
     indexOfSelectedMenuItem = 0;
     isEnabled = true;
 }
-void CMenu::show(bool bChineseSelected)
+void CMenu::show()
 {
 #if (RUNNING_ON == TARGET_DESKTOP)
     if (isEnabled)
@@ -78,11 +71,7 @@ void CMenu::show(bool bChineseSelected)
 #elif (RUNNING_ON == TARGET_GCU)
     char arrTemp[20]={0};
 
-    if(bChineseSelected && (strcmp("CONFIGURATION", (char*)this->pMenuTitle) == 0))
-    {
-        gpDisplay->printImage((uint8_t*)gau8ChineseConfiguration, 5, 15, 3, 30);
-    }
-    else
+
     {
         gpDisplay->gotoxy(GLCD_X(50),GLCD_Y(5));
         gpDisplay->printStringCenterAligned((char*)this->pMenuTitle,FONT_VERDANA);

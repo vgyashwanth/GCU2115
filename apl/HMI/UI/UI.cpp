@@ -1405,18 +1405,10 @@ void UI::InitEditableItems()
     stPIN_1 = {0,0,0,0};
     stPIN_2 = {0,0,0,0};
 
-    stENG_SR_NO.u8EngSrNoChar1 = _MiscParam.u8EngId[ID_ENG_CHAR0];
-    stENG_SR_NO.u8EngSrNoChar2 = _MiscParam.u8EngId[ID_ENG_CHAR1];
-    stENG_SR_NO.u8EngSrNoChar3 = _MiscParam.u8EngId[ID_ENG_CHAR2];
-    stENG_SR_NO.u8EngSrNoChar4 = _MiscParam.u8EngId[ID_ENG_CHAR3];
-    stENG_SR_NO.u8EngSrNoChar5 = _MiscParam.u8EngId[ID_ENG_CHAR4];
-    stENG_SR_NO.u8EngSrNoChar6 = _MiscParam.u8EngId[ID_ENG_CHAR5];
-    stENG_SR_NO.u8EngSrNoChar7 = _MiscParam.u8EngId[ID_ENG_CHAR6];
-    stENG_SR_NO.u8EngSrNoChar8 = _MiscParam.u8EngId[ID_ENG_CHAR7];
-    stENG_SR_NO.u8EngSrNoChar9 = _MiscParam.u8EngId[ID_ENG_CHAR8];
-    stENG_SR_NO.u8EngSrNoChar10 = _MiscParam.u8EngId[ID_ENG_CHAR9];
-    stENG_SR_NO.u8EngSrNoChar11 = _MiscParam.u8EngId[ID_ENG_CHAR10];
-    stENG_SR_NO.u8EngSrNoChar12 = _MiscParam.u8EngId[ID_ENG_CHAR11];
+    for(int i = ID_ENG_CHAR0; i<=ID_ENG_CHAR11;i++)
+    {
+        stENG_SR_NO.u8EngSrNo[i] = _MiscParam.u8EngId[i];
+    }
 
     ArrEditableItem[INDEX_OF_ENG_SR_NO]  = CEditableItem((CEditableItem::ENG_SR_NO_t)stENG_SR_NO,"", "", "%u", (CEditableItem::ENG_SR_NO_t){47,47,47,47,47,47,47,47,47,47,47,47}, (CEditableItem::ENG_SR_NO_t) {83,83,83,83,83,83,83,83,83,83,83,83}, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_PIN_1]  = CEditableItem((CEditableItem::PASSWORD_t)stPIN_1,"", "", "%u", (CEditableItem::PASSWORD_t){0,0,0,0}, (CEditableItem::PASSWORD_t){9,9,9,9}, CEditableItem::PIN1_ALLOWED );
@@ -1644,22 +1636,10 @@ void UI::SaveConfigFile()
             }
         }
 
-        _MiscParam.u8EngId[0] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar1;
-        _MiscParam.u8EngId[1] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar2;
-        _MiscParam.u8EngId[2] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar3;
-        _MiscParam.u8EngId[3] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar4;
-        _MiscParam.u8EngId[4] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar5;
-        _MiscParam.u8EngId[5] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar6;
-        _MiscParam.u8EngId[6] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar7;
-        _MiscParam.u8EngId[7] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar8;
-        _MiscParam.u8EngId[8] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar9;
-        _MiscParam.u8EngId[9] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar10;
-        _MiscParam.u8EngId[10] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar11;
-        _MiscParam.u8EngId[11] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNoChar12;
-
-        // _MiscParam.u8MiscParam[DISP_VOLT_EN] = (uint8_t)ArrEditableItem[INDEX_OF_DISP_VOLT_FILT_EN].value.u8Val;
-        // _MiscParam.u8MiscParam[DISP_VOLT_CONST] = (uint8_t)ArrEditableItem[INDEX_OF_DISP_VOLT_FILT_CONST].value.u8Val;
-
+        for(int i = 0;i<12;i++)
+        {
+            _MiscParam.u8EngId[i] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNo[i];
+        }
 
         _MiscParam.u16CRC = CRC16::ComputeCRCGeneric((uint8_t *)&_MiscParam, sizeof(MISC_PARAM_t) -sizeof(uint16_t), CRC_MEMORY_SEED);
 
@@ -2198,7 +2178,6 @@ void UI::Handler(int keyCode)
     _objDisplay.drawRectangle();
     _objDisplay.drawHorizontalLine(GLCD_X(0), GLCD_Y(19), GLCD_Y(128));
 
-    bool bChineseSelected = (_objcfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_MODE)==CFGZ::LANGUAGE_CHINSESE);
     switch (uiState)
     {
     case    UI_STATE_INITIALIZING:
@@ -2207,7 +2186,7 @@ void UI::Handler(int keyCode)
         u16IndexOfEditableItems =0;
         UpdateMaxNumberOfItem();
         uiState = UI_STATE_SHOWING_MENU;
-        pCurMenu->show(bChineseSelected);
+        pCurMenu->show();
         UTILS_ResetTimer(&_ValIncDecTimer);
         _u16MenuSp =0;
         break;
@@ -2254,7 +2233,7 @@ void UI::Handler(int keyCode)
                     pCurMenu->indexOfSelectedMenuItem = 0;
                 }
             }
-            pCurMenu->show(bChineseSelected);
+            pCurMenu->show();
             break;
         case    CKeyCodes::UP:
             if(_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].dataType == CEditableItem::DT_PASSWORD
@@ -2295,7 +2274,7 @@ void UI::Handler(int keyCode)
                     u16IndexOfEditableItems = u16NumberofEditableItems;
                 }
             }
-            pCurMenu->show(bChineseSelected);
+            pCurMenu->show();
             break;
         case    CKeyCodes::ENTER:
             if (pCurMenu->pMenuItems[pCurMenu->indexOfSelectedMenuItem].isLeafNode)
@@ -2337,7 +2316,7 @@ void UI::Handler(int keyCode)
             HandleMenuVisibility();
             UpdateMaxNumberOfItem();
             InitialiseCustomSensor();
-            pCurMenu->show(bChineseSelected);
+            pCurMenu->show();
             break;
         case    CKeyCodes::ESCAPE:
             // go back one level
@@ -2364,10 +2343,10 @@ void UI::Handler(int keyCode)
                 }
             }
             UpdateMaxNumberOfItem();
-            pCurMenu->show(bChineseSelected);
+            pCurMenu->show();
             break;
         default:
-            pCurMenu->show(bChineseSelected);
+            pCurMenu->show();
             break;
         }
         break;
@@ -2394,7 +2373,7 @@ void UI::Handler(int keyCode)
                 _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].saveTempValue();
                 HandleMenuVisibility();
                 UpdateMaxNumberOfItem();
-                pCurMenu->show(bChineseSelected);
+                pCurMenu->show();
 
                 break;
         case    CKeyCodes::ESCAPE:
@@ -2408,7 +2387,7 @@ void UI::Handler(int keyCode)
             else
             {
                 uiState = UI_STATE_SHOWING_MENU;
-                pCurMenu->show(bChineseSelected);
+                pCurMenu->show();
             }
             break;
         case    CKeyCodes::DOWN:
@@ -2436,7 +2415,7 @@ void UI::Handler(int keyCode)
         }
         break;
     default:
-        pCurMenu->show(bChineseSelected);
+        pCurMenu->show();
         break;
     }
 }

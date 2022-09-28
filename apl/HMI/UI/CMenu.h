@@ -30,8 +30,8 @@ public:
     const char* pMenuTitle;
     bool isEnabled;
     CMenu();
-    CMenu(const char* MenuTitle, int numOfMenuItems, CMenuItem menuItems[]);
-    void show(bool bChineseSelected);
+    CMenu(const char* MenuTitle, int NumOfMenuItems, CMenuItem menuItems[]);
+    void show();
 };
 
 

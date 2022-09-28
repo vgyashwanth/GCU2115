@@ -55,18 +55,7 @@ public:
 
     typedef struct
     {
-        uint8_t u8EngSrNoChar1;
-        uint8_t u8EngSrNoChar2;
-        uint8_t u8EngSrNoChar3;
-        uint8_t u8EngSrNoChar4;
-        uint8_t u8EngSrNoChar5;
-        uint8_t u8EngSrNoChar6;
-        uint8_t u8EngSrNoChar7;
-        uint8_t u8EngSrNoChar8;
-        uint8_t u8EngSrNoChar9;
-        uint8_t u8EngSrNoChar10;
-        uint8_t u8EngSrNoChar11;
-        uint8_t u8EngSrNoChar12;
+        uint8_t u8EngSrNo[12];
     }ENG_SR_NO_t;
 
     typedef enum

@@ -31,9 +31,9 @@ CMenu::CMenu()
     indexOfSelectedMenuItem = 0;
     isEnabled = false;
 }
-CMenu::CMenu( const char *pMenuTitle, int numOfMenuItems, CMenuItem menuItems[])
+CMenu::CMenu( const char *MenuTitle, int numOfMenuItems, CMenuItem menuItems[])
 {
-    this->pMenuTitle = pMenuTitle;
+    this->pMenuTitle = MenuTitle;
     if (numOfMenuItems < 0)
     {
         this->numOfMenuItems = 0;

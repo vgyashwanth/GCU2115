@@ -1544,7 +1544,7 @@ void UI::InitEditableItems()
 
     ArrEditableItem[INDEX_OF_SPEED_MONITOR_SPEED_SENSE_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE), strLeafNode[_u8LanguageArrayIndex][SID_SPEED_MONITOR_SPEED_SENSE_SOURCE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_SPEED_SENSE_SOURCE_ALT_F], 2, CEditableItem::PIN1_PIN2_ALLOWED );
     /*this "SPEED_MONITOR_RESERVED" param not in smart config*/
-    ArrEditableItem[INDEX_OF_SPEED_MONITOR_RESERVED] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_RESERVED),strLeafNode[_u8LanguageArrayIndex][SID_SPEED_MONITOR_RESERVED], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_SPEED_MONITOR_RESERVED] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_RESERVED),strLeafNode[_u8LanguageArrayIndex][SID_SPEED_MONITOR_RESERVED], "", "%u", (uint8_t)1,(uint8_t) 255, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_SPEED_MONITOR_UNDER_SPEED_SHUTDOWN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_SHUTDOWN), strLeafNode[_u8LanguageArrayIndex][SID_SPEED_MONITOR_UNDER_SPEED_SHUTDOWN], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_SPEED_MONITOR_UNDER_SPEED_THRESHOLD] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_SPEED_MONITOR_UNDER_SPEED_THRESHOLD], arrUnit[ID_RPM], "%u",(uint16_t)1300, (uint16_t)1500,CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_SPEED_MONITOR_UNDER_SPEED_DELAY] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_SPEED_MONITOR_UNDER_SPEED_DELAY], arrUnit[ID_SEC], "%u",(uint16_t)1, (uint16_t)60,CEditableItem::PIN1_PIN2_ALLOWED );
@@ -1642,7 +1642,6 @@ void UI::InitMenuItemsAndMenus()
 
 
     menuItemsLowestLevel[INDEX_OF_ACTIVE_PROFILE] = CMenuItem(strSubMenu[_u8LanguageArrayIndex][ID_SELECT_PROFILE], &ArrEditableItemScreen[INDEX_OF_ACTIVE_PROFILE]);
-
 
     //Now create sub-menus and then initialize mid level menu items:
     //NewUI
@@ -2381,7 +2380,7 @@ void UI::Handler(int keyCode)
     _objDisplay.ClearScreen();
     _objDisplay.drawRectangle();
     _objDisplay.drawHorizontalLine(GLCD_X(0), GLCD_Y(19), GLCD_Y(128));
-    _objDisplay.drawVerticalLine(GLCD_X(98), GLCD_Y(0), GLCD_Y(19));
+
     bool bChineseSelected = (_objcfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_MODE)==CFGZ::LANGUAGE_CHINSESE);
     switch (uiState)
     {

@@ -28,7 +28,7 @@ bool START_STOP::_bEngineOnFailToStopAck = false;
 
 bool START_STOP::_bStopCommand = false;
 START_STOP::SS_STATE_t START_STOP::_State =ID_STATE_SS_ENG_OFF_OK;
-extern J1939APP *gpJ1939;
+//extern J1939APP *gpJ1939;
 START_STOP::START_STOP(HAL_Manager &hal, ENGINE_MONITORING &EngineMon, CFGZ &cfgz,  
                         GCU_ALARMS &GCUAlarms, BASE_MODES::GCU_MODE_VARS_t &vars, CHARGING_ALT &ChargeAlt, ENGINE_START_VALIDITY  &EngineStartValidity):
 _hal(hal),
@@ -38,8 +38,6 @@ _GCUAlarms(GCUAlarms),
 _vars(vars),
 _ChargeAlt(ChargeAlt),
 _EngineStartValidity(EngineStartValidity),
-_bStartKeyPressed(false),
-_bStopKeyPressed(false),
 _u8NoOfCrankAttempts(0),
 _bGenStarted(false),
 _bStartCommand(false),
@@ -65,7 +63,9 @@ _EngCrankRestTimer{0},
 _StartStopSMUpdateTimer{0},
 _StopHoldTimer{0},
 _PowerOnTimer{0},
-_DGIDleRunTimer{0}
+_DGIDleRunTimer{0},
+_bStartKeyPressed(false),
+_bStopKeyPressed(false)
 {
     UTILS_ResetTimer(&_PowerOnTimer);
     _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY);

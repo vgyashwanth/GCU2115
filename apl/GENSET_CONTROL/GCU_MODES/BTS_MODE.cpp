@@ -497,6 +497,9 @@ uint32_t BTS_MODE::GetBTSModeTime(BASE_MODES::TIMER_STATE_t eTimer)
            RemainingTimeInSec = (uint32_t)(ceil((float)((_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_DG_RUN_DURATION)*60) - UTILS_GetElapsedTimeInSec(&_stShelterTempTimer)) /60.0f));
            break;
 
+       default :
+           break;
+
     }
     return RemainingTimeInSec;
 }

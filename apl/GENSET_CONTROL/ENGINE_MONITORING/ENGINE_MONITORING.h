@@ -105,13 +105,6 @@ public:
     uint32_t GetEngineNoOfStarts();
     uint32_t GetEngineNoOfTrips();
 
-/* Supportive prototypes */
-    void StoreEngRnCnt(uint32_t u32cnt);
-    void StoreMainsRnCnt(uint32_t u32cnt);
-    void StoreStartCnt(uint32_t u32cnt);
-    void StoreTripCnt(uint32_t u32cnt);
-    void StoreGenEnery(POWER_TP_t eTyep, uint32_t u32cnt);
-    void StoreMainsEnery(POWER_TP_t eTyep, uint32_t u32cnt);
     void UpdateStartStopState(uint8_t u8StartStopState);
 
 /* store cumulative counts data to external eeprom */
@@ -197,7 +190,6 @@ private:
         float f32GenKVAH;
         float f32GenKVARH;
     }GEN_t;
-
 
     /* private object references */
     CFGZ                        &_cfgz;

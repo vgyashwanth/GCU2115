@@ -1609,12 +1609,19 @@ unsigned int  MON_UI::prvGetNoOfFractionalDigits(double dNumber)
 {
     unsigned int uiDigits = 0;
 
-    while(dNumber!=((int)dNumber))
-    {
-        uiDigits++;
-        dNumber=dNumber*10;
+//    while(dNumber!=((int)dNumber))
+//    {
+//        uiDigits++;
+//        dNumber=dNumber*10;
+//    }
+
+    do{
+        ++uiDigits;
+        dNumber *= 10;
     }
-    return uiDigits++;
+    while((int)(dNumber) % 10 != 0 );
+
+    return --uiDigits;
 }
 
 void MON_UI::prvAssignNoOfDigitAfterDP(SPNData_t *StrArrayPtr, uint8_t u8PGNEnumNo, uint8_t u8SpnNo)
@@ -1904,8 +1911,9 @@ void MON_UI::prvNormalMonScreens()
         break;
         case DISP_MON_CAN_COMMUNICATION_INFO:
         {
+            sprintf(arrTemp,"%s","STATE : ");
             _Disp.gotoxy(GLCD_X(10),GLCD_Y(35));
-            _Disp.printStringLeftAligned("STATE : ",FONT_VERDANA);
+            _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
             if(_j1939.IsCommunicationFail())
             {
                 sprintf(arrTemp,"%s","Bus Faulty");
@@ -1920,8 +1928,9 @@ void MON_UI::prvNormalMonScreens()
         break;
         case DISP_MON_ENG_LINK_INFO:
         {
+            sprintf(arrTemp,"%s","ECU Link : ");
             _Disp.gotoxy(GLCD_X(10),GLCD_Y(35));
-            _Disp.printStringLeftAligned("ECU Link : ",FONT_VERDANA);
+            _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
             if(0) /* todo: in nxp code is it always true */
             {
                 sprintf(arrTemp,"%s","Not Ok");
@@ -2491,7 +2500,6 @@ void MON_UI::prvDisplayBootLogo()
     _Disp.printStringCenterAligned((char *)arrTemp,FONT_ARIAL);
 }
 
-
 void MON_UI::prvProductInfo()
 {
     RTC::TIME_t CurrentTime;
@@ -2713,6 +2721,8 @@ void MON_UI::prvPrintVtgFreqData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
     else
     {
         /* Below logo will be displayed for Gen and Mains as well */
+       // _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 26, 7);
+
         _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 26, 7);
 
         _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));

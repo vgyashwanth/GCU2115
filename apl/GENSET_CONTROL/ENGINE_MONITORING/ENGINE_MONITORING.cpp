@@ -36,12 +36,11 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::_eLoadStatusCurrent = L
 ENGINE_MONITORING::CUMULATIVE_t ENGINE_MONITORING::_stCummulativeCnt={0};
 
 bool ENGINE_MONITORING::_bEngineCranked = false;
-extern J1939APP *gpJ1939;
+//extern J1939APP *gpJ1939;
 ENGINE_MONITORING::ENGINE_MONITORING(CFGZ &cfgz, GCU_ALARMS &GCUAlarms, HAL_Manager &hal):
 _cfgz(cfgz),
 _GCUAlarms(GCUAlarms),
 _hal(hal),
-_u8StartStopSMState(0),
 _LLOPCrankingTimer{0},
 _Timer50MS{0},
 _TimerOneMin{0},
@@ -53,10 +52,12 @@ _TimerUpdateTamperedCumulative{0},
 _BTSRunTimeBaseTimer{0},
 _EngWarmUpTimer{0},
 _GenWarmUpTimer{0},
+_LOPSensMonTimer{0},
+_u8StartStopSMState(0),
+_u8ActiveSectorForCummulative(0),
 _stTampEnergyRegister{0},
 _stEnergyRegister{0},
-_stMainsEnergyRegister{0},
-_u8ActiveSectorForCummulative(0)
+_stMainsEnergyRegister{0}
 {
     UTILS_ResetTimer(&_Timer50MS);
     prvGetCumulativeCnt();
@@ -469,7 +470,7 @@ void ENGINE_MONITORING::prvCheckEngineOff()
                 )
             )
         {
-            _u8EngineOn = false;
+            _u8EngineOn = 0;
             _bEngineCranked = false;
             _u8EngineOff = true;
             UTILS_DisableTimer(&_TimerOneMin);
@@ -792,73 +793,6 @@ void ENGINE_MONITORING::prvUpdateEngineONstatus(void)
     }
 }
 
-void ENGINE_MONITORING::StoreEngRnCnt(uint32_t u32cnt)
-{
-    _stCummulativeCnt.u32EngineRunTime_min = u32cnt;
-}
-
-void ENGINE_MONITORING::StoreMainsRnCnt(uint32_t u32cnt)
-{
-    _stCummulativeCnt.u32MainsRunTime_min = u32cnt;
-}
-void ENGINE_MONITORING::StoreTripCnt(uint32_t u32cnt)
-{
-    if(u32cnt > MAX_NO_OF_TRIPS)
-    {
-        _stCummulativeCnt.u32GenNumberOfTrips = 0;
-    }
-    else
-    {
-        _stCummulativeCnt.u32GenNumberOfTrips = u32cnt;
-    }
-}
-void ENGINE_MONITORING::StoreStartCnt(uint32_t u32cnt)
-{
-    if(u32cnt > MAX_NO_OF_STARTS)
-    {
-        _stCummulativeCnt.u32GenNumberOfStarts = 0;
-    }
-    else
-    {
-        _stCummulativeCnt.u32GenNumberOfStarts = u32cnt;
-    }
-}
-
-void ENGINE_MONITORING::StoreGenEnery(POWER_TP_t eTyep, uint32_t u32cnt)
-{
-    switch(eTyep)
-    {
-        case ACTIVE_POWER:
-            _stCummulativeCnt.f32GenKWH = (float)u32cnt;
-            break;
-        case APARENT_POWER:
-            _stCummulativeCnt.f32GenKVAH = (float)u32cnt;
-            break;
-        case REACTIVE_POWER:
-            _stCummulativeCnt.f32GenKVARH = (float)u32cnt;
-            break;
-        default: break;
-    }
-}
-
-void ENGINE_MONITORING::StoreMainsEnery(POWER_TP_t eTyep, uint32_t u32cnt)
-{
-    switch(eTyep)
-    {
-        case ACTIVE_POWER:
-            _stCummulativeCnt.f32MainsKWH = u32cnt;
-            break;
-        case APARENT_POWER:
-            _stCummulativeCnt.f32MainsKVAH = u32cnt;
-            break;
-        case REACTIVE_POWER:
-            _stCummulativeCnt.f32MainsKVARH = u32cnt;
-            break;
-        default: break;
-    }
-}
-
-
 
 void ENGINE_MONITORING::prvUpdateEngineRunHrs()
 {
@@ -997,14 +931,7 @@ bool ENGINE_MONITORING::prvDisconnectCranckByLOPSensor()
         (_stLOP.stValAndStatus.f32InstSensorVal > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_LOP_SENS)))
     {
         /* wait for 1 sec to make a decision */
-        if(UTILS_GetElapsedTimeInSec(&_LOPSensMonTimer) >= 1U)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (UTILS_GetElapsedTimeInSec(&_LOPSensMonTimer) >= 1U);
     }
     else
     {

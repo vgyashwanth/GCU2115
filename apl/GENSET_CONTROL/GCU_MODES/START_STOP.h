@@ -224,7 +224,6 @@ private:
     bool                        _bStartKeyPressed;
     bool                        _bStopKeyPressed;
 
-
     static stTimer              _EngStoppingTimer;
     static stTimer              _SafetyMonTimer;
     static bool                 _bChargAltStopLatched;

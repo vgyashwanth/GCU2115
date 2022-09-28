@@ -22,7 +22,7 @@
 extern Display *gpDisplay;
 extern UI_STATES_t uiState;
 extern GLCD *configGlcd;
-extern CFGZ *pcfgz;
+//extern CFGZ *pcfgz;
 
 bool CEditableItem::_bValuesChanged= false;
 //extern const char* strLeafNode[SID_LEAF_NODE_STRING];
@@ -219,7 +219,7 @@ CEditableItem::CEditableItem(uint32_t u32Val, const char* PromptMessage,
 }
 CEditableItem::CEditableItem(float fVal, const char* PromptMessage,
         const char* UnitOfMeasurement, const char* FormatString,
-        float minFval, float maxFval, float fValLC, PASS_t  ePassLevel)
+        float minFval, float maxFval, float ValLC, PASS_t  ePassLevel)
 {
     CEditableItem();
     this->value.fVal = fVal;
@@ -227,7 +227,7 @@ CEditableItem::CEditableItem(float fVal, const char* PromptMessage,
 //    this->value.i16Val = (int16_t)fVal;
     this->minVal.fVal = minFval;
     this->maxVal.fVal = maxFval;
-    this->fValLC = fValLC;
+    this->fValLC = ValLC;
     this->dataType = DT_FLOAT;
     this->promptMessage = PromptMessage;
     this->unitOfMeasurement = UnitOfMeasurement;
@@ -357,7 +357,7 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
         }
         else
         {
-            aValue.chVal = minVal.chVal;
+            aValue.chVal = maxVal.chVal;
         }
         break;
     case    DT_UINT8:
@@ -371,7 +371,7 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
         }
         else
         {
-            aValue.u8Val = minVal.u8Val;
+            aValue.u8Val = maxVal.u8Val;
         }
         break;
     case    DT_INT16:
@@ -385,7 +385,7 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
         }
         else
         {
-            aValue.i16Val = minVal.i16Val;
+            aValue.i16Val = maxVal.i16Val;
         }
         break;
     case    DT_UINT16:
@@ -401,7 +401,7 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
         }
         else
         {
-            aValue.u16Val = minVal.u16Val;
+            aValue.u16Val = maxVal.u16Val;
         }
         break;
     case    DT_INT32:
@@ -415,7 +415,7 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
         }
         else
         {
-            aValue.i32Val = minVal.i32Val;
+            aValue.i32Val = maxVal.i32Val;
         }
         break;
     case    DT_UINT32:
@@ -429,7 +429,7 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
         }
         else
         {
-            aValue.u32Val = minVal.u32Val;
+            aValue.u32Val = maxVal.u32Val;
         }
         break;
     case    DT_FLOAT:
@@ -444,12 +444,12 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
             aValue.fVal = round(aValue.fVal/ this->fValLC)* this->fValLC;
             if(aValue.fVal > maxVal.fVal)
             {
-                aValue.fVal =  minVal.fVal;
+                aValue.fVal =  maxVal.fVal;
             }
         }
         else
         {
-            aValue.fVal = minVal.fVal;
+            aValue.fVal = maxVal.fVal;
         }
         break;
     case DT_DATE:
@@ -461,7 +461,7 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
             }
             else
             {
-                aValue.stDate.u8Date = minVal.stDate.u8Date;
+                aValue.stDate.u8Date = maxVal.stDate.u8Date;
             }
         }
         else if(u8MultiItemEditIndex == 1)
@@ -472,7 +472,7 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
             }
             else
             {
-                aValue.stDate.u8Month = minVal.stDate.u8Month;
+                aValue.stDate.u8Month = maxVal.stDate.u8Month;
             }
         }
         else if(u8MultiItemEditIndex == 2)
@@ -483,7 +483,7 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
           }
           else
           {
-              aValue.stDate.u16Year = minVal.stDate.u16Year;
+              aValue.stDate.u16Year = maxVal.stDate.u16Year;
           }
         }
         break;
@@ -494,7 +494,8 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
         }
         else
         {
-            aValue.u32IndexIntoFixedOptions = numOfStringFixedOptions - 1;
+//            aValue.u32IndexIntoFixedOptions = numOfStringFixedOptions - 1;
+            aValue.u32IndexIntoFixedOptions = 0;
         }
         break;
 
@@ -513,13 +514,12 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
         {
             if(u16Hours < ((maxVal.u16Val)/100))
             {
-                aValue.u16Val = (u16Hours+1) * 100U;
+                aValue.u16Val = (uint16_t)((u16Hours+1) * 100U);
             }
             else
             {
-                aValue.u16Val = minVal.u16Val;
+                aValue.u16Val = maxVal.u16Val;
             }
-
         }
         break;
     case DT_PASSWORD:
@@ -751,7 +751,7 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
         }
         else
         {
-            aValue.chVal = maxVal.chVal;
+            aValue.chVal = minVal.chVal;
         }
         break;
     case    DT_UINT8:
@@ -765,7 +765,7 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
         }
         else
         {
-            aValue.u8Val = maxVal.u8Val;
+            aValue.u8Val = minVal.u8Val;
         }
         break;
     case    DT_INT16:
@@ -780,7 +780,7 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
         }
         else
         {
-            aValue.i16Val = maxVal.i16Val;
+            aValue.i16Val = minVal.i16Val;
         }
         break;
     case    DT_UINT16:
@@ -796,7 +796,7 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
         }
         else
         {
-            aValue.u16Val = maxVal.u16Val;
+            aValue.u16Val = minVal.u16Val;
         }
         break;
     case    DT_INT32:
@@ -810,7 +810,7 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
         }
         else
         {
-            aValue.i32Val = maxVal.i32Val;
+            aValue.i32Val = minVal.i32Val;
         }
         break;
     case    DT_UINT32:
@@ -824,7 +824,7 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
         }
         else
         {
-            aValue.u32Val = maxVal.u32Val;
+            aValue.u32Val = minVal.u32Val;
         }
         break;
     case    DT_FLOAT:
@@ -839,12 +839,12 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
             aValue.fVal = round(aValue.fVal/ this->fValLC)* this->fValLC;
             if(aValue.fVal < minVal.fVal)
             {
-                aValue.fVal =  maxVal.fVal;
+                aValue.fVal =  minVal.fVal;
             }
         }
         else
         {
-            aValue.fVal = maxVal.fVal;
+            aValue.fVal = minVal.fVal;
         }
         break;
     case DT_DATE:
@@ -856,7 +856,7 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
             }
             else
             {
-                aValue.stDate.u8Date = maxVal.stDate.u8Date;
+                aValue.stDate.u8Date = minVal.stDate.u8Date;
             }
         }
         else if(u8MultiItemEditIndex == 1)
@@ -867,7 +867,7 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
             }
             else
             {
-                aValue.stDate.u8Month = maxVal.stDate.u8Month;
+                aValue.stDate.u8Month = minVal.stDate.u8Month;
             }
         }
         else if(u8MultiItemEditIndex == 2)
@@ -878,7 +878,7 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
           }
           else
           {
-              aValue.stDate.u16Year = maxVal.stDate.u16Year;
+              aValue.stDate.u16Year = minVal.stDate.u16Year;
           }
         }
         break;
@@ -889,7 +889,7 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
         }
         else
         {
-            aValue.u32IndexIntoFixedOptions = 0;
+            aValue.u32IndexIntoFixedOptions = numOfStringFixedOptions - 1;
         }
         break;
     case DT_PASSWORD:
@@ -1098,13 +1098,12 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
         {
             if(u16Hours > ((minVal.u16Val)/100))
             {
-                aValue.u16Val = (u16Hours-1)*100U + 59U;
+                aValue.u16Val = (uint16_t)((u16Hours-1)*100U + 59U);
             }
             else if(u16Hours == ((minVal.u16Val)/100))
             {
-                aValue.u16Val = maxVal.u16Val;
+                aValue.u16Val = minVal.u16Val;
             }
-
         }
         break;
     }

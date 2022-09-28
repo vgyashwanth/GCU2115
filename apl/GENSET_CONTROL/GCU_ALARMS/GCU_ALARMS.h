@@ -681,11 +681,11 @@ private:
     /*Reference to the configuration*/
     CFGZ          &_cfgz;
 
+    bool          _bCommonAlarm;
     bool          _bCommonNotification;
     bool          _bCommonWarning;
     bool          _bCommonElectricTrip;
     bool          _bCommonShutdown;
-    bool          _bCommonAlarm;
     bool          _bOPSounderAlarm;
     bool          _bFailToStart;
     bool          _bFailToStop;

@@ -23,26 +23,26 @@ CMenuItem::CMenuItem()
 	isEnabled = false;
 }
 
-CMenuItem::CMenuItem(const char* pItemName, CEditableItemsScreen* pEditableItemsScreen)
+CMenuItem::CMenuItem(const char* ItemName, CEditableItemsScreen* EditableItemsScreen)
 {
-	this->pItemName = pItemName;
+	this->pItemName = ItemName;
 	isLeafNode = true;
-	this->pEditableItemsScreen = pEditableItemsScreen;
+	this->pEditableItemsScreen = EditableItemsScreen;
 	pMenu = NULL;
 	isEnabled = true;
 }
-CMenuItem::CMenuItem(CEditableItemsScreen* pEditableItemsScreen)
+CMenuItem::CMenuItem(CEditableItemsScreen* EditableItemsScreen)
 {
-   // this->pItemName = pItemName;
+    this->pItemName = NULL;
     isLeafNode = true;
-    this->pEditableItemsScreen = pEditableItemsScreen;
+    this->pEditableItemsScreen = EditableItemsScreen;
     pMenu = NULL;
     isEnabled = true;
 }
 
-CMenuItem::CMenuItem(const char* pItemName, CMenu* pMenu)
+CMenuItem::CMenuItem(const char* ItemName, CMenu* pMenu)
 {
-	this->pItemName = pItemName;
+	this->pItemName = ItemName;
 	isLeafNode = false;
 	this->pEditableItemsScreen = NULL;
 	this->pMenu = pMenu;

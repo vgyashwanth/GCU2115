@@ -505,8 +505,11 @@ void CFGZ::prvCpyInterpolationTable(FLOAT_PARAMS_t eTableStart,
     /*Copy all 'x' & 'y' points */
     for(int i=0; i<u8NoOfPoints; i++)
     {
-        stDestination.af32IntrpolationTableX[i] = _All_Param.f32ArrParam[eTableStart+(i*2)];
-        stDestination.af32IntrpolationTableY[i] = _All_Param.f32ArrParam[eTableStart+(i*2)+1];
+        if((eTableStart+(i*2)) + 1 < 150)
+        {
+            stDestination.af32IntrpolationTableX[i] = _All_Param.f32ArrParam[eTableStart+(i*2)];
+            stDestination.af32IntrpolationTableY[i] = _All_Param.f32ArrParam[eTableStart+(i*2)+1];
+        }
     }
 }
 

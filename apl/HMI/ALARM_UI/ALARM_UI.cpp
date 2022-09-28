@@ -22,9 +22,9 @@ _cfgz(cfgz),
 _J1939(J1939),
 _hal(hal),
 _u8NumberOfAlarms(0),
-_eOldAlarmType(ALARM),
 _u8ArrPCDAlarmForDisp{0},
-_u8ArrNCDAlarmForDisp{0}
+_u8ArrNCDAlarmForDisp{0},
+_eOldAlarmType(ALARM)
 {
 
 }
@@ -236,9 +236,8 @@ void ALARM_UI::prvDisplayAlarmScreen()
     char arrTemp[20]={'\0'}, arrTemp1[20]={'\0'};
     _Disp.ClearScreen();
     _Disp.drawRectangle();
-    _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(19), GLCD_Y(128));
+    _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(19), GLCD_X(128));
 
-    _Disp.drawVerticalLine(GLCD_X(95),GLCD_Y(0),GLCD_Y(19));
     {
         _Disp.drawVerticalLine(GLCD_X(22), GLCD_Y(0), GLCD_Y(19));
         _Disp.printImage((uint8_t *)u8ArrAlarmLogo, 3,20,0, 0);
@@ -323,7 +322,6 @@ void ALARM_UI::ChangeAlarmScreenType(ALARM_st eType)
 
 void ALARM_UI::prvDisplayDMScreen()
 {
-    unsigned int uiSpaces = 0;
     unsigned int uiLoopIndex;
     char arrTemp[32];
     J1939APP::J1939_DM_MSG_DECODE stDmMsg = {0};

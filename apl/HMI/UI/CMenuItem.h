@@ -33,9 +33,9 @@ public:
     bool isEnabled;
     const char* pItemName;
     CMenuItem();
-    CMenuItem(const char *pItemName, CEditableItemsScreen *pEditableItemsScreen);
-    CMenuItem(CEditableItemsScreen *pEditableItemsScreen);
-    CMenuItem(const char *pItemName, CMenu *pMenu);
+    CMenuItem(const char *ItemName, CEditableItemsScreen *EditableItemsScreen);
+    CMenuItem(CEditableItemsScreen *EditableItemsScreen);
+    CMenuItem(const char *ItemName, CMenu *pMenu);
 };
 
 

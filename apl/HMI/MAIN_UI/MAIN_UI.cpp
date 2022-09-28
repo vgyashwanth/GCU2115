@@ -354,7 +354,6 @@ MODE_TYPE_t MAIN_UI::GetDispMode(void)
 
 void MAIN_UI::prvLEDHandling()
 {
-    /* conditions to handle leds are referred from GC2111 NXp */
     static bsp_io_level_t eState = BSP_IO_LEVEL_LOW;
 
     if(UTILS_GetElapsedTimeInMs(&_LEDBlinkTimer) >= LED_BLINK_TIMER)
@@ -452,10 +451,9 @@ void MAIN_UI::prvLEDHandling()
            _hal.ledManager.led5.TurnOff();
        }
 
-        if(  ((_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY) &&
-             ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)))
-          || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE) &&
-              (_GCUAlarms.RemoteStopReceived())) )
+       if((   (_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY)
+           && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+           && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
        {
            _hal.ledManager.led8.TurnOn();
        }

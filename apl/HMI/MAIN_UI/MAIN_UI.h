@@ -85,16 +85,17 @@ private:
     ENGINE_MONITORING   &_EngMon;
     GCU_ALARMS          &_GCUAlarms;
     START_STOP          &_StartStop;
-    //Objects of different display modes
+
     J1939APP             &_j1939;
     BTS_MODE             &_BTSMode;
     CYCLIC_MODE          &_CyclicMode;
+    ENGINE_START_VALIDITY &_EngineStartValidity;
     MON_UI              _MonUI;
     ALARM_UI            _DispAlarm;
     EVENT_LOG_UI        _DispEventLog;
     PASSWORD_ENTRY_UI   _PasswordEntry;
     UI                  _objUI;
-    ENGINE_START_VALIDITY &_EngineStartValidity;
+
 
     bool                 _bRefresh;
     bool                 _bEventLogEntry;

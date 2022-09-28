@@ -151,7 +151,7 @@ void EVENT_LOG_UI::prvDisplayEventScreen()
         _Disp.ClearScreen();
         _Disp.drawRectangle();
         _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(18), GLCD_Y(128));
-        _Disp.drawVerticalLine(GLCD_X(90), GLCD_Y(0), GLCD_Y(18));
+
         //Print screen name
         _Disp.gotoxy(GLCD_X(45),GLCD_Y(5));
         _Disp.printStringCenterAligned((char *)strEventLog[_cfgz.GetArrLanguageIndex()],
@@ -225,7 +225,7 @@ void EVENT_LOG_UI::prvDisplayNoEventScreen()
     _Disp.ClearScreen();
     _Disp.drawRectangle();
     _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(18), GLCD_Y(128));
-    _Disp.drawVerticalLine(GLCD_X(80), GLCD_Y(0), GLCD_Y(18));
+
     //Print screen name
     _Disp.gotoxy(GLCD_X(45),GLCD_Y(5));
     _Disp.printStringCenterAligned((char *)strEventLog[_cfgz.GetArrLanguageIndex()],

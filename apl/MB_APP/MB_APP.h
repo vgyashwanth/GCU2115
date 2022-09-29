@@ -43,7 +43,7 @@
 #include "ENGINE_MONITORING.h"
 #include "AUTO_MODE.h"
 
-#define AUTOMATION 0
+#define AUTOMATION 1
 /*Defines the number of discontinuous address groups*/
 #define MODBUS_ADDRESS_GROUPS   (2U)
 /*Number of entries in the first address group*/

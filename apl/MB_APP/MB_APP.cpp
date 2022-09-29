@@ -589,22 +589,13 @@ void MB_APP::prvUpdateAUXSensorVal()
     A_SENSE::SENSOR_RET_t  stTemp;
     uint16_t u16AuxSensorVal = 0;
 /* S1 */
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
         // S1 as shelter tempreture
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_SHELTER_TEMPERATURE);
         if((stTemp.eStatus == A_SENSE::SENSOR_READ_SUCCESS) && (stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
         {
             u16AuxSensorVal = (int16_t)(round(stTemp.stValAndStatus.f32InstSensorVal*10));
-        }
-    }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-    {
-        // S1 as s1 Analog sensor
-        stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_S1_SENSOR);
-        if((stTemp.eStatus == A_SENSE::SENSOR_READ_SUCCESS) && (stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
-        {
-            u16AuxSensorVal = (uint16_t)(stTemp.stValAndStatus.f32InstSensorVal*10);
         }
     }
     SetReadRegisterValue(MB_AUX_S1, u16AuxSensorVal);
@@ -694,7 +685,7 @@ void MB_APP::prvUpdateGCUAlarms()
 
     prvUpdateEngSensorAlarms(GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN, GCU_ALARMS::LOW_OIL_PRESS_WARNING, GCU_ALARMS::LLOP_SWITCH, FOURTH_NIBBLE);
     prvUpdateEngSensorAlarms(GCU_ALARMS::HIGH_WATER_TEMP, GCU_ALARMS::HWT_SWITCH, THIRD_NIBBLE);
-    prvUpdateEngSensorAlarms(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN, GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION, GCU_ALARMS::LOW_FUEL_LVL_SWITCH, SECOND_NIBBLE);
+    prvUpdateEngSensorAlarms(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN, GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION, GCU_ALARMS::LFL_SWITCH, SECOND_NIBBLE);
     prvUpdateEngSensorAlarms(GCU_ALARMS::RWL_SWITCH, FIRST_NIBBLE);
 
     SetReadRegisterValue(MB_ALARM_1, _u16TempAlarmVal);
@@ -779,11 +770,11 @@ void MB_APP::prvUpdateGCUAlarms()
     prvUpdateEngSensorAlarms(GCU_ALARMS::MPU_LOSS, THIRD_NIBBLE);
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
-        prvUpdateEngSensorAlarms(GCU_ALARMS::LOP_RES_OPEN_CKT, SECOND_NIBBLE);
+        prvUpdateEngSensorAlarms(GCU_ALARMS::OPEN_LOP_SENS_CKT, SECOND_NIBBLE);
     }
     else
     {
-        prvUpdateEngSensorAlarms(GCU_ALARMS::LOP_CURRENT_OPEN_CKT, SECOND_NIBBLE);
+        prvUpdateEngSensorAlarms(GCU_ALARMS::OPEN_LOP_SENS_CKT, SECOND_NIBBLE);
     }
     _u16TempAlarmVal |= 0x000FU;
 
@@ -868,7 +859,7 @@ void MB_APP::prvUpdateGCUAlarms()
     _u16TempAlarmVal =0;
 
     prvUpdateEngSensorAlarms(GCU_ALARMS::V_BELT_BROKEN_SWITCH, THIRD_NIBBLE);
-    prvUpdateEngSensorAlarms(GCU_ALARMS::HIGH_OIL_PRESSURE, FIRST_NIBBLE);
+    prvUpdateEngSensorAlarms(GCU_ALARMS::HIGH_OIL_PRESS_DETECTED, FIRST_NIBBLE);
 
     A_SENSE::SENSOR_RET_t stFuel = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
     _u16TempAlarmVal |= (uint16_t)((uint8_t)(stFuel.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT) << SECOND_NIBBLE);

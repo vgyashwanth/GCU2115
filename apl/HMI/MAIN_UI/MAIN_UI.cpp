@@ -354,7 +354,7 @@ MODE_TYPE_t MAIN_UI::GetDispMode(void)
 
 void MAIN_UI::prvLEDHandling()
 {
-    /* conditions to handle leds are referred from GC2111 NXp */
+    /* conditions to handle leds are referred from GC2111 NXp  */
     static bsp_io_level_t eState = BSP_IO_LEVEL_LOW;
 
     if(UTILS_GetElapsedTimeInMs(&_LEDBlinkTimer) >= LED_BLINK_TIMER)

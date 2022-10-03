@@ -165,6 +165,7 @@ void CHARGING_ALT::Update(bool bDeviceInConfigMode)
                 }
                 break;
             default:
+                _bChargAltOut = false;
                 break;
         }
     }

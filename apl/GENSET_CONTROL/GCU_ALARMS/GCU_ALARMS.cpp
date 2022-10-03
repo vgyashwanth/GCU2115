@@ -555,7 +555,7 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             prvSetAlarmActivation(AMB_TEMP_SWITCH, CFGZ::CFGZ_ALWAYS);
             ArrAlarmMonitoring[AMB_TEMP_SWITCH].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
             ArrAlarmMonitoring[AMB_TEMP_SWITCH].u8LoggingID = GCU_ALARMS::NoAlarm_id;
-            ArrAlarmMonitoring[AMB_TEMP_SWITCH].pValue = &_ArrAlarmValue[MODE_SELECT_STATUS];
+            ArrAlarmMonitoring[AMB_TEMP_SWITCH].pValue = &_ArrAlarmValue[AMB_TEMP_SELECT_STATUS];
 
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[AMB_TEMP_SELECT_STATUS];
             ArrAlarmMonitoring[u8InputIndex].LocalEnable = &_u8DummyOne;
@@ -565,11 +565,6 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
 
 void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
 {
-    /*
-     * SuryaPranayTeja.Bvv : 14-09-2022
-     * Todo: The Threshold.values and the ThreshDataTypes need to be reviewed at the end before giving the build.
-     * Currently the data types may not match as the CFGZ data types are not yet freezed.
-     */
     A_SENSE::SENSOR_RET_t stLOP = GetLOPSensorVal();
 
     switch(u8AlarmIndex)
@@ -2711,6 +2706,7 @@ void GCU_ALARMS::prvLogAlarmEvent(uint8_t u8Index)
     else if(ArrAlarmMonitoring[u8Index].bEnableNotification)
     {
        _bOPSounderAlarm = true;
+       LogEvent(ArrAlarmMonitoring[u8Index].u8LoggingID, CFGZ::CFGZ_ACTION_NOTIFICATION_NoWESN);
     }
 }
 
@@ -2872,10 +2868,14 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(ArrAlarmMonitoring[VBAT_UV].bResultInstant, ACTUATOR::ACT_VBAT_UV);
     prvActDeactOutput(ArrAlarmMonitoring[CA_FAIL].bShutdownLatched, ACTUATOR::ACT_CA_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[CA_FAIL].bWarningLatched, ACTUATOR::ACT_CA_WARNING);
+    //Activate and Deactivate of ACT_CLOSE_GEN_CONTACTOR is done in BASE_MODES
+    //Activate and Deactivate of ACT_CLOSE_MAINS_CONTACTOR is done in BASE_MODES
+    prvActDeactOutput(!(BASE_MODES::GetMainsStatus() ==  BASE_MODES::MAINS_HELATHY), ACTUATOR::ACT_MAINS_FAILURE);
     prvActDeactOutput(_bCommonAlarm, ACTUATOR::ACT_ALARM);
     prvActDeactOutput(_bCommonElectricTrip, ACTUATOR::ACT_ELEC_TRIP);
     prvActDeactOutput(_bCommonShutdown, ACTUATOR::ACT_SHUTDOWN);
     prvActDeactOutput(_bCommonWarning, ACTUATOR::ACT_WARNING);
+    //Activate and Deactivate of ACT_COOLING_ON is done in all GCU_MODES
     prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_A].bResultInstant, ACTUATOR::ACT_DIG_IN_A);
     prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_B].bResultInstant, ACTUATOR::ACT_DIG_IN_B);
     prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_C].bResultInstant, ACTUATOR::ACT_DIG_IN_C);
@@ -2893,13 +2893,16 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_O].bResultInstant, ACTUATOR::ACT_DIG_IN_O);
     prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_P].bResultInstant, ACTUATOR::ACT_DIG_IN_P);
     prvActDeactOutput(ArrAlarmMonitoring[ESTOP].bResultLatched, ACTUATOR::ACT_E_STOP);
+    //Activate and Deactivate of ACT_STOP_SOLENOID is done in START_STOP
     prvActDeactOutput(ArrAlarmMonitoring[FAIL_TO_START].bResultLatched, ACTUATOR::ACT_FAIL_TO_START);
     prvActDeactOutput(ArrAlarmMonitoring[FAIL_TO_STOP].bResultLatched, ACTUATOR::ACT_FAIL_TO_STOP);
+    //Activate and Deactivate of ACT_FUEL_RELAY is done in START_STOP
+    //Activate and Deactivate of ACT_GEN_AVLBL is done in START_STOP
     prvActDeactOutput(ArrAlarmMonitoring[DG_R_OV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_R_OV_SHUTDOWN);
-    prvActDeactOutput(ArrAlarmMonitoring[DG_Y_OV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_Y_OV_SHUTDOWN);
-    prvActDeactOutput(ArrAlarmMonitoring[DG_B_OV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_B_OV_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[DG_R_UV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_R_UV_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[DG_Y_OV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_Y_OV_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[DG_Y_UV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_Y_UV_SHUTDOWN);
+    prvActDeactOutput(ArrAlarmMonitoring[DG_B_OV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_B_OV_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[DG_B_UV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_B_UV_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[OVERCURRENT].bResultLatched, ACTUATOR::ACT_GEN_OC);
     prvActDeactOutput(ArrAlarmMonitoring[HIGH_WATER_TEMP].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive, ACTUATOR::ACT_HIGH_TEMP);
@@ -2916,13 +2919,22 @@ void GCU_ALARMS::prvUpdateOutputs()
     {
         prvActDeactOutput(ArrAlarmMonitoring[OPEN_LOP_CURR_SENS_CKT].bResultLatched, ACTUATOR::ACT_OIL_CKT_OPEN);
     }
+    //Activate and Deactivate of ACT_OPEN_GEN_OUT is done in BASE_MODES
+    //Activate and Deactivate of ACT_OPEN_MAINS_OUT is done in BASE_MODES
     prvActDeactOutput(ArrAlarmMonitoring[OVERFREQ_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_OF_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[OVERSPEED_L1].bShutdownLatched, ACTUATOR::ACT_OS_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[OVERSPEED_L2].bShutdownLatched, ACTUATOR::ACT_GROSS_OS_SHUTDOWN);
+    //Activate and Deactivate of ACT_START_RELAY is done in START_STOP
     prvActDeactOutput(ArrAlarmMonitoring[OPEN_ENG_TEMP_CKT].bResultLatched, ACTUATOR::ACT_TEMP_CKT_OPEN);
     prvActDeactOutput(ArrAlarmMonitoring[UNDERFREQ_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_UF_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[UNDERSPEED].bShutdownLatched, ACTUATOR::ACT_US_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[FILT_MAINTENANCE].bAlarmActive || ArrAlarmMonitoring[FILT_MAINTENANCE_BY_DATE].bAlarmActive, ACTUATOR::ACT_FILT_MAINT);
+    //Activate and Deactivate of ACT_MODE_STOP is done in BASE_MODES
+    //Activate and Deactivate of ACT_MODE_AUTO is done in BASE_MODES
+    //Activate and Deactivate of ACT_MODE_MANUAL is done in BASE_MODES
+//           ACT_BTS_BATTERY_HYBRID_MODE,
+    //Activate and Deactivate of ACT_PREHEAT is done in START_STOP
+//           ACT_ECU_START,
     prvActDeactOutput(ArrAlarmMonitoring[ALARM_MIL_LAMP].bResultInstant, ACTUATOR::ACT_MIL);/*DOUBT*/
 }
 

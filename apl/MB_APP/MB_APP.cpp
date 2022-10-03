@@ -1026,7 +1026,7 @@ void MB_APP::prvUpadateDIGInOut()
 
     for(u8Local=GCU_ALARMS::DIG_IN_A; u8Local <=GCU_ALARMS::DIG_IN_P; u8Local++)
     {
-        _u16TempAlarmVal |= ((uint16_t)_gcuAlarm.ArrAlarmMonitoring[u8Local].bAlarmActive << u8LocalCnt);
+        _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[u8Local].bAlarmActive << u8LocalCnt);
         u8LocalCnt--;
     }
 

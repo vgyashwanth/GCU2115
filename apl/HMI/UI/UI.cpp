@@ -2078,7 +2078,7 @@ void UI::HandleMenuVisibility(void)
     {
         LowestLevelMenuEnDis(INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_THRESHOLD,INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_DELAY,false);
     }
-    if(ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTION_AMBER].value.u8Val == CFGZ::CFGZ_DISABLE)
+//    if(ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTION_AMBER].value.u8Val == CFGZ::CFGZ_DISABLE)
     {
         menuItemsLowestLevel[INDEX_OF_BATTERY_MONITOR_BATTERY_MON_BY_J1939].isEnabled = false;
     }

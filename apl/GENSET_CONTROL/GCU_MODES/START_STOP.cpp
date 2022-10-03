@@ -857,10 +857,6 @@ bool START_STOP::CheckPreheatTempCondition()
     // Need to implement this in UI.cpp
     A_SENSE::SENSOR_RET_t sensVal = _GCUAlarms.GetSelectedTempSensVal() ;
 
-    //Todo: In NXP the eng temp value is considered from
-    // j1939 when ENg temp sensor is configured and
-    // Can communication is enabled in the config.
-    //Need to add can communication check
     if (( IS_GCU_PREHEAT_TEMP_ENABLED()
          &&
          (  IS_GCU_TEMP_CONFIGURED())

@@ -399,11 +399,11 @@ void ALARM_UI::prvDisplayDMScreen()
             if(uiLoopIndex < NO_OF_SPNS_IN_DM)
             {
                 _Disp.gotoxy(2 ,25 );
-                if(_cfgz.GetArrLanguageIndex() == CFGZ::LANGUAGE_SPANISH)
-                {
-                    _Disp.printStringLeftAligned(gstDmNoString[uiLoopIndex].pSpanishSpnName, FONT_VERDANA);
-                }
-                else
+//                if(_cfgz.GetArrLanguageIndex() == CFGZ::LANGUAGE_SPANISH)
+//                {
+//                    _Disp.printStringLeftAligned(gstDmNoString[uiLoopIndex].pSpanishSpnName, FONT_VERDANA);
+//                }
+//                else
                 {
                     _Disp.printStringLeftAligned(gstDmNoString[uiLoopIndex].pSpnName, FONT_VERDANA);
                 }

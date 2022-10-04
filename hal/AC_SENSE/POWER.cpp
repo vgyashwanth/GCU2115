@@ -38,7 +38,6 @@
  **/
 #include "POWER.h"
 
-
 POWER::POWER(uint16_t u16SamplesPerEntry):
 _u16SamplesPerEntry(u16SamplesPerEntry),
 _bWindowMoved(false),
@@ -52,8 +51,8 @@ _fReactivePower(0),
 _fFiltActivePower(0),
 _fFiltApparentPower(0),
 _fFiltReactivePower(0),
-_fFiltPowerFactor(0.0),
 _fPowerFactor(1.0),
+_fFiltPowerFactor(0.0),
 _fActiveEnergy(0),
 _fApparentEnergy(0),
 _fReactiveEnergy(0),

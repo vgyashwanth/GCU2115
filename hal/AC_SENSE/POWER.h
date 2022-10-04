@@ -385,11 +385,10 @@ private:
     float         _fActivePower;
     float         _fApparentPower;
     float         _fReactivePower;
-    float         _fPowerFactor;
     float         _fFiltActivePower;
     float         _fFiltApparentPower;
     float         _fFiltReactivePower;
-
+    float         _fPowerFactor;
 
     float         _fFiltPowerFactor;
     double        _fActiveEnergy;

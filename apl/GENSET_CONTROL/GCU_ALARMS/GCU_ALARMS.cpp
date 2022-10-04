@@ -2460,7 +2460,7 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
     _u8AuxSensS3Alarm = 0;
     _u8AuxSensS4Alarm =  0;
     _u8ActuatorFailAlarm = 0;
-    _bBTSBattHealthy = 1;
+    _bBTSBattHealthy = !(ArrAlarmMonitoring[VBTS_UV].bEnableMonitoring && ArrAlarmMonitoring[VBTS_UV].bResultInstant);
     if(_u8EngineOff == 0)
     {
         _u8HighOilPressDetectedAlarm =0;
@@ -2909,8 +2909,8 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(_u8LowFuelLevelAlarm, ACTUATOR::ACT_LOW_FUEL);
     prvActDeactOutput(ArrAlarmMonitoring[LOW_FUEL_LEVEL_NOTIFICATION].bNotificationLatched, ACTUATOR::ACT_LOW_FUEL_NOTIFICATION);
     prvActDeactOutput(_u8LowOilPressAlarm, ACTUATOR::ACT_LOW_PRES);
-    prvActDeactOutput(ArrAlarmMonitoring[MAINS_OVERVOLT_TRIP].bResultInstant, ACTUATOR::ACT_MAINS_HIGH);
-    prvActDeactOutput(ArrAlarmMonitoring[MAINS_UNDERVOLT_TRIP].bResultInstant, ACTUATOR::ACT_MAINS_LOW);
+    //ACT_MAINS_HIGH Handled in the prvMainsHighLowOutputs Function of GCU ALARMS
+    //ACT_MAINS_LOW Handled in the prvMainsHighLowOutputs Function of GCU ALARMS
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) || (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_LOP_VOL_SENSOR))
     {
         prvActDeactOutput(ArrAlarmMonitoring[OPEN_LOP_SENS_CKT].bResultLatched, ACTUATOR::ACT_OIL_CKT_OPEN);

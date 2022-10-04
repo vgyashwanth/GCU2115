@@ -456,7 +456,7 @@ void MAIN_UI::prvLEDHandling()
 
        if((   (_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY)
            && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-           && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
+           || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE) && _GCUAlarms.RemoteStopReceived()))
        {
            _hal.ledManager.led8.TurnOn();
        }

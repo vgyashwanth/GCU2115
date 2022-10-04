@@ -544,13 +544,6 @@ class CFGZ
 #endif
      }CFGZ_PARAMS_t;
 
-
-
-     typedef enum{
-         LANGUAGE_ENGLISH,
-         LANGUAGE_SPANISH,
-         LANGUAGE_CHINSESE,
-     }CFGZ_LANGUAGE_t;
     /*List of sensors that can be connected to the digital input*/
     typedef enum {
         CFGZ_SENSOR_NOT_USED         = 0,

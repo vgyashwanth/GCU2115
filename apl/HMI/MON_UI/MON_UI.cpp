@@ -771,11 +771,11 @@ void  MON_UI::prvPrintJ1939AfterTreatDataOnScreen(bool bIsAfterTreat1PGN, uint8_
     for(i = 0; i < (astJ1939Display[u8RxATPGNNo].u8NoOfSPNs); i++)
     {
         _Disp.gotoxy(2, 23 + (i * 10));
-        if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-        {
-            _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxATPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
-        }
-        else
+//        if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
+//        {
+//            _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxATPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
+//        }
+//        else
         {
             _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxATPGNNo].stpSPN[i].cs8pSPNName, FONT_VERDANA);
         }
@@ -851,11 +851,11 @@ void MON_UI::prvJ1939MonScreens()
 
         case DISP_WFI_PGN_65279:
             _Disp.gotoxy(3, 15 + (i * 10));
-            if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-            {
-                _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSpanishSPNName, FONT_VERDANA);
-            }
-            else
+//            if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
+//            {
+//                _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSpanishSPNName, FONT_VERDANA);
+//            }
+//            else
             {
                 _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSPNName, FONT_VERDANA);
             }
@@ -908,11 +908,11 @@ void MON_UI::prvJ1939MonScreens()
             for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
             {
                 _Disp.gotoxy(3, 15 + (i * 22));
-                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-                {
-                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
-                }
-                else
+//                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
+//                {
+//                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
+//                }
+//                else
                 {
                     _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSPNName, FONT_VERDANA);
                 }
@@ -947,11 +947,11 @@ void MON_UI::prvJ1939MonScreens()
             for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
             {
                 _Disp.gotoxy(3, 15 + (i * 11));
-                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-                {
-                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
-                }
-                else
+//                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
+//                {
+//                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
+//                }
+//                else
                 {
                     _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSPNName, FONT_VERDANA);
                 }
@@ -1053,11 +1053,11 @@ void MON_UI::prvJ1939MonScreens()
             for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
             {
                 _Disp.gotoxy(3, 15 + (i * 11));
-                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-                {
-                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
-                }
-                else
+//                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
+//                {
+//                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
+//                }
+//                else
                 {
                     _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSPNName, FONT_VERDANA);
                 }
@@ -1144,11 +1144,11 @@ void MON_UI::prvJ1939MonScreens()
             _Disp.gotoxy(64, 12);
             _Disp.printStringCenterAligned((char*)"Service 2", FONT_VERDANA);
             _Disp.gotoxy(3, 24);
-            if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-            {
-                _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSpanishSPNName, FONT_VERDANA);
-            }
-            else
+//            if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
+//            {
+//                _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSpanishSPNName, FONT_VERDANA);
+//            }
+//            else
             {
                 _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSPNName, FONT_VERDANA);
             }
@@ -1213,11 +1213,11 @@ void MON_UI::prvJ1939MonScreens()
             for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
             {
                 _Disp.gotoxy(2, 15 + (i * 11));
-                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-                {
-                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
-                }
-                else
+//                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
+//                {
+//                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
+//                }
+//                else
                 {
                     _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSPNName, FONT_VERDANA);
                 }

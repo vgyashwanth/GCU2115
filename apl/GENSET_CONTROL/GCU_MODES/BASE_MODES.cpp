@@ -253,9 +253,9 @@ void BASE_MODES::UpdateMainsStatus()
 
 void BASE_MODES::prvUpdateContactorOutputs()
 {
-    if(((_bSwitchLoadToMains)||((_hal.DigitalSensors.GetDigitalSensorState(
-            DigitalSensor::DI_CLOSE_MAINS_OPEN_GEN_SWITCH) ==  
-                DigitalSensor::SENSOR_LATCHED) && (_MainsStatus == MAINS_HELATHY) && (_eOperatingMode == BASE_MODES::MANUAL_MODE))) && (!_bContactorTransferOn))
+    if(((_bSwitchLoadToMains)
+            ||((_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_CLOSE_MAINS_OPEN_GEN_SWITCH) ==  DigitalSensor::SENSOR_LATCHED) && (_MainsStatus == MAINS_HELATHY) && (_eOperatingMode == BASE_MODES::MANUAL_MODE)))
+            && (!_bContactorTransferOn))
     {
         _bSwitchLoadToMains = false;
         UTILS_ResetTimer(&_ContactorTransferTimer);
@@ -265,9 +265,9 @@ void BASE_MODES::prvUpdateContactorOutputs()
         _bCloseGenContactor = false;
     }
 
-    if(((_bSwitchLoadToGen) || ((_hal.DigitalSensors.GetDigitalSensorState(
-            DigitalSensor::DI_CLOSE_GEN_OPEN_MAINS_SWITCH) ==  
-                DigitalSensor::SENSOR_LATCHED) && _EngineMon.IsWarmUpTimeExpired())) && (!_bContactorTransferOn)
+    if(((_bSwitchLoadToGen)
+            || ((_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_CLOSE_GEN_OPEN_MAINS_SWITCH) ==  DigitalSensor::SENSOR_LATCHED) && _EngineMon.IsWarmUpTimeExpired() && (_eOperatingMode == BASE_MODES::MANUAL_MODE)))
+            && (!_bContactorTransferOn)
             )
     {
         _bSwitchLoadToGen = false;
@@ -331,7 +331,7 @@ void BASE_MODES::prvOpenGenMainLoad(bool *bOpenLoad, bool *bContTransferToLoadOn
     if(*bOpenLoad)
     {
         *bOpenLoad = false;
-        if((_bContactorTransferOn) || ( *bContTransferToLoadOn))
+        if( *bContTransferToLoadOn)
         {
             _bContactorTransferOn = false;
             UTILS_DisableTimer(&_ContactorTransferTimer);

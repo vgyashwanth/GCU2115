@@ -1019,7 +1019,7 @@ private:
      * @param AC system type
      * @return None
      */
-    void prvPrintVtgFreqData(SOURCE_TYPE_t Source, uint8_t u8AcSystemType);
+    void prvPrintVoltageData(SOURCE_TYPE_t Source, uint8_t u8AcSystemType);
 
     /**
      * It is used to display power of passed type

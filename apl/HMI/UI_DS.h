@@ -29,8 +29,6 @@ typedef enum
 {
     PROFILE_NO,
     RESET_COUNTER,
-    // DISP_VOLT_EN,
-    // DISP_VOLT_CONST,
     MISC_8_LAST
 }MISC_PARAM_8_t;
 

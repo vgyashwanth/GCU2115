@@ -922,7 +922,6 @@ void CEditableItem::saveTempValue()
     }
 }
 
-
 void CEditableItem::CopyPrevValue()
 {
     if(dataType != DT_PASSWORD) // Not password values

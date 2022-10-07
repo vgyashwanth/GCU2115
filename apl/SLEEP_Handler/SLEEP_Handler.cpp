@@ -44,7 +44,7 @@ void SLEEP_Handler::Update()
             /*Deactivate all actuators*/
             _hal.actuators.DeactivateAll();
             _hal.hsdManager.AltExcitation.TurnOff();
-            _hal.EnterSleep();
+//            _hal.EnterSleep(); Commented by SuryaPranayTeja as GC2111 should not enter Sleep in any conditions
         }
         /*Exit sleep if key press event received*/
         else if(bKeyEvent)
@@ -65,7 +65,7 @@ void SLEEP_Handler::Update()
             bKeyEvent = false;
 
             /*De-energize all outputs*/
-            _hal.EnterSleep();
+//            _hal.EnterSleep();Commented by SuryaPranayTeja as GC2111 should not enter Sleep in any conditions
         }
     }
 }

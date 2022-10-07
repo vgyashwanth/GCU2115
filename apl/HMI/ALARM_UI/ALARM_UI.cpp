@@ -278,27 +278,57 @@ void ALARM_UI::prvDisplayAlarmScreen()
         {
             case GCU_ALARMS::Low_Oil_Pressure_id:
             {
+                if(_alarm.IsAlarmActive(GCU_ALARMS::LOW_OIL_PRESS_WARNING)
+                        ||_alarm.IsAlarmActive(GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN))
+                {
+                    strcpy(arrTemp, "Sensor");
+                }
 
+                if(_alarm.IsAlarmActive(GCU_ALARMS::LLOP_SWITCH))
+                {
+                    strcpy(arrTemp1, "Switch");
+                }
                 break;
             }
 
             case GCU_ALARMS::fuel_level_id:
             {
+                if(_alarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN)
+                        ||_alarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION))
+                {
+                    strcpy(arrTemp, "Sensor");
+                }
 
+                if(_alarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH))
+                {
+                    strcpy(arrTemp1, "Switch");
+                }
                 break;
             }
 
             case GCU_ALARMS::High_Water_Temperature_id:
             {
-
+                if(_alarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP))
+                {
+                    strcpy(arrTemp, "Sensor");
+                }
+                if(_alarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH))
+                {
+                    strcpy(arrTemp1, "Switch");
+                }
                 break;
             }
-
-
-
             case GCU_ALARMS::High_Oil_Press_Detected_id:
             {
+                if(_alarm.AlarmResultLatched(GCU_ALARMS::OIL_PRESS_MON))
+                {
+                    strcpy(arrTemp, "Sensor");
+                }
 
+                if(_alarm.AlarmResultLatched(GCU_ALARMS::LLOP_MON))
+                {
+                    strcpy(arrTemp1, "Switch");
+                }
                 break;
             }
         }

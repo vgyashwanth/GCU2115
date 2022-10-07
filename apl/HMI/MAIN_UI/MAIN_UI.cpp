@@ -561,22 +561,24 @@ bool MAIN_UI::prvIsSleepEnabled()
         ((IS_GCU_AUTO_MODE()) || ((_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_ERR) &&
             (_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_OK))))
 #endif
-    if(   IS_DISP_EVENT_LOG_MODE() ||IS_DISP_CONFIG_MODE() ||IS_DISP_PASSWORD_ENTRY_MODE() || (!IS_GCU_MANUAL_MODE())
-       || ((_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_ERR)
-           && (_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_OK))
-       || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
-           && (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR) != ACT_Manager:: ACT_NOT_CONFIGURED))
-       || (IS_GCU_AUTO_MODE()
-           && (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_REMOTE_START_STOP) != DigitalSensor::SENSOR_NOT_CONFIGRUED))
-       || _cfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_COMM_MODE)
-      )
-    {
+//    if(   IS_DISP_EVENT_LOG_MODE() ||IS_DISP_CONFIG_MODE() ||IS_DISP_PASSWORD_ENTRY_MODE() || (!IS_GCU_MANUAL_MODE())
+//       || ((_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_ERR)
+//           && (_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_OK))
+//       || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)
+//           && (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR) != ACT_Manager:: ACT_NOT_CONFIGURED))
+//       || (IS_GCU_AUTO_MODE()
+//           && (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_REMOTE_START_STOP) != DigitalSensor::SENSOR_NOT_CONFIGRUED))
+//       || _cfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_COMM_MODE)
+//      )
+//    {
+//        return false;
+//    }
+//    else
+//    {
+//        return true;
+//    }
+//        Commented by SuryaPranayTeja as GC2111 should not enter Sleep in any conditions
         return false;
-    }
-    else
-    {
-        return true;
-    }
 }
 
 void MAIN_UI::prvHandleKeyPressEvent(KEYPAD::KEYPAD_EVENTS_t sKeyEvent)

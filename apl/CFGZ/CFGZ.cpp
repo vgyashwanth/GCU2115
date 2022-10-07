@@ -769,11 +769,9 @@ void CFGZ::prvSetPassword()
         _stMiscParam.u16MiscParam[PASSWORD1]= u16ArrPassword[0];
         _stMiscParam.u16MiscParam[PASSWORD2]= u16ArrPassword[1];
         _stMiscParam.u8MiscParam[RESET_COUNTER] = 0;
-//        _stMiscParam.u8MiscParam[DISP_VOLT_EN] = 0;
-//        _stMiscParam.u8MiscParam[DISP_VOLT_CONST] = 50;
 
         for(int i= ID_ENG_CHAR0;i<ENG_ID_CHAR_LAST;i++)
-       { _stMiscParam.u8EngId[i] = 49;}
+       { _stMiscParam.u8EngId[i] = 48;}
         _stMiscParam.u16CRC = CRC16::ComputeCRCGeneric((uint8_t *)&_stMiscParam, sizeof(MISC_PARAM_t) -sizeof(uint16_t)
                                    , CRC_MEMORY_SEED);
 

@@ -390,7 +390,7 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "UNDER FREQ MON",
         "OVER FREQ MON",
         //Engine
-        "CRANK DISCONNECT",
+        "CRANK DISCONN",
         "SPEED MONITOR",
         "BATTERY MONITOR",
         "CHARGE ALT MON",
@@ -424,7 +424,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "MODBUS BAUDRATE",
         "PARITY",
         //"CAN J1939",
-        "ACTION (AMBER)",
+       "CAN J1939"// "ACTION (AMBER)",//Todo:overwritten to
         "ACTIVATION (AMBER)",
         "ACT DELAY (AMBER)",
         "ACTION (RED)",
@@ -839,7 +839,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "START ATTEMPTS",
         "DISCONN ON LOP SENS",
         "DISCONN LOP SENS",
-        "MON LLOP BEFORE CRANK",
+        "MON LLOP BEFORE CRNK",
         "MON LOP BEFORE CRANK",
         "DISCONN ON LLOP SW",
         "LLOP SW TRANS TIME",
@@ -937,7 +937,9 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_MODBUS_COMM_MODBUS_BAUDRATE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_MODBUS_BAUDRATE),strLeafNode[_u8LanguageArrayIndex][SID_MODBUS_COMM_MODBUS_BAUDRATE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_BAUDRATE], 8, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_MODBUS_COMM_PARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_PARITY),strLeafNode[_u8LanguageArrayIndex][SID_MODBUS_COMM_PARITY], "", "%s", strOptions[_u8LanguageArrayIndex][ID_PARITY], 3, CEditableItem::PIN1_PIN2_ALLOWED );
 
-    ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTION_AMBER] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_AMBER),strLeafNode[_u8LanguageArrayIndex][SID_CAN_J1939_COMM_ACTION_AMBER], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTION_AMBER] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_AMBER),strLeafNode[_u8LanguageArrayIndex][SID_CAN_J1939_COMM_ACTION_AMBER], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
+
+  //  ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTION_AMBER] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_AMBER),strLeafNode[_u8LanguageArrayIndex][SID_CAN_J1939_COMM_ACTION_AMBER], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTIVATION_AMBER] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_AMBER),strLeafNode[_u8LanguageArrayIndex][SID_CAN_J1939_COMM_ACTIVATION_AMBER], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACT_DELAY_AMBER] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_AMBER), strLeafNode[_u8LanguageArrayIndex][SID_CAN_J1939_COMM_ACT_DELAY_AMBER], arrUnit[ID_SEC], "%u", (uint8_t)1, (uint8_t)60, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_CAN_J1939_COMM_ACTION_RED] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_RED),strLeafNode[_u8LanguageArrayIndex][SID_CAN_J1939_COMM_ACTION_RED], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::PIN1_ALLOWED );
@@ -1789,6 +1791,10 @@ void UI::HandleMenuVisibility(void)
     /*................................Module Menu........................................................................................................*/
     if(ArrEditableItem[INDEX_OF_MODBUS_COMM_COMM_MODE].value.u8Val == CFGZ::CFGZ_DISABLE)
         LowestLevelMenuEnDis(INDEX_OF_MODBUS_COMM_MODBUS_SLAVE_ID,INDEX_OF_MODBUS_COMM_PARITY,false);
+
+    //Need to remove below
+    LowestLevelMenuEnDis(INDEX_OF_CAN_J1939_COMM_ACTIVATION_AMBER,INDEX_OF_CAN_J1939_COMM_ACT_DELAY_PROTECT,false);
+
     if(ArrEditableItem[INDEX_OF_BTS_CONFIG_BATTERY_MON].value.u8Val == CFGZ::CFGZ_DISABLE)
         LowestLevelMenuEnDis(INDEX_OF_BTS_CONFIG_LOW_BATT_THRESHOLD,INDEX_OF_BTS_CONFIG_DG_RUN_DURATION,false);
     if(ArrEditableItem[INDEX_OF_CYCLIC_CONFIG_CYCLIC_MODE].value.u8Val == CFGZ::CFGZ_DISABLE)
@@ -2176,7 +2182,7 @@ void UI::Handler(int keyCode)
 */
     _objDisplay.ClearScreen();
     _objDisplay.drawRectangle();
-    _objDisplay.drawHorizontalLine(GLCD_X(0), GLCD_Y(19), GLCD_Y(128));
+    _objDisplay.drawHorizontalLine(GLCD_X(0), GLCD_Y(19), GLCD_X(128));
 
     switch (uiState)
     {

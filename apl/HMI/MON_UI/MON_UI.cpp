@@ -1956,13 +1956,11 @@ void MON_UI::prvNormalMonScreens()
             /* todo:  why is we are showing kw load of mains under gen ?*/
             if(bDisplayMainsLoad)
             {
-                prvPrintPower(ACTIVE,
-                      _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM), MAINS);
+                prvPrintPower(ACTIVE,_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM), MAINS);
             }
             else
             {
-                prvPrintPower(ACTIVE,
-                          _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM), GENSET);
+                prvPrintPower(ACTIVE,_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM), GENSET);
             }
         }
         break;
@@ -2774,32 +2772,12 @@ void MON_UI::prvPrintPower(POWER_TYPE_t eType, uint8_t u8AcSystemType, SOURCE_TY
     {
         sprintf(arrTemp,"  %0.1f",((&_hal.AcSensors)->*ArrGetTotalPower[eSourceType][eType])()/1000);
 
-        if((eType == ACTIVE) && (eSourceType != MAINS))
-        {
-         _Disp.gotoxy(GLCD_X(3),GLCD_Y(33));
-         _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
+        _Disp.gotoxy(GLCD_X(7),GLCD_Y(33));
+        _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
 
-          _Disp.drawVerticalLine(GLCD_X(56), GLCD_Y(19), GLCD_Y(64));
-          _Disp.gotoxy(GLCD_X(40),GLCD_Y(32));
-          _Disp.printStringLeftAligned((char *)strPower[eType],FONT_ARIAL);
-//          sprintf(arrTemp,"  %d",
-//                  (uint16_t)round(_hal.AcSensors.GENSET_GetDispPercentPower()));
-//          _Disp.gotoxy(GLCD_X(3),GLCD_Y(48));
-//          _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
-//          _Disp.gotoxy(GLCD_X(40),GLCD_Y(48));
-//          _Disp.printStringLeftAligned((char *)"%",FONT_ARIAL);
-          u8XPosition =58;
-          u8XPositionVal = 110;
-        }
-        else
-        {
-            _Disp.gotoxy(GLCD_X(7),GLCD_Y(33));
-            _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
-
-            _Disp.drawVerticalLine(GLCD_X(50), GLCD_Y(19), GLCD_Y(64));
-            _Disp.gotoxy(GLCD_X(23),GLCD_Y(50));
-            _Disp.printStringCenterAligned((char *)strPower[eType],FONT_ARIAL);
-        }
+        _Disp.drawVerticalLine(GLCD_X(50), GLCD_Y(19), GLCD_Y(64));
+        _Disp.gotoxy(GLCD_X(23),GLCD_Y(50));
+        _Disp.printStringCenterAligned((char *)strPower[eType],FONT_ARIAL);
 
         u8Position = 22;
         for(u8Local = R_PHASE; u8Local < PHASE_END ; u8Local++)
@@ -2820,36 +2798,13 @@ void MON_UI::prvPrintPower(POWER_TYPE_t eType, uint8_t u8AcSystemType, SOURCE_TY
         /* Below logo will be displayed for Gen and Mains as well */
         _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 26, 7);
 
-        if((eType == ACTIVE)&& (eSourceType != MAINS))
-        {
-            _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));
-            _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
+        _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));
+        _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
 
-
-            sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetVal[eSourceType][eType])(R_PHASE)/1000);
-            _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
-            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-            _Disp.printStringLeftAligned((char *)strPower[eType],FONT_VERDANA);
-
-
-//            sprintf(arrTemp,"%d",(uint16_t)round(_hal.AcSensors.GENSET_GetDispPercentPower()));
-//            _Disp.gotoxy(GLCD_X(95),GLCD_Y(47));
-//            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-//            _Disp.printStringLeftAligned((char *)"%",FONT_VERDANA);
-
-        }
-        else
-        {
-            _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));
-            _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
-
-
-            sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetVal[eSourceType][eType])(R_PHASE)/1000);
-            _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
-            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-            _Disp.printStringLeftAligned((char *)strPower[eType],FONT_VERDANA);
-        }
-
+        sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetVal[eSourceType][eType])(R_PHASE)/1000);
+        _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
+        _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+        _Disp.printStringLeftAligned((char *)strPower[eType],FONT_VERDANA);
     }
 }
 

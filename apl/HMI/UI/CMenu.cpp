@@ -71,11 +71,9 @@ void CMenu::show()
 #elif (RUNNING_ON == TARGET_GCU)
     char arrTemp[20]={0};
 
+    gpDisplay->gotoxy(GLCD_X(50),GLCD_Y(5));
+    gpDisplay->printStringCenterAligned((char*)this->pMenuTitle,FONT_VERDANA);
 
-    {
-        gpDisplay->gotoxy(GLCD_X(50),GLCD_Y(5));
-        gpDisplay->printStringCenterAligned((char*)this->pMenuTitle,FONT_VERDANA);
-    }
     gpDisplay->gotoxy(GLCD_X(125),GLCD_Y(5));
     sprintf(arrTemp,"%d/%d", u16IndexOfEditableItems + 1, u16NumberofEditableItems );
     gpDisplay->printStringRightAligned((char*)arrTemp,FONT_VERDANA);

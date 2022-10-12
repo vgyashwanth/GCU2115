@@ -79,6 +79,7 @@ _u8MonOn(0),
 _u8FuelRelayOn(0),
 _u8LopSensMon(0),
 _u8FuelSensMon(0),
+_u8UnbalancedloadMon(0),
 _u8AuxSensS1(0),
 _u8AuxSensS2(0),
 _u8AuxSensS3(0),
@@ -131,6 +132,8 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
     _u8AuxSensS4 = (uint8_t)((stAuxSensS4.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)&&(stAuxSensS4.stValAndStatus.eState != ANLG_IP::BSP_STATE_SHORT_TO_BAT));
     _u8TempSensMon = (uint8_t)(_u8MonOn && ((stTemp.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)));
     _u8LopHiOilPressMon = (uint8_t)(stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT);
+
+    _u8UnbalancedloadMon = prvUpdateUnbalancedLoadMon();
 
     if(_bEventNumberReadDone && _bRollOverReadDone)
     {
@@ -1610,7 +1613,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         {
             ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_ACTION) != CFGZ::CFGZ_ACTION_NONE) && (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT) == CFGZ::CFGZ_ENABLE));
             prvSetAlarmAction_NoWESN(u8AlarmIndex,_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_ACTION));
-            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = & _u8UnbalancedloadMon;
             ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
             ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Load_Unbalance_id;
             ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = (uint8_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD));
@@ -1972,6 +1975,8 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[FAIL_TO_START_STATUS].u8Value = _bFailToStart;
 
     _ArrAlarmValue[GEN_UNBALANCED_LOAD].u8Value = prvGetUnbalancedLoadVal();
+
+
     _ArrAlarmValue[HIGH_OIL_PRESSURE].u8Value = _u8HighOilPressDetectedAlarm;
 
 
@@ -2833,15 +2838,24 @@ void GCU_ALARMS::LogEvent(uint8_t u8EventID, uint8_t u8EventType)
                                    sizeof(_u32RolledOverByte), NULL);
     }
 }
-
+uint8_t GCU_ALARMS::prvUpdateUnbalancedLoadMon()
+{
+    float f32GenFullLoadCurrPercent = ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_FULL_LOAD_CURRENT))*(_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_ACT_THRESH)))/100.0f;
+    if((_hal.AcSensors.GENSET_GetCurrentAmps(R_PHASE) > f32GenFullLoadCurrPercent)
+            ||(_hal.AcSensors.GENSET_GetCurrentAmps(Y_PHASE) > f32GenFullLoadCurrPercent)
+            ||(_hal.AcSensors.GENSET_GetCurrentAmps(B_PHASE) > f32GenFullLoadCurrPercent))
+    {
+        return 1;
+    }
+    return 0;
+}
 uint8_t GCU_ALARMS::prvGetUnbalancedLoadVal()
 {
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
     {
-        float f32GenLoadDiff = prvGetGenMaxKWPercent() - prvGetGenMinKWPercent();
-        return (uint8_t)((3*100*f32GenLoadDiff)/(_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_GEN_RATING)));
+        float f32GenLoadDiff = (prvGetMaxGensetCurent() - prvGetMinGensetCurent())/prvGetMaxGensetCurent();
+        return (uint8_t) (f32GenLoadDiff*100);
     }
-
     else
     {
         return 0;
@@ -3159,7 +3173,28 @@ float GCU_ALARMS::prvGetMaxGensetCurent()
     }
     return uf32MaxGenCurrent;
 }
+float GCU_ALARMS::prvGetMinGensetCurent()
+{
+    static float uf32MinGenCurrent;
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
+    {
+        uf32MinGenCurrent = _hal.AcSensors.GENSET_GetCurrentAmps(R_PHASE);
+        if(_hal.AcSensors.GENSET_GetCurrentAmps(Y_PHASE) < uf32MinGenCurrent)
+        {
+            uf32MinGenCurrent = _hal.AcSensors.GENSET_GetCurrentAmps(Y_PHASE);
+        }
 
+        if(_hal.AcSensors.GENSET_GetCurrentAmps(B_PHASE) < uf32MinGenCurrent)
+        {
+            uf32MinGenCurrent = _hal.AcSensors.GENSET_GetCurrentAmps(B_PHASE);
+        }
+    }
+    else
+    {
+        uf32MinGenCurrent = _hal.AcSensors.GENSET_GetCurrentAmps(R_PHASE);
+    }
+    return uf32MinGenCurrent;
+}
 float GCU_ALARMS::prvGetGenMaxKWPercent()
 {
     static float f32MaxGenKW =0;

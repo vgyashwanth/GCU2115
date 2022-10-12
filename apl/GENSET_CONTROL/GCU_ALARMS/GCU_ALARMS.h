@@ -728,6 +728,7 @@ private:
     uint8_t       _u8FuelRelayOn;
     uint8_t       _u8LopSensMon;
     uint8_t       _u8FuelSensMon;
+    uint8_t       _u8UnbalancedloadMon;
     uint8_t       _u8AuxSensS1;
     uint8_t       _u8AuxSensS2;
     uint8_t       _u8AuxSensS3;
@@ -801,9 +802,9 @@ private:
     float prvGetMaxMainsFreq();
 
     float prvGetMaxGensetCurent();
+    float prvGetMinGensetCurent();
 
     float prvGetGenMaxKWPercent();
-
     float prvGetGenMinKWPercent();
 
     uint16_t prvGetMinMainsVoltage();
@@ -812,6 +813,7 @@ private:
 
     uint16_t prvGetMaxMainsVoltage();
 
+    uint8_t prvUpdateUnbalancedLoadMon();
     uint8_t prvGetUnbalancedLoadVal();
 
     void prvUpdateOutputs();

@@ -488,17 +488,15 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
         }
         break;
     case    DT_STRING_FIXED:
-        if (aValue.u32IndexIntoFixedOptions > 0)
+        if (aValue.u32IndexIntoFixedOptions < (unsigned)(numOfStringFixedOptions - 1))
         {
-           aValue.u32IndexIntoFixedOptions--;
+            aValue.u32IndexIntoFixedOptions++;
         }
         else
         {
-//            aValue.u32IndexIntoFixedOptions = numOfStringFixedOptions - 1;
-            aValue.u32IndexIntoFixedOptions = 0;
+            aValue.u32IndexIntoFixedOptions = numOfStringFixedOptions - 1;
         }
         break;
-
     case DT_TIME_HRS_MINS:
         u16Mins = aValue.u16Val%100;
         u16Hours = aValue.u16Val/100;
@@ -762,13 +760,13 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
         }
         break;
     case    DT_STRING_FIXED:
-        if (aValue.u32IndexIntoFixedOptions < (unsigned)(numOfStringFixedOptions - 1))
+        if (aValue.u32IndexIntoFixedOptions > 0)
         {
-            aValue.u32IndexIntoFixedOptions++;
+            aValue.u32IndexIntoFixedOptions--;
         }
         else
         {
-            aValue.u32IndexIntoFixedOptions = numOfStringFixedOptions - 1;
+            aValue.u32IndexIntoFixedOptions = 0;
         }
         break;
     case DT_PASSWORD:

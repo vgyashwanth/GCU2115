@@ -140,7 +140,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     }
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
                 }
-                else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=  5U)
+                else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=(_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_RETN_TO_MAINS_DELAY)*1000U)+5U)
                 {
                     SwitchLoadToMains();
                     UTILS_DisableTimer(&_ReturnToMainsTimer);
@@ -331,7 +331,7 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = ENGINE_ON_HEALTHY;
                     _vars.TimerState = NO_TIMER_RUNNING;
                 }
-                else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=5U)
+                else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=(_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_RETN_TO_MAINS_DELAY)*1000U)+5U)
                 {
                     SwitchLoadToMains();
                     UTILS_DisableTimer(&_ReturnToMainsTimer);

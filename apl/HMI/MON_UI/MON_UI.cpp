@@ -173,7 +173,7 @@ void MON_UI::Update(bool bRefresh)
                 {
                     prvStartKeyPressAction();
                 }
-                else if(_startStop.IsSimAutoReceived() || _bMBModeChnageCMDRcvd)
+                else if(_startStop.IsSimAutoReceived() || _bMBModeChnageCMDRcvd || _startStop.IsModeSwitchAutoKeyReceived())
                 {
                     prvAutoKeyPressAction();
                 }
@@ -477,14 +477,7 @@ void MON_UI::prvConfigureScreenEnable()
                 _ArrScreenEnDs[u8Screen] = true;
                 break;
             case DISP_MON_CHRG_ALT_BAT_VOLTAGE :
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_CHARGE_ALT_MON_CHARGE_ALT_MON_BY_J1939) == CFGZ::CFGZ_ENABLE)
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                else
-                {
-                    /* do nothing */
-                }
+                _ArrScreenEnDs[u8Screen] = false;
                 break;
             /* Shubham Wader 20.09.2022
               As per the communication received from Devendra D.(SYSE), below two can dependent screens will be always OFF in the
@@ -1823,7 +1816,7 @@ void MON_UI::prvNormalMonScreens()
             if(_manualMode.GetGCUState()== MANUAL_MODE::ENGINE_STARTING)
             {
                 sprintf(arrTemp,"%s %d/%d",strGCUStatus[_u8LanguageIndex][_manualMode.GetGCUState()],
-                        _startStop.GetCrankAttemptNumber(), _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_START_ATTEMPTS));
+                        _startStop.GetCrankAttemptNumber(), _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_START_ATTEMPTS));
             }
             else
             {

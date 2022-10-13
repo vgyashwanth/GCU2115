@@ -23,7 +23,7 @@
                                                   (START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_ENG_ON))
 #define IS_UNDER_SPEED_DETECTION_ENABLED()       (CFGZ::CFGZ_ENABLE == _cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_SHUTDOWN))
 #define IS_ENGINE_TURNED_OFF()                   (START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_ENG_OFF_OK)
-#define GET_CONFIGURED_LOWER_SPEED()             (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
+#define GET_CONFIGURED_LOWER_SPEED()             (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ENGINE_SPEED))
 #define GET_CONFIGURED_UPPER_SPEED()             (_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_THRESHOLD))
 #define GET_CURRENT_SPEED()                      (_GCUAlarms.GetSpeedValue())
 

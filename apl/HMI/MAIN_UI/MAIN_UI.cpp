@@ -199,7 +199,7 @@ bool MAIN_UI::Update()
     }
 
     /* Turn off back light if power save occures */
-    if(   (_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_POWER_SAVE_MODE)== CFGZ::CFGZ_ENABLE)
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_POWER_SAVE_MODE)== CFGZ::CFGZ_ENABLE)
        && (UTILS_GetElapsedTimeInSec(&_PoweSaveModeTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_PWR_SAVE_MODE_DELAY)))
     {
         _hal.ObjGlcd.TurnOffBackLight();
@@ -210,7 +210,7 @@ bool MAIN_UI::Update()
         /* Do nothing */
     }
 
-    if(_EngMon.IsEngineOn() )
+    if(_EngMon.IsEngineOn())
     {
         UTILS_ResetTimer(&_PoweSaveModeTimer);
     }
@@ -218,31 +218,6 @@ bool MAIN_UI::Update()
     {
         /* Do nothing */
     }
-
-/*  todo : below functionality not observed in GC2111 nxp, not found any related config parameter.
-         Need to remove if not required  */
-#if 0
-    if(UTILS_GetElapsedTimeInSec(&_AutoExitTimer) >= 200 )//_cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_EXIT_TIME))
-    {
-        UTILS_DisableTimer(&_AutoExitTimer);
-        if(IS_DISP_CONFIG_MODE() ||IS_DISP_EVENT_LOG_MODE())
-        {
-           UTILS_ResetTimer(&_RefreshTimer);
-           prvExitFromConfigMode();
-        }
-        else if(IS_DISP_PASSWORD_ENTRY_MODE())
-        {
-           MON_UI::eDisplayMode = DISP_MON_MODE;
-           _MonUI.GoToHomeScreen();
-           _MonUI.Update(_bRefresh);
-           _PasswordEntry.SetPasswordEntryState(PASSWORD_ENTRY_UI::ENTRY);
-        }
-    }
-    if((_sKeyEvent ==  DN_LONG_PRESS )||(_sKeyEvent ==  UP_LONG_PRESS ))
-    {
-        UTILS_ResetTimer(&_AutoExitTimer);
-    }
-#endif
 
     if(_ManualMode.IsGCUStateChanged())
     {
@@ -252,14 +227,14 @@ bool MAIN_UI::Update()
 
 
     /* During cranking turn off the back light to reduce the GCU current. (Hardware specific)*/
-   if(_ManualMode.GetTimerState() == BASE_MODES::CRANK_START_TIMER )
-   {
-       _hal.ObjGlcd.TurnOffBackLight();
-   }
-   else
-   {
-       _hal.ObjGlcd.TurnOnBackLight();
-   }
+    if(_ManualMode.GetTimerState() == BASE_MODES::CRANK_START_TIMER )
+     {
+         _hal.ObjGlcd.TurnOffBackLight();
+     }
+     else
+     {
+         _hal.ObjGlcd.TurnOnBackLight();
+     }
 
     MB_APP::KEY_MB_CAN_EVENT_t  stMBEvent;
     MB_APP::GetMBEventStatus(&stMBEvent);

@@ -140,6 +140,8 @@ public:
 
     bool IsAdditionalStopTimerRunnint();
 
+    bool IsModeSwitchAutoKeyReceived();
+
     bool IsSimAutoReceived();
 
     bool IsSimStartReceived();
@@ -202,15 +204,13 @@ private:
     bool                        _bSimAutoLatched;
     bool                        _bSimStartLatched;
     bool                        _bSimStopLatched;
-    bool                        _bAlarmMutePressed;
-    bool                        _bAlarmMuteReleased;
-    bool                        _bAlarmAckPressed;
-    bool                        _bAlarmAckReleased;
-    bool                        _bAckAudblAlrmRecd;
-    bool                        _bSimAckRecd;
+    bool                        _bModeSwicthAutoKeyPress;
     bool                       _bDGIdleRunDelayRunning;
     static bool                 _bMonitorDGIdleRun;
     static bool                _bEngineOnFailToStopAck;
+
+    static DigitalSensor::STATUS_t prevModeSwitchState;
+    static DigitalSensor::STATUS_t currModeSwitchState;
 
     stTimer                     _PreheatTimer;
     stTimer                     _EngStartTimer;

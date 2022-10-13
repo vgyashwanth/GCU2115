@@ -101,7 +101,7 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 {
                     prvGensetStartAction();
                 }
-                else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=  5U)
+                else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >= (_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_RETN_TO_MAINS_DELAY)*1000U)+ 5U)
                 {
                     //Todo: Decide whether we need to check _bCloseMainsContactor
                     // before giving switch load to mains command
@@ -277,7 +277,7 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = ENGINE_ON_HEALTHY;
                     _vars.TimerState = NO_TIMER_RUNNING;
                 }
-                else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=5U)
+                else if(UTILS_GetElapsedTimeInMs(&_ReturnToMainsTimer) >=(_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_RETN_TO_MAINS_DELAY)*1000U)+5U)
                 {
                     SwitchLoadToMains();
                     UTILS_DisableTimer(&_ReturnToMainsTimer);

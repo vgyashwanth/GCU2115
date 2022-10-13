@@ -347,8 +347,8 @@ uint16_t ENGINE_MONITORING::prvCheckTimeSlot(uint32_t u32RunTime)
 
 void ENGINE_MONITORING::prvUpdateEngineOn()
 {
-    if((_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
-        || (_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ALT_FREQUENCY)))
+    if((_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ENGINE_SPEED))
+        || (_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ALT_FREQUENCY)))
     {
         prvUpdateEngineONstatus();
     }
@@ -370,8 +370,8 @@ void ENGINE_MONITORING::prvUpdateEngineCranked()
 
     if (IS_START_STOP_SM_IN_CRANK_STATE() && (!IsEngineCranked()))
     {
-        if((_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED))
-            ||(_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ALT_FREQUENCY))
+        if((_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ENGINE_SPEED))
+            ||(_hal.AcSensors.GENSET_GetApproxFreq(R_PHASE) > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ALT_FREQUENCY))
             ||(bLOPCranked) ||(bLLOPCranked) || (bChargAltCranked))
         {
             _bEngineCranked = true;
@@ -462,9 +462,9 @@ void ENGINE_MONITORING::prvCheckEngineOff()
             && (_hal.AnalogSensors.GetGensetFreqThruCompartor() <= 0)
             && (   (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) ==  DigitalSensor::SENSOR_NOT_CONFIGRUED)
                 || (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) ==  DigitalSensor::SENSOR_LATCHED)
-                || (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_DISABLE))
-            && ((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LOP_SENS) == CFGZ::CFGZ_DISABLE)
-                || (_stLOP.stValAndStatus.f32InstSensorVal < _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_LOP_SENS))
+                || (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_DISABLE))
+            && ((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_ON_LOP_SENS) == CFGZ::CFGZ_DISABLE)
+                || (_stLOP.stValAndStatus.f32InstSensorVal < _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_LOP_SENS))
                 || ( (_stLOP.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT) ||
                      (_stLOP.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED) )
                 )
@@ -802,7 +802,7 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
         UTILS_ResetTimer(&_TimerOneMin);
 
         if((_u8EngineOn == 1U) && (IsGenStartValid()) &&
-            (_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_ENGINE_SPEED)))
+            (_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ENGINE_SPEED)))
         {
             /* todo : If required, need to update J1939 dependency on run hours */
             _stCummulativeCnt.u32EngineRunTime_min++;
@@ -910,8 +910,8 @@ bool ENGINE_MONITORING::prvDisconnectCranckByChanrgingAlt()
 {
     /* prvUpdateEngineCranked() function is called every 50ms hence the _u8ChargAltMonCount
      * corresponds to 2 seconds will be 2000ms/50ms = 40*/
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_CHG_ALT_VOLT) == CFGZ::CFGZ_ENABLE)
-        && (_hal.AnalogSensors.GetFilteredChargingAltVolts() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_CHG_ALT_THRESHOLD))
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_ON_CHG_ALT_VOLT) == CFGZ::CFGZ_ENABLE)
+        && (_hal.AnalogSensors.GetFilteredChargingAltVolts() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_CHG_ALT_THRESHOLD))
         && (START_STOP::IsMonitorChargAltTrue()))
     {
         return true;
@@ -924,11 +924,11 @@ bool ENGINE_MONITORING::prvDisconnectCranckByChanrgingAlt()
 bool ENGINE_MONITORING::prvDisconnectCranckByLOPSensor()
 {
     /* todo: have confusion about sensors */
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LOP_SENS)  == CFGZ::CFGZ_ENABLE) &&
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_ON_LOP_SENS)  == CFGZ::CFGZ_ENABLE) &&
         ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
         ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_LOP_CURR_SENSOR))) &&
         (_stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT) &&
-        (_stLOP.stValAndStatus.f32InstSensorVal > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_LOP_SENS)))
+        (_stLOP.stValAndStatus.f32InstSensorVal > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_LOP_SENS)))
     {
         /* wait for 1 sec to make a decision */
         return (UTILS_GetElapsedTimeInSec(&_LOPSensMonTimer) >= 1U);
@@ -942,7 +942,7 @@ bool ENGINE_MONITORING::prvDisconnectCranckByLOPSensor()
 
 bool ENGINE_MONITORING::prvDisconnectCranckByLOPSwitch()
 {
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_ENABLE)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_ENABLE)
     {
         if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
         {
@@ -963,7 +963,7 @@ bool ENGINE_MONITORING::prvDisconnectCranckByLOPSwitch()
                 }
             }
 
-            if(UTILS_GetElapsedTimeInMs(&_LLOPCrankingTimer) >= (uint64_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_LLOP_SW_TRANS_TIME)*1000))
+            if(UTILS_GetElapsedTimeInMs(&_LLOPCrankingTimer) >= (uint64_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_LLOP_SW_TRANS_TIME)*1000))
             {
                 UTILS_DisableTimer(&_LLOPCrankingTimer);
                 return  true;

@@ -56,18 +56,18 @@ void SLEEP_Handler::Update()
     }
     /*Enter sleep if sleep timer is expired*/
     // Avoid going in sleep mode during Dflash write operation
-    else if((UTILS_GetElapsedTimeInSec(&_sleepTmr) >=
-                                _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_DEEP_SLP_MODE_DELAY))
-             )
-    {
-        if(!_hal.Objeeprom.IsRquestPending())
-        {
-            bKeyEvent = false;
-
-            /*De-energize all outputs*/
-//            _hal.EnterSleep();Commented by SuryaPranayTeja as GC2111 should not enter Sleep in any conditions
-        }
-    }
+//    else if((UTILS_GetElapsedTimeInSec(&_sleepTmr) >=
+//                                _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_DEEP_SLP_MODE_DELAY))
+//             )
+//    {
+//        if(!_hal.Objeeprom.IsRquestPending())
+//        {
+//            bKeyEvent = false;
+//
+//            /*De-energize all outputs*/
+////            _hal.EnterSleep();Commented by SuryaPranayTeja as GC2111 should not enter Sleep in any conditions
+//        }
+//    }
 }
 
 void SLEEP_Handler::KickSleepTimer()

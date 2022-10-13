@@ -368,7 +368,7 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
         case CFGZ::CFGZ_LOW_FUEL_LEVEL_SWITCH:
             ArrAlarmMonitoring[LFL_SWITCH].bEnableMonitoring = true;
             prvSetAlarmAction_NoWESN(LFL_SWITCH, u8AlarmAction);
-            prvSetAlarmActivation(LFL_SWITCH, CFGZ::CFGZ_ALWAYS);
+            prvSetAlarmActivation(LFL_SWITCH, CFGZ::CFGZ_FROM_MONITORING_ON);
             ArrAlarmMonitoring[LFL_SWITCH].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[LOW_FUEL_LVL_SWITCH_STATUS];
             ArrAlarmMonitoring[u8InputIndex].LocalEnable = &_u8DummyOne;
@@ -387,7 +387,7 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             ArrAlarmMonitoring[LLOP_SWITCH].u8LoggingID = GCU_ALARMS::Low_Oil_Pressure_id;
             ArrAlarmMonitoring[LLOP_SWITCH].pValue = &_ArrAlarmValue[LLOP_SWITCH_STATUS];
 
-            ArrAlarmMonitoring[LLOP_MON].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_MON_LLOP_BEFORE_CRANK) == CFGZ::CFGZ_ENABLE);
+            ArrAlarmMonitoring[LLOP_MON].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_MON_LLOP_BEFORE_CRNK) == CFGZ::CFGZ_ENABLE);
             ArrAlarmMonitoring[LLOP_MON].LocalEnable = &_u8EngineOff ;
             ArrAlarmMonitoring[LLOP_MON].bMonitoringPolarity = false;
             ArrAlarmMonitoring[LLOP_MON].Threshold.u8Value = 1;
@@ -867,7 +867,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
                 ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = NoAlarm_id;
                 ArrAlarmMonitoring[u8AlarmIndex].Threshold.u16Value = _cfgz.GetCFGZ_Param(CFGZ::ID_UNDER_VOLT_MON_RETURN);
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_RETN_TO_MAINS_DELAY);
+                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_MAINS_DETECT_DELAY);
                 ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = TWO_BYTE_INT;
             }
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[MAINS_MIN_PHASE_VOLTAGE];
@@ -880,7 +880,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
                 ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = false;
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = NoAlarm_id;
                 ArrAlarmMonitoring[u8AlarmIndex].Threshold.u16Value = _cfgz.GetCFGZ_Param(CFGZ::ID_OVER_VOLT_MON_RETURN);
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_RETN_TO_MAINS_DELAY);
+                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_MAINS_DETECT_DELAY);
                 ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = TWO_BYTE_INT;
             }
              ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[MAINS_MAX_PHASE_VOLTAGE];
@@ -919,7 +919,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
                 ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = NoAlarm_id;
                 ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_UNDER_FREQ_MON_RETURN);
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_RETN_TO_MAINS_DELAY);
+                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_MAINS_DETECT_DELAY);
                 ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
             }
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[MAINS_MIN_PHASE_FREQ];
@@ -932,7 +932,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
                 ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = false;
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = NoAlarm_id;
                 ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_OVER_FREQ_MON_RETURN);
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_RETN_TO_MAINS_DELAY);
+                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_MAINS_DETECT_DELAY);
                 ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
             }
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[MAINS_MAX_PHASE_FREQ];
@@ -1305,13 +1305,13 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             break;
         case OIL_PRESS_MON:
 
-            if((stLOP.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_MON_LOP_BEFORE_CRANK) == CFGZ::CFGZ_ENABLE) )
+            if((stLOP.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_MON_LOP_BEFORE_CRANK) == CFGZ::CFGZ_ENABLE) )
             {
                 ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true;
                 ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8EngineOff;
                 ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = NoAlarm_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_DISCONN_LOP_SENS);
+                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_LOP_SENS);
                 ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
                 ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
             }
@@ -1349,7 +1349,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
                 ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = false;
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = NoAlarm_id;
                 ArrAlarmMonitoring[u8AlarmIndex].Threshold.u16Value = 100;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20 * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_MAINS_DETECT_DELAY);
+                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_MAINS_DETECT_DELAY);
                 ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = TWO_BYTE_INT;
             }
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[MAINS_PH_PH_MIN_VOLTAGE];
@@ -1361,7 +1361,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
                 ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = NoAlarm_id;
                 ArrAlarmMonitoring[u8AlarmIndex].Threshold.u16Value = 100;
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20 * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_RETN_TO_MAINS_DELAY);
+                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_MAINS_DETECT_DELAY);
                 ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = TWO_BYTE_INT;
             }
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[MAINS_PH_PH_MIN_VOLTAGE];
@@ -1722,43 +1722,43 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         }
         break;
         case ALARM_AMBER_LAMP :
-        {
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_AMBER) != CFGZ::CFGZ_ACTION_NONE);
-            prvSetAlarmAction_NoWESN(ALARM_AMBER_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_AMBER));
-            prvSetAlarmActivation(ALARM_AMBER_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_AMBER));
-            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Amber_Lamp_id;
-            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_AMBER);
-        }
+//        {
+//            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_AMBER) != CFGZ::CFGZ_ACTION_NONE);
+//            prvSetAlarmAction_NoWESN(ALARM_AMBER_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_AMBER));
+//            prvSetAlarmActivation(ALARM_AMBER_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_AMBER));
+//            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Amber_Lamp_id;
+//            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_AMBER);
+//        }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[J1939_AMBER_LAMP_STATUS];
         break;
         case ALARM_RED_LAMP :
-        {
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_RED) != CFGZ::CFGZ_ACTION_NONE);
-            prvSetAlarmAction_NoWESN(ALARM_RED_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_RED));
-            prvSetAlarmActivation(ALARM_RED_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_RED));
-            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Red_Lamp_id;
-            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_RED);
-        }
+//        {
+//            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_RED) != CFGZ::CFGZ_ACTION_NONE);
+//            prvSetAlarmAction_NoWESN(ALARM_RED_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_RED));
+//            prvSetAlarmActivation(ALARM_RED_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_RED));
+//            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Red_Lamp_id;
+//            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_RED);
+//        }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[J1939_RED_LAMP_STATUS];
         break;
         case ALARM_MIL_LAMP:
-        {
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_MIL) != CFGZ::CFGZ_ACTION_NONE);
-            prvSetAlarmAction_NoWESN(ALARM_MIL_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_MIL));
-            prvSetAlarmActivation(ALARM_MIL_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_MIL));
-            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Mil_Lamp_id;
-            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_MIL);
-        }
+//        {
+//            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_MIL) != CFGZ::CFGZ_ACTION_NONE);
+//            prvSetAlarmAction_NoWESN(ALARM_MIL_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_MIL));
+//            prvSetAlarmActivation(ALARM_MIL_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_MIL));
+//            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Mil_Lamp_id;
+//            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_MIL);
+//        }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[J1939_MIL_LAMP_STATUS];
         break;
         case ALARM_PROTECT_LAMP:
-        {
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_PROTECT) != CFGZ::CFGZ_ACTION_NONE);
-            prvSetAlarmAction_NoWESN(ALARM_PROTECT_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_PROTECT));
-            prvSetAlarmActivation(ALARM_PROTECT_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_PROTECT));
-            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Protect_Lamp_id;
-            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_PROTECT);
-        }
+//        {
+//            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_PROTECT) != CFGZ::CFGZ_ACTION_NONE);
+//            prvSetAlarmAction_NoWESN(ALARM_PROTECT_LAMP, _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_PROTECT));
+//            prvSetAlarmActivation(ALARM_PROTECT_LAMP,  _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTIVATION_PROTECT));
+//            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Alarm_Protect_Lamp_id;
+//            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACT_DELAY_PROTECT);
+//        }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[J1939_PROTECT_LAMP_STATUS];
         break;
         case ALARM_P0031 :

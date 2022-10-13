@@ -25,10 +25,12 @@ stTimer START_STOP::_EngStoppingTimer = {0};
 bool START_STOP::_bOPPreheat = false;
 bool START_STOP::_bOPFuelRelay= false;
 bool START_STOP::_bEngineOnFailToStopAck = false;
+DigitalSensor::STATUS_t START_STOP::prevModeSwitchState = DigitalSensor::SENSOR_UNLATCHED;
+DigitalSensor::STATUS_t START_STOP::currModeSwitchState = DigitalSensor::SENSOR_UNLATCHED;
 
 bool START_STOP::_bStopCommand = false;
 START_STOP::SS_STATE_t START_STOP::_State =ID_STATE_SS_ENG_OFF_OK;
-//extern J1939APP *gpJ1939;
+
 START_STOP::START_STOP(HAL_Manager &hal, ENGINE_MONITORING &EngineMon, CFGZ &cfgz,  
                         GCU_ALARMS &GCUAlarms, BASE_MODES::GCU_MODE_VARS_t &vars, CHARGING_ALT &ChargeAlt, ENGINE_START_VALIDITY  &EngineStartValidity):
 _hal(hal),
@@ -49,12 +51,7 @@ _bSimAutoReceived(false),
 _bSimAutoLatched(false),
 _bSimStartLatched(false),
 _bSimStopLatched(false),
-_bAlarmMutePressed(false),
-_bAlarmMuteReleased(false),
-_bAlarmAckPressed(false),
-_bAlarmAckReleased(false),
-_bAckAudblAlrmRecd(false),
-_bSimAckRecd(false),
+_bModeSwicthAutoKeyPress(false),
 _bDGIdleRunDelayRunning(false),
 _PreheatTimer{0},
 _EngStartTimer{0},
@@ -225,7 +222,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 else if((UTILS_GetElapsedTimeInSec(&_EngCrankingTimer)) >= 
                         _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME))
                 {
-                    if(_u8NoOfCrankAttempts >= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONNECT_START_ATTEMPTS))
+                    if(_u8NoOfCrankAttempts >= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_START_ATTEMPTS))
                     {
                         _GCUAlarms.UpdateFailToStart();
                         _State = ID_STATE_SS_ENG_OFF_ERR;
@@ -762,6 +759,23 @@ void START_STOP::prvUpdateSimStartStopStatus()
         }
     }
 
+    prevModeSwitchState = currModeSwitchState;
+    if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT)!= DigitalSensor::SENSOR_NOT_CONFIGRUED)
+    {
+        currModeSwitchState = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT);
+    }
+    if(prevModeSwitchState!=currModeSwitchState)
+    {
+        _bModeSwicthAutoKeyPress = true;
+    }
+    else
+    {
+        _bModeSwicthAutoKeyPress = false;
+    }
+}
+bool START_STOP::IsModeSwitchAutoKeyReceived()
+{
+    return _bModeSwicthAutoKeyPress;
 }
 
 bool START_STOP::IsSimAutoReceived()

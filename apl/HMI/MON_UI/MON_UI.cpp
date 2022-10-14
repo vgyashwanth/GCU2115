@@ -251,6 +251,19 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
         case UP_SHORT_PRESS:  //Up key Press
         {
+            {/*SuryaPranayTeja.Bvv 13-10-2022
+              The below functionality is added as in NXP
+               by UP key press also the Sounder Alarm gets turned off
+               and we need to support it*/
+                if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == true)
+                {
+                    _GCUAlarms.TurnOffSounderAlarm();
+                }
+                else
+                {
+                    /* do nothing */
+                }
+            }
             if(_stScreenNo == _u8ScreenMin)
             {
                 eDisplayMode = DISP_ALARM_MODE;
@@ -265,8 +278,6 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                 }
                 else if(eMonScreenType == MON_SCREEN_J1939)
                 {
-                /* suggestion sgc4xx: if execution is came at first screen of J1939, on pressing UP, the execution should move to the last screen of normal mon
-                   screen. isnt it ? WHy screen number is made directly shifted to first screen of normal mon sceen ? */
                     MON_UI::_stScreenNo = DISP_MON_HOME;
                     if( _cfgz.GetEngType()==CFGZ::ENG_KUBOTA) /* todo: properly add the engine types */
                     {
@@ -275,7 +286,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                     else
                     {
                         ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
-                         _j1939.RequestDM2Messages();
+                        _j1939.RequestDM2Messages();
                     }
                 }
             }
@@ -289,43 +300,43 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
         case DN_SHORT_PRESS: //Dn key Press
         {
-           //Note while check for _stScreenNo shall be placed immediately
-           _stScreenNo++;
-           while(_ArrScreenEnDs[_stScreenNo] == false)
-           {
-               _stScreenNo++;
-               if(_stScreenNo >= _u8ScreenMax)
-               {
-                   _stScreenNo = _u8ScreenMin;
+            //Note while check for _stScreenNo shall be placed immediately
+            _stScreenNo++;
+            while(_ArrScreenEnDs[_stScreenNo] == false)
+            {
+                _stScreenNo++;
+                if(_stScreenNo >= _u8ScreenMax)
+                {
+                    _stScreenNo = _u8ScreenMin;
 
-                   ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
-                   eDisplayMode = DISP_ALARM_MODE;
-                   ALARM_UI::ClearAlarmScreenNum();
+                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
+                    eDisplayMode = DISP_ALARM_MODE;
+                    ALARM_UI::ClearAlarmScreenNum();
 
-                   if(eMonScreenType == MON_SCREEN_J1939)
-                   {
-                       MON_UI::_stScreenNo = DISP_MON_HOME;
-                       ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
-                       _j1939.RequestDM2Messages();
-                   }
+                    if(eMonScreenType == MON_SCREEN_J1939)
+                    {
+                        MON_UI::_stScreenNo = DISP_MON_HOME;
+                        ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
+                        _j1939.RequestDM2Messages();
+                    }
 
-               }
-           }
+                }
+            }
 
-           if(MON_UI::_stScreenNo >= _u8ScreenMax)
-           {
-               MON_UI::_stScreenNo = _u8ScreenMin;
-               ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
-               eDisplayMode = DISP_ALARM_MODE;
-               ALARM_UI::ClearAlarmScreenNum();
-               if(eMonScreenType == MON_SCREEN_J1939)
-               {
-                  MON_UI::_stScreenNo = DISP_MON_HOME;
-                  ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
-                  _j1939.RequestDM2Messages();
-               }
+            if(MON_UI::_stScreenNo >= _u8ScreenMax)
+            {
+                MON_UI::_stScreenNo = _u8ScreenMin;
+                ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
+                eDisplayMode = DISP_ALARM_MODE;
+                ALARM_UI::ClearAlarmScreenNum();
+                if(eMonScreenType == MON_SCREEN_J1939)
+                {
+                    MON_UI::_stScreenNo = DISP_MON_HOME;
+                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
+                    _j1939.RequestDM2Messages();
+                }
 
-           }
+            }
         }
         break;
 
@@ -351,14 +362,14 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
         case DN_STOP_KEY_LONG_PRESS:
         {
             //software reset to go in boot loader
-           NVIC_SystemReset();
+            NVIC_SystemReset();
 
         }
         break;
 
         case DN_LONG_PRESS:
         {
-//            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) && (!_manualMode.IsGenRunTimersInProcess()))
+            //            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) && (!_manualMode.IsGenRunTimersInProcess()))
 
             if(!_manualMode.IsGenRunTimersInProcess()) /* todo: yet to add engine type dependency. */
             {
@@ -369,7 +380,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                     ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
                     _j1939.RequestDM2Messages();
                 }
-                 eMonScreenType = MON_SCREEN_NORMAL;
+                eMonScreenType = MON_SCREEN_NORMAL;
                 _stScreenNo = DISP_MON_HOME;
 
             }
@@ -377,52 +388,37 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
         break;
 
         case AUTO_KEY_LONG_PRESS:
-        if((_eOpMode == BASE_MODES::MANUAL_MODE)
-            && (_manualMode.GetManualModeState() == BASE_MODES::STATE_MANUAL_GEN_OFF))
-        {
-            GoToHomeScreen();
-            _eOpMode = BASE_MODES::TEST_MODE;
-            _manualMode.SetGCUOperatingMode(_eOpMode);
-        }
-        break;
+            if((_eOpMode == BASE_MODES::MANUAL_MODE)
+                    && (_manualMode.GetManualModeState() == BASE_MODES::STATE_MANUAL_GEN_OFF))
+            {
+                GoToHomeScreen();
+                _eOpMode = BASE_MODES::TEST_MODE;
+                _manualMode.SetGCUOperatingMode(_eOpMode);
+            }
+            break;
 
         default:
-        break;
+            break;
     }
 }
 
-/* Shubham Wader 15.09.2022
- todo: Adding below macro to use while development. While release, remove that */
-#define ENABLE_ALL_MON_SCREENS     (0)
 void MON_UI::prvConfigureScreenEnable()
 {
+    /*Todo:All the Screens of CAN are hard coded as disabled */
     static uint8_t u8Screen;
     for(u8Screen = DISP_MON_HOME ; u8Screen<DISP_MON_LAST; u8Screen++)
     {
         _ArrScreenEnDs[u8Screen] = false;
-#if ENABLE_ALL_MON_SCREENS
-        _ArrScreenEnDs[u8Screen] = true;
-#endif
         switch(u8Screen)
         {
-            /* todo: update screen en/dis dependencies */
             case DISP_MON_HOME :
             case DISP_MON_PRODUCT_ID :
                 _ArrScreenEnDs[u8Screen] = true;
                 break;
-            /* Shubham Wader 20.09.2022
-              As per the communication received from Devendra D.(SYSE), below two screens will be always OFF in the
-              initial build we are giving. This build wont have CAN comm(J1939). todo */
+
             case DISP_MON_CAN_COMMUNICATION_INFO :
             case DISP_MON_ENG_LINK_INFO :
-                if(false)
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
-                else
-                {
-                    /* do nothing */
-                }
+                    _ArrScreenEnDs[u8Screen] = false;
                 break;
 
             case DISP_MON_GEN_VOLTAGE :
@@ -525,7 +521,7 @@ void MON_UI::prvConfigureScreenEnable()
                 break;
             case DISP_MON_LUBE_OIL_PRESSURE :/* todo: need to add J1939 dependency if added */
                 if(((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-                        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3))))
+                        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) >= CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))))
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
@@ -1878,22 +1874,22 @@ void MON_UI::prvNormalMonScreens()
 
              if(_manualMode.IsNightModeRestrictOn())
              {
-                 _Disp.printStringLeftAligned((char *)StrNightModeRestrict[_u8LanguageIndex],FONT_ARIAL);
+                 _Disp.printStringLeftAligned((char *)StrNightModeRestrict[_u8LanguageIndex],FONT_VERDANA);
              }
              else if(_eOpMode == BASE_MODES::AUTO_MODE)
              {
                  if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING)== CFGZ::CFGZ_ENABLE)
                  {
-                     _Disp.printStringLeftAligned((char *)StrAutoAMF[_u8LanguageIndex],FONT_ARIAL);
+                     _Disp.printStringLeftAligned((char *)StrAutoAMF[_u8LanguageIndex],FONT_VERDANA);
                  }
                  else
                  {
-                     _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][ BASE_MODES::AUTO_MODE],FONT_ARIAL);
+                     _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][ BASE_MODES::AUTO_MODE],FONT_VERDANA);
                  }
              }
              else
              {
-                 _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][_eOpMode],FONT_ARIAL);
+                 _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][_eOpMode],FONT_VERDANA);
              }
         }
         break;
@@ -2004,7 +2000,7 @@ void MON_UI::prvNormalMonScreens()
                         (char *)strPhase[u8Local],
                         abs(_hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)u8Local)));
                     _Disp.gotoxy(GLCD_X(55),GLCD_Y(u8Position));
-                    _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
+                    _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
                     u8Position = u8Position + 15;
                 }
             }
@@ -2015,7 +2011,7 @@ void MON_UI::prvNormalMonScreens()
                    (char *)strPhase[R_PHASE],
                 _hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)R_PHASE));
                 _Disp.gotoxy(GLCD_X(48),GLCD_Y(35));
-                _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
+                _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
             }
         }
         break;
@@ -2046,8 +2042,8 @@ void MON_UI::prvNormalMonScreens()
                     _Disp.printStringLeftAligned((char *)strPhase[u8Local],FONT_VERDANA);
 
                     _Disp.gotoxy(GLCD_X(50),GLCD_Y(u8Position));
-                    sprintf(arrTemp,"%.0f",((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)u8Local));
-                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                    sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)u8Local));
+                    _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
                     _Disp.gotoxy(GLCD_X(52),GLCD_Y(u8Position));
                     _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
@@ -2063,17 +2059,17 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.gotoxy(GLCD_X(40),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
 
-                _Disp.gotoxy(GLCD_X(72),GLCD_Y(35));
+                _Disp.gotoxy(GLCD_X(68),GLCD_Y(35));
                 sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)R_PHASE));
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
-                _Disp.gotoxy(GLCD_X(75),GLCD_Y(35));
+                _Disp.gotoxy(GLCD_X(71),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
             }
 
             _Disp.gotoxy(GLCD_X(100),GLCD_Y(35));
             sprintf(arrTemp,"%0.1f", f32GenMinFreq);
-            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
             _Disp.gotoxy(GLCD_X(102),GLCD_Y(35));
             _Disp.printStringLeftAligned((char *)"Hz", FONT_VERDANA);
         }
@@ -2096,7 +2092,7 @@ void MON_UI::prvNormalMonScreens()
                 sprintf(arrTemp,"   %0.1lf",
                         ((&_hal.AcSensors)->*ArrGetVal[u8Local])() /1000);
                 _Disp.gotoxy(GLCD_X(97),GLCD_Y(u8Position));
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
                 _Disp.gotoxy(GLCD_X(99),GLCD_Y(u8Position));
                 _Disp.printStringLeftAligned((char *)strEnergy[u8Local],
                                              FONT_VERDANA);
@@ -2659,7 +2655,7 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
                  sprintf(arrTemp,"%d",(uint16_t)
                         ((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local));
                  _Disp.gotoxy(GLCD_X(50),GLCD_Y(u8Position));
-                 _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
                  _Disp.printChar('V',FONT_VERDANA);
              }
              else
@@ -2667,7 +2663,7 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
                  sprintf(arrTemp,"%.1f",(float)
                         (((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local))/1000.0f);
                  _Disp.gotoxy(GLCD_X(50),GLCD_Y(u8Position));
-                 _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
                  _Disp.printStringLeftAligned((char *)"kV",FONT_VERDANA);
              }
 
@@ -2685,7 +2681,7 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
              {
                  sprintf(arrTemp,"%d",(uint16_t)((&_hal.AcSensors)->*ArrGetPhToPhVal[eSource][ePhPh])());
                  _Disp.gotoxy(GLCD_X(120),GLCD_Y(u8Position));
-                 _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
                  _Disp.printChar('V',FONT_VERDANA);
                  u8Position = u8Position + 15;
              }
@@ -2693,7 +2689,7 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
              {
                  sprintf(arrTemp,"%.1f",(float)(((&_hal.AcSensors)->*ArrGetPhToPhVal[eSource][ePhPh])()/1000.0f));
                  _Disp.gotoxy(GLCD_X(115),GLCD_Y(u8Position));
-                 _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
                  _Disp.gotoxy(GLCD_X(116),GLCD_Y(u8Position));
                  _Disp.printStringLeftAligned((char *)"kV",FONT_VERDANA);
                  u8Position = u8Position + 15;
@@ -2714,13 +2710,13 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
         if(!prvIsValDigitsGreaterThan3((uint16_t)((&_hal.AcSensors)->*ArrGetVtgVal[eSource])(R_PHASE)))
         {
             sprintf(arrTemp,"%d",(uint16_t)((&_hal.AcSensors)->*ArrGetVtgVal[eSource])(R_PHASE));
-            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
             _Disp.printChar('V',FONT_VERDANA);
         }
         else
         {
             sprintf(arrTemp,"%.1f",(float)(((&_hal.AcSensors)->*ArrGetVtgVal[eSource])(R_PHASE)/1000.0f));
-            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
             _Disp.printStringLeftAligned((char *)"kV",FONT_VERDANA);
         }
     }
@@ -3169,11 +3165,12 @@ void MON_UI::prvAutoKeyPressAction()
     }
     else if(_eOpMode == BASE_MODES::BTS_MODE)
     {
-
+//        _BTSMode.ClearBTSVars();
+        _eOpMode = BASE_MODES::MANUAL_MODE;
         if(  (_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_OFF_MAINS_OFF)
            ||(_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_OFF_MAINS_ON))
         {
-            _eOpMode = BASE_MODES::MANUAL_MODE;
+
             _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
             _manualMode.DisableReturnToMains();
         }

@@ -291,12 +291,12 @@ void MB_APP::prvUpdateElectricalParams()
     /*KWH in 0.1 resolution*/
 
     u32Tmp = (uint32_t)(ac.GENSET_GetTotalApparentEnergySinceInitVAH()/100);
-    SetReadRegisterValue(MB_GEN_CUMM_APPARENT_ENERGY_1, (uint16_t)(u32Tmp>>16));
-    SetReadRegisterValue(MB_GEN_CUMM_APPARENT_ENERGY_2, (uint16_t)(u32Tmp & 0xFFFFU));
+    SetReadRegisterValue(MB_GEN_CUMM_APPARENT_ENERGY_1, (uint16_t)(u32Tmp & 0xFFFFU));
+    SetReadRegisterValue(MB_GEN_CUMM_APPARENT_ENERGY_2, (uint16_t)(u32Tmp>>16));
 
     u32Tmp = (uint32_t)(ac.GENSET_GetTotalReactiveEnergySinceInitVARH()/100);
-    SetReadRegisterValue(MB_GEN_CUMM_REACTIVE_ENERGY_1, (uint16_t)(u32Tmp>>16));
-    SetReadRegisterValue(MB_GEN_CUMM_REACTIVE_ENERGY_2, (uint16_t)(u32Tmp & 0xFFFFU));
+    SetReadRegisterValue(MB_GEN_CUMM_REACTIVE_ENERGY_1, (uint16_t)(u32Tmp & 0xFFFFU));
+    SetReadRegisterValue(MB_GEN_CUMM_REACTIVE_ENERGY_2, (uint16_t)(u32Tmp>>16));
 
     u32Tmp = (uint32_t)(_hal.AcSensors.MAINS_GetTotalActiveEnergySinceInitWH()/1000);
     SetReadRegisterValue(MB_MAINS_CUMM_ACTIVE_ENERGY_1, (uint16_t)(u32Tmp & 0xFFFFU));
@@ -369,7 +369,7 @@ void MB_APP::prvUpdateAnalogParams()
         (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
     {
         /*Scale factor is 0.1*/
-        u16Tmp = (int16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal)*10);
+        u16Tmp = (int16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal));
         SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
     }
 
@@ -383,7 +383,7 @@ void MB_APP::prvUpdateAnalogParams()
         u16Tmp = (uint16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal));
         SetReadRegisterValue(MD_FUEL_PERCENTAGE, u16Tmp);
 
-        u16Tmp = (uint16_t)round(sensorVal.stValAndStatus.f32InstSensorVal *_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)/10);
+        u16Tmp = (uint16_t)round(sensorVal.stValAndStatus.f32InstSensorVal *_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY));
         SetReadRegisterValue(MB_FUEL_IN_LIT, u16Tmp);
     }
 

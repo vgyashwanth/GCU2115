@@ -241,10 +241,14 @@ bool MAIN_UI::Update()
      if(_sbKeyEventAvailable || stMBEvent.bKeyEvent)
      {
         _sbKeyEventAvailable = false;
-        //UTILS_ResetTimer(&_AutoExitTimer); // need to remove
+
         _sleep.KickSleepTimer();
         UTILS_ResetTimer(&_ScreenChangeOverTimer);
         UTILS_ResetTimer(&_PoweSaveModeTimer);
+
+        /*If the LCD is turned off due to Power save mode Elapse then
+         * */
+        _hal.ObjGlcd.TurnOnBackLight();
 
 
 

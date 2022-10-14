@@ -92,6 +92,19 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
     {
         case UP_SHORT_PRESS:  //Up key Press
        {
+           {/*SuryaPranayTeja.Bvv 13-10-2022
+              The below functionality is added as in NXP
+               by UP key press also the Sounder Alarm gets turned off
+               and we need to support it*/
+               if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == true)
+               {
+                   _alarm.TurnOffSounderAlarm();
+               }
+               else
+               {
+                   /* do nothing */
+               }
+           }
            if(u8AlarmScreenNum == 0)
            {
               u8AlarmScreenNum = _u8NumberOfAlarms;

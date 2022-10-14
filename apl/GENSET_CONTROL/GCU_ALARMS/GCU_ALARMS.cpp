@@ -64,7 +64,6 @@ _u8ActuatorFailAlarm(0),
 _u8AFTActivationTimeout(0),
 _u8HighEngTempAlarm(0),
 _u8HighEngTempSwitch(0),
-_u8HighCanopyTempAlarm(0),
 _u8HighLubeOilTempAlarm(0),
 _u8AlarmIndex(0),
 _u8DummyZero(0),
@@ -393,7 +392,7 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             ArrAlarmMonitoring[LLOP_MON].Threshold.u8Value = 1;
             ArrAlarmMonitoring[LLOP_MON].ThreshDataType = ONE_BYTE_INT;
             ArrAlarmMonitoring[LLOP_MON].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
-            ArrAlarmMonitoring[LLOP_MON].u8LoggingID = GCU_ALARMS::NoAlarm_id;
+            ArrAlarmMonitoring[LLOP_MON].u8LoggingID = NoAlarm_id;
             ArrAlarmMonitoring[LLOP_MON].pValue = &_ArrAlarmValue[LLOP_SWITCH_STATUS];
 
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[LLOP_SWITCH_STATUS];
@@ -497,7 +496,7 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             ArrAlarmMonitoring[MAINS_CONTACTOR_LATCHED].bEnableMonitoring = true;
             prvSetAlarmActivation(MAINS_CONTACTOR_LATCHED, CFGZ::CFGZ_ALWAYS);
             ArrAlarmMonitoring[MAINS_CONTACTOR_LATCHED].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
-            ArrAlarmMonitoring[MAINS_CONTACTOR_LATCHED].u8LoggingID = GCU_ALARMS::NoAlarm_id;
+            ArrAlarmMonitoring[MAINS_CONTACTOR_LATCHED].u8LoggingID = NoAlarm_id;
             ArrAlarmMonitoring[MAINS_CONTACTOR_LATCHED].pValue = &_ArrAlarmValue[MAINS_CONT_LATCHED_STATUS];
 
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[MAINS_CONT_LATCHED_STATUS ];
@@ -508,7 +507,7 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             ArrAlarmMonitoring[DG_CONTACTOR_LATCHED].bEnableMonitoring = true;
             prvSetAlarmActivation(DG_CONTACTOR_LATCHED, CFGZ::CFGZ_ALWAYS);
             ArrAlarmMonitoring[DG_CONTACTOR_LATCHED].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
-            ArrAlarmMonitoring[DG_CONTACTOR_LATCHED].u8LoggingID = GCU_ALARMS::NoAlarm_id;
+            ArrAlarmMonitoring[DG_CONTACTOR_LATCHED].u8LoggingID = NoAlarm_id;
             ArrAlarmMonitoring[DG_CONTACTOR_LATCHED].pValue = &_ArrAlarmValue[GEN_CONT_LATCHED_STATUS];
 
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[GEN_CONT_LATCHED_STATUS];
@@ -546,7 +545,7 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             ArrAlarmMonitoring[MODE_SELECT].bEnableMonitoring = true;
             prvSetAlarmActivation(MODE_SELECT, CFGZ::CFGZ_ALWAYS);
             ArrAlarmMonitoring[MODE_SELECT].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
-            ArrAlarmMonitoring[MODE_SELECT].u8LoggingID = GCU_ALARMS::NoAlarm_id;
+            ArrAlarmMonitoring[MODE_SELECT].u8LoggingID = NoAlarm_id;
             ArrAlarmMonitoring[MODE_SELECT].pValue = &_ArrAlarmValue[MODE_SELECT_STATUS];
 
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[MODE_SELECT_STATUS];
@@ -556,7 +555,7 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             ArrAlarmMonitoring[AMB_TEMP_SWITCH].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_AMB_TEMPERATURE) == CFGZ::CFGZ_ENABLE);
             prvSetAlarmActivation(AMB_TEMP_SWITCH, CFGZ::CFGZ_ALWAYS);
             ArrAlarmMonitoring[AMB_TEMP_SWITCH].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
-            ArrAlarmMonitoring[AMB_TEMP_SWITCH].u8LoggingID = GCU_ALARMS::NoAlarm_id;
+            ArrAlarmMonitoring[AMB_TEMP_SWITCH].u8LoggingID = NoAlarm_id;
             ArrAlarmMonitoring[AMB_TEMP_SWITCH].pValue = &_ArrAlarmValue[AMB_TEMP_SELECT_STATUS];
 
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[AMB_TEMP_SELECT_STATUS];
@@ -1902,7 +1901,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[FUEL_OPEN_CKT_VAL].u8Value = (uint8_t)(stFuel.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT);
 
 
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
         if(stLOP.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT)
         {
@@ -1976,10 +1975,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
 
     _ArrAlarmValue[GEN_UNBALANCED_LOAD].u8Value = prvGetUnbalancedLoadVal();
 
-
     _ArrAlarmValue[HIGH_OIL_PRESSURE].u8Value = _u8HighOilPressDetectedAlarm;
-
-
 
     _ArrAlarmValue[INVALID_GEN_START_STATUS].u8Value = !(uint8_t)(ENGINE_START_VALIDITY::IsValidEngineStartFound());
 
@@ -2924,11 +2920,11 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(_u8LowOilPressAlarm, ACTUATOR::ACT_LOW_PRES);
     //ACT_MAINS_HIGH Handled in the prvMainsHighLowOutputs Function of GCU ALARMS
     //ACT_MAINS_LOW Handled in the prvMainsHighLowOutputs Function of GCU ALARMS
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) || (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_LOP_VOL_SENSOR))
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) || (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
     {
         prvActDeactOutput(ArrAlarmMonitoring[OPEN_LOP_SENS_CKT].bResultLatched, ACTUATOR::ACT_OIL_CKT_OPEN);
     }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_LOP_CUR_SENSOR)
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION)==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
         prvActDeactOutput(ArrAlarmMonitoring[OPEN_LOP_CURR_SENS_CKT].bResultLatched, ACTUATOR::ACT_OIL_CKT_OPEN);
     }

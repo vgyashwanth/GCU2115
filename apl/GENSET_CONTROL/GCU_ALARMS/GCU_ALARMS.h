@@ -713,7 +713,6 @@ private:
     uint8_t       _u8AFTActivationTimeout;
     uint8_t       _u8HighEngTempAlarm;
     uint8_t       _u8HighEngTempSwitch;
-    uint8_t       _u8HighCanopyTempAlarm;
     uint8_t       _u8HighLubeOilTempAlarm;
     uint8_t       _u8AlarmIndex;
     uint8_t       _u8DummyZero;

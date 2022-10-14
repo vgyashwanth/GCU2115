@@ -85,7 +85,7 @@
 #define FACTORY_CFGZ_ADDRESS                      0x78000
 
 
-#define MAX_NUMBER_OF_PROFILE   10
+#define MAX_NUMBER_OF_PROFILE   15
 #define MAX_DISP_CONST   100
 
 #endif /* APL_CONFIG_H_ */

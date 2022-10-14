@@ -615,18 +615,6 @@ class CFGZ
         CFGZ_ANLG_CUSTOM_SENSOR3,
     } CFGZ_ANLG_SENSORS_t;
 
-    typedef enum {
-        CFGZ_LOP_CURR_SENS_NOT_USED   = 0,
-        CFGZ_CURR_ANLG_DIG_IN,
-        CFGZ_ANLG_LOP_CURR_SENSOR
-    } CFGZ_LOP_CURR_SENSORS_t;
-    typedef enum {
-        CFGZ_S3_SENS_NOT_USED   = 0,
-        CFGZ_S3_DIG_IN_O,
-        CFGZ_ANLG_LOP_CUR_SENSOR,
-        CFGZ_ANLG_LOP_VOL_SENSOR
-    } CFGZ_S3_SENSORS_t;
-
     /*An helper type to define mapping of sensors between CFGZ and A_SENSE*/
     typedef struct {
         CFGZ_ANLG_SENSORS_t  eCfgSensorTyp;

@@ -70,7 +70,7 @@ void ENGINE_MONITORING::Update(bool bDeviceInConfigMode)
     {
         UTILS_ResetTimer(&_Timer50MS);
 
-        /* Instead of creating local instances of sensor structure wherever needed, craeted private global class limited
+        /* Instead of creating local instances of sensor structure wherever needed, created private global class limited
            instance for LOP sensor.  */
         _stLOP = _GCUAlarms.GetLOPSensorVal();
 
@@ -926,7 +926,7 @@ bool ENGINE_MONITORING::prvDisconnectCranckByLOPSensor()
     /* todo: have confusion about sensors */
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_ON_LOP_SENS)  == CFGZ::CFGZ_ENABLE) &&
         ((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_LOP_CURR_SENSOR))) &&
+        ||((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) >= CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))) &&
         (_stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT) &&
         (_stLOP.stValAndStatus.f32InstSensorVal > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_LOP_SENS)))
     {

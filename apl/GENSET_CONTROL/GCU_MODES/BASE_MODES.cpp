@@ -212,7 +212,7 @@ void BASE_MODES::UpdateMainsStatus()
     //for the same condition.
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)
     {
-        if((_eOperatingMode == BTS_MODE) || (_eOperatingMode == AUTO_MODE))
+        if((_eOperatingMode == BTS_MODE) || (_eOperatingMode == CYCLIC_MODE))
         {
            _MainsStatus = MAINS_UNHELATHY;
         }

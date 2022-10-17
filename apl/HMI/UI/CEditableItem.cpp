@@ -1092,7 +1092,17 @@ void CEditableItem::print(EditableItemValue_t val)
         }
         else if (dataType == DT_FLOAT)
         {
-            sprintf(arrTemp,"%0.1f%s",val.fVal, unitOfMeasurement);
+            char Format[20] = {0};
+            strcpy(Format,formatString);
+            strcat(Format,"%s");
+            if(strcmp(formatString,"%f") == 0)
+            {
+                sprintf(arrTemp,"%0.1f%s",val.fVal, unitOfMeasurement);
+            }
+            else
+            {
+                sprintf(arrTemp,Format,val.fVal, unitOfMeasurement);
+            }
             gpDisplay->printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
         }
 //        else if(dataType == DT_STRING )
@@ -1145,7 +1155,7 @@ void CEditableItem::print(EditableItemValue_t val)
         }
         else if(dataType == DT_TIME_HRS_MINS)
         {
-            sprintf(arrTemp,"%02d %s %02d %s",(val.u16Val/100), (char*)"Hr",(val.u16Val%100),(char*)"Mins");
+            sprintf(arrTemp,"%02d %s %02d %s",(val.u16Val/100), (char*)"Hrs",(val.u16Val%100),(char*)"Mins");
             gpDisplay->printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
         }
         else if(dataType == DT_PASSWORD)

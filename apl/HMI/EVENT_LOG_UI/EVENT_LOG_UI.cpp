@@ -144,7 +144,6 @@ void EVENT_LOG_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 void EVENT_LOG_UI::prvDisplayEventScreen()
 {
     char arrTemp[32];
-    uint16_t u16XPos =2;
     if(_bReadNVStatus == true)
     {
         _bReadNVStatus = false;
@@ -154,66 +153,38 @@ void EVENT_LOG_UI::prvDisplayEventScreen()
 
         //Print screen name
         _Disp.gotoxy(GLCD_X(45),GLCD_Y(5));
-        _Disp.printStringCenterAligned((char *)strEventLog[_cfgz.GetArrLanguageIndex()],
-                   FONT_ARIAL);
+        _Disp.printStringCenterAligned((char *)strEventLog[_cfgz.GetArrLanguageIndex()],FONT_VERDANA);
         _Disp.gotoxy(GLCD_X(126),GLCD_Y(5));
-        sprintf(arrTemp," %d/%d",_u16DispEventScreenNumber,
-               _u16DispTotalEventNumber );
+        sprintf(arrTemp," %d/%d",_u16DispEventScreenNumber,_u16DispTotalEventNumber );
         _Disp.printStringRightAligned((char *)arrTemp, FONT_VERDANA);
 
-
-
+        //Print row 1
         _Disp.gotoxy(GLCD_X(2),GLCD_Y(20));
         sprintf(arrTemp,"%d %s %d ",_stEventLog.u8Day, StrMonth[_cfgz.GetArrLanguageIndex()][_stEventLog.u8Month-1], _stEventLog.u16Year);
         _Disp.printStringLeftAligned((char *)arrTemp, FONT_VERDANA);
-        _Disp.gotoxy(GLCD_X(61),GLCD_Y(20));
-        _Disp.printStringLeftAligned((char *)"Bar  kW   RPM", FONT_VERDANA);
 
-        _Disp.gotoxy(GLCD_X(2),GLCD_Y(31));
+        _Disp.gotoxy(GLCD_X(120),GLCD_Y(20));
         sprintf(arrTemp,"%02d:%02d:%02d ",_stEventLog.u8Hour, _stEventLog.u8Minute, _stEventLog.u8Second);
-        _Disp.printStringLeftAligned((char *)arrTemp, FONT_VERDANA);
-        _Disp.gotoxy(GLCD_X(57),GLCD_Y(31));
-        if(_stEventLog.u16Lop == EVENT_LOG_LOP_SENSOR_NA)
-        {
+        _Disp.printStringRightAligned((char *)arrTemp, FONT_VERDANA);
 
-           _Disp.printStringLeftAligned((char *)"NA", FONT_VERDANA);
-        }
-        else if(_stEventLog.u16Lop == EVENT_LOG_LOP_SENSOR_OC)
-        {
-
-           _Disp.printStringLeftAligned((char *)"OC", FONT_VERDANA);
-        }
-        else
-        {
-
-           sprintf(arrTemp,"%.2f ",(float)_stEventLog.u16Lop/100 );
-           _Disp.printStringLeftAligned((char *)arrTemp, FONT_VERDANA);
-        }
-        _Disp.gotoxy(GLCD_X(80),GLCD_Y(31));
-        sprintf(arrTemp,"%.1f",(float)_stEventLog.u16GensetTotlKW/10);
-        _Disp.printStringLeftAligned((char *)arrTemp, FONT_VERDANA);
-        _Disp.gotoxy(GLCD_X(105),GLCD_Y(31));
-        sprintf(arrTemp,"%d",_stEventLog.u16Speed);
-        _Disp.printStringLeftAligned((char *)arrTemp, FONT_VERDANA);
-
-
-        _Disp.gotoxy(GLCD_X(2),GLCD_Y(41));
+        //Print row 2
+        _Disp.gotoxy(GLCD_X(2),GLCD_Y(31));
         _Disp.printStringLeftAligned((char*)strRunHrs[_cfgz.GetArrLanguageIndex()], FONT_VERDANA);
-        _Disp.gotoxy(GLCD_X(70),GLCD_Y(41));
-        sprintf(arrTemp,"%luHrs %dmin", (_stEventLog.u32EngineHrs/60),
-               (uint8_t)(_stEventLog.u32EngineHrs%60));
-        _Disp.gotoxy(GLCD_X(126),GLCD_Y(41));
-        _Disp.printStringRightAligned(arrTemp,      FONT_VERDANA);
 
+        _Disp.gotoxy(GLCD_X(126),GLCD_Y(31));
+        sprintf(arrTemp,"%lu hrs %d min", (_stEventLog.u32EngineHrs/60),(uint8_t)(_stEventLog.u32EngineHrs%60));
+        _Disp.printStringRightAligned(arrTemp, FONT_VERDANA);
 
+        //Print row 3
+        _Disp.gotoxy(GLCD_X(2),GLCD_Y(41));
+        _Disp.printStringLeftAligned( (char*)strAlaram[_cfgz.GetArrLanguageIndex()][_stEventLog.u8EventId], FONT_VERDANA);
 
-        _Disp.gotoxy(GLCD_X(u16XPos),GLCD_Y(51));
-        _Disp.printStringLeftAligned( (char*)strAlaram[_cfgz.GetArrLanguageIndex()][_stEventLog.u8EventId],
-                                       FONT_VERDANA);
-        u16XPos = u16XPos +_Disp.FindStringWidth( (char*)strAlaram[_cfgz.GetArrLanguageIndex()][_stEventLog.u8EventId],FONT_VERDANA);
-        _Disp.gotoxy(GLCD_X(u16XPos),GLCD_Y(51));
-        _Disp.printStringLeftAligned((char*)strAlaramType[_stEventLog.u8EventType],
-                                      FONT_ARIAL);
+        //Print row 4
+        _Disp.gotoxy(GLCD_X(2),GLCD_Y(51));
+        _Disp.printStringLeftAligned((char*)strAlaramType[_stEventLog.u8EventType], FONT_VERDANA);
+
+        _Disp.gotoxy(GLCD_X(80),GLCD_Y(51));
+        _Disp.printStringLeftAligned((char*)"MB: 0", FONT_VERDANA);
 
     }
 }

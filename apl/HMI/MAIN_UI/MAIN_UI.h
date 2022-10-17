@@ -46,6 +46,7 @@ public:
             J1939APP &j1939 , BTS_MODE &BTSMode , CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity);
 
     static bool _sbKeyEventAvailable;
+    static bool _bEnteredPowerSave;
     /**
      * Update routine for UI class
      * @param None

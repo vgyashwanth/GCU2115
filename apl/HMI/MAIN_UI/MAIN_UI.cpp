@@ -20,6 +20,7 @@
 
 KEYPAD::KEYPAD_EVENTS_t MAIN_UI::_sKeyEvent = AUTO_KEY_SHORT_PRESS;
 bool MAIN_UI::_sbKeyEventAvailable = false;
+bool MAIN_UI::_bEnteredPowerSave = false;
 
 MAIN_UI::MAIN_UI(HAL_Manager &hal, CFGZ &pcfgz, GCU_ALARMS &GCUAlarms,
         ENGINE_MONITORING  &EngMon, START_STOP &StartStop,MANUAL_MODE &ManualMode,
@@ -54,7 +55,7 @@ _u16ScreenChangeTime(SCREEN_CHANGE_OVER_PAUSE)
     UTILS_ResetTimer(&_BootTimer);
     _hal.ObjKeypad.RegisterKeyEventCB(prvKeypad_callback);
 
-    /* Copy all Auxilary strings */
+    /* Copy all Auxiliary strings */
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_AUX_INPUT_A, strAuxAString);
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_AUX_INPUT_B, strAuxBString);
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_AUX_INPUT_C, strAuxCString);
@@ -84,6 +85,19 @@ void MAIN_UI::prvExitFromConfigMode()
 {
     _objUI.SaveConfigFile(); /* consist saving setting screen */
     _GCUAlarms.InitGCUAlarms();
+    for(uint8_t u8AlarmIndex = 0; u8AlarmIndex < GCU_ALARMS::ALARM_LIST_LAST; u8AlarmIndex++)
+    {
+        _GCUAlarms.ConfigureGCUAlarms(u8AlarmIndex);
+    }
+    for(uint8_t u8LoggingID = 0; u8LoggingID < GCU_ALARMS::ID_ALL_ALARMS_LAST; u8LoggingID++)
+    {
+        _GCUAlarms.AssignAlarmsForDisplay(u8LoggingID);
+    }
+
+    _GCUAlarms.ClearAllAlarms();
+    _GCUAlarms.ResetMainsMonParams();
+
+
     /* todo: Shift below prv functions to the respective classes once all other files become ready */
     prvUpadteBaseModeConfigDependency(); /* base mode related function call made with manual mode obj referenece*/
     _EngineStartValidity.InitEngineStartValidityConfig();
@@ -198,11 +212,12 @@ bool MAIN_UI::Update()
         /* execute sleep  */
     }
 
-    /* Turn off back light if power save occures */
+    /* Turn off back light if power save occurs */
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_POWER_SAVE_MODE)== CFGZ::CFGZ_ENABLE)
        && (UTILS_GetElapsedTimeInSec(&_PoweSaveModeTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_PWR_SAVE_MODE_DELAY)))
     {
         _hal.ObjGlcd.TurnOffBackLight();
+        _bEnteredPowerSave =  true;
         UTILS_ResetTimer(&_PoweSaveModeTimer);
     }
     else
@@ -227,6 +242,8 @@ bool MAIN_UI::Update()
 
 
     /* During cranking turn off the back light to reduce the GCU current. (Hardware specific)*/
+    if(!_bEnteredPowerSave)
+    {
     if(_ManualMode.GetTimerState() == BASE_MODES::CRANK_START_TIMER )
      {
          _hal.ObjGlcd.TurnOffBackLight();
@@ -235,6 +252,7 @@ bool MAIN_UI::Update()
      {
          _hal.ObjGlcd.TurnOnBackLight();
      }
+    }
 
     MB_APP::KEY_MB_CAN_EVENT_t  stMBEvent;
     MB_APP::GetMBEventStatus(&stMBEvent);
@@ -246,6 +264,7 @@ bool MAIN_UI::Update()
         UTILS_ResetTimer(&_ScreenChangeOverTimer);
         UTILS_ResetTimer(&_PoweSaveModeTimer);
 
+        _bEnteredPowerSave = false;
         /*If the LCD is turned off due to Power save mode Elapse then
          * */
         _hal.ObjGlcd.TurnOnBackLight();
@@ -563,7 +582,7 @@ bool MAIN_UI::prvIsSleepEnabled()
 void MAIN_UI::prvHandleKeyPressEvent(KEYPAD::KEYPAD_EVENTS_t sKeyEvent)
 {
 
-/* Immidiate actions on keypress */
+/* Immediate actions on key press */
     switch(sKeyEvent)
     {
        case KEYPAD::STOP_KEY_LONG_PRESS: /* enter/exit config mode */

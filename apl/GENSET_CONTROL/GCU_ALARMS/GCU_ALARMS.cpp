@@ -3288,18 +3288,18 @@ void GCU_ALARMS::InitGCUAlarms()
     UTILS_ResetTimer(&_FuelSettlingTimer);
 
 /* Shubham Wader 16.09.2022 '
-   shifting below snippet of code here which was initially in MAIN_UI.  Keeping MAIN UI abstract.*/
-    for(uint8_t u8AlarmIndex = 0; u8AlarmIndex < GCU_ALARMS::ALARM_LIST_LAST; u8AlarmIndex++)
-    {
-      ConfigureGCUAlarms(u8AlarmIndex);
-    }
-    for(uint8_t u8LoggingID = 0; u8LoggingID < GCU_ALARMS::ID_ALL_ALARMS_LAST; u8LoggingID++)
-    {
-      AssignAlarmsForDisplay(u8LoggingID);
-    }
-
-    ClearAllAlarms();
-    ResetMainsMonParams();
+//   shifting below snippet of code here which was initially in MAIN_UI.  Keeping MAIN UI abstract.*/
+//    for(uint8_t u8AlarmIndex = 0; u8AlarmIndex < GCU_ALARMS::ALARM_LIST_LAST; u8AlarmIndex++)
+//    {
+//      ConfigureGCUAlarms(u8AlarmIndex);
+//    }
+//    for(uint8_t u8LoggingID = 0; u8LoggingID < GCU_ALARMS::ID_ALL_ALARMS_LAST; u8LoggingID++)
+//    {
+//      AssignAlarmsForDisplay(u8LoggingID);
+//    }
+//
+//    ClearAllAlarms();
+//    ResetMainsMonParams();
 }
 
 void GCU_ALARMS::prvMainsHighLowOutputs()
@@ -3447,6 +3447,7 @@ A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLOPSensorVal()
     }
     return stLOP;
 }
+
 
 
 void GCU_ALARMS::ActivateHighOilPressAlarmSens()

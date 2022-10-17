@@ -2389,9 +2389,7 @@ void MON_UI::prvNormalMonScreens()
                         stTemp.stValAndStatus.f32InstSensorVal
                         * _cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)/100;
 
-
-                    sprintf(arrTemp,"%d",
-                            (uint16_t)((round)(stTemp.stValAndStatus.f32InstSensorVal)));
+                    sprintf(arrTemp,"%d",(uint16_t)((round)(stTemp.stValAndStatus.f32InstSensorVal)));
                     _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
                     _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                     _Disp.gotoxy(GLCD_X(94),GLCD_Y(42));

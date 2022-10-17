@@ -53,10 +53,10 @@ private:
     const char *strAlaramType[CFGZ::CFGZ_ACTION_NoWESN_LAST]=
     {
         " ",
-        "-W",
-        "-E",
-        "-S",
-        "-N"
+        "Warning",
+        "Electrical Trip",
+        "Shutdown",
+        "Notification"
     };
 
     /** Variables for fetching the event log

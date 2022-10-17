@@ -548,7 +548,7 @@ const char *strNoActivePCDDTC[2] = {"No Active PCD-DTC" ,"PCD-DTC sin activar"};
 const char *strNoActiveNCDDTC[2] = {"No Active NCD-DTC" , "NCD-DTC sin activar"};
 
 const char *strEventLog[2]= {"EVENT LOG","REG EVENTOS"};
-const char *strRunHrs[2]= {"Run Hr:","Hrs op:"};
+const char *strRunHrs[2]= {"Run Hrs","Hrs op:"};
 const char *strConfiguration[2] = {"CONFIGURATION","CONFIGURACION"};
 
 const char *strPasswordChanged[2] = {"Password Changed","Contrasena Cambiada"};

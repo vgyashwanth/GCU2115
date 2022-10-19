@@ -465,7 +465,7 @@ void ENGINE_MONITORING::prvCheckEngineOff()
                 || (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_ON_LLOP_SW) == CFGZ::CFGZ_DISABLE))
             && ((_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_ON_LOP_SENS) == CFGZ::CFGZ_DISABLE)
                 || (_stLOP.stValAndStatus.f32InstSensorVal < _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_LOP_SENS))
-                || ( (_stLOP.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT) ||
+                || ( (_stLOP.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT) &&
                      (_stLOP.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED) )
                 )
             )

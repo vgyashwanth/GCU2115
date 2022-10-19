@@ -368,7 +368,6 @@ void MB_APP::prvUpdateAnalogParams()
     if((sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
         (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
     {
-        /*Scale factor is 0.1*/
         u16Tmp = (int16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal));
         SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
     }
@@ -380,7 +379,7 @@ void MB_APP::prvUpdateAnalogParams()
         (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
     {
         /*Scale factor is 0.1*/
-        u16Tmp = (uint16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal));
+        u16Tmp = (uint16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal*10));
         SetReadRegisterValue(MD_FUEL_PERCENTAGE, u16Tmp);
 
         u16Tmp = (uint16_t)round(sensorVal.stValAndStatus.f32InstSensorVal *_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY));
@@ -669,7 +668,8 @@ void MB_APP::prvUpdateGCUAlarms()
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::UNDERSPEED].bAlarmActive << 7);
     _u16TempAlarmVal |=   (uint16_t)((uint16_t)_engineMonitoring.IsEngineOn() << 8);
     _u16TempAlarmVal |=   (uint16_t)(0 << 9);
-    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_SS].bAlarmActive << 10);
+    //For Remote_SS bresultInstant is applicable and not bAlarmActive because not action is enabled.
+    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_SS].bResultInstant << 10);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_G].bAlarmActive << 11);
     _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.IsRPhaseOverVoltAlarmActive() || _gcuAlarm.IsYPhaseOverVoltAlarmActive() || _gcuAlarm.IsBPhaseOverVoltAlarmActive() || _gcuAlarm.IsRPhaseUnderVoltAlarmActive() || _gcuAlarm.IsYPhaseUnderVoltAlarmActive() || _gcuAlarm.IsBPhaseUnderVoltAlarmActive()) << 12);
     _u16TempAlarmVal |=   (uint16_t)(0 << 13);

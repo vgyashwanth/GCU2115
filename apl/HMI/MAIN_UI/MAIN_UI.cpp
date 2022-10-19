@@ -94,12 +94,11 @@ void MAIN_UI::prvExitFromConfigMode()
         _GCUAlarms.AssignAlarmsForDisplay(u8LoggingID);
     }
 
-    _GCUAlarms.ClearAllAlarms();
-    _GCUAlarms.ResetMainsMonParams();
-
 
     /* todo: Shift below prv functions to the respective classes once all other files become ready */
     prvUpadteBaseModeConfigDependency(); /* base mode related function call made with manual mode obj referenece*/
+    _GCUAlarms.ClearAllAlarms();
+    _GCUAlarms.ResetMainsMonParams();
     _EngineStartValidity.InitEngineStartValidityConfig();
     _StartStop.Init();
 
@@ -228,6 +227,7 @@ bool MAIN_UI::Update()
     if(_EngMon.IsEngineOn())
     {
         UTILS_ResetTimer(&_PoweSaveModeTimer);
+        _bEnteredPowerSave = false;
     }
     else
     {

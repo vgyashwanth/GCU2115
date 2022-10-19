@@ -55,10 +55,12 @@ public:
    scope of accessibility without object. */
     static bool IsEngineStartValidityDetectionEnabled();
     static bool IsValidEngineStartFound();
+    static uint16_t TimetookforRamp();
 
 /* PUBLIC variables */
     static bool bStartValidDetectionEnaled;
     static bool bFoundValidEngineStart;
+    static uint16_t RampTime;
 
 private:
 /* Private object references */

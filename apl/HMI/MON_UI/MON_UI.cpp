@@ -167,15 +167,38 @@ void MON_UI::Update(bool bRefresh)
                 UTILS_ResetTimer(&ExternalInputUpdateTimer);
                 if(_startStop.IsSimStopReceived())
                 {
-                    prvStopKeyPressAction();
+                    if( _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
+                    {
+                        if(_manualMode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
+                        {
+                            prvStopKeyPressAction();
+                        }
+                    }
+                    else
+                    {
+                        prvStopKeyPressAction();
+                    }
                 }
                 else if(_startStop.IsSimStartReceived())
                 {
                     prvStartKeyPressAction();
                 }
-                else if(_startStop.IsSimAutoReceived() || _bMBModeChnageCMDRcvd || _startStop.IsModeSwitchAutoKeyReceived())
+                else //if(_startStop.IsSimAutoReceived() || _bMBModeChnageCMDRcvd || _startStop.IsModeSwitchAutoKeyReceived())
                 {
-                    prvAutoKeyPressAction();
+                   if( _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
+                   {
+                       if(_startStop.IsModeSwitchAutoKeyReceived())
+                       {
+                           prvAutoKeyPressAction();
+                       }
+                   }
+                   else
+                   {
+                       if(_startStop.IsSimAutoReceived() || _bMBModeChnageCMDRcvd )
+                       {
+                           prvAutoKeyPressAction();
+                       }
+                   }
                 }
             }
 
@@ -229,9 +252,17 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
     {
         case AUTO_KEY_SHORT_PRESS:
         {
-            prvAutoKeyPressAction(); /* todo: call GoToHomeScreen() function here in sgc4xx */
-            GoToHomeScreen();
-            eDisplayMode = DISP_MON_MODE;
+            if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
+            {
+                //Do Nothing
+            }
+            else
+            {
+                prvAutoKeyPressAction(); /* todo: call GoToHomeScreen() function here in sgc4xx */
+                GoToHomeScreen();
+                eDisplayMode = DISP_MON_MODE;
+            }
+
         }
         break;
 
@@ -245,7 +276,18 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
         case STOP_KEY_SHORT_PRESS:
         {
-            prvStopKeyPressAction();
+            if( _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
+            {
+                if(_manualMode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
+                {
+                    prvStopKeyPressAction();
+                }
+            }
+            else
+            {
+                prvStopKeyPressAction();
+            }
+//            prvStopKeyPressAction();
         }
         break;
 
@@ -1942,12 +1984,6 @@ void MON_UI::prvNormalMonScreens()
 
         case DISP_MON_GEN_LOAD_KW:
         {
-            /* todo:  why is we are showing kw load of mains under gen ?*/
-            if(bDisplayMainsLoad)
-            {
-                prvPrintPower(ACTIVE,_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM), MAINS);
-            }
-            else
             {
                 prvPrintPower(ACTIVE,_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM), GENSET);
             }
@@ -1955,12 +1991,6 @@ void MON_UI::prvNormalMonScreens()
         break;
         case DISP_MON_GEN_LOAD_KVA:
         {
-            if(bDisplayMainsLoad)
-            {
-                prvPrintPower(APARENT,
-                          _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM),MAINS);
-            }
-            else
             {
                 prvPrintPower(APARENT,
                           _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM),GENSET);
@@ -1970,12 +2000,6 @@ void MON_UI::prvNormalMonScreens()
         break;
         case DISP_MON_GEN_LOAD_KVAR:
         {
-            if(bDisplayMainsLoad)
-            {
-                prvPrintPower(REACTIVE,
-                          _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM),MAINS);
-            }
-            else
             {
                 prvPrintPower(REACTIVE,
                         _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM),GENSET);
@@ -2028,13 +2052,7 @@ void MON_UI::prvNormalMonScreens()
                   &AC_SENSE::MAINS_GetCurrentAmps,
             };
 
-            if(bDisplayMainsLoad) /* todo : why we are showing mains  current under gen? */
-            {
-                eSysType=MAINS;
-            }
-
-            if(((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM) && (!bDisplayMainsLoad))
-                    || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM) && (bDisplayMainsLoad)))
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM))
             {
                 for(u8Local = R_PHASE; u8Local < PHASE_END ; u8Local++)
                 {
@@ -2042,7 +2060,7 @@ void MON_UI::prvNormalMonScreens()
                     _Disp.printStringLeftAligned((char *)strPhase[u8Local],FONT_VERDANA);
 
                     _Disp.gotoxy(GLCD_X(50),GLCD_Y(u8Position));
-                    sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)u8Local));
+                    sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[GENSET])((PHASE_t)u8Local));
                     _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
                     _Disp.gotoxy(GLCD_X(52),GLCD_Y(u8Position));
@@ -2060,7 +2078,7 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
 
                 _Disp.gotoxy(GLCD_X(68),GLCD_Y(35));
-                sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)R_PHASE));
+                sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[GENSET])((PHASE_t)R_PHASE));
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
                 _Disp.gotoxy(GLCD_X(71),GLCD_Y(35));
@@ -2145,8 +2163,8 @@ void MON_UI::prvNormalMonScreens()
                     _Disp.printStringLeftAligned((char *)strPhase[u8Local],FONT_VERDANA);
 
                     _Disp.gotoxy(GLCD_X(50),GLCD_Y(u8Position));
-                    sprintf(arrTemp,"%.0f",((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)u8Local));
-                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                    sprintf(arrTemp,"%.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)u8Local));
+                    _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
                     _Disp.gotoxy(GLCD_X(52),GLCD_Y(u8Position));
                     _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
@@ -2161,7 +2179,7 @@ void MON_UI::prvNormalMonScreens()
 
                 _Disp.gotoxy(GLCD_X(50),GLCD_Y(35));
                 sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)R_PHASE));
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
                 _Disp.gotoxy(GLCD_X(52),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
@@ -2169,7 +2187,7 @@ void MON_UI::prvNormalMonScreens()
 
             _Disp.gotoxy(GLCD_X(100),GLCD_Y(35));
             sprintf(arrTemp,"%0.1f", f32MainsFreq);
-            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
             _Disp.gotoxy(GLCD_X(102),GLCD_Y(35));
             _Disp.printStringLeftAligned((char *)"Hz", FONT_VERDANA);
@@ -2307,6 +2325,7 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
             }
+//            sprintf(arrTemp,"%ld",(uint16_t)_EngineMon.TimetookforRamp());
         }
         break;
 
@@ -2428,7 +2447,7 @@ void MON_UI::prvNormalMonScreens()
         case DISP_MON_ENG_SPEED:
         {
             _Disp.printImage((uint8_t *)u8ArrEngineSpeed, 4, 32, 26, 7);
-            _Disp.gotoxy(GLCD_X(94),GLCD_Y(37));
+            _Disp.gotoxy(GLCD_X(64),GLCD_Y(37));
 //            if(_j1939.IsCommunicationFail() && _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG))
 //            {
 //                _Disp.printStringRightAligned((char *)"NA",FONT_ARIAL);
@@ -2437,7 +2456,7 @@ void MON_UI::prvNormalMonScreens()
             {
                 sprintf(arrTemp,"%d ",(uint16_t) _GCUAlarms.GetSpeedValue());
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(95),GLCD_Y(37));
+                _Disp.gotoxy(GLCD_X(65),GLCD_Y(37));
                 _Disp.printStringLeftAligned((char*)"RPM",FONT_VERDANA);
             }
         }
@@ -2467,10 +2486,10 @@ void MON_UI::prvNormalMonScreens()
 
             _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
             sprintf(arrTemp,"%d ",  (uint16_t)_EngineMon.GetEngineNoOfStarts() );
-            _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+            _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
             _Disp.gotoxy(GLCD_X(90),GLCD_Y(52));
             sprintf(arrTemp,"%d ",  (uint16_t)_EngineMon.GetEngineNoOfTrips() );
-            _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+            _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
         }
         break;
 
@@ -2654,7 +2673,7 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
                         ((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local));
                  _Disp.gotoxy(GLCD_X(50),GLCD_Y(u8Position));
                  _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
-                 _Disp.printChar('V',FONT_VERDANA);
+                 _Disp.printStringLeftAligned((char *)" V",FONT_VERDANA);
              }
              else
              {
@@ -2678,9 +2697,9 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
                                             ((&_hal.AcSensors)->*ArrGetPhToPhVal[eSource][ePhPh])()))
              {
                  sprintf(arrTemp,"%d",(uint16_t)((&_hal.AcSensors)->*ArrGetPhToPhVal[eSource][ePhPh])());
-                 _Disp.gotoxy(GLCD_X(120),GLCD_Y(u8Position));
+                 _Disp.gotoxy(GLCD_X(116),GLCD_Y(u8Position));
                  _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
-                 _Disp.printChar('V',FONT_VERDANA);
+                 _Disp.printStringLeftAligned((char *)" V",FONT_VERDANA);
                  u8Position = u8Position + 15;
              }
              else

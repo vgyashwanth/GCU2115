@@ -36,7 +36,7 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::_eLoadStatusCurrent = L
 ENGINE_MONITORING::CUMULATIVE_t ENGINE_MONITORING::_stCummulativeCnt={0};
 
 bool ENGINE_MONITORING::_bEngineCranked = false;
-//extern J1939APP *gpJ1939;
+
 ENGINE_MONITORING::ENGINE_MONITORING(CFGZ &cfgz, GCU_ALARMS &GCUAlarms, HAL_Manager &hal):
 _cfgz(cfgz),
 _GCUAlarms(GCUAlarms),

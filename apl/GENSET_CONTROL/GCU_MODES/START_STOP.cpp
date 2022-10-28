@@ -78,7 +78,7 @@ void START_STOP::Init()
 void START_STOP::Update(bool bDeviceInConfigMode)
 {
     A_SENSE::SENSOR_RET_t   stEngTemp = {0};
-    volatile bool                    bPreheatTempLimitReached;
+    volatile bool           bPreheatTempLimitReached;
     if(UTILS_GetElapsedTimeInSec(&_PowerOnTimer) >= FOUR_SEC)
     {
         UTILS_ResetTimer(&_StartStopSMUpdateTimer);

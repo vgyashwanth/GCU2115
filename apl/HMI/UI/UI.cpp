@@ -1765,8 +1765,7 @@ void UI::HandleMenuVisibility(void)
         LowestLevelMenuEnDis(INDEX_OF_CYCLIC_CONFIG_DG_OFF_DURATION,INDEX_OF_CYCLIC_CONFIG_DG_ON_DURATION,false);
     if(ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFG_NIGHT_MODE].value.u8Val == CFGZ::CFGZ_DISABLE)
         LowestLevelMenuEnDis(INDEX_OF_NIGHT_MODE_CONFG_START_TIME,INDEX_OF_NIGHT_MODE_CONFG_OFF_DURATION,false);
-    /*.......................................................................................................................................................*/
-    /*................................Inputs Menu........................................................................................................*/
+    //INPUTS MENU
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_A_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_B_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_C_SOURCE);
@@ -1892,8 +1891,7 @@ void UI::HandleMenuVisibility(void)
         menuItemsLowestLevel[INDEX_OF_AUX_S4_DIG_P_FUEL_THEFT_THRESHOLD].isEnabled = false;
     if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_TANK_WITH_STEP].value.u8Val == CFGZ::CFGZ_DISABLE)
         LowestLevelMenuEnDis(INDEX_OF_AUX_S4_DIG_P_TANK_LENGTH_2,INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2,false);
-    /*.......................................................................................................................................................*/
-    /*................................Outputs Menu........................................................................................................*/
+    //OUTPUTS MENU
     menuItemsLowestLevel[INDEX_OF_OUT_A_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_A_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
     menuItemsLowestLevel[INDEX_OF_OUT_B_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_B_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
     menuItemsLowestLevel[INDEX_OF_OUT_C_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_C_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
@@ -1901,11 +1899,9 @@ void UI::HandleMenuVisibility(void)
     menuItemsLowestLevel[INDEX_OF_OUT_E_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_E_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
     menuItemsLowestLevel[INDEX_OF_OUT_F_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_F_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
     menuItemsLowestLevel[INDEX_OF_OUT_G_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_G_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
-    /*.......................................................................................................................................................*/
-    /*................................Timers Menu........................................................................................................*/
-
-    /*.......................................................................................................................................................*/
-    /*................................Generator Menu........................................................................................................*/
+    //TIMERS MENU
+    //GENERATOR MENU
+    //Alt Config
     if(ArrEditableItem[INDEX_OF_ALT_CONFIG_ALT_PRESENT].value.u8Val == CFGZ::CFGZ_DISABLE)
     {
         LowestLevelMenuEnDis(INDEX_OF_ALT_CONFIG_NUMBER_OF_POLES,INDEX_OF_ALT_CONFIG_ALT_WAVE_DETECTION,false);
@@ -1937,7 +1933,7 @@ void UI::HandleMenuVisibility(void)
     {
         menuItemsLowestLevel[INDEX_OF_VOLT_MONITOR_OV_WARNING_THRESHOLD].isEnabled = false;
     }
-    //Freq. mon.
+    //Freq Mon
     if(ArrEditableItem[INDEX_OF_FREQ_MONITOR_UNDER_FREQ_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
     {
         menuItemsLowestLevel[INDEX_OF_FREQ_MONITOR_UF_SHUTDOWN_THRESHOLD].isEnabled = false;
@@ -1954,13 +1950,12 @@ void UI::HandleMenuVisibility(void)
     {
         menuItemsLowestLevel[INDEX_OF_FREQ_MONITOR_OF_WARNING_THRESHOLD].isEnabled = false;
     }
-    //currunt mon.
-
+    //Current Mon.
     if(ArrEditableItem[INDEX_OF_CURRENT_MONITOR_OVER_CURR_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
     {
         LowestLevelMenuEnDis(INDEX_OF_CURRENT_MONITOR_OVER_CURR_THRESHOLD,INDEX_OF_CURRENT_MONITOR_OVER_CURR_DELAY,false);
     }
-    //Fan Curr mon
+    //Fan Current Mon
     if(ArrEditableItem[INDEX_OF_FAN_CURR_MONITOR_FAN_CURRENT_MON].value.u8Val == CFGZ::CFGZ_DISABLE)
     {
         LowestLevelMenuEnDis(INDEX_OF_FAN_CURR_MONITOR_FAN_MON_CT_RATIO,INDEX_OF_FAN_CURR_MONITOR_CURR_MON_DELAY,false);
@@ -1982,8 +1977,7 @@ void UI::HandleMenuVisibility(void)
     {
         LowestLevelMenuEnDis(INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD,INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_ACT_THRESH,false);
     }
-    /*.......................................................................................................................................................*/
-    /*................................Mains Menu........................................................................................................*/
+    //MAINS MENU
     //Configuration
     if(ArrEditableItem[INDEX_OF_MAINS_CONFIG_MAINS_MONITORING].value.u8Val == CFGZ::CFGZ_DISABLE)
     {
@@ -2019,8 +2013,7 @@ void UI::HandleMenuVisibility(void)
     {
         LowestLevelMenuEnDis(INDEX_OF_OVER_FREQ_MON_TRIP,INDEX_OF_OVER_FREQ_MON_RETURN,false);
     }
-    /*.......................................................................................................................................................*/
-    /*................................Engine Menu........................................................................................................*/
+
     //Crank Disconnect
     if(ArrEditableItem[INDEX_OF_CRANK_DISCONN_DISCONN_ON_LOP_SENS].value.u8Val == CFGZ::CFGZ_DISABLE && ArrEditableItem[INDEX_OF_CRANK_DISCONN_MON_LOP_BEFORE_CRANK].value.u8Val == CFGZ::CFGZ_DISABLE)
     {
@@ -2049,7 +2042,6 @@ void UI::HandleMenuVisibility(void)
         LowestLevelMenuEnDis(INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_THRESHOLD,INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_DELAY,false);
     }
 
-
     menuItemsLowestLevel[INDEX_OF_BATTERY_MONITOR_BATTERY_MON_BY_J1939].isEnabled = false;
 
     //Charging Alternator
@@ -2062,10 +2054,15 @@ void UI::HandleMenuVisibility(void)
 
     //Preheat
 
-    /*.......................................................................................................................................................*/
-    /*................................Maintenance Menu........................................................................................................*/
+    //Maintenance
 
-    /*.......................................................................................................................................................*/
+    if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].tempValue.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    {
+        for(uint8_t i = 0; i<10; i++)
+        {
+            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_T1 + (i*2)].unitOfMeasurement = arrUnit[ID_V];
+        }
+    }
 
 }
 

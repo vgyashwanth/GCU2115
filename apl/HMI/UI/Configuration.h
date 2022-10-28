@@ -43,7 +43,7 @@
 #define LEAFNODES_IN_MODBUS_COMM            4
 #define LEAFNODES_IN_BTS_CONFIG             4
 #define LEAFNODES_IN_CYCLIC_CONFIG          3
-#define LEAFNODES_IN_NIGHT_MODE_CONFG      3
+#define LEAFNODES_IN_NIGHT_MODE_CONFG       3
  /*Inputs*/
 #define LEAFNODES_IN_DIG_IN_A               5
 #define LEAFNODES_IN_DIG_IN_B               5

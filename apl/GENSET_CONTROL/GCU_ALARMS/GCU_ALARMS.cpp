@@ -1266,7 +1266,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
                 ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
                 ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
             }
-            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[PIN23_SENSOR_CURRENT_VAL];
+            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LUBE_OIL_PRESSURE];
             break;
         case OPEN_AN_SEN_S1_CKT:
             if((_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))

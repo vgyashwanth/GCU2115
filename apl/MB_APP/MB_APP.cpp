@@ -587,20 +587,20 @@ void MB_APP::prvUpdateAUXSensorVal()
     A_SENSE &sensor = _hal.AnalogSensors;
     A_SENSE::SENSOR_RET_t  stTemp;
     uint16_t u16AuxSensorVal = 0;
+    int16_t i16AuxSensorVal = 0;
 /* S1 */
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
-        // S1 as shelter tempreture
+        // S1 as shelter temperature
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_SHELTER_TEMPERATURE);
         if((stTemp.eStatus == A_SENSE::SENSOR_READ_SUCCESS) && (stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
         {
-            u16AuxSensorVal = (int16_t)(round(stTemp.stValAndStatus.f32InstSensorVal*10));
+            i16AuxSensorVal = (int16_t)(round(stTemp.stValAndStatus.f32InstSensorVal*10));
         }
     }
-    SetReadRegisterValue(MB_AUX_S1, u16AuxSensorVal);
+    SetReadRegisterValue(MB_AUX_S1, i16AuxSensorVal);
 
 /* S2 */
-    u16AuxSensorVal = 0;
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
         // S2 as s2 analog sensor

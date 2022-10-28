@@ -35,7 +35,6 @@
 
 bool ENGINE_START_VALIDITY::bStartValidDetectionEnaled = false;
 bool ENGINE_START_VALIDITY::bFoundValidEngineStart = false;
-uint16_t ENGINE_START_VALIDITY::RampTime =0;
 
 ENGINE_START_VALIDITY::ENGINE_START_VALIDITY(CFGZ &cfgz, GCU_ALARMS &GCUAlarms):
 _cfgz(cfgz),
@@ -121,7 +120,6 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
             {
                 if(GET_CURRENT_SPEED() >= _u16HigherSpeedThreshold_rpm)
                 {
-                    RampTime = UTILS_GetElapsedTimeInMs(&_SpeedRampDetectTimer);
                     if(UTILS_GetElapsedTimeInMs(&_SpeedRampDetectTimer) >= MINIMUM_RAMP_TIME_FOR_VALID_START)
                     {
                         bFoundValidEngineStart = true;
@@ -219,8 +217,3 @@ bool ENGINE_START_VALIDITY::IsValidEngineStartFound()
        return false: if invalid engine start observed */
     return bFoundValidEngineStart;
 }
-uint16_t ENGINE_START_VALIDITY::TimetookforRamp()
-{
-    return RampTime;
-}
-

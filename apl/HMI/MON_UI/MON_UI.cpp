@@ -2045,7 +2045,7 @@ void MON_UI::prvNormalMonScreens()
             static float f32GenMinFreq = 0.0f;
             f32GenMinFreq = _GCUAlarms.GetMinGenFreq();
             u8Position = 22;
-            SOURCE_TYPE_t eSysType=GENSET;
+
             _pGET_VAL_t ArrGetCurrentVal[TYPE_LAST]=
             {
                   &AC_SENSE::GENSET_GetCurrentAmps,
@@ -2325,7 +2325,6 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
             }
-//            sprintf(arrTemp,"%ld",(uint16_t)_EngineMon.TimetookforRamp());
         }
         break;
 

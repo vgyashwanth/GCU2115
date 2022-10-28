@@ -25,8 +25,6 @@ extern GLCD *configGlcd;
 //extern CFGZ *pcfgz;
 
 bool CEditableItem::_bValuesChanged= false;
-//extern const char* strLeafNode[SID_LEAF_NODE_STRING];
-//extern const char* strSubMenu[ID_SUB_MENU_LAST];
 
 const char* CEditableItem::dt2str(EDITABLE_ITEMS_DATA_TYPE_t dt)
 {

@@ -547,13 +547,13 @@ void MAIN_UI::prvUpadteBaseModeConfigDependency()
 
 bool MAIN_UI::prvIsSleepEnabled()
 {
-/*Shubham Wader 17.09.2022
+/*Shubham.Wader 17.09.2022
  This function returns true if the program need to execute sleep
  action. Function returns false means, critical execution is happening
- dont take sleep at all. This means need to kick sleep timer, so that
+ don't take sleep at all. This means need to kick sleep timer, so that
  it should not cross the set delay. */
 
-// todo : the conditions found in GC2111 to kick sleep timer. guarded below need to check and use if required
+// TODO : the conditions found in GC2111 to kick sleep timer. guarded below need to check and use if required
 #if 0
     if(((!IS_GCU_MANUAL_MODE() && !IS_GCU_AUTO_MODE()) || _EngMon.IsEngineOn()) &&
         ((IS_GCU_AUTO_MODE()) || ((_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_ERR) &&

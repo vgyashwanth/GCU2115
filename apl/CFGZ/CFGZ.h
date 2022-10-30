@@ -616,7 +616,8 @@ class CFGZ
     } CFGZ_ANLG_SENSORS_t;
 
     /*An helper type to define mapping of sensors between CFGZ and A_SENSE*/
-    typedef struct {
+    typedef struct
+    {
         CFGZ_ANLG_SENSORS_t  eCfgSensorTyp;
         AnalogSensor::TYPS_t eDsenseSensorTyp;
     } ASENSOR_MAP_ROW_t;
@@ -700,7 +701,8 @@ class CFGZ
     } CFGZ_ACT_ACTIVATION_TYP_t;
 
     /*Represents a row in the map between the actuator type of CFGZ & ACT*/
-    typedef struct {
+    typedef struct
+    {
         CFGZ_ACT_TYPS_t           cfgzSensorType;
         ACTUATOR::ACTUATOR_TYPS_t actuatorType;
     } ACTUATOR_MAP_ROW_t;
@@ -1059,7 +1061,7 @@ private:
      * The following structure is "firmware metadata".
      * This will be stored as the last few bytes in the firmware area.
      * i.e. firmware cannot actually extend all the way up to FW_END_ADDR;
-     * it must end at least sizeof(FW_METADATA_t) before that.
+     * it must end at least size of(FW_METADATA_t) before that.
      */
     typedef struct
     {

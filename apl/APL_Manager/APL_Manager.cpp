@@ -34,8 +34,12 @@ _PowerOnUpdateTimer{0}
 
     ObjRTC.Init();
 
+    /* HSD K-factors are different for different PCBs
+     The SetHSDKFactor function will set the calculations properly.
+     Can make use of CFGC or DeviceMap files to set the value
+     instead of changing the firmware for all different values.
+     */
 
-    //  HSD_K_Factor        (1250.0f)  //VNQ7050AJ
     if(_cfgc.GetPCBPID()==12209)
     {
         AnlgIp.SetHSDKFactor(1547.0F);
@@ -56,7 +60,6 @@ void APL_Manager::Update()
     {
         if((!_cfgc.IsC02Error()) && (!_cfgz.IsC03Error()) )
         {
-
             _EngineStartValidity.EngineStartValiditySM(bDeviceInConfigMode);
             _engineMonitoring.Update(bDeviceInConfigMode);
             _startStop.Update(bDeviceInConfigMode);

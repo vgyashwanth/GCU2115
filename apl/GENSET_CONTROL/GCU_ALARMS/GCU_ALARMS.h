@@ -538,8 +538,6 @@ public:
 
     uint8_t GetActiveAlarmCount();
 
-    bool IsMainsSeqFail();
-
     uint8_t GetAlarmId(uint8_t u8Val);
 
     static bool         _bEventNumberReadDone;

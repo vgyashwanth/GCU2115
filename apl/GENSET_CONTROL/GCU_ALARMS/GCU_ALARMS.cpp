@@ -1970,7 +1970,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
                       && (BASE_MODES::GetMainsStatus() == BASE_MODES::MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE));
     _ArrAlarmValue[SMOKE_FIRE_STATUS].u8Value= (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_SMOKE_FIRE) == DigitalSensor::SENSOR_LATCHED);
     _ArrAlarmValue[MODE_SELECT_STATUS].u8Value= (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) == DigitalSensor::SENSOR_LATCHED);
-    _ArrAlarmValue[AMB_TEMP_SELECT_STATUS].u8Value= (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_AMB_TEMP_SELECT) == DigitalSensor::SENSOR_LATCHED);
+    _ArrAlarmValue[AMB_TEMP_SELECT_STATUS].u8Value= (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_AMB_TEMP_SELECT) == DigitalSensor::SENSOR_LATCHED);
 
 
     _ArrAlarmValue[SHELTER_TEMP_VAL].f32Value = stShelterTemp.stValAndStatus.f32InstSensorVal;
@@ -3327,12 +3327,6 @@ void GCU_ALARMS::prvMainsHighLowOutputs()
     }
 }
 
-bool GCU_ALARMS::IsMainsSeqFail()
-{
-    {
-        return false;
-    }
-}
 void GCU_ALARMS::prvCoolantTempCtrlFunction(void)
 {
     A_SENSE::SENSOR_RET_t stTemp = GetSelectedTempSensVal();

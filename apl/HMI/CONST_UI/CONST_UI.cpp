@@ -316,7 +316,7 @@ const char *StrNoEvents[2]={"No Events","Sin eventos"};
 const char *StrInvalidDate[2]={"Invalid Maintenance Date","Fecha no valida"};
 const char *StrMaintenanceDateChanged[2]={"Maintenance Date Changed","Cambio de Fecha exitoso"};
 
-const char *StrInfoDate[2]={"Date     :","Fecha    :"};
+const char *StrInfoDate[2]={"RT Clock:","Fecha    :"};
 const char *StrMaintDate[1][2]=
 {
  {"Invalid Maintenance Date","Maintenance Date Changed"}

@@ -62,14 +62,6 @@ public:
          DI_SMOKE_FIRE,
          DI_MODE_SELECT,
          DI_AMB_TEMP_SELECT,
-//         DI_REMOTE_ALARM_MUTE,
-//         DI_REMOTE_ALARM_ACK,
-//         DI_STOP_PANEL_LOCK,
-//         DI_EXT_PANEL_LOCK,
-//         DI_GENERATOR_LOAD_INITHIBIT,
-//         DI_MAINS_LOAD_INHIBIT,
-//         DI_SOURCE_REGENERATION_SW_INHIBIT_SIGNAL,
-//         DI_IDLE_MODE_ENABLE,
          DI_SENSOR_END
     } D_SENSOR_TYPS_t;
 

@@ -784,6 +784,10 @@ private:
             bool bMonitoringPolarity, uint8_t u8LoggingID,
                 float f32Threshold, uint16_t u16CounterMax);
 
+    /**
+     * The prvSetAlarmAction function with different extensions
+     * are used to distinguish different Action drop down present in CFGZ.
+     */
     void prvSetAlarmAction_NoWESN(uint8_t u8AlarmIndex, uint8_t u8AlarmAction);
     void prvSetAlarmAction_NoWS(uint8_t u8AlarmIndex, uint8_t u8AlarmAction);
     void prvSetAlarmAction_WS(uint8_t u8AlarmIndex, uint8_t u8AlarmAction);

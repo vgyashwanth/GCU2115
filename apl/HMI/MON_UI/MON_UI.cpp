@@ -2329,7 +2329,6 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.gotoxy(GLCD_X(120),GLCD_Y(42));
                 sprintf(arrTemp,"%ld hrs %d min",(_EngineMon.GetTamperedRunTimeMin()/60), (uint8_t)(_EngineMon.GetTamperedRunTimeMin()%60));
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
-
             }
         }
         break;

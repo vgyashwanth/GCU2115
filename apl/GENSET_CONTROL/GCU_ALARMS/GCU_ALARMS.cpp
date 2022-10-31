@@ -119,25 +119,26 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
     A_SENSE::SENSOR_RET_t stFuel = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
     A_SENSE::SENSOR_RET_t stTemp = GetSelectedTempSensVal();
 
-    _u8LopSensMon = (uint8_t)(_u8MonOn && (((stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)&&(stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_SHORT_TO_BAT))
-                                             ));
-    _u8FuelSensMon = (uint8_t)(stFuel.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT);
     A_SENSE::SENSOR_RET_t stAuxSensS2 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S2_SENSOR);
     A_SENSE::SENSOR_RET_t stAuxSensS3 = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};
     A_SENSE::SENSOR_RET_t stAuxSensS4 = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};
 
+    _u8LopSensMon = (uint8_t)(_u8MonOn && (((stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)&&(stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_SHORT_TO_BAT))));
+    _u8FuelSensMon = (uint8_t)(stFuel.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT);
+    _u8TempSensMon = (uint8_t)(_u8MonOn && ((stTemp.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)));
+
     _u8AuxSensS2 = (uint8_t)(stAuxSensS2.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT);
     _u8AuxSensS3 = (uint8_t)((stAuxSensS3.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)&&(stAuxSensS3.stValAndStatus.eState != ANLG_IP::BSP_STATE_SHORT_TO_BAT));
     _u8AuxSensS4 = (uint8_t)((stAuxSensS4.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)&&(stAuxSensS4.stValAndStatus.eState != ANLG_IP::BSP_STATE_SHORT_TO_BAT));
-    _u8TempSensMon = (uint8_t)(_u8MonOn && ((stTemp.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)));
+
     _u8LopHiOilPressMon = (uint8_t)(stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT);
 
     _u8UnbalancedloadMon = prvUpdateUnbalancedLoadMon();
 
     if(_bEventNumberReadDone && _bRollOverReadDone)
     {
-        _bEventNumberReadDone =0;
-        _bRollOverReadDone =0;
+        _bEventNumberReadDone = false;
+        _bRollOverReadDone = false;
         if(_u32EventNumber >= CFGC::GetMaxNumberOfEvents())
         {
             _u32EventNumber =0;
@@ -154,6 +155,11 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
             bAlarmUpdate = true;
             UTILS_ResetTimer(&_UpdateAlarmMonTimer);
             UTILS_DisableTimer(&_AlarmUpdate);
+            /*
+             * SuryaPranayTeja.BVV TODO:
+             * Why this for loop  having Configure GCU Alarms is required every time?.
+             * The configuration changes only when config changes.
+             */
             for(uint8_t u8Index = 0; u8Index < ALARM_LIST_LAST; u8Index++)
             {
                 ConfigureGCUAlarms(u8Index);
@@ -239,6 +245,7 @@ void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnabl
 void GCU_ALARMS::prvSetAlarmAction_NoWESN(uint8_t u8AlarmIndex, uint8_t u8AlarmAction)
 {
     prvClearAllAction(u8AlarmIndex);
+
     if(u8AlarmAction == CFGZ::CFGZ_ACTION_NOTIFICATION_NoWESN)
     {
         ArrAlarmMonitoring[u8AlarmIndex].bEnableNotification = true;
@@ -255,7 +262,6 @@ void GCU_ALARMS::prvSetAlarmAction_NoWESN(uint8_t u8AlarmIndex, uint8_t u8AlarmA
     {
         ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = true;
     }
-
 }
 void GCU_ALARMS::prvSetAlarmAction_NoWS(uint8_t u8AlarmIndex, uint8_t u8AlarmAction)
 {
@@ -1934,6 +1940,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     {
         _ArrAlarmValue[LOP_RES_OPEN_CKT].u8Value = (uint8_t)(stLOP.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT);
     }
+
     _ArrAlarmValue[DIG_INPUT_A].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_A_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
     _ArrAlarmValue[DIG_INPUT_B].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_B_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
     _ArrAlarmValue[DIG_INPUT_C].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_C_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
@@ -1951,27 +1958,31 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[DIG_INPUT_O].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_O_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
     _ArrAlarmValue[DIG_INPUT_P].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_P_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
 
-    _ArrAlarmValue[LOW_FUEL_LVL_SWITCH_STATUS].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_FUEL_LEVEL_SWITCH) == DigitalSensor::SENSOR_LATCHED;
-    _ArrAlarmValue[LLOP_SWITCH_STATUS].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) == DigitalSensor::SENSOR_LATCHED;
-    _ArrAlarmValue[HWT_SWITCH_STATUS].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_HIGH_ENGINE_TEMP_SWITCH) == DigitalSensor::SENSOR_LATCHED;
-    _ArrAlarmValue[WATER_LEVEL_SWITCH_STATUS].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_WATER_LEVEL_SWITCH) == DigitalSensor::SENSOR_LATCHED;
-    _ArrAlarmValue[EMERGENCY_STOP_STATUS].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EMERGENCY_STOP) == DigitalSensor::SENSOR_LATCHED;
-    _ArrAlarmValue[REMOTE_SS_STATUS].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_REMOTE_START_STOP) == DigitalSensor::SENSOR_LATCHED;
-    _ArrAlarmValue[SIM_START_STATUS].u8Value=(uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_SIMULATE_START) == DigitalSensor::SENSOR_LATCHED);
-    _ArrAlarmValue[SIM_STOP_STATUS].u8Value=(uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_SIMULATE_STOP) == DigitalSensor::SENSOR_LATCHED);
-    _ArrAlarmValue[SIM_AUTO_STATUS].u8Value= (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_SIMULATE_AUTO) == DigitalSensor::SENSOR_LATCHED);
-    _ArrAlarmValue[CLOSE_GEN_OPEN_MAINS_STATUS].u8Value=(uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_CLOSE_GEN_OPEN_MAINS_SWITCH) == DigitalSensor::SENSOR_LATCHED);
-    _ArrAlarmValue[CLOSE_MAINS_OPEN_GEN_STATUS].u8Value=(uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_CLOSE_MAINS_OPEN_GEN_SWITCH) == DigitalSensor::SENSOR_LATCHED);
-    _ArrAlarmValue[SIM_MAINS_STATUS].u8Value= (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_SIMULATE_MAINS) == DigitalSensor::SENSOR_LATCHED);
-    _ArrAlarmValue[V_BELT_BROKEN_SWITCH_STATUS].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_V_BELT_BROKEN_SWITCH) == DigitalSensor::SENSOR_LATCHED;
-    _ArrAlarmValue[MAINS_CONT_LATCHED_STATUS].u8Value= (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MAINS_CONTACTOR_LATCHED) == DigitalSensor::SENSOR_LATCHED);
-    _ArrAlarmValue[GEN_CONT_LATCHED_STATUS].u8Value= (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_GEN_CONTACTOR_LATCHED) == DigitalSensor::SENSOR_LATCHED);
-    _ArrAlarmValue[BATT_CHG_FAIL_STATUS].u8Value= (uint8_t)((_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_BATTERY_CHARGER_FAIL) == DigitalSensor::SENSOR_LATCHED)
-                      && (BASE_MODES::GetMainsStatus() == BASE_MODES::MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE));
-    _ArrAlarmValue[SMOKE_FIRE_STATUS].u8Value= (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_SMOKE_FIRE) == DigitalSensor::SENSOR_LATCHED);
-    _ArrAlarmValue[MODE_SELECT_STATUS].u8Value= (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) == DigitalSensor::SENSOR_LATCHED);
-    _ArrAlarmValue[AMB_TEMP_SELECT_STATUS].u8Value= (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_AMB_TEMP_SELECT) == DigitalSensor::SENSOR_LATCHED);
-
+    /*
+     * By SuryaPranayTeja.BVV
+     * Tool Tip:Use Alt+Shift+A to shift all the "=" left or right for future.
+     * why to follow? Increase the readability.
+     */
+    _ArrAlarmValue[LOW_FUEL_LVL_SWITCH_STATUS].u8Value   = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_FUEL_LEVEL_SWITCH) == DigitalSensor::SENSOR_LATCHED;
+    _ArrAlarmValue[LLOP_SWITCH_STATUS].u8Value           = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_LUBE_OIL_PRESSURE_SWITCH) == DigitalSensor::SENSOR_LATCHED;
+    _ArrAlarmValue[HWT_SWITCH_STATUS].u8Value            = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_HIGH_ENGINE_TEMP_SWITCH) == DigitalSensor::SENSOR_LATCHED;
+    _ArrAlarmValue[WATER_LEVEL_SWITCH_STATUS].u8Value    = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_LOW_WATER_LEVEL_SWITCH) == DigitalSensor::SENSOR_LATCHED;
+    _ArrAlarmValue[EMERGENCY_STOP_STATUS].u8Value        = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EMERGENCY_STOP) == DigitalSensor::SENSOR_LATCHED;
+    _ArrAlarmValue[REMOTE_SS_STATUS].u8Value             = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_REMOTE_START_STOP) == DigitalSensor::SENSOR_LATCHED;
+    _ArrAlarmValue[SIM_START_STATUS].u8Value             = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_SIMULATE_START) == DigitalSensor::SENSOR_LATCHED;
+    _ArrAlarmValue[SIM_STOP_STATUS].u8Value              = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_SIMULATE_STOP) == DigitalSensor::SENSOR_LATCHED;
+    _ArrAlarmValue[SIM_AUTO_STATUS].u8Value              = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_SIMULATE_AUTO) == DigitalSensor::SENSOR_LATCHED;
+    _ArrAlarmValue[CLOSE_GEN_OPEN_MAINS_STATUS].u8Value  = (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_CLOSE_GEN_OPEN_MAINS_SWITCH) == DigitalSensor::SENSOR_LATCHED);
+    _ArrAlarmValue[CLOSE_MAINS_OPEN_GEN_STATUS].u8Value  = (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_CLOSE_MAINS_OPEN_GEN_SWITCH) == DigitalSensor::SENSOR_LATCHED);
+    _ArrAlarmValue[SIM_MAINS_STATUS].u8Value             = (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_SIMULATE_MAINS) == DigitalSensor::SENSOR_LATCHED);
+    _ArrAlarmValue[V_BELT_BROKEN_SWITCH_STATUS].u8Value  = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_V_BELT_BROKEN_SWITCH) == DigitalSensor::SENSOR_LATCHED;
+    _ArrAlarmValue[MAINS_CONT_LATCHED_STATUS].u8Value    = (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MAINS_CONTACTOR_LATCHED) == DigitalSensor::SENSOR_LATCHED);
+    _ArrAlarmValue[GEN_CONT_LATCHED_STATUS].u8Value      = (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_GEN_CONTACTOR_LATCHED) == DigitalSensor::SENSOR_LATCHED);
+    _ArrAlarmValue[BATT_CHG_FAIL_STATUS].u8Value         = (uint8_t)((_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_BATTERY_CHARGER_FAIL) == DigitalSensor::SENSOR_LATCHED)
+            && (BASE_MODES::GetMainsStatus() == BASE_MODES::MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE));
+    _ArrAlarmValue[SMOKE_FIRE_STATUS].u8Value            = (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_SMOKE_FIRE) == DigitalSensor::SENSOR_LATCHED);
+    _ArrAlarmValue[MODE_SELECT_STATUS].u8Value           = (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) == DigitalSensor::SENSOR_LATCHED);
+    _ArrAlarmValue[AMB_TEMP_SELECT_STATUS].u8Value       = (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_AMB_TEMP_SELECT) == DigitalSensor::SENSOR_LATCHED);
 
     _ArrAlarmValue[SHELTER_TEMP_VAL].f32Value = stShelterTemp.stValAndStatus.f32InstSensorVal;
     _ArrAlarmValue[ANLG_SENS_S2_VAL].f32Value = stAuxSensS2.stValAndStatus.f32InstSensorVal;
@@ -1979,7 +1990,6 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[SHELT_TEMP_OPEN_CKT].u8Value = (uint8_t)(stShelterTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT);
 
     _ArrAlarmValue[EARTH_LEAKAGE_CURR_VAL].f32Value = _hal.AcSensors.EARTH_GetCurrentFilt() ;
-
 
     _ArrAlarmValue[FAIL_TO_STOP_STATUS].u8Value = _bFailToStop;
     _ArrAlarmValue[FAIL_TO_START_STATUS].u8Value = _bFailToStart;
@@ -3391,7 +3401,7 @@ void ReadEventNumber(EEPROM::EVENTS_t evt)
 {
     if(evt ==EEPROM::READ_COMPLETE)
     {
-        GCU_ALARMS:: _bEventNumberReadDone =1;
+        GCU_ALARMS:: _bEventNumberReadDone = true;
     }
 }
 
@@ -3399,7 +3409,7 @@ void ReadRollOver(EEPROM::EVENTS_t evt)
 {
     if(evt ==EEPROM::READ_COMPLETE)
     {
-        GCU_ALARMS:: _bRollOverReadDone =1;
+        GCU_ALARMS:: _bRollOverReadDone = true;
     }
 }
 

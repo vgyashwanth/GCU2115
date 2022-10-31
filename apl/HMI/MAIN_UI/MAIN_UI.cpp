@@ -452,7 +452,7 @@ void MAIN_UI::prvLEDHandling()
            _hal.ledManager.led5.TurnOff();
        }
 
-       if((   (_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY)
+       if(((_ManualMode.GetMainsStatus() == BASE_MODES::MAINS_HELATHY)
            && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
            || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE) && _GCUAlarms.RemoteStopReceived()))
        {
@@ -868,4 +868,3 @@ void MAIN_UI::prvHandleScreenChangeover()
         /* do nothing */
     }
 }
-

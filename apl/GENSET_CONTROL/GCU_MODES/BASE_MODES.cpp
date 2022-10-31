@@ -190,19 +190,19 @@ void BASE_MODES::prvSetGCUState()
     if(_GCUAlarms.IsCommonShutdown())
     {
         _vars.GCUState = SHUTDOWN;
-    }                
+    }
     else if(_GCUAlarms.IsCommonElectricTrip())
     {
         _vars.GCUState = ELECTRIC_TRIP;
-    }       
+    }
     else if(_GCUAlarms.IsCommonWarning())
     {
         _vars.GCUState = WARNING;
-    }            
+    }
     else if(_GCUAlarms.IsCommonNotification())
     {
-        _vars.GCUState = NOTIFICATION;  
-    }     
+        _vars.GCUState = NOTIFICATION;
+    }
 }
 
 void BASE_MODES::UpdateMainsStatus()
@@ -230,22 +230,22 @@ void BASE_MODES::UpdateMainsStatus()
     {
         if(_MainsStatus == MAINS_UNHELATHY)
         {
-            _MainsStatus = (MAINS_STATUS_t) ((!_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_UNDERVOLT_TRIP))
-                                  && (!_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_OVERVOLT_TRIP))
-                                  && (!_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_UNDERFREQ_TRIP))
-                                  && (!_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_OVERFREQ_TRIP))
-                                  && (!_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_LL_UNDERVOLT_TRIP))
-                                  && ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_PHASE_REVERSAL_DETECT) == CFGZ::CFGZ_DISABLE) ||
-                                          ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_PHASE_REVERSAL_DETECT) == CFGZ::CFGZ_ENABLE) && (!_hal.AcSensors.MAINS_GetPhaseRotStatus()))));
+             _MainsStatus = (MAINS_STATUS_t) ((!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_UNDERVOLT_RETURN].bEnableMonitoring || _GCUAlarms.AlarmResultInstat(GCU_ALARMS::MAINS_UNDERVOLT_RETURN))
+                                   && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_OVERVOLT_RETURN].bEnableMonitoring || _GCUAlarms.AlarmResultInstat(GCU_ALARMS::MAINS_OVERVOLT_RETURN))
+                                   && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_UNDERFREQ_RETURN].bEnableMonitoring || _GCUAlarms.AlarmResultInstat(GCU_ALARMS::MAINS_UNDERFREQ_RETURN))
+                                   && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_OVERFREQ_RETURN].bEnableMonitoring || _GCUAlarms.AlarmResultInstat(GCU_ALARMS::MAINS_OVERFREQ_RETURN))
+                                   && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_LL_UNDERVOLT_RETURN].bEnableMonitoring || _GCUAlarms.AlarmResultInstat(GCU_ALARMS::MAINS_LL_UNDERVOLT_RETURN))
+                                   && ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_PHASE_REVERSAL_DETECT) == CFGZ::CFGZ_DISABLE) ||
+                                           ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_PHASE_REVERSAL_DETECT) == CFGZ::CFGZ_ENABLE) && (!_hal.AcSensors.MAINS_GetPhaseRotStatus()))));
         }
         else
         {
             _MainsStatus = (MAINS_STATUS_t) !(
-                                        ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_UNDERVOLT_TRIP))
-                                    || (_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_OVERVOLT_TRIP))
-                                    || ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_UNDERFREQ_TRIP))
-                                    || ( _GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_OVERFREQ_TRIP))
-                                    || (_GCUAlarms.AlarmResultLatched(GCU_ALARMS::MAINS_LL_UNDERVOLT_TRIP))
+                                        (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_UNDERVOLT_TRIP].bEnableMonitoring && _GCUAlarms.AlarmResultInstat(GCU_ALARMS::MAINS_UNDERVOLT_TRIP))
+                                    || (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_OVERVOLT_TRIP].bEnableMonitoring && _GCUAlarms.AlarmResultInstat(GCU_ALARMS::MAINS_OVERVOLT_TRIP))
+                                    || ( _GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_UNDERFREQ_TRIP].bEnableMonitoring && _GCUAlarms.AlarmResultInstat(GCU_ALARMS::MAINS_UNDERFREQ_TRIP))
+                                    || (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_OVERFREQ_TRIP].bEnableMonitoring &&  _GCUAlarms.AlarmResultInstat(GCU_ALARMS::MAINS_OVERFREQ_TRIP))
+                                    || (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_LL_UNDERVOLT_TRIP].bEnableMonitoring && _GCUAlarms.AlarmResultInstat(GCU_ALARMS::MAINS_LL_UNDERVOLT_TRIP))
                                     || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_PHASE_REVERSAL_DETECT) == CFGZ::CFGZ_ENABLE) && (_hal.AcSensors.MAINS_GetPhaseRotStatus())));
         }
     }
@@ -279,7 +279,7 @@ void BASE_MODES::prvUpdateContactorOutputs()
 
     }
 
-    if(UTILS_GetElapsedTimeInSec(&_ContactorTransferTimer) >= 
+    if(UTILS_GetElapsedTimeInSec(&_ContactorTransferTimer) >=
             _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_LOAD_TRANSFER_DELAY))
     {
         _bContactorTransferOn = false;
@@ -397,17 +397,17 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
             if(IS_BTS_MODE_CONFIG_ENABLED())
             {
                 SET_GCU_OPERATING_MODE(BTS_MODE);
-                SET_BTS_MODE_STATE(STATE_BTS_GEN_OFF_MAINS_ON);
+                SET_BTS_MODE_STATE(STATE_BTS_GEN_OFF_MAINS_OFF);
             }
             else if(IS_CYCLIC_MODE_CONFIG_ENABLED())
             {
                 SET_GCU_OPERATING_MODE(CYCLIC_MODE);
-                SET_CYCLIC_MODE_STATE(STATE_CYCLIC_GEN_OFF_MAINS_ON);
+                SET_CYCLIC_MODE_STATE(STATE_CYCLIC_GEN_OFF_MAINS_OFF);
             }
             else
             {
                 SET_GCU_OPERATING_MODE(AUTO_MODE);
-                SET_AUTO_MODE_STATE(STATE_AMF_GEN_OFF_MAINS_ON);
+                SET_AUTO_MODE_STATE(STATE_AMF_GEN_OFF_MAINS_OFF);
             }
         }
         break;
@@ -777,5 +777,3 @@ bool BASE_MODES::EngineNotInCoolingStage()
     }
     return bEngineNotInCoolingStage;
 }
-
-

@@ -407,9 +407,8 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                     _vars.GCUState = ENGINE_STOPPING;
                 }
 
-                if((((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-                                               ||(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE))
-                                               && (!_bCloseMainsContactor) && (!_bContactorTransferOn))
+                if(((_MainsStatus == MAINS_HELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                                               && (!_bCloseMainsContactor))
                 {
                      SwitchLoadToMains();
                 }

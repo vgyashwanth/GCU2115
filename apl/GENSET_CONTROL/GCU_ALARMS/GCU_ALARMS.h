@@ -772,17 +772,17 @@ private:
 
     void prvUpdateGCUAlarmsValue();
 
-    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-            bool bMonitoringPolarity, uint8_t u8LoggingID, uint8_t u8Threshold,
-                uint16_t u16CounterMax);
-
-    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-            bool bMonitoringPolarity, uint8_t u8LoggingID,
-                uint16_t u16Threshold, uint16_t u16CounterMax);
-
-    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-            bool bMonitoringPolarity, uint8_t u8LoggingID,
-                float f32Threshold, uint16_t u16CounterMax);
+//    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
+//            bool bMonitoringPolarity, uint8_t u8LoggingID, uint8_t u8Threshold,
+//                uint16_t u16CounterMax);
+//
+//    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
+//            bool bMonitoringPolarity, uint8_t u8LoggingID,
+//                uint16_t u16Threshold, uint16_t u16CounterMax);
+//
+//    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
+//            bool bMonitoringPolarity, uint8_t u8LoggingID,
+//                float f32Threshold, uint16_t u16CounterMax);
 
     /**
      * The prvSetAlarmAction function with different extensions
@@ -809,10 +809,9 @@ private:
     float prvGetGenMaxKWPercent();
     float prvGetGenMinKWPercent();
 
-    uint16_t prvGetMinMainsVoltage();
-
     uint16_t prvGetMinPhToPhMainsVoltage();
 
+    uint16_t prvGetMinMainsVoltage();
     uint16_t prvGetMaxMainsVoltage();
 
     uint8_t prvUpdateUnbalancedLoadMon();

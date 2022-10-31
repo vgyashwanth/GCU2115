@@ -173,13 +173,10 @@ void MON_UI::Update(bool bRefresh)
             if(UTILS_GetElapsedTimeInMs(&ExternalInputUpdateTimer) >= EXT_INPUT_UPDATE_TIME_MS)
             {
                 UTILS_ResetTimer(&ExternalInputUpdateTimer);
-                /*
-                 * Rewrite the handling
-                 * Got clumsy after adding mode select dependency
-                 */
+
                 if(_startStop.IsSimStopReceived())
                 {
-                    if( _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
+                    if(_EngineMon.IsModeSelectInputConfigured())
                     {
                         if(_manualMode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
                         {
@@ -195,22 +192,10 @@ void MON_UI::Update(bool bRefresh)
                 {
                     prvStartKeyPressAction();
                 }
-                else //if(_startStop.IsSimAutoReceived() || _bMBModeChnageCMDRcvd || _startStop.IsModeSwitchAutoKeyReceived())
+                else if((_EngineMon.IsModeSelectInputConfigured() && _startStop.IsModeSwitchAutoKeyReceived())
+                        ||(!_EngineMon.IsModeSelectInputConfigured() && (_startStop.IsSimAutoReceived() || _bMBModeChnageCMDRcvd)))
                 {
-                    if( _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
-                    {
-                        if(_startStop.IsModeSwitchAutoKeyReceived())
-                        {
-                            prvAutoKeyPressAction();
-                        }
-                    }
-                    else
-                    {
-                        if(_startStop.IsSimAutoReceived() || _bMBModeChnageCMDRcvd )
-                        {
-                            prvAutoKeyPressAction();
-                        }
-                    }
+                    prvAutoKeyPressAction();
                 }
             }
 
@@ -262,11 +247,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
     {
         case AUTO_KEY_SHORT_PRESS:
         {
-            if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
-            {
-                //Do Nothing
-            }
-            else
+            if(!_EngineMon.IsModeSelectInputConfigured())
             {
                 prvAutoKeyPressAction();
                 GoToHomeScreen();
@@ -285,7 +266,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
         case STOP_KEY_SHORT_PRESS:
         {
-            if( _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) != DigitalSensor::SENSOR_NOT_CONFIGRUED)
+            if(_EngineMon.IsModeSelectInputConfigured())
             {
                 if(_manualMode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
                 {
@@ -406,10 +387,6 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
             {
                 _GCUAlarms.TurnOffSounderAlarm();
             }
-            else
-            {
-                /* do nothing */
-            }
             _GCUAlarms.ClearAllAlarms();
             if(eMonScreenType == MON_SCREEN_NORMAL)
             {
@@ -428,7 +405,6 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
         case DN_LONG_PRESS:
         {
-
             if(!_manualMode.IsGenRunTimersInProcess()) /* TODO: yet to add engine type dependency. */
             {
                 if(eMonScreenType == MON_SCREEN_NORMAL)
@@ -494,10 +470,6 @@ void MON_UI::prvConfigureScreenEnable()
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
-                else
-                {
-                    /* do nothing */
-                }
                 break;
             case DISP_MON_MAINS_LOAD_KW :
             case DISP_MON_MAINS_LOAD_KVA :
@@ -509,10 +481,6 @@ void MON_UI::prvConfigureScreenEnable()
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
-                else
-                {
-                    /* do nothing */
-                }
                 break;
 
             case DISP_MON_MAINS_ENERGY :
@@ -520,10 +488,6 @@ void MON_UI::prvConfigureScreenEnable()
                    (_manualMode.IsMainsContactorConfigured()))
                 {
                     _ArrScreenEnDs[u8Screen] = true;
-                }
-                else
-                {
-                    /* do nothing */
                 }
                 break;
 
@@ -539,19 +503,11 @@ void MON_UI::prvConfigureScreenEnable()
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
-                else
-                {
-                    /* do nothing */
-                }
                 break;
             case DISP_MON_SITE_BAT_RUN_HRS :
                 if(_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
                 {
                     _ArrScreenEnDs[u8Screen] = true;
-                }
-                else
-                {
-                    /* do nothing */
                 }
                 break;
             case DISP_MON_TAMPERED_RUN_HRS :
@@ -559,19 +515,11 @@ void MON_UI::prvConfigureScreenEnable()
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
-                else
-                {
-                    /* do nothing */
-                }
                 break;
             case DISP_MON_ENG_TEMP :
                 if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                 {
                     _ArrScreenEnDs[u8Screen] = true;
-                }
-                else
-                {
-                    /* do nothing */
                 }
                 break;
             case DISP_MON_LUBE_OIL_PRESSURE :
@@ -580,19 +528,11 @@ void MON_UI::prvConfigureScreenEnable()
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
-                else
-                {
-                    /* do nothing */
-                }
                 break;
             case DISP_MON_FUEL :
                 if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                 {
                     _ArrScreenEnDs[u8Screen] = true;
-                }
-                else
-                {
-                    /* do nothing */
                 }
                 break;
             case DISP_MON_SHELTER_TEMP :
@@ -600,19 +540,11 @@ void MON_UI::prvConfigureScreenEnable()
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
-                else
-                {
-                    /* do nothing */
-                }
                 break;
             case DISP_MON_AUX_2 :
                 if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                 {
                     _ArrScreenEnDs[u8Screen] = true;
-                }
-                else
-                {
-                    /* do nothing */
                 }
                 break;
             case DISP_MON_ENG_SPEED :
@@ -1969,7 +1901,7 @@ void MON_UI::prvNormalMonScreens()
             sprintf(arrTemp,"%s","ECU Link : ");
             _Disp.gotoxy(GLCD_X(10),GLCD_Y(35));
             _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
-            if(0) /* todo: in nxp code is it always true */
+            if(0) /* TODO: in nxp code is it always true */
             {
                 sprintf(arrTemp,"%s","Not Ok");
             }
@@ -2439,33 +2371,23 @@ void MON_UI::prvNormalMonScreens()
         case DISP_MON_ENG_SPEED:
         {
             _Disp.printImage((uint8_t *)u8ArrEngineSpeed, 4, 32, 26, 7);
+
             _Disp.gotoxy(GLCD_X(64),GLCD_Y(37));
-//            if(_j1939.IsCommunicationFail() && _cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG))
-//            {
-//                _Disp.printStringRightAligned((char *)"NA",FONT_ARIAL);
-//            }
-//            else
-            {
-                sprintf(arrTemp,"%d ",(uint16_t) _GCUAlarms.GetSpeedValue());
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(65),GLCD_Y(37));
-                _Disp.printStringLeftAligned((char*)"RPM",FONT_VERDANA);
-            }
+            sprintf(arrTemp,"%d ",(uint16_t) _GCUAlarms.GetSpeedValue());
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+
+            _Disp.gotoxy(GLCD_X(65),GLCD_Y(37));
+            _Disp.printStringLeftAligned((char*)"RPM",FONT_VERDANA);
+
         }
         break;
         case DISP_MON_ENG_RUN_TIME:
         {
             _Disp.printImage((uint8_t *)u8ArrEngineHours, 4, 32, 26, 7);
+
             _Disp.gotoxy(GLCD_X(124),GLCD_Y(22));
-//            if(_j1939.IsCommunicationFail() && _cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ENG))
-//            {
-//                _Disp.printStringRightAligned((char *)"NA",FONT_ARIAL);
-//            }
-//            else
-            {
-                sprintf(arrTemp,"%ldhrs  %dmin ", ( _GCUAlarms.GetSelectedEngRunMin()/60), (uint8_t)(_GCUAlarms.GetSelectedEngRunMin()%60) );
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
-            }
+            sprintf(arrTemp,"%ldhrs  %dmin ", ( _GCUAlarms.GetSelectedEngRunMin()/60), (uint8_t)(_GCUAlarms.GetSelectedEngRunMin()%60) );
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
             {
                 _Disp.gotoxy(GLCD_X(40),GLCD_Y(37));
@@ -2478,6 +2400,7 @@ void MON_UI::prvNormalMonScreens()
             _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
             sprintf(arrTemp,"%d ",  (uint16_t)_EngineMon.GetEngineNoOfStarts() );
             _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
+
             _Disp.gotoxy(GLCD_X(90),GLCD_Y(52));
             sprintf(arrTemp,"%d ",  (uint16_t)_EngineMon.GetEngineNoOfTrips() );
             _Disp.printStringLeftAligned((char *)arrTemp,FONT_ARIAL);
@@ -3030,12 +2953,12 @@ void MON_UI::prvStopKeyPressAction()
     {
         /* shubham wader 23.09.2022
         todo: do nothing.
-        There are 2 possibilities for eDisplayMode, 1. Normal Monitering mode 2. Alaram mode.
+        There are 2 possibilities for eDisplayMode, 1. Normal Monitoring mode 2. Alarm mode.
         We are accepting stop key command and executing mode specific actions only if the eDisplayMode
-        is in Normal monitering mode. Ref from MAIN_UI: if the program is in Alaram mode, on pressing stop key
-        it will change the mode to normal monitering mode. hence, wheneve execution comes to this specific
+        is in Normal monitoring mode. Ref from MAIN_UI: if the program is in Alarm mode, on pressing stop key
+        it will change the mode to normal monitoring mode. hence, whenever execution comes to this specific
         function call, we are getting eDisplayMode as Normal monitoring mode.
-        So, need to think, is it necesarry to check this here ? */
+        So, need to think, is it necessary to check this here ? */
     }
 }
 
@@ -3059,13 +2982,13 @@ void MON_UI::prvStartKeyPressAction()
 
 void MON_UI::prvAutoKeyPressAction()
 {
-    /* Shubham Wader 23.09.2022
-        Mode switching logic rearrenged referencing GC2111 NXP
+    /* Shubham.Wader 23.09.2022
+        Mode switching logic rearranged referencing GC2111 NXP
     */
     _bMBModeChnageCMDRcvd = false;
     _startStop.ClearSimAutoPulse();
-    /*   todo: In GC2111 NXP, we are doing clear Alarms here */
-    _GCUAlarms.ClearAllAlarms();
+
+    _GCUAlarms.ClearAllAlarms(); //As per NXP.
 
     if(_eOpMode == BASE_MODES::MANUAL_MODE)
     {
@@ -3082,11 +3005,6 @@ void MON_UI::prvAutoKeyPressAction()
                 {
                     _BTSMode.ManualToBTSOnLoad();
                 }
-                else
-                {
-                    /* do nothing */
-                }
-
             }
             else if(_manualMode.GetGCUOperatingMode()==BASE_MODES::CYCLIC_MODE)
             {
@@ -3164,7 +3082,6 @@ void MON_UI::prvAutoKeyPressAction()
         if(  (_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_OFF_MAINS_OFF)
            ||(_manualMode.GetBTSModeState() == BASE_MODES::STATE_BTS_GEN_OFF_MAINS_ON))
         {
-
             _manualMode.ChangeManualState(BASE_MODES::STATE_MANUAL_GEN_OFF);
             _manualMode.DisableReturnToMains();
         }
@@ -3340,7 +3257,6 @@ void MON_UI::GroupSwitching(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
     }
 }
 
-
 void MON_UI:: prvDisplayError()
 {
     _Disp.ClearScreen();
@@ -3363,174 +3279,6 @@ void MON_UI:: prvDisplayError()
        _Disp.gotoxy(GLCD_X(64),GLCD_Y(32));
        _Disp.printStringCenterAligned((char*)"Error: C02", FONT_ARIAL);
    }
-}
-
-#if ENABLE_MON_J1939
-/* todo: as chinese language is not there, this function is useless. remove it at the end. */
-void MON_UI::prvGetMonImageCoordicates( uint8_t *pu8SizeX, uint8_t *pu8SizeY, uint8_t *pu8CordinateX, uint8_t *pu8CordinateY)
-{
-    switch(_stScreenNo)
-    {
-        case DISP_AUTO_EXERCISE_1:
-        case DISP_AUTO_EXERCISE_2:
-        case DISP_HOME:
-            *pu8SizeX= 11;
-            *pu8SizeY= 16;
-            *pu8CordinateX = 2;
-            *pu8CordinateY = 20;
-            break;
-
-
-        case DISP_ENGINE_TYPE:
-            *pu8SizeX= 9;
-            *pu8SizeY= 16;
-            *pu8CordinateX = 3;
-            *pu8CordinateY = 30;
-            break;
-
-        case DISP_CONTACTOR_STATUS:
-            *pu8SizeX= 9;
-            *pu8SizeY= 16;
-            *pu8CordinateX = 2;
-            *pu8CordinateY = 27;
-            break;
-        case DISP_PRODUCT_INFO:
-            *pu8SizeX= 9;
-            *pu8SizeY= 16;
-            *pu8CordinateX = 2;
-            *pu8CordinateY = 30;
-            break;
-        case DISP_GEN_LN_VOLTAGE:
-            *pu8SizeX= 11;
-            *pu8SizeY= 16;
-            *pu8CordinateX = 2;
-            *pu8CordinateY = 20;
-            break;
-
-        case DISP_GEN_PF:
-            *pu8SizeX= 9;
-            *pu8SizeY= 16;
-            *pu8CordinateX = 2;
-            *pu8CordinateY = 24;
-            break;
-
-        case DISP_HISTOGRAM:
-            *pu8SizeX= 7;
-            *pu8SizeY= 16;
-            *pu8CordinateX = 2;
-            *pu8CordinateY = 38;
-            break;
-
-        case DISP_MAINS_LN_VOLTAGE:
-            *pu8SizeX= 12;
-            *pu8SizeY= 16;
-            *pu8CordinateX = 2;
-            *pu8CordinateY = 28;
-            break;
-        case DISP_MAINS_RUN_TIME:
-            *pu8SizeX= 11;
-            *pu8SizeY= 16;
-            *pu8CordinateX = 2;
-            *pu8CordinateY = 24;
-            break;
-
-
-
-
-       case DISP_GEN_CURRENT:
-           *pu8SizeX= 9;
-           *pu8SizeY= 16;
-           *pu8CordinateX = 2;
-           *pu8CordinateY = 28;
-           break;
-       case DISP_GEN_KW:
-       case DISP_GEN_KVA:
-       case DISP_GEN_KVAR:
-           *pu8SizeX= 12;
-           *pu8SizeY= 16;
-           *pu8CordinateX = 2;
-           *pu8CordinateY = 20;
-           break;
-       case DISP_GEN_CUMU_POWER:
-           *pu8SizeX= 11;
-           *pu8SizeY= 16;
-           *pu8CordinateX = 2;
-           *pu8CordinateY = 22;
-           break;
-
-
-
-      case DISP_MAINS_CUMU_POWER:
-          *pu8SizeX= 11;
-          *pu8SizeY= 16;
-          *pu8CordinateX = 2;
-          *pu8CordinateY = 22;
-          break;
-
-      case DISP_SITE_BATT:
-      case DISP_BATTERY_VOLTAGE :
-          *pu8SizeX= 11;
-          *pu8SizeY= 16;
-          *pu8CordinateX = 2;
-          *pu8CordinateY = 20;
-          break;
-
-
-      case DISP_BTS_RUN_TIME:
-          *pu8SizeX= 9;
-          *pu8SizeY= 16;
-          *pu8CordinateX = 2;
-          *pu8CordinateY = 27;
-          break;
-      case DISP_COOLENT_TEMP    :
-          *pu8SizeX= 9;
-          *pu8SizeY= 16;
-          *pu8CordinateX = 2;
-          *pu8CordinateY = 27;
-          break;
-      case DISP_OIL_PRESSURE    :
-          *pu8SizeX= 9;
-          *pu8SizeY= 16;
-          *pu8CordinateX = 2;
-          *pu8CordinateY = 30;
-          break;
-      case DISP_BALANCE_FUEL    :
-          *pu8SizeX= 9;
-          *pu8SizeY= 16;
-          *pu8CordinateX = 2;
-          *pu8CordinateY = 28;
-          break;
-
-      case DISP_SHELTER_TEMP    :
-          *pu8SizeX= 14;
-          *pu8SizeY= 16;
-          *pu8CordinateX = 2;
-          *pu8CordinateY = 12;
-          break;
-
-      case DISP_ENGINE_SPEED    :
-          *pu8SizeX= 11;
-          *pu8SizeY= 16;
-          *pu8CordinateX = 2;
-          *pu8CordinateY = 20;
-          break;
-
-          //Todo:Change Tampered Run Hours Co-ordinates as per new translation
-      case DISP_TAMPERED_RUNHRS:
-      case DISP_ENGINE_RUN_TIME :
-          *pu8SizeX= 13;
-          *pu8SizeY= 16;
-          *pu8CordinateX = 2;
-          *pu8CordinateY = 12;
-          break;
-      default: break;
-    }
-}
-#endif
-
-
-void MON_UI:: prvPrintExerciser(uint8_t _ScreenNo)
-{
 }
 
 #if ENABLE_MON_J1939

@@ -175,6 +175,11 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::getAssumedLoadStatus(CO
     }
     return LOAD_CONT_STATUS_t::LOAD_ON_GEN;
 }
+bool ENGINE_MONITORING::IsModeSelectInputConfigured()
+{
+    // Not equal to not_configured means it must be assigned!
+    return (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_MODE_SELECT) != DigitalSensor::SENSOR_NOT_CONFIGRUED);
+}
 bool ENGINE_MONITORING::isGensetContactorFeedbackAssigned()
 {
     // Not equal to not_configured means it must be assigned!

@@ -1040,6 +1040,9 @@ private:
 
     void prvPrintSensorStatus(A_SENSE::SENSOR_RET_t stTemp,char *str,
                                   DATA_TYPE_t etype , uint8_t u8x , uint8_t u8y );
+
+    void prvPrintSensorFaultStatus(A_SENSE::SENSOR_RET_t stTemp , uint16_t Xpos , uint16_t Ypos);
+
     /** This is used to handle the mode switching action on stop key
      * @param none
      * @return none
@@ -1062,8 +1065,6 @@ private:
      */
     void prvDisplayError();
 
-
-    void prvPrintExerciser(uint8_t _ScreenNo);
     void prvNormalMonScreens();
     void prvPrintCANMsgRcvError();
     void prvAssignNoOfDigitAfterDP(SPNData_t *StrArrayPtr, uint8_t u8PGNEnumNo, uint8_t u8SpnNo);
@@ -1079,10 +1080,8 @@ private:
     void prvPrintJ1939SPNVal(SPNData_t stData, uint8_t u8x, uint8_t u8y );
     void prvPrintPGN65378OrPGN65367(uint8_t u8PGNReceived);
     void prvPGNScreenDataAssignment(uint8_t u8PGNEnumNo);
-    void prvGetMonImageCoordicates( uint8_t *pu8SizeX, uint8_t *pu8SizeY, uint8_t *pu8CordinateX, uint8_t *pu8CordinateY);
 #endif
 
-    void prvPrintSensorFaultStatus(A_SENSE::SENSOR_RET_t stTemp , uint16_t Xpos , uint16_t Ypos);
 
     /** This function returns true when Voltage Value has more than 3 digits.
      * @param u16VoltageVal
@@ -1091,7 +1090,5 @@ private:
     bool prvIsValDigitsGreaterThan3(uint16_t u16VoltageVal);
 
 };
-
-
 
 #endif /* APL_HMI_MON_UI_MON_UI_H_ */

@@ -206,41 +206,41 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
     }
 }
 
-void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
-                                    uint8_t u8Threshold, uint16_t u16CounterMax)
-{
-    ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
-    ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = bMonitoringPolarity;
-    ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = u8LoggingID;
-    ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = u8Threshold;
-    ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = u16CounterMax;
-    ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
-}
-
-void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
-                                    uint16_t u16Threshold, uint16_t u16CounterMax)
-{
-    ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
-    ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = bMonitoringPolarity;
-    ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = u8LoggingID;
-    ArrAlarmMonitoring[u8AlarmIndex].Threshold.u16Value = u16Threshold;
-    ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = u16CounterMax;
-    ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = TWO_BYTE_INT;
-}
-
-void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
-                                    float f32Threshold, uint16_t u16CounterMax)
-{
-    ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
-    ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = bMonitoringPolarity;
-    ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = u8LoggingID;
-    ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = f32Threshold;
-    ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = u16CounterMax;
-    ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-}
+//void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
+//                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
+//                                    uint8_t u8Threshold, uint16_t u16CounterMax)
+//{
+//    ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
+//    ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = bMonitoringPolarity;
+//    ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = u8LoggingID;
+//    ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = u8Threshold;
+//    ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = u16CounterMax;
+//    ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
+//}
+//
+//void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
+//                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
+//                                    uint16_t u16Threshold, uint16_t u16CounterMax)
+//{
+//    ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
+//    ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = bMonitoringPolarity;
+//    ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = u8LoggingID;
+//    ArrAlarmMonitoring[u8AlarmIndex].Threshold.u16Value = u16Threshold;
+//    ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = u16CounterMax;
+//    ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = TWO_BYTE_INT;
+//}
+//
+//void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
+//                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
+//                                    float f32Threshold, uint16_t u16CounterMax)
+//{
+//    ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
+//    ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = bMonitoringPolarity;
+//    ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = u8LoggingID;
+//    ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = f32Threshold;
+//    ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = u16CounterMax;
+//    ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
+//}
 
 void GCU_ALARMS::prvSetAlarmAction_NoWESN(uint8_t u8AlarmIndex, uint8_t u8AlarmAction)
 {
@@ -425,6 +425,7 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             prvSetAlarmAction_NoWESN(RWL_SWITCH, u8AlarmAction);
             prvSetAlarmActivation(RWL_SWITCH, u8Activation);
             ArrAlarmMonitoring[RWL_SWITCH].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
+
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[WATER_LEVEL_SWITCH_STATUS];
             prvSetAlarmActivation(u8InputIndex, u8Activation);
 
@@ -436,10 +437,13 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
         case CFGZ::CFGZ_EMERGENCY_STOP:
             ArrAlarmMonitoring[ESTOP].bEnableMonitoring = true;
             ArrAlarmMonitoring[ESTOP].bEnableShutdown = true;
+            prvSetAlarmActivation(ESTOP, CFGZ::CFGZ_ALWAYS);
+            ArrAlarmMonitoring[ESTOP].u16CounterMax = 2;
+
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[EMERGENCY_STOP_STATUS];
             ArrAlarmMonitoring[u8InputIndex].LocalEnable = &_u8DummyOne;
 
-            prvUpdateMonParams(ESTOP, &_u8DummyOne, true, GCU_ALARMS::Emergency_Stop_id , (uint8_t)0, 2U);
+            ArrAlarmMonitoring[ESTOP].u8LoggingID = GCU_ALARMS::Emergency_Stop_id;
             ArrAlarmMonitoring[ESTOP].pValue = &_ArrAlarmValue[EMERGENCY_STOP_STATUS];
 
             break;
@@ -2988,6 +2992,26 @@ uint16_t GCU_ALARMS::GetMinGensetVoltage()
     return u16MinGensetVoltage;
 }
 
+
+uint16_t GCU_ALARMS::prvGetMinPhToPhMainsVoltage()
+{
+    static uint16_t u16MinMainsVoltage = 0;
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
+    {
+        u16MinMainsVoltage = (uint16_t)_hal.AcSensors.MAINS_GetRYVolts();
+        if((uint16_t)_hal.AcSensors.MAINS_GetYBVolts() < u16MinMainsVoltage)
+        {
+            u16MinMainsVoltage = (uint16_t)_hal.AcSensors.MAINS_GetYBVolts();
+        }
+
+        if((uint16_t)_hal.AcSensors.MAINS_GetRBVolts() < u16MinMainsVoltage)
+        {
+            u16MinMainsVoltage = (uint16_t)_hal.AcSensors.MAINS_GetRBVolts();
+        }
+    }
+    return u16MinMainsVoltage;
+}
+
 uint16_t GCU_ALARMS::prvGetMinMainsVoltage()
 {
     static uint16_t u16MinMainsVoltage;
@@ -3007,25 +3031,6 @@ uint16_t GCU_ALARMS::prvGetMinMainsVoltage()
     else
     {
         u16MinMainsVoltage = (uint16_t)_hal.AcSensors.MAINS_GetVoltageVolts(R_PHASE);
-    }
-    return u16MinMainsVoltage;
-}
-
-uint16_t GCU_ALARMS::prvGetMinPhToPhMainsVoltage()
-{
-    static uint16_t u16MinMainsVoltage = 0;
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
-    {
-        u16MinMainsVoltage = (uint16_t)_hal.AcSensors.MAINS_GetRYVolts();
-        if((uint16_t)_hal.AcSensors.MAINS_GetYBVolts() < u16MinMainsVoltage)
-        {
-            u16MinMainsVoltage = (uint16_t)_hal.AcSensors.MAINS_GetYBVolts();
-        }
-
-        if((uint16_t)_hal.AcSensors.MAINS_GetRBVolts() < u16MinMainsVoltage)
-        {
-            u16MinMainsVoltage = (uint16_t)_hal.AcSensors.MAINS_GetRBVolts();
-        }
     }
     return u16MinMainsVoltage;
 }
@@ -3069,7 +3074,6 @@ float GCU_ALARMS::GetMinMainsFreq()
             f32MinMainsFreq = _hal.AcSensors.MAINS_GetApproxFreq(B_PHASE);
         }
     }
-
     else
     {
         f32MinMainsFreq = _hal.AcSensors.MAINS_GetApproxFreq(R_PHASE);

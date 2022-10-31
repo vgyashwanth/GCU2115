@@ -76,6 +76,8 @@ public:
     bool IsWarmUpTimeExpired();
     bool IsGenWarmUpEnabledAndNotExpired();
 
+    bool IsModeSelectInputConfigured();
+
     bool isGensetContactorFeedbackAssigned();
     bool isMainsContactorFeedbackAssigned();
     bool gensetContactorFeedbackInputStatus();

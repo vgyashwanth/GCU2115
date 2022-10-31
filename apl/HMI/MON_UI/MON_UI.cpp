@@ -3688,5 +3688,3 @@ void MON_UI::prvBuildExhaustIconScreen(void)
     }
 }
 #endif
-
-

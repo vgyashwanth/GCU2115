@@ -139,7 +139,7 @@ const char *strGCUMode[1][5]=
   "TEST MODE",
   "MANUAL MODE",
   "AUTO MODE",
-  "Auto - SITE Bat Backup",
+  "Auto- BTS Battery Backup",
   "Auto - Cyclic",
  }
 };
@@ -1442,5 +1442,3 @@ uint8_t gau8Icon7[6][27]
      RX_PGN_EFL_P12_64735           ,
      RX_PGN_HATZ_CCVS_65265         ,
 };
-
-

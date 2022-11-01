@@ -338,13 +338,13 @@ uint16_t ENGINE_MONITORING::prvCheckTimeSlot(uint32_t u32RunTime)
     {
         u16TimeSlot = TIME_2nd_SLOT_SEC;
     }
-    else if(u32RunTime > RUN_MIN_2nd_SLOT)
+    else if((u32RunTime >= RUN_MIN_2nd_SLOT ) && (u32RunTime <= RUN_MIN_3rd_SLOT))
     {
         u16TimeSlot = TIME_3rd_SLOT_SEC;
     }
     else
     {
-        /* do nothing */
+        u16TimeSlot = TIME_4th_SLOT_SEC;
     }
 
     return u16TimeSlot;

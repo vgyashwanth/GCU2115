@@ -141,12 +141,14 @@ private:
     #define KW_TO_WATT_CONVERSION       (1000U)
     #define ENGINE_OFF_TMR_THRESHOLD    (1U)
     #define FIFTY_MSEC                  (50U)
-    #define RUN_MIN_1st_SLOT            (1000U*60U)
-    #define RUN_MIN_2nd_SLOT            (5000U*60U)
+    #define RUN_MIN_1st_SLOT            (300U*60U)
+    #define RUN_MIN_2nd_SLOT            (1000U*60U)
+    #define RUN_MIN_3rd_SLOT            (5000U*60U)
 
-    #define TIME_1st_SLOT_SEC           (5*60U)  //5min
-    #define TIME_2nd_SLOT_SEC           (10*60U)  //10min
-    #define TIME_3rd_SLOT_SEC           (15*60U)  //15min
+    #define TIME_1st_SLOT_SEC           (1*60U)  //1min
+    #define TIME_2nd_SLOT_SEC           (2*60U)  //2min
+    #define TIME_3rd_SLOT_SEC           (5*60U)  //5min
+    #define TIME_4th_SLOT_SEC           (15*60U) //15min
 
     #define ONE_MIN_CNT                 (60)
     #define MAX_NO_OF_STARTS            (65000)

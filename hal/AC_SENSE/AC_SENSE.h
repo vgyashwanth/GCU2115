@@ -4,7 +4,7 @@
  *              calculate the parameter values. The input parameters for this module are:
  *              1. Mains voltage sample
  *              2. Genset voltage sample
- *              3. CT Current sample - This could either correspond to mains 
+ *              3. CT Current sample - This could either correspond to mains
  *                 current or Genset current based on CT configuration.
  *              The o/p parameters are RMS voltages, current, frequencies,
  *              active power, apparent power, reactive power, power factor,
@@ -103,6 +103,8 @@ public:
     void ConfigureISensing(I_CFG_t iCfg);
     void ConfigureGenTamp(bool bIsGenTamp);
 
+    void Configure3phCalculationEnableFor1Ph(uint8_t CalculationOf3PhFor1ph);
+
     void SetEnergyOffsets( ENERGY_REGISTER_t &stTampGensetEnergyOffset,ENERGY_REGISTER_t &stGensetEnergyOffset,
                                ENERGY_REGISTER_t &stMainsEnergyOffset);
 
@@ -153,7 +155,7 @@ public:
     float GENSET_GetApproxFreq(PHASE_t Phase);
 
     /**
-     * Returns the combined active power of the Genset R, Y and B phases. This will 
+     * Returns the combined active power of the Genset R, Y and B phases. This will
      * return 0 in case the CT is configured to be on Mains.
      * @param - None
      * @return
@@ -175,7 +177,7 @@ public:
     float GENSET_GetTotalFiltApparentPowerVA();
 
     /**
-     * Returns the combined reactive power the Genset of R, Y and B phases. This will 
+     * Returns the combined reactive power the Genset of R, Y and B phases. This will
      * return 0 in case the CT is configured to be on Mains.
      * @param - None
      * @return
@@ -242,7 +244,7 @@ public:
     double GENSET_GetTotalTamperedActiveEnergySinceInitWH();
 
     /**
-     * Returns the combined active energy of the Genset R, Y and B phases. This will 
+     * Returns the combined active energy of the Genset R, Y and B phases. This will
      * return 0 in case the CT is configured to be on Mains.
      * @param - None
      * @return
@@ -262,7 +264,7 @@ public:
 
     double GENSET_GetTotalTamperedReactiveEnergySinceInitVARH();
     /**
-     * Returns the combined reactive energy the Genset of R, Y and B phases. This 
+     * Returns the combined reactive energy the Genset of R, Y and B phases. This
      * will return 0 in case the CT is configured to be on Mains.
      * @param - None
      * @return
@@ -298,7 +300,7 @@ public:
     double GENSET_GetReactiveEnergyVARH(PHASE_t Phase);
 
    /**
-    * Returns the phase rotation status of the Genset i.e., whether phase 
+    * Returns the phase rotation status of the Genset i.e., whether phase
     * reversal has occurred or not.
     * @param - None
     * @return
@@ -395,7 +397,7 @@ public:
     float MAINS_GetTotalFiltReactivePowerVAR();
 
     /**
-     * Returns the active power of the mains R, Y or B phase. This will 
+     * Returns the active power of the mains R, Y or B phase. This will
      * return 0 in case the CT is configured to be on Genset.
      * @param - None
      * @return
@@ -406,7 +408,7 @@ public:
     float MAINS_GetDispActivePowerWatts(PHASE_t Phase);
 
     /**
-     * Returns the apparent power of the mains R, Y or B phase. This will 
+     * Returns the apparent power of the mains R, Y or B phase. This will
      * return 0 in case the CT is configured to be on Genset.
      * @param - None
      * @return
@@ -417,7 +419,7 @@ public:
     float MAINS_GetDispApparentPowerVA(PHASE_t Phase);
 
     /**
-     * Returns the reactive power of the mains R, Y or B phase. This will 
+     * Returns the reactive power of the mains R, Y or B phase. This will
      * return 0 in case the CT is configured to be on Genset.
      * @param - None
      * @return
@@ -428,7 +430,7 @@ public:
     float MAINS_GetDispReactivePowerVAR(PHASE_t Phase);
 
     /**
-     * Returns the power factor of the mains R, Y or B phase. This will 
+     * Returns the power factor of the mains R, Y or B phase. This will
      * return 0 in case the CT is configured to be on Genset.
      * @param - None
      * @return
@@ -519,7 +521,7 @@ public:
     * phase to phase voltage
     */
     float MAINS_GetYBVolts();
- 
+
     /**
     * Returns the R-B mains phase to phase voltage
     * @param - None
@@ -569,18 +571,18 @@ private:
         bool    bLatchedPhaseReversalStatus;
         uint8_t u8PhaseReverseSampleCnt;
     } PHASE_ROT_VARS_t;
-    
+
 
     #define MAX_CT_SECONDARY_CURRENT_A (5U)
     #define MIN_AC_DISP_VTG            (20.0f)
-    
+
     POWER             _aPowers[PHASE_END];
     ENERGY_REGISTER_t _tampGensetEnergyOffset;
     ENERGY_REGISTER_t _gensetEnergyOffset;
     ENERGY_REGISTER_t _mainsEnergyOffset;
     PHASE_ROT_VARS_t  _gensetPhaseRot;
     PHASE_ROT_VARS_t  _mainsPhaseRot;
-    
+
     RMS               _ryMainsPhaseVoltage;
     RMS               _ybMainsPhaseVoltage;
     RMS               _rbMainsPhaseVoltage;
@@ -592,7 +594,7 @@ private:
     RMS               _EarthCurrent;
     AC_IP             &_AcIp;
 
-
+    bool              _Perform3phCalculationEnableFor1Ph;
     /* Contains the CT multiplication factor, ex:this will have 10 in case of
        50/5 CT
      */
@@ -634,7 +636,7 @@ private:
     * @return
     * None
     */
-    void prvCheckPhaseReversal(PHASE_ROT_VARS_t &_phaseRotData, int16_t i16RCnt, 
+    void prvCheckPhaseReversal(PHASE_ROT_VARS_t &_phaseRotData, int16_t i16RCnt,
                            int16_t i16YCnt, int16_t i16BCnt, int16_t i16NCnt, bool GensetMainsSource);
     void prvUpdateEarthCurrentDCOffset(uint16_t u16Sample );
 

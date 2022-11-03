@@ -4,7 +4,7 @@
  *              calculate the parameter values. The input parameters for this module are:
  *              1. Mains voltage sample
  *              2. Genset voltage sample
- *              3. CT Current sample - This could either correspond to mains 
+ *              3. CT Current sample - This could either correspond to mains
  *                 current or Genset current based on CT configuration.
  *              The o/p parameters are RMS voltages, current, frequencies,
  *              active power, apparent power, reactive power, power factor,
@@ -79,6 +79,7 @@ _fECTMultiplier(1),
 _fGenPTMultiplier(1),
 _fMainsPTMultiplier(1),
 _fGenRating(0),
+_Perform3phCalculationEnableFor1Ph(false),
 _AnlgIp(anlgIp),
 _st200ms{0},
 _f32DCOffserFiltV(0.0),
@@ -224,10 +225,21 @@ void AC_SENSE::SetEnergyOffsets(ENERGY_REGISTER_t &stTampGensetEnergyOffset,ENER
 //    _aPowers[B_PHASE].ClearCumulativeEnergy();
 //}
 
+void AC_SENSE::Configure3phCalculationEnableFor1Ph(uint8_t CalculationOf3PhFor1ph)
+{
+    if(CalculationOf3PhFor1ph == 1)
+    {
+        _Perform3phCalculationEnableFor1Ph = true;
+    }
+    else
+    {
+        _Perform3phCalculationEnableFor1Ph = false;
+    }
+}
 
 bool AC_SENSE::prvIsPhaseAvilableInSelectedACSys(PHASE_t Phase, AC_SYSTEM_TYP_t etype)
 {
-    if((etype==PHASE_1_SYSTEM) && (Phase != R_PHASE))
+    if((etype==PHASE_1_SYSTEM) && (Phase != R_PHASE) && !_Perform3phCalculationEnableFor1Ph)
     {
        return false;
     }
@@ -377,8 +389,8 @@ float AC_SENSE::GENSET_GetTotalApparentPowerVA()
                    _aPowers[Y_PHASE].GetGensetApparentPower() );
     }
     return _fCTMultiplier*_fGenPTMultiplier*
-                (_aPowers[R_PHASE].GetGensetApparentPower() + 
-                           _aPowers[Y_PHASE].GetGensetApparentPower() + 
+                (_aPowers[R_PHASE].GetGensetApparentPower() +
+                           _aPowers[Y_PHASE].GetGensetApparentPower() +
                                     _aPowers[B_PHASE].GetGensetApparentPower());
 }
 
@@ -432,7 +444,7 @@ float AC_SENSE::GENSET_GetTotalReactivePowerVAR()
     }
 
     return _fCTMultiplier*_fGenPTMultiplier*(_aPowers[R_PHASE].GetGensetReactivePower() +
-                                _aPowers[Y_PHASE].GetGensetReactivePower() + 
+                                _aPowers[Y_PHASE].GetGensetReactivePower() +
                                     _aPowers[B_PHASE].GetGensetReactivePower());
 }
 
@@ -842,7 +854,7 @@ float AC_SENSE::MAINS_GetApproxFreq(PHASE_t Phase)
 //Active power
 float AC_SENSE::MAINS_GetTotalActivePowerWatts()
 {
-    if(_eMainsSystemType==PHASE_1_SYSTEM)
+    if((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph)
     {
         return _fCTMultiplier*_fMainsPTMultiplier*(_aPowers[R_PHASE].GetMainsActivePower());
     }
@@ -858,7 +870,7 @@ float AC_SENSE::MAINS_GetTotalActivePowerWatts()
 
 float AC_SENSE::MAINS_GetTotalFiltActivePowerWatts()
 {
-    if(_eMainsSystemType==PHASE_1_SYSTEM)
+    if((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph)
     {
         return _fCTMultiplier*_fMainsPTMultiplier*(_aPowers[R_PHASE].GetFiltMainsActivePower());
     }
@@ -894,7 +906,7 @@ float AC_SENSE::MAINS_GetDispActivePowerWatts(PHASE_t Phase)
 //Apparent power
 float AC_SENSE::MAINS_GetTotalApparentPowerVA()
 {
-    if(_eMainsSystemType==PHASE_1_SYSTEM)
+    if((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph)
     {
         return _fCTMultiplier*_fMainsPTMultiplier*(_aPowers[R_PHASE].GetMainsApparentPower());
     }
@@ -910,7 +922,7 @@ float AC_SENSE::MAINS_GetTotalApparentPowerVA()
 
 float AC_SENSE::MAINS_GetTotalFiltApparentPowerVA()
 {
-    if(_eMainsSystemType==PHASE_1_SYSTEM)
+    if((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph)
     {
         return _fCTMultiplier*_fMainsPTMultiplier*(_aPowers[R_PHASE].GetFiltMainsApparentPower());
     }
@@ -946,7 +958,7 @@ float AC_SENSE::MAINS_GetDispApparentPowerVA(PHASE_t Phase)
 //Reactive power
 float AC_SENSE::MAINS_GetTotalReactivePowerVAR()
 {
-    if(_eMainsSystemType==PHASE_1_SYSTEM)
+    if((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph)
     {
         return _fCTMultiplier*_fMainsPTMultiplier*(_aPowers[R_PHASE].GetMainsReactivePower());
     }
@@ -956,13 +968,13 @@ float AC_SENSE::MAINS_GetTotalReactivePowerVAR()
                              _aPowers[Y_PHASE].GetMainsReactivePower() );
     }
     return _fCTMultiplier*_fMainsPTMultiplier*(_aPowers[R_PHASE].GetMainsReactivePower() +
-                             _aPowers[Y_PHASE].GetMainsReactivePower() + 
-                                _aPowers[B_PHASE].GetMainsReactivePower()); 
+                             _aPowers[Y_PHASE].GetMainsReactivePower() +
+                                _aPowers[B_PHASE].GetMainsReactivePower());
 }
 
 float AC_SENSE::MAINS_GetTotalFiltReactivePowerVAR()
 {
-    if(_eMainsSystemType==PHASE_1_SYSTEM)
+    if((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph)
     {
         return _fCTMultiplier*_fMainsPTMultiplier*(_aPowers[R_PHASE].GetFiltMainsReactivePower());
     }
@@ -1017,7 +1029,7 @@ float AC_SENSE::MAINS_GetDispPowerFactor(PHASE_t Phase)
 //Active energy
 double AC_SENSE::MAINS_GetTotalActiveEnergySinceInitWH()
 {
-    if(_eMainsSystemType==PHASE_1_SYSTEM)
+    if((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph)
     {
         return _fCTMultiplier*_fMainsPTMultiplier*(_aPowers[R_PHASE].GetMainsActiveEnergy())+
                 _mainsEnergyOffset.f32InitialActiveEnergyWH;
@@ -1032,7 +1044,7 @@ double AC_SENSE::MAINS_GetTotalActiveEnergySinceInitWH()
                              _aPowers[Y_PHASE].GetMainsActiveEnergy() +
                                 _aPowers[B_PHASE].GetMainsActiveEnergy()) +
                        _mainsEnergyOffset.f32InitialActiveEnergyWH;
-                      
+
 }
 
 double AC_SENSE::MAINS_GetActiveEnergyWH(PHASE_t Phase)
@@ -1047,7 +1059,7 @@ double AC_SENSE::MAINS_GetActiveEnergyWH(PHASE_t Phase)
 //Apparent energy
 double AC_SENSE::MAINS_GetTotalApparentEnergySinceInitVAH()
 {
-    if(_eMainsSystemType==PHASE_1_SYSTEM)
+    if((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph)
     {
         return _fCTMultiplier*_fMainsPTMultiplier*(_aPowers[R_PHASE].GetMainsApparentEnergy())+
                        _mainsEnergyOffset.f32InitialApparentEnergyVA;
@@ -1079,7 +1091,7 @@ double AC_SENSE::MAINS_GetApparentEnergyVAH(PHASE_t Phase)
 //Reactive energy
 double AC_SENSE::MAINS_GetTotalReactiveEnergySinceInitVARH()
 {
-    if(_eMainsSystemType==PHASE_1_SYSTEM)
+    if((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph)
     {
         return _fCTMultiplier*_fMainsPTMultiplier*(_aPowers[R_PHASE].GetMainsReactiveEnergy())+
                 _mainsEnergyOffset.f32InitialReactiveEnergyVAR;
@@ -1134,7 +1146,7 @@ float AC_SENSE::MAINS_GetRBVolts()
 
 float AC_SENSE::MAINS_GetDispRYVolts()
 {
-    if(_eMainsSystemType==PHASE_1_SYSTEM)
+    if(((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph) || _eMainsSystemType==SPLIT_PHASE_SYSTEM)
      {
          return 0;
      }
@@ -1142,7 +1154,7 @@ float AC_SENSE::MAINS_GetDispRYVolts()
 }
 float AC_SENSE::MAINS_GetDispYBVolts()
 {
-    if(prvIsACSyte1Phaseor1Phase3Wire(_eMainsSystemType))
+    if(((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph) || _eMainsSystemType==SPLIT_PHASE_SYSTEM)
     {
         return 0;
     }
@@ -1150,7 +1162,7 @@ float AC_SENSE::MAINS_GetDispYBVolts()
 }
 float AC_SENSE::MAINS_GetDispRBVolts()
 {
-    if(prvIsACSyte1Phaseor1Phase3Wire(_eMainsSystemType))
+    if(((_eMainsSystemType==PHASE_1_SYSTEM) && !_Perform3phCalculationEnableFor1Ph) || _eMainsSystemType==SPLIT_PHASE_SYSTEM)
     {
         return 0;
     }
@@ -1226,7 +1238,7 @@ void AC_SENSE::UpdateACData(AC_IP::AC_PARAMS_t *sample)
                                 sample->u16GensetNCnt, sample->u16MainsNCnt,
                                       sample->u16YCurrentCnt);
     _aPowers[B_PHASE].UpdateSample(sample->u16GensetBCnt, sample->u16MainsBCnt,
-                                sample->u16GensetNCnt, sample->u16MainsNCnt, 
+                                sample->u16GensetNCnt, sample->u16MainsNCnt,
                                       sample->u16BCurrentCnt);
     prvUpdateEarthCurrentDCOffset(sample->u16EarthCurrentCnt);
     int16_t i16AbsoluteECurrentSample = (int16_t)(sample->u16EarthCurrentCnt
@@ -1273,7 +1285,7 @@ void AC_SENSE::prvCheckPhaseReversal(PHASE_ROT_VARS_t &_phaseRotData, int16_t i1
     i16RCnt = (int16_t)(i16RCnt-i16NCnt);
     i16YCnt = (int16_t)(i16YCnt-i16NCnt);
     i16BCnt = (int16_t)(i16BCnt-i16NCnt);
-    if(_phaseRotData.bIsPrevPositiveHalfCycle && 
+    if(_phaseRotData.bIsPrevPositiveHalfCycle &&
                       (i16RCnt < ZCD_LOWER_THRESHOLD_SAMPLES))
     {
         _phaseRotData.bIsPrevPositiveHalfCycle = false;
@@ -1299,7 +1311,7 @@ void AC_SENSE::prvCheckPhaseReversal(PHASE_ROT_VARS_t &_phaseRotData, int16_t i1
         }
         else
         {
-           _phaseRotData.u8PhaseReverseSampleCnt=0;   
+           _phaseRotData.u8PhaseReverseSampleCnt=0;
         }
     }
 

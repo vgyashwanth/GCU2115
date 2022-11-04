@@ -2060,6 +2060,14 @@ void UI::HandleMenuVisibility(void)
     {
         for(uint8_t i = 0; i<10; i++)
         {
+            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_T1 + (i*2)].formatString = "%f";
+            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_T1 + (i*2)].unitOfMeasurement = arrUnit[ID_MILLI_AMPERE];
+        }
+    }
+    else if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].tempValue.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    {
+        for(uint8_t i = 0; i<10; i++)
+        {
             ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_T1 + (i*2)].unitOfMeasurement = arrUnit[ID_V];
         }
     }

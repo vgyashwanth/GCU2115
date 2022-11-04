@@ -107,8 +107,10 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     {
                         _vars.TimerState = CYCLIC_ON_TIMER;
                     }
-                    else if(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
-                            >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60))
+                    else if(UTILS_IsTimerEnabled(&_CyclicOffTimer) && (!(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
+                                                >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60))))
+//                    else if(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
+//                            >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60))
                     {
                         _vars.TimerState = CYCLIC_OFF_TIMER;
                     }
@@ -125,8 +127,10 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     {
                         _vars.TimerState = CYCLIC_ON_TIMER;
                     }
-                    else if(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
-                            >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60))
+                    else if(UTILS_IsTimerEnabled(&_CyclicOffTimer) && (!(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
+                                                >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60))))
+//                    else if(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)
+//                            >=(_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60))
                     {
                         _vars.TimerState = CYCLIC_OFF_TIMER;
                     }
@@ -450,7 +454,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 {
                     _bStartOffTimer = false; // Clearing flag
                     _vars.GCUState = ELECTRIC_TRIP;
-                    UTILS_DisableTimer(&_CyclicOffTimer);
+                    UTILS_DisableTimer(&_CyclicOffTimer); //Doubt
                 }
                 else if(_bStartOffTimer && (_MainsStatus == MAINS_UNHELATHY))
                 {
@@ -458,12 +462,15 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 }
                 else if((_MainsStatus == MAINS_UNHELATHY) && (!_GCUAlarms.IsCommonElectricTrip()))
                 {
+                    //Doubt.
                     if(!UTILS_IsTimerEnabled(&_CyclicOnTimer))
                     {
                         UTILS_ResetTimer(&_CyclicOnTimer);
                     }
 
                     _bStartOffTimer = false;
+                    //Doubt after adding
+                    UTILS_DisableTimer(&_CyclicOffTimer);
                     SwitchLoadToGen();
                     _eCyclicState = STATE_CYCLIC_GEN_ON_LOAD;
                     UTILS_DisableTimer(&_EngCoolDownTimer);

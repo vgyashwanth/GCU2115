@@ -192,10 +192,17 @@ void MON_UI::Update(bool bRefresh)
                 {
                     prvStartKeyPressAction();
                 }
-                else if((_EngineMon.IsModeSelectInputConfigured() && _startStop.IsModeSwitchAutoKeyReceived())
-                        ||(!_EngineMon.IsModeSelectInputConfigured() && (_startStop.IsSimAutoReceived() || _bMBModeChnageCMDRcvd)))
+                else
                 {
-                    prvAutoKeyPressAction();
+                    if(_EngineMon.IsModeSelectInputConfigured() && _startStop.IsModeSwitchAutoKeyReceived())
+                    {
+                        _startStop.ClearModeSwitchKeyRecieved();
+                        prvAutoKeyPressAction();
+                    }
+                    else if(!_EngineMon.IsModeSelectInputConfigured() && (_startStop.IsSimAutoReceived() || _bMBModeChnageCMDRcvd))
+                    {
+                        prvAutoKeyPressAction();
+                    }
                 }
             }
 
@@ -2471,7 +2478,6 @@ void MON_UI::prvProductInfo()
     sprintf(arrTemp,(char*)StrInfoDate[_u8LanguageIndex]);
     _Disp.gotoxy(GLCD_X(2),GLCD_Y(47));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-
 
     sprintf(arrTemp,"%d.%s.%d",CurrentTime.u8Day, (char*)StrMonth[_u8LanguageIndex][CurrentTime.u8Month - 1],CurrentTime.u16Year);
     _Disp.gotoxy(GLCD_X(48),GLCD_Y(47));

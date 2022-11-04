@@ -768,10 +768,10 @@ void START_STOP::prvUpdateSimStartStopStatus()
     {
         _bModeSwicthAutoKeyPress = true;
     }
-    else
-    {
-        _bModeSwicthAutoKeyPress = false;
-    }
+//    else
+//    {
+//        _bModeSwicthAutoKeyPress = false;
+//    }
 }
 bool START_STOP::IsModeSwitchAutoKeyReceived()
 {
@@ -792,7 +792,10 @@ bool START_STOP::IsSimStopReceived()
 {
     return _bSimStopReceived;
 }
-
+void START_STOP::ClearModeSwitchKeyRecieved()
+{
+    _bModeSwicthAutoKeyPress = false;
+}
 void START_STOP::ClearSimAutoPulse()
 {
     _bSimAutoReceived = false;

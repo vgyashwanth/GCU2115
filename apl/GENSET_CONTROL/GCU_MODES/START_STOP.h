@@ -148,6 +148,8 @@ public:
 
     bool IsSimStopReceived();
 
+    void ClearModeSwitchKeyRecieved();
+
     void ClearSimAutoPulse();
 
     void ClearSimStopPulse();

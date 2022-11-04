@@ -152,14 +152,14 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
     {
         if(UTILS_GetElapsedTimeInSec(&_AlarmUpdate) >= FOUR_SEC)
         {
+            /*
+             * SuryaPranayTeja.BVV
+             * After power on reset the execution comes here once and will configure all the alarms.
+             */
             bAlarmUpdate = true;
             UTILS_ResetTimer(&_UpdateAlarmMonTimer);
             UTILS_DisableTimer(&_AlarmUpdate);
-            /*
-             * SuryaPranayTeja.BVV TODO:
-             * Why this for loop  having Configure GCU Alarms is required every time?.
-             * The configuration changes only when config changes.
-             */
+
             for(uint8_t u8Index = 0; u8Index < ALARM_LIST_LAST; u8Index++)
             {
                 ConfigureGCUAlarms(u8Index);
@@ -2452,12 +2452,17 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
                 {
                     ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant = false;
                     ArrAlarmMonitoring[_u8AlarmIndex].bResultLatched = false;
-
                 }
             }
 
+            /*
+             * Need discussion with SysE what should get auto cleared and what should not, when should not.
+             */
 //            ArrAlarmMonitoring[_u8AlarmIndex].bNotificationLatched = ArrAlarmMonitoring[_u8AlarmIndex].bEnableNotification &&
 //                                   ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant;
+//            ArrAlarmMonitoring[_u8AlarmIndex].bWarningLatched = ArrAlarmMonitoring[_u8AlarmIndex].bEnableWarning &&
+//                                              ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant;
+
 
             _bCommonNotification = _bCommonNotification || ArrAlarmMonitoring[_u8AlarmIndex].bNotificationLatched;
             _bCommonWarning = _bCommonWarning || ArrAlarmMonitoring[_u8AlarmIndex].bWarningLatched;
@@ -3335,7 +3340,7 @@ void GCU_ALARMS::prvMainsHighLowOutputs()
     {
         _hal.actuators.Activate(ACTUATOR::ACT_MAINS_HIGH);
     }
-    else if(ArrAlarmMonitoring[MAINS_OVERVOLT_TRIP].bResultLatched && ArrAlarmMonitoring[MAINS_OVERVOLT_RETURN].bResultInstant)
+    else if(ArrAlarmMonitoring[MAINS_OVERVOLT_RETURN].bResultLatched && ArrAlarmMonitoring[MAINS_OVERVOLT_RETURN].bResultInstant)
     {
         _hal.actuators.Deactivate(ACTUATOR::ACT_MAINS_HIGH);
     }

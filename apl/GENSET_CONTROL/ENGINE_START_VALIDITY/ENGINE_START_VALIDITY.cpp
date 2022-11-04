@@ -158,7 +158,7 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
             case SV_SM_FOUND_VALID_START :
             {
                 /* For future purpose
-                 if any private functionality needs execution immidiate after
+                 if any private functionality needs execution immediate after
                  valid start detection, should be called in this state */
                 if(IS_ENGINE_TURNED_OFF())
                 {
@@ -166,14 +166,14 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
                 }
                 else
                 {
-                    /* execution will reamain in same state until engine gets off. */
+                    /* execution will remain in same state until engine gets off. */
                 }
             }
             break;
             case SV_SM_FOUND_INVALID_START :
             {
                 /* For future purpose
-                 if any private functionality needs execution immidiate after
+                 if any private functionality needs execution immediate after
                  invalid start detection, should be called in this state */
                 if(IS_ENGINE_TURNED_OFF())
                 {
@@ -189,7 +189,7 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
             {
                 /* Execution will come here only when engine is in off state or unable to start */
                 UTILS_DisableTimer(&_SpeedRampDetectTimer);
-                bFoundValidEngineStart = false;
+                bFoundValidEngineStart = true;
                 _eValidStartDetectionState = SV_SM_IDLE;
             }
             break;

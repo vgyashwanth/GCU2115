@@ -433,7 +433,7 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
     case    DT_FLOAT:
         if(bIncrementBy5 && (aValue.fVal + 10 < maxVal.fVal) )
         {
-            aValue.fVal = aValue.fVal + this->fValLC*100.0f;
+            aValue.fVal = aValue.fVal + 10.0f;
             aValue.fVal = round(aValue.fVal/ this->fValLC)* this->fValLC;
         }
         else if (aValue.fVal < maxVal.fVal)
@@ -705,7 +705,7 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
     case    DT_FLOAT:
         if(bdecrementBy5 && ((aValue.fVal- 10) > minVal.fVal))
         {
-            aValue.fVal = aValue.fVal - this->fValLC*100.0f;
+            aValue.fVal = aValue.fVal - 10.0f;
             aValue.fVal = round(aValue.fVal/ this->fValLC)* this->fValLC;
         }
         else if (aValue.fVal > (minVal.fVal))

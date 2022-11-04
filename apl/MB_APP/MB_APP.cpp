@@ -153,15 +153,19 @@ void MB_APP::prvUpdateTimeStamp()
 
     RTC::TIME_t CurrentTime;
     _hal.ObjRTC.GetTime(&CurrentTime);
+
     _u16TempAlarmVal = CurrentTime.u8Minute;
     _u16TempAlarmVal =(uint16_t)((_u16TempAlarmVal <<8) + CurrentTime.u8Second);
     SetReadRegisterValue(MB_TIME_STAMP0, _u16TempAlarmVal);
+
     _u16TempAlarmVal = CurrentTime.u8DayOfWeek;
     _u16TempAlarmVal = (uint16_t)((_u16TempAlarmVal <<8) + CurrentTime.u8Hour);
     SetReadRegisterValue(MB_TIME_STAMP1, _u16TempAlarmVal);
+
     _u16TempAlarmVal = CurrentTime.u8Month;
     _u16TempAlarmVal = (uint16_t)((_u16TempAlarmVal <<8) + CurrentTime.u8Day);
     SetReadRegisterValue(MB_TIME_STAMP2, _u16TempAlarmVal);
+
     _u16TempAlarmVal = CurrentTime.u16Year;
     SetReadRegisterValue(MB_TIME_STAMP3, _u16TempAlarmVal);
 
@@ -382,7 +386,7 @@ void MB_APP::prvUpdateAnalogParams()
         u16Tmp = (uint16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal*10));
         SetReadRegisterValue(MD_FUEL_PERCENTAGE, u16Tmp);
 
-        u16Tmp = (uint16_t)round(sensorVal.stValAndStatus.f32InstSensorVal *_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY));
+        u16Tmp = (uint16_t)round((sensorVal.stValAndStatus.f32InstSensorVal/100) *_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY));
         SetReadRegisterValue(MB_FUEL_IN_LIT, u16Tmp);
     }
 
@@ -587,7 +591,7 @@ void MB_APP::prvUpdateAUXSensorVal()
     A_SENSE &sensor = _hal.AnalogSensors;
     A_SENSE::SENSOR_RET_t  stTemp;
     uint16_t u16AuxSensorVal = 0;
-    int16_t i16AuxSensorVal = 0;
+
 /* S1 */
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
@@ -595,11 +599,12 @@ void MB_APP::prvUpdateAUXSensorVal()
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_SHELTER_TEMPERATURE);
         if((stTemp.eStatus == A_SENSE::SENSOR_READ_SUCCESS) && (stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
         {
-            i16AuxSensorVal = (int16_t)(round(stTemp.stValAndStatus.f32InstSensorVal*10));
+            u16AuxSensorVal = (int16_t)(round(stTemp.stValAndStatus.f32InstSensorVal*10));
         }
     }
-    SetReadRegisterValue(MB_AUX_S1, i16AuxSensorVal);
+    SetReadRegisterValue(MB_AUX_S1, u16AuxSensorVal);
 
+    u16AuxSensorVal = 0;
 /* S2 */
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {

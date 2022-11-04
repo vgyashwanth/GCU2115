@@ -2100,7 +2100,7 @@ void MON_UI::prvNormalMonScreens()
                   &AC_SENSE::MAINS_GetCurrentAmps,
             };
 
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM) || (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_3PH_CALC_EN_FOR_1PH) == CFGZ::CFGZ_ENABLE))
             {
                 for(u8Local = R_PHASE; u8Local < PHASE_END ; u8Local++)
                 {
@@ -2562,7 +2562,7 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
         }
     }
 
-    if(u8AcSystemType == CFGZ::CFGZ_3_PHASE_SYSTEM)
+    if((u8AcSystemType == CFGZ::CFGZ_3_PHASE_SYSTEM) || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_3PH_CALC_EN_FOR_1PH) == CFGZ::CFGZ_ENABLE) && eSource == MAINS))
     {
         _Disp.drawVerticalLine(GLCD_X(65), GLCD_Y(19), GLCD_Y(64));
         u8Position = 22;
@@ -2677,7 +2677,7 @@ void MON_UI::prvPrintPower(POWER_TYPE_t eType, uint8_t u8AcSystemType, SOURCE_TY
      }
     };
 
-    if(u8AcSystemType == CFGZ::CFGZ_3_PHASE_SYSTEM)
+    if((u8AcSystemType == CFGZ::CFGZ_3_PHASE_SYSTEM) || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_3PH_CALC_EN_FOR_1PH) == CFGZ::CFGZ_ENABLE) && eSourceType == MAINS))
     {
         sprintf(arrTemp,"  %0.1f",((&_hal.AcSensors)->*ArrGetTotalPower[eSourceType][eType])()/1000);
 

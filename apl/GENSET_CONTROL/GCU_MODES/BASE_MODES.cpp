@@ -498,8 +498,6 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
         }
         break;
     }
-    /* todo: need to test the whole functionality with below function call. */
-    _GCUAlarms.ResetMainsMonParams();
     UTILS_ResetTimer(&_MainsMonUpdateTimer);
 }
 

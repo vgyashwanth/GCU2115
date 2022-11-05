@@ -1262,7 +1262,7 @@ void CEditableItem::print(EditableItemValue_t val)
             }
 
             gpDisplay->gotoxy(GLCD_X(10+u8MultiItemEditIndex*10), GLCD_Y(37));
-            sprintf(arrTemp," %c",32);
+            sprintf(arrTemp,"  %c",32);
             gpDisplay->printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
 
         }

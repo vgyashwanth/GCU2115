@@ -34,7 +34,7 @@
 
 
 bool ENGINE_START_VALIDITY::bStartValidDetectionEnaled = false;
-bool ENGINE_START_VALIDITY::bFoundValidEngineStart = false;
+bool ENGINE_START_VALIDITY::bFoundValidEngineStart = true;
 
 ENGINE_START_VALIDITY::ENGINE_START_VALIDITY(CFGZ &cfgz, GCU_ALARMS &GCUAlarms):
 _cfgz(cfgz),

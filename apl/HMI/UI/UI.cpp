@@ -2056,19 +2056,30 @@ void UI::HandleMenuVisibility(void)
 
     //Maintenance
 
-    if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].tempValue.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
+        ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION].numOfStringFixedOptions = 2;
+        ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION].stringFixedOptions = strOptions[_u8LanguageArrayIndex][ID_ACTION_WS];
         for(uint8_t i = 0; i<10; i++)
         {
-            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_T1 + (i*2)].formatString = "%f";
-            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_T1 + (i*2)].unitOfMeasurement = arrUnit[ID_MILLI_AMPERE];
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].formatString = "%.0f";
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].unitOfMeasurement = arrUnit[ID_MILLI_AMPERE];
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].minVal.fVal = 4.0f;
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].maxVal.fVal = 20.0f;
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].fValLC = 1.0f;
         }
     }
-    else if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].tempValue.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    else if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
     {
+        ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION].numOfStringFixedOptions = 3;
+        ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION].stringFixedOptions = strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWS];
         for(uint8_t i = 0; i<10; i++)
         {
-            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_T1 + (i*2)].unitOfMeasurement = arrUnit[ID_V];
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].formatString = "%f";
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].unitOfMeasurement = arrUnit[ID_V];
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].minVal.fVal = 0.0f;
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].maxVal.fVal = 5.0f;
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].fValLC = 0.1f;
         }
     }
 

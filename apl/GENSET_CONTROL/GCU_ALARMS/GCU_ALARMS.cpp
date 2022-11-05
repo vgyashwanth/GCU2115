@@ -2516,6 +2516,7 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
     }
 
     _bHighShelterTemp = ArrAlarmMonitoring[SHELTER_TEMP_START_DG].bResultLatched ;
+    _bLowShelterTemp = ArrAlarmMonitoring[SHELTER_TEMP_STOP_DG].bResultInstant ;
     ArrAlarmMonitoring[SHELTER_TEMP_START_DG].bNotificationLatched = _bHighShelterTemp;
 
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING)==CFGZ::CFGZ_ENABLE)

@@ -74,12 +74,12 @@ _rbGensetPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER,  ADC_SAMPLE_TO_V * V_ANLG_FRON
 _EarthCurrent(SAMPLES_PER_ENTRY_W_BUFFER,  ADC_SAMPLE_TO_V * I_ANLG_FRONTEND_UPSCALER, true, CURRENT_COMPUTATION_THRESHOLD_MW),
 
 _AcIp(AcIp),
+_Perform3phCalculationEnableFor1Ph(false),
 _fCTMultiplier(1),
 _fECTMultiplier(1),
 _fGenPTMultiplier(1),
 _fMainsPTMultiplier(1),
 _fGenRating(0),
-_Perform3phCalculationEnableFor1Ph(false),
 _AnlgIp(anlgIp),
 _st200ms{0},
 _f32DCOffserFiltV(0.0),

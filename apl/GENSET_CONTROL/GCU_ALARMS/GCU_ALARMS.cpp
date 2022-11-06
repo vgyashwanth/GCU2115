@@ -1872,7 +1872,7 @@ float GCU_ALARMS::GetSpeedValue()
 }
 float GCU_ALARMS::GetRawSpeedValue()
 {
-    return _hal.AnalogSensors.GetPulseInpuRPM();
+    return _hal.AnalogSensors.GetRPMThruCompartor();
 }
 void GCU_ALARMS::prvUpdateGCUAlarmsValue()
 {
@@ -2457,9 +2457,11 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
 
             /*
              * Need discussion with SysE what should get auto cleared and what should not, when should not.
+             * Check:Generate a Notification of a dig input from Monitoring on and do not clear the condition and stop the engine.
+             * Then check the status of the notification in NXP.
              */
-//            ArrAlarmMonitoring[_u8AlarmIndex].bNotificationLatched = ArrAlarmMonitoring[_u8AlarmIndex].bEnableNotification &&
-//                                   ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant;
+            ArrAlarmMonitoring[_u8AlarmIndex].bNotificationLatched = ArrAlarmMonitoring[_u8AlarmIndex].bEnableNotification &&
+                                   ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant;
 //            ArrAlarmMonitoring[_u8AlarmIndex].bWarningLatched = ArrAlarmMonitoring[_u8AlarmIndex].bEnableWarning &&
 //                                              ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant;
 

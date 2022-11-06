@@ -378,7 +378,12 @@ void A_SENSE::prvUpdateCompInpuFreqRPM(float f32Freq)
 
 float A_SENSE::GetPulseInpuRPM(void)
 {
-    return _f32PulseInputRPM;
+    if(_AC_SENSE.GENSET_GetVoltageVoltsRaw(R_PHASE) > MIN_COMPARTOR_SENSE_VTG)
+    {
+    return _f32CompInputRPM;
+    }
+    return 0;
+
 }
 
 float A_SENSE::GetFilteredPulseInpuRPM(void)

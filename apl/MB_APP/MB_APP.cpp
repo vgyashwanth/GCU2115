@@ -349,7 +349,7 @@ void MB_APP::prvUpdateAnalogParams()
 
     A_SENSE::SENSOR_RET_t sensorVal = _gcuAlarm.GetLOPSensorVal();
 
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR3)
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) >= CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
             && (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS)
             && (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL))
     {

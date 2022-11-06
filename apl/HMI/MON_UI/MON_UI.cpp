@@ -1869,6 +1869,10 @@ void MON_UI::prvNormalMonScreens()
                 {
                     _Disp.printStringLeftAligned((char *)StrAutoAMF[_u8LanguageIndex],FONT_VERDANA);
                 }
+                else if(_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::REMOTE_SS))
+                {
+                    _Disp.printStringLeftAligned((char *)StrAutoRemoteCmd[_u8LanguageIndex],FONT_VERDANA);
+                }
                 else
                 {
                     _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][ BASE_MODES::AUTO_MODE],FONT_VERDANA);

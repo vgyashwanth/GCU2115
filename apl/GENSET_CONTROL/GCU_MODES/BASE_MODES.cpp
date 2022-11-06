@@ -92,22 +92,13 @@ void BASE_MODES::Update()
         {
             entry = true;
             _ePrevGCUState = _vars.GCUState;
-//            _ePrevTimerState = _vars.TimerState;
-//            _ePrevOperatingMode = _eOperatingMode;
+
         }
 
         if((_ePrevGCUState != _vars.GCUState))
-//                ||( _ePrevTimerState != _vars.TimerState)
-//                ||(_ePrevOperatingMode != _eOperatingMode)
-//                ||(_vars.TimerState == CRANK_START_TIMER )
-//                ||(_vars.TimerState == CRANK_REST_TIMER)
-//                ||(_vars.TimerState == COOL_DOWN_TIMER)
-//                ||(_vars.TimerState == STOP_ACTION_TIMER))
         {
             _bGCUStateChanged = true;
             _ePrevGCUState = _vars.GCUState;
-//            _ePrevTimerState = _vars.TimerState;
-//            _ePrevOperatingMode = _eOperatingMode;
         }
 
         UTILS_ResetTimer(&_MainsMonUpdateTimer);

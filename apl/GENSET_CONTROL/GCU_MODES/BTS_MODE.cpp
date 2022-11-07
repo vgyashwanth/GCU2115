@@ -279,14 +279,11 @@ void BTS_MODE::Update(bool bDeviceInConfigMode)
                 {
                     _vars.GCUState = ENGINE_ON_HEALTHY;
                 }
-
-                //Todo : To check if following commented code is required
-                // for GC2111 . There is some comment in SGC4XX NXP code as to why
-                //this part of code has been added.
-//                if(prvGenStartCondition()&& (!_bCloseGenContactor)&& (!_bContactorTransferOn))
-//                {
-//                    SwitchLoadToGen();
-//                }
+                
+                if(prvGenStartCondition()&& (!_bCloseGenContactor)&& (!_bContactorTransferOn))
+                {
+                    SwitchLoadToGen();
+                }
                 break;
 
             case STATE_BTS_RETURN_DELAY:

@@ -191,7 +191,8 @@ private:
         DISP_GROUP_GENERATOR, /**< DISP_GROUP_GENERATOR */
         DISP_GROUP_MAINS,     /**< DISP_GROUP_MAINS */
         DISP_GROUP_ENGINE,     /**< DISP_GROUP_ENGINE */
-        DISP_GROUP_LOAD       /**< DISP_GROUP_LOAD   */
+        DISP_GROUP_LOAD ,      /**< DISP_GROUP_LOAD   */
+        DISP_SHELTER_TEMP      /**< DISP_GROUP_SHELTER_TEMP */
     }MON_GROUP_t;
 
     /**
@@ -228,8 +229,8 @@ private:
          DISP_GROUP_ENGINE,
          DISP_GROUP_ENGINE,
          DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
-         DISP_GROUP_ENGINE,
+         DISP_SHELTER_TEMP,
+         DISP_SHELTER_TEMP,
          DISP_GROUP_ENGINE,
          DISP_GROUP_ENGINE
     };

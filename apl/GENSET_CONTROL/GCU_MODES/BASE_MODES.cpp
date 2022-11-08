@@ -400,6 +400,7 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
                 SET_GCU_OPERATING_MODE(AUTO_MODE);
                 SET_AUTO_MODE_STATE(STATE_AMF_GEN_OFF_MAINS_OFF);
             }
+            _GCUAlarms.ResetMainsMonParams();
         }
         break;
 
@@ -449,6 +450,7 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
             {
                 SET_GCU_OPERATING_MODE(BTS_MODE);
                 SET_BTS_MODE_STATE(STATE_BTS_ENGINE_COOLING);
+                _GCUAlarms.ResetMainsMonParams();
             }
             else if(IS_CYCLIC_MODE_CONFIG_ENABLED())
             {
@@ -459,6 +461,7 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
             {
                 SET_GCU_OPERATING_MODE(AUTO_MODE);
                 SET_AUTO_MODE_STATE(STATE_AMF_ENGINE_COOLING);
+                _GCUAlarms.ResetMainsMonParams();
             }
         }
         break;
@@ -469,6 +472,7 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
             {
                 SET_GCU_OPERATING_MODE(BTS_MODE);
                 SET_BTS_MODE_STATE(STATE_BTS_ENGINE_STOP);
+                _GCUAlarms.ResetMainsMonParams();
             }
             else if(IS_CYCLIC_MODE_CONFIG_ENABLED())
             {
@@ -479,6 +483,7 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
             {
                 SET_GCU_OPERATING_MODE(AUTO_MODE);
                 SET_AUTO_MODE_STATE(STATE_AMF_ENGINE_STOP);
+                _GCUAlarms.ResetMainsMonParams();
             }
         }
         break;

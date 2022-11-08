@@ -341,13 +341,12 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     _vars.TimerState = CYCLIC_ON_TIMER;
                 }
 
-                //Todo : Decide whether to include the below condition
-//                if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-//                        || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
-//                        && (!_bCloseGenContactor) && (!_bContactorTransferOn))
-//                {
-//                    SwitchLoadToGen();
-//                }
+                if((((_MainsStatus == MAINS_UNHELATHY) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+                        || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE)))
+                        && (!_bCloseGenContactor) && (!_bContactorTransferOn))
+                {
+                    SwitchLoadToGen();
+                }
                 break;
 
             case STATE_CYCLIC_RETURN_DELAY:

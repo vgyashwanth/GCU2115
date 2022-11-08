@@ -18,6 +18,7 @@ extern const uint8_t u8BmpLogoGen[3][20];
 extern const uint8_t u8BmpLogoMains[3][20];
 extern const uint8_t u8BmpLogoEng[3][20];
 extern const uint8_t u8BmpLogoLoad[3][20];
+extern const uint8_t u8BmpLogoshelterTemp[3][20];
 extern const char *strTimerStatus[1][14];
 extern const char *strGCUStatus[1][10];
 extern const char *strMonScreens[1][30]; /*todo : MON_UI::DISP_MON_LAST should be used here for indexing */

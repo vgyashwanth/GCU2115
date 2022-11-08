@@ -600,6 +600,9 @@ void MON_UI::prvDisplayMonScreen()
             case DISP_GROUP_LOAD:
                 ArrImage = (char*) &u8BmpLogoLoad[0];
                 break;
+            case DISP_SHELTER_TEMP:
+                ArrImage = (char*) &u8BmpLogoshelterTemp[0];
+                break;
             default:
                 ArrImage =(char*) &u8BmpLogoInfo[0];
                 break;

@@ -30,6 +30,7 @@ stTimer A_SENSE::_RPMResetTimerPulseIp ={0};
 uint8_t   A_SENSE::_u8NumberOfPoles                   = 0;
 stTimer   A_SENSE::_RPMResetTimerComparator           ={0};
 A_SENSE::pRPMUpdate_t     A_SENSE::_UpdateCompRPM_cb  = NULL;
+A_SENSE::FUEL_0_5V_t A_SENSE::_Fuel_0_5V_vals ={0};
 stTimer A_SENSE::SpeedSensorTimer={0};
 A_SENSE::A_SENSE(ANLG_IP &anlgIp, PULSE_IP &pulseIp, AC_IP &AcIp, AC_SENSE &AcSensors ):
 _AnlgIp(anlgIp),
@@ -54,7 +55,10 @@ _bSpeedSensorFault(false)
     UTILS_ResetTimer(&_RPMResetTimerComparator);
     UTILS_ResetTimer(&SpeedSensorTimer);
 }
-
+void A_SENSE::ConfigureFuel0_5V_SensorValue(FUEL_0_5V_t &Fuel_0_5V)
+{
+     _Fuel_0_5V_vals = Fuel_0_5V;
+}
 void A_SENSE::ConfigureSensor(CFG_t &cfg)
 {
     AnalogSensor::pGetVal ArrGetVal[HAL_ENG_AI_END]=
@@ -487,11 +491,37 @@ void AnalogSensor::Update()
         _stSensVal.f32InstSensorVal =  ((_stSensVal.f32InstSensorVal * (SENSOR_FILT_CONST))
                              + (stVal.f32InstSensorVal * (100-SENSOR_FILT_CONST))) /100;
 
+        if(_eName == A_SENSE_FUEL_LEVEL_0_TO_5V)
+        {
+            _stSensVal.f32InstSensorVal = FuelCalcfor0_5VSens(_stSensVal.f32InstSensorVal);
+        }
+
         _stSensVal.eState = stVal.eState;
     }
 
 }
+float AnalogSensor::FuelCalcfor0_5VSens(float height)
+{
+    if(A_SENSE:: _Fuel_0_5V_vals.TankwithStep == 0)
+    {
+        return height/(A_SENSE::_Fuel_0_5V_vals.TankStep1Height);
+    }
+    else
+    {
+        if(height > (A_SENSE::_Fuel_0_5V_vals.TankStep1Height))
+        {
+            height = (height - (A_SENSE::_Fuel_0_5V_vals.TankStep1Height))*(A_SENSE::_Fuel_0_5V_vals.TankStep2Length)
+                    + (A_SENSE::_Fuel_0_5V_vals.TankStep1Height)*(A_SENSE::_Fuel_0_5V_vals.TankStep1Length);
+        }
+        else
+        {
+            height = height*(A_SENSE::_Fuel_0_5V_vals.TankStep1Length);
+        }
+        return height /(float)(((A_SENSE::_Fuel_0_5V_vals.TankStep1Height)*(A_SENSE::_Fuel_0_5V_vals.TankStep1Length))
+                +((A_SENSE::_Fuel_0_5V_vals.TankStep2Height)*(A_SENSE::_Fuel_0_5V_vals.TankStep2Length)));
+    }
 
+}
 float AnalogSensor::GetPin23SensorCurrentValue()
 {
     return _f32Pin23CurrentVal;

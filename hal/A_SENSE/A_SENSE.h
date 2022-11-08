@@ -126,6 +126,12 @@ public:
      */
      TYPS_t GetName();
 
+     /**
+      * This is used to Calculate the fuel in percentage for the 0-5V Fuel sensor.
+      * It is two tank based system with different Height and Lengths.
+      */
+     float FuelCalcfor0_5VSens(float height);
+
      float GetPin23SensorCurrentValue();
 private:
     /**
@@ -164,6 +170,8 @@ private:
      */
     float prvInterpolation(float f32Val, float * fpXValues, float * fpYValues,
                         uint8_t u8No_of_points);
+
+
 
     /**
      * BSP class ANLG_IP's reference for calling the BSP functions.
@@ -237,6 +245,21 @@ public:
        ANLG_IP::ANALOG_VAL_t stValAndStatus;
        STATUS_t eStatus;
     } SENSOR_RET_t;
+
+    /**
+     *
+     */
+    typedef struct
+    {
+        uint8_t TankwithStep;
+        uint16_t TankWidth;
+        uint16_t TankStep1Length;
+        uint16_t TankStep2Length;
+        uint16_t TankStep1Height;
+        uint16_t TankStep2Height;
+    } FUEL_0_5V_t;
+
+    static FUEL_0_5V_t _Fuel_0_5V_vals;
 
     /**
      * CB that will be registered to get measured
@@ -344,6 +367,7 @@ public:
      */
     void RegisterCompInputUpdateCB(pRPMUpdate_t pCB);
 
+    void ConfigureFuel0_5V_SensorValue(FUEL_0_5V_t &Fuel_0_5V);
     /**
      * Sensor Configuration function it should be called
      * at power on and after changing the configuration

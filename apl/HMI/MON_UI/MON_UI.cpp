@@ -537,7 +537,8 @@ void MON_UI::prvConfigureScreenEnable()
                 }
                 break;
             case DISP_MON_FUEL :
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                if((_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                    ||(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
@@ -2334,20 +2335,74 @@ void MON_UI::prvNormalMonScreens()
         case DISP_MON_FUEL:
         {
             _Disp.printImage((uint8_t *)u8ArrFuel, 4, 32, 26, 7);
-            stTemp =_hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
-
-            prvPrintSensorStatus(stTemp,(char*)"%", INTEGER_TYPE);
-            if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
             {
-                stTemp.stValAndStatus.f32InstSensorVal =
-                        stTemp.stValAndStatus.f32InstSensorVal
-                        * _cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)/100;
+                stTemp =_hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
+                prvPrintSensorStatus(stTemp,(char*)"%", INTEGER_TYPE);
 
-                    sprintf(arrTemp,"%d",(uint16_t)((round)(stTemp.stValAndStatus.f32InstSensorVal)));
-                    _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
-                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                    _Disp.gotoxy(GLCD_X(94),GLCD_Y(42));
-                    _Disp.printStringLeftAligned((char*)"Liters",FONT_VERDANA);
+
+                if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+                {
+                    stTemp.stValAndStatus.f32InstSensorVal =
+                            stTemp.stValAndStatus.f32InstSensorVal
+                            * _cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)/100;
+
+                    uint32_t u16RunTimeExpect = (uint32_t) ((stTemp.stValAndStatus.f32InstSensorVal * 60)/_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_CONSUMPTION));
+
+                    _Disp.gotoxy(GLCD_X(120),GLCD_Y(37));
+                    sprintf(arrTemp,"%ld hrs %d min",(u16RunTimeExpect/60), (uint8_t)(u16RunTimeExpect%60));
+                    _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+
+                    if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_IN_LITERS) == CFGZ::CFGZ_ENABLE)
+                    {
+                        sprintf(arrTemp,"%d",(uint16_t)((round)(stTemp.stValAndStatus.f32InstSensorVal)));
+                        _Disp.gotoxy(GLCD_X(93),GLCD_Y(50));
+                        _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                        _Disp.gotoxy(GLCD_X(94),GLCD_Y(50));
+                        _Disp.printStringLeftAligned((char*)"Liters",FONT_VERDANA);
+                    }
+                }
+
+            }
+            else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+            {
+                stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
+                prvPrintSensorStatus(stTemp,(char*)"%", INTEGER_TYPE);
+
+                if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+                {
+                    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1) == CFGZ::CFGZ_ENABLE)
+                    {
+                        stTemp.stValAndStatus.f32InstSensorVal =
+                                stTemp.stValAndStatus.f32InstSensorVal
+                                * (float)((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1))
+                                        + (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_2)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_2)))
+                                        *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000 * 100);
+                    }
+                    else
+                    {
+                        stTemp.stValAndStatus.f32InstSensorVal =
+                                stTemp.stValAndStatus.f32InstSensorVal
+                                * (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1))
+                                *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000 * 100);
+                    }
+
+                    uint32_t u16RunTimeExpect = (uint32_t) ((stTemp.stValAndStatus.f32InstSensorVal * 60)/_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_CONSUMPTION));
+
+                    _Disp.gotoxy(GLCD_X(120),GLCD_Y(37));
+                    sprintf(arrTemp,"%ld hrs %d min",(u16RunTimeExpect/60), (uint8_t)(u16RunTimeExpect%60));
+                    _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+
+
+                    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_IN_LITERS) == CFGZ::CFGZ_ENABLE)
+                    {
+                        sprintf(arrTemp,"%d",(uint16_t)((round)(stTemp.stValAndStatus.f32InstSensorVal)));
+                        _Disp.gotoxy(GLCD_X(93),GLCD_Y(50));
+                        _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                        _Disp.gotoxy(GLCD_X(94),GLCD_Y(50));
+                        _Disp.printStringLeftAligned((char*)"Liters",FONT_VERDANA);
+                    }
+                }
             }
         }
         break;

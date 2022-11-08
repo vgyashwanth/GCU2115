@@ -171,6 +171,10 @@ void MB_APP::prvUpdateTimeStamp()
 
 #endif
 
+    //Temporary to try out sharing screen number over modbus.
+//    _u16TempAlarmVal = (uint8_t) MON_UI::_stScreenNo;
+//    SetReadRegisterValue(MAIN_MENU_INDEX,_u16TempAlarmVal);
+
 }
 
 void MB_APP::prvUpdateElectricalParams()

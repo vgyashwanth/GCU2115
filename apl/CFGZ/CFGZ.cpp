@@ -476,8 +476,34 @@ void CFGZ::prvConfigureASENSE()
     u8MapSize = sizeof(aPIN23MAP)/sizeof(ASENSOR_MAP_ROW_t);
     cfg.stAIConfig[A_SENSE::HAL_PIN_23].eSensor = prGetAnalogSensor(ID_AUX_S4_DIG_P_SENSOR_SELECTION, aPIN23MAP,u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_23].eRef    = ANLG_IP::REF_ENGINE_BODY;
-    prvCpyInterpolationTable(ID_AUX_S4_DIG_P_SENSOR_HIGH_VTG, cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable);
-    cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.u8InterPolationPoints = 10;
+//    prvCpyInterpolationTable(ID_AUX_S4_DIG_P_SENSOR_HIGH_VTG, cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable);
+//    cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.u8InterPolationPoints = 10;
+
+     cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.af32IntrpolationTableX[0] = _All_Param.f32ArrParam[ID_AUX_S4_DIG_P_SENSOR_HIGH_VTG];
+     cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.af32IntrpolationTableX[1] = _All_Param.f32ArrParam[ID_AUX_S4_DIG_P_SENSOR_LOW_VTG];
+     if(_All_Param.u8ArrParam[ID_AUX_S4_DIG_P_TANK_HEIGHT_1] == CFGZ_ENABLE)
+     {
+         cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.af32IntrpolationTableY[0] = (float)(_All_Param.u16ArrParam[ID_AUX_S4_DIG_P_TANK_HEIGHT_1] + _All_Param.u16ArrParam[ID_AUX_S4_DIG_P_TANK_HEIGHT_2]);
+     }
+     else
+     {
+         cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.af32IntrpolationTableY[0] = (float)(_All_Param.u16ArrParam[ID_AUX_S4_DIG_P_TANK_HEIGHT_1]);
+     }
+     cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.af32IntrpolationTableY[1] = 0.0f;
+
+     A_SENSE::FUEL_0_5V_t Fuel_0_5V;
+
+     Fuel_0_5V.TankwithStep = _All_Param.u8ArrParam[ID_AUX_S4_DIG_P_TANK_WITH_STEP];
+     Fuel_0_5V.TankWidth = _All_Param.u16ArrParam[ID_AUX_S4_DIG_P_TANK_WIDTH];
+     Fuel_0_5V.TankStep1Length = _All_Param.u16ArrParam[ID_AUX_S4_DIG_P_TANK_LENGTH_1];
+     Fuel_0_5V.TankStep2Length = _All_Param.u16ArrParam[ID_AUX_S4_DIG_P_TANK_LENGTH_2];
+     Fuel_0_5V.TankStep1Height = _All_Param.u16ArrParam[ID_AUX_S4_DIG_P_TANK_HEIGHT_1];
+     Fuel_0_5V.TankStep2Height = _All_Param.u16ArrParam[ID_AUX_S4_DIG_P_TANK_HEIGHT_2];
+
+     _hal.AnalogSensors.ConfigureFuel0_5V_SensorValue(Fuel_0_5V);
+
+
+     cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.u8InterPolationPoints = 2;
 
     _hal.AnalogSensors.ConfigureSensor(cfg);
 

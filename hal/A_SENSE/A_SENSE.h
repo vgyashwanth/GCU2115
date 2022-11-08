@@ -133,6 +133,8 @@ public:
      float FuelCalcfor0_5VSens(float height);
 
      float GetPin23SensorCurrentValue();
+
+     float GetPin23SensorVoltValue();
 private:
     /**
      * Private variable to store the Sensor name
@@ -179,6 +181,8 @@ private:
     ANLG_IP &_AnlgIp;
 
     float _f32Pin23CurrentVal;
+
+    float _f32Pin23VoltVal;
 
 };
 
@@ -300,6 +304,8 @@ public:
     float GetFilteredPulseInpuRPM();
 
     float GetPin23CurrentValMilliAmp();
+
+    float GetPin23VoltVal();
 
     /** This function is used to get the RPM of R-phase
      * through comparator input

@@ -47,6 +47,8 @@ static MODBUS *pMb;
 
 static void RS485Cb(uint8_t *pu8Data, uint16_t u16Len);
 
+uint64_t MODBUS::MB_Valid_Count = 0;
+
 MODBUS::MODBUS(RS485 &rs485, ADDRESS_GRP_LST_t &addressGrp):
 _rs485(rs485),
 _u8SlaveID(0x00),
@@ -72,6 +74,7 @@ void MODBUS::Update()
             if(_ParseStatus == MB_VALID_PACKET)
             {
                 prvProcessRequest();
+                MB_Valid_Count++;
             }
             else
             {

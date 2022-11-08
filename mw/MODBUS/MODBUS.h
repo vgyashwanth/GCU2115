@@ -98,6 +98,8 @@ public:
      */
     void HandleIncomingData(uint8_t u8Byte);
 
+    static uint64_t MB_Valid_Count;
+
 private:
 
     /*MODBUS function codes*/

@@ -575,6 +575,7 @@ public:
     bool RemoteStopReceived();
 
     void UpdateFuelTheftCalculation();
+    static bool _bUpdateModbusCountCalc;
 private:
     #define FUEL_THEFT_WAKEUP_TIMER         (4U)
     typedef enum{
@@ -652,7 +653,7 @@ private:
         SHELTER_TEMP_VAL,
         SHELT_TEMP_OPEN_CKT,
         EARTH_LEAKAGE_CURR_VAL,
-        PIN23_SENSOR_CURRENT_VAL,//Not Required as of 28-10-2022
+        LOP_SENS_OVER_VAL,
         FUEL_OPEN_CKT_VAL,
         LOP_CURR_STB,
         J1939_AMBER_LAMP_STATUS,
@@ -745,6 +746,7 @@ private:
     stTimer       _AlarmUpdate;
     stTimer       _FuelTheftOneHourTimer;
     stTimer       _FuelTheftWakeUpTimer;
+    stTimer       _Modbus10minTimer;
     uint8_t       *_ArrAlarmStatus[ID_ALL_ALARMS_LAST];
     PARAM_VALUE_t _ArrAlarmValue[ALARM_VALUE_LAST];
     uint8_t       _ArrAlarmForDisplay[ID_ALL_ALARMS_LAST];
@@ -836,6 +838,8 @@ private:
     void prvActDeactCLNTTempCtrlOutput();
 
     void prvCheckTripAction(uint8_t u8ReturnIndex, uint8_t u8TripIndex, bool status);
+
+    uint8_t prvIsLopSensOverVal();
 
 };
 #endif

@@ -13,7 +13,6 @@
  * @copyright   SEDEMAC Mechatronics Pvt Ltd
  **/
 #include "AUTO_MODE.h"
-#include "MB_APP.h"
 
 AUTO_MODE::AUTO_MODE(HAL_Manager &hal, ENGINE_MONITORING &EngineMon, 
                          CFGZ &cfgz,  GCU_ALARMS &GCUAlarms,

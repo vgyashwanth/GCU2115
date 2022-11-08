@@ -2001,7 +2001,7 @@ void MON_UI::prvNormalMonScreens()
                   &AC_SENSE::GENSET_GetCurrentAmps,
                   &AC_SENSE::MAINS_GetCurrentAmps,
             };
-
+//Look Keypress_processor.c Line 1740 in NXP code. Similarly for Mains and also look into Assignment of Load on Gen and Load and Mains.
             if((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM))
             {
                 for(u8Local = R_PHASE; u8Local < PHASE_END ; u8Local++)
@@ -2340,7 +2340,6 @@ void MON_UI::prvNormalMonScreens()
                 stTemp =_hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
                 prvPrintSensorStatus(stTemp,(char*)"%", INTEGER_TYPE);
 
-
                 if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
                 {
                     stTemp.stValAndStatus.f32InstSensorVal =
@@ -2362,12 +2361,11 @@ void MON_UI::prvNormalMonScreens()
                         _Disp.printStringLeftAligned((char*)"Liters",FONT_VERDANA);
                     }
                 }
-
             }
             else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
             {
                 stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
-                prvPrintSensorStatus(stTemp,(char*)"%", INTEGER_TYPE);
+                prvPrintSensorStatus(stTemp,(char*)"%", FLOAT_TYPE);
 
                 if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
                 {
@@ -2375,16 +2373,16 @@ void MON_UI::prvNormalMonScreens()
                     {
                         stTemp.stValAndStatus.f32InstSensorVal =
                                 stTemp.stValAndStatus.f32InstSensorVal
-                                * (float)((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1))
-                                        + (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_2)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_2)))
-                                        *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000 * 100);
+                                * (float)((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_1))
+                                        + (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_2)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_2)))
+                                        *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000000 * 100);
                     }
                     else
                     {
                         stTemp.stValAndStatus.f32InstSensorVal =
                                 stTemp.stValAndStatus.f32InstSensorVal
-                                * (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1))
-                                *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000 * 100);
+                                * (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_1))
+                                *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000000 * 100);
                     }
 
                     uint32_t u16RunTimeExpect = (uint32_t) ((stTemp.stValAndStatus.f32InstSensorVal * 60)/_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_CONSUMPTION));
@@ -2396,7 +2394,7 @@ void MON_UI::prvNormalMonScreens()
 
                     if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_IN_LITERS) == CFGZ::CFGZ_ENABLE)
                     {
-                        sprintf(arrTemp,"%d",(uint16_t)((round)(stTemp.stValAndStatus.f32InstSensorVal)));
+                        sprintf(arrTemp,"%0.1f",stTemp.stValAndStatus.f32InstSensorVal);
                         _Disp.gotoxy(GLCD_X(93),GLCD_Y(50));
                         _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                         _Disp.gotoxy(GLCD_X(94),GLCD_Y(50));

@@ -36,6 +36,9 @@
 #include "START_STOP.h"
 
 MB_APP::KEY_MB_CAN_EVENT_t MB_APP::stMBEvent={0};
+uint64_t MB_APP::Curr_MB_Valid_Count = 0;
+
+uint16_t MB_APP::MB_Count = 0;
 MB_APP::MB_APP(HAL_Manager &hal, CFGZ &cfgz, GCU_ALARMS &gcuAlarm,
         ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode):
 MODBUS(hal.ObjRS485, _AddressGrpLst),
@@ -69,8 +72,11 @@ void MB_APP::Update()
     prvUpdateTmpParams();
     prvUpdateAUXSensorVal();
 
+    prvUpdateModbusParamInEventLog();
+
     /*Todo: Need to study the effects of moving this update function here from top*/
     MODBUS::Update();
+
 
     prvUpdateMBCommandStatus();
 }
@@ -622,6 +628,21 @@ void MB_APP::prvUpdateAUXSensorVal()
     SetReadRegisterValue(MB_AUX_S2, u16AuxSensorVal);
 
 #endif
+}
+
+void MB_APP::prvUpdateModbusParamInEventLog()
+{
+    static uint64_t Prev_MB_Valid_Count = 0;
+    if(GCU_ALARMS::_bUpdateModbusCountCalc)
+    {
+        GCU_ALARMS::_bUpdateModbusCountCalc =  false;
+        Curr_MB_Valid_Count = MODBUS::MB_Valid_Count;
+        if( Prev_MB_Valid_Count!= Curr_MB_Valid_Count)
+        {
+            MB_Count++;
+        }
+        Prev_MB_Valid_Count = Curr_MB_Valid_Count;
+    }
 }
 
 void MB_APP::prvUpdateGCUAlarms()

@@ -17,6 +17,10 @@
 #include "BASE_MODES.h"
 #include "CFGC/CFGC.h"
 #include "J1939_APP/J1939APP.h"
+
+#define LOP_CURRENT_MAX_VAL     25//mA
+#define LOP_VOLT_MAX_VAL        5.5//V
+
 extern J1939APP *gpJ1939;
 void ReadEventNumber(EEPROM::EVENTS_t evt);
 void ReadRollOver(EEPROM::EVENTS_t evt);
@@ -28,6 +32,7 @@ CircularQueue<GCU_ALARMS::EVENT_LOG_Q_t> GCU_ALARMS::_EventQueue = {GCU_ALARMS::
 GCU_ALARMS::EVENT_LOG_Q_t GCU_ALARMS::_EventQArr[EVENT_LOG_Q_SIZE]={0};
 
 bool GCU_ALARMS:: bEventWrittenSuccessfully = true;
+bool GCU_ALARMS::_bUpdateModbusCountCalc = false;
 
 GCU_ALARMS::GCU_ALARMS(HAL_Manager &hal, CFGZ &cfgz):
 _hal(hal),
@@ -97,6 +102,7 @@ _UpdateAlarmMonTimer{0, false},
 _AlarmUpdate{0, false},
 _FuelTheftOneHourTimer{0, false},
 _FuelTheftWakeUpTimer{0, false},
+_Modbus10minTimer{0,false},
 _ArrAlarmStatus{NULL},
 _ArrAlarmValue{0.0,0,0},
 _ArrAlarmForDisplay{0},
@@ -108,6 +114,7 @@ _stEventLog{0}
     ClearAllAlarms();
     UTILS_ResetTimer(&_AlarmUpdate);
     UTILS_ResetTimer(&_FuelTheftOneHourTimer);
+    UTILS_ResetTimer(&_Modbus10minTimer);
     _hal.Objeeprom.RequestRead(EXT_EEPROM_CURRENT_EVENT_NO_ADDRESS,(uint8_t*) &_u32EventNumber, 4, ReadEventNumber);
     _hal.Objeeprom.RequestRead(EXT_EEPROM_ROLLED_OVER_ADDRESS,(uint8_t*) &_u32RolledOverByte, 4, ReadRollOver);
 }
@@ -174,6 +181,11 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
             UTILS_ResetTimer(&_FuelTheftOneHourTimer);
             _bUpdateFuelTheftCalc = true;
             UTILS_ResetTimer(&_FuelTheftWakeUpTimer);
+        }
+        if(UTILS_GetElapsedTimeInSec(&_Modbus10minTimer) >= 60)
+        {
+            UTILS_ResetTimer(&_Modbus10minTimer);
+            _bUpdateModbusCountCalc = true;
         }
 
         if((UTILS_GetElapsedTimeInMs(&_UpdateAlarmMonTimer) >= FIFTY_MSEC) && (bAlarmUpdate))
@@ -1265,18 +1277,18 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[GENSET_FREQUENCY];
             break;
         case LOP_CURR_SENS_OVER_CURR:
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) >= CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
                 ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
                 ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = false;
+                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = LOP_Curr_Sen_Over_Curr_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SHUTDOWN_THRESHOLD);
+                ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
                 ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
+                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
             }
-            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LUBE_OIL_PRESSURE];
+            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LOP_SENS_OVER_VAL];
             break;
         case OPEN_AN_SEN_S1_CKT:
             if((_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
@@ -2050,7 +2062,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[AUX_SENS_S1_OPEN_CKT].u8Value = (uint8_t)(stShelterTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT);
     _ArrAlarmValue[AUX_SENS_S2_OPEN_CKT].u8Value = (uint8_t)(stAuxSensS2.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT);
 
-    _ArrAlarmValue[PIN23_SENSOR_CURRENT_VAL].f32Value = _hal.AnalogSensors.GetPin23CurrentValMilliAmp();
+    _ArrAlarmValue[LOP_SENS_OVER_VAL].u8Value = prvIsLopSensOverVal();
 
     _ArrAlarmValue[J1939_PROTECT_LAMP_STATUS].u8Value = gpJ1939->IsProtectLampON();
     _ArrAlarmValue[J1939_AMBER_LAMP_STATUS].u8Value = gpJ1939->IsAmberLampON();
@@ -2568,6 +2580,27 @@ void GCU_ALARMS::prvCheckTripAction(uint8_t u8ReturnIndex, uint8_t u8TripIndex, 
            /* As result latched is getting cleared, result instantaneous should also get cleared*/
        ArrAlarmMonitoring[u8ReturnIndex].bResultInstant = false;
    }
+}
+
+uint8_t GCU_ALARMS::prvIsLopSensOverVal()
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    {
+        if(_hal.AnalogSensors.GetPin23CurrentValMilliAmp() > LOP_CURRENT_MAX_VAL)
+        {
+            return 1;
+        }
+        return 0;
+    }
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    {
+        if(_hal.AnalogSensors.GetPin23VoltVal() > LOP_VOLT_MAX_VAL)
+        {
+            return 1;
+        }
+        return 0;
+    }
+    return 0;
 }
 
 bool GCU_ALARMS::IsCommonNotification()

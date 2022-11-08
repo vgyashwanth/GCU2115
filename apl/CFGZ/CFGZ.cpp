@@ -481,7 +481,7 @@ void CFGZ::prvConfigureASENSE()
 
      cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.af32IntrpolationTableX[0] = _All_Param.f32ArrParam[ID_AUX_S4_DIG_P_SENSOR_HIGH_VTG];
      cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.af32IntrpolationTableX[1] = _All_Param.f32ArrParam[ID_AUX_S4_DIG_P_SENSOR_LOW_VTG];
-     if(_All_Param.u8ArrParam[ID_AUX_S4_DIG_P_TANK_HEIGHT_1] == CFGZ_ENABLE)
+     if(_All_Param.u8ArrParam[ID_AUX_S4_DIG_P_TANK_WITH_STEP] == CFGZ_ENABLE)
      {
          cfg.stAIConfig[A_SENSE::HAL_PIN_23].stTable.af32IntrpolationTableY[0] = (float)(_All_Param.u16ArrParam[ID_AUX_S4_DIG_P_TANK_HEIGHT_1] + _All_Param.u16ArrParam[ID_AUX_S4_DIG_P_TANK_HEIGHT_2]);
      }

@@ -399,6 +399,12 @@ float A_SENSE::GetPin23CurrentValMilliAmp()
 {
     return _sensors[HAL_PIN_23].GetPin23SensorCurrentValue();
 }
+
+float A_SENSE::GetPin23VoltVal()
+{
+    return _sensors[HAL_PIN_23].GetPin23SensorVoltValue();
+}
+
 AnalogSensor::AnalogSensor(ANLG_IP &anlgIp):
  _eName(A_SENSE_NOT_USED),
  _stTable{{0},{0},{0}},
@@ -406,7 +412,8 @@ AnalogSensor::AnalogSensor(ANLG_IP &anlgIp):
  _eRef(ANLG_IP::REF_BATT_NEGATIVE),
  _stSensVal{0.0, ANLG_IP::BSP_STATE_NORMAL},
  _AnlgIp(anlgIp),
- _f32Pin23CurrentVal(0)
+ _f32Pin23CurrentVal(0),
+ _f32Pin23VoltVal(0)
 {
 
 }
@@ -481,20 +488,25 @@ void AnalogSensor::Update()
         {
             _f32Pin23CurrentVal =  stVal.f32InstSensorVal;
         }
+        if(_eName == A_SENSE_LUBE_OIL_PRESSURE_0_TO_5V)
+        {
+            _f32Pin23VoltVal = stVal.f32InstSensorVal;
+        }
 
         stVal.f32InstSensorVal = prvInterpolation(stVal.f32InstSensorVal,
                 &_stTable.af32IntrpolationTableX[0],
                 &_stTable.af32IntrpolationTableY[0],
                 _stTable.u8InterPolationPoints
                 );
+
+        if(_eName == A_SENSE_FUEL_LEVEL_0_TO_5V)
+        {
+            stVal.f32InstSensorVal = FuelCalcfor0_5VSens(stVal.f32InstSensorVal);
+        }
         //IIR filter
         _stSensVal.f32InstSensorVal =  ((_stSensVal.f32InstSensorVal * (SENSOR_FILT_CONST))
                              + (stVal.f32InstSensorVal * (100-SENSOR_FILT_CONST))) /100;
 
-        if(_eName == A_SENSE_FUEL_LEVEL_0_TO_5V)
-        {
-            _stSensVal.f32InstSensorVal = FuelCalcfor0_5VSens(_stSensVal.f32InstSensorVal);
-        }
 
         _stSensVal.eState = stVal.eState;
     }
@@ -504,7 +516,7 @@ float AnalogSensor::FuelCalcfor0_5VSens(float height)
 {
     if(A_SENSE:: _Fuel_0_5V_vals.TankwithStep == 0)
     {
-        return height/(A_SENSE::_Fuel_0_5V_vals.TankStep1Height);
+        return (height/(A_SENSE::_Fuel_0_5V_vals.TankStep1Height)) *(100);
     }
     else
     {
@@ -517,12 +529,17 @@ float AnalogSensor::FuelCalcfor0_5VSens(float height)
         {
             height = height*(A_SENSE::_Fuel_0_5V_vals.TankStep1Length);
         }
-        return height /(float)(((A_SENSE::_Fuel_0_5V_vals.TankStep1Height)*(A_SENSE::_Fuel_0_5V_vals.TankStep1Length))
-                +((A_SENSE::_Fuel_0_5V_vals.TankStep2Height)*(A_SENSE::_Fuel_0_5V_vals.TankStep2Length)));
+        return (height /(float)(((A_SENSE::_Fuel_0_5V_vals.TankStep1Height)*(A_SENSE::_Fuel_0_5V_vals.TankStep1Length))
+                +((A_SENSE::_Fuel_0_5V_vals.TankStep2Height)*(A_SENSE::_Fuel_0_5V_vals.TankStep2Length))))*(100);
     }
 
 }
 float AnalogSensor::GetPin23SensorCurrentValue()
 {
     return _f32Pin23CurrentVal;
+}
+
+float AnalogSensor::GetPin23SensorVoltValue()
+{
+    return _f32Pin23VoltVal;
 }

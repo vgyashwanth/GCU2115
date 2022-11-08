@@ -249,6 +249,11 @@ offset 14.
     void     Update();
 
     static void GetMBEventStatus(KEY_MB_CAN_EVENT_t *stEvent);
+
+
+
+
+    static uint16_t MB_Count;
 private:
     #define MODBUS_GEN_START_CMD        (0x01)
     #define MODBUS_GEN_STOP_CMD         (0x02)
@@ -270,8 +275,12 @@ private:
     AUTO_MODE           &_Automode;
     uint16_t             _u16MODBUSCommand;
     uint16_t             _u16MODBUSOperModeCMD;
+
   //  static MODBUS_CMD_STATUS_t _eMBCmdStatus;
     static KEY_MB_CAN_EVENT_t stMBEvent ;
+
+    static uint64_t Curr_MB_Valid_Count;
+
     /*Address group 1 buffer*/
     uint16_t _au16Grp1Registers[MODBUS_GRP1_REG_CNT];
 
@@ -341,6 +350,8 @@ private:
     void prvUpdateBtsParams();
     void prvUpdateTmpParams();
     void prvUpdateAUXSensorVal();
+
+    void prvUpdateModbusParamInEventLog();
 
     /**
      * Updates the appropriate registers with response to the MODBUS commands.

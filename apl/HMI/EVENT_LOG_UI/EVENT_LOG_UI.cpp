@@ -14,6 +14,7 @@
  **/
 #include <HMI/EVENT_LOG_UI/EVENT_LOG_UI.h>
 #include "../UI_DS.h"
+#include "MB_APP.h"
 
 bool EVENT_LOG_UI::_bReadNVStatus = false;
 bool EVENT_LOG_UI::_bNoEventPresnet= false;
@@ -184,7 +185,8 @@ void EVENT_LOG_UI::prvDisplayEventScreen()
         _Disp.printStringLeftAligned((char*)strAlaramType[_stEventLog.u8EventType], FONT_VERDANA);
 
         _Disp.gotoxy(GLCD_X(80),GLCD_Y(51));
-        _Disp.printStringLeftAligned((char*)"MB: 0", FONT_VERDANA);
+        sprintf(arrTemp,"MB: %d",MB_APP::MB_Count);
+        _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
 
     }
 }

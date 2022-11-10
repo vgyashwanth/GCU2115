@@ -218,10 +218,12 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 {
                     UTILS_DisableTimer(&_EngCrankingTimer);
                     prvHandleEngineCranked();
+                    _hal.ObjGlcd.TurnOnBackLight();
                 }
                 else if((UTILS_GetElapsedTimeInSec(&_EngCrankingTimer)) >= 
                         _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME))
                 {
+                    _hal.ObjGlcd.TurnOnBackLight();
                     if(_u8NoOfCrankAttempts >= _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_START_ATTEMPTS))
                     {
                         _GCUAlarms.UpdateFailToStart();
@@ -252,6 +254,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                 break;
 
             case ID_STATE_SS_CRANK_REST:
+                _hal.ObjGlcd.TurnOnBackLight();
                 prvSetOutputVariables(false, false, false, false);
                 _bStartCommand = false;
                 if((_bStopCommand)||(_GCUAlarms.IsCommonWarning()))
@@ -270,6 +273,7 @@ void START_STOP::Update(bool bDeviceInConfigMode)
                     UTILS_DisableTimer(&_EngCrankRestTimer);
                     UTILS_ResetTimer(&_EngCrankingTimer);
                     _State = ID_STATE_SS_CRANKING;
+                    _hal.ObjGlcd.TurnOffBackLight();
                     _u8NoOfCrankAttempts++;
                     _ChargeAlt.StartExcitation();
                     _bChargAltStopLatched = false;
@@ -432,6 +436,7 @@ void START_STOP::prvStopCommandAction()
     _bStopCommand = false;
     _bGenStarted = false;
     _ChargeAlt.StopExcitation();
+    _hal.ObjGlcd.TurnOnBackLight();
     switch(_State)
     {
         case ID_STATE_SS_ENG_OFF_OK:
@@ -848,6 +853,7 @@ void START_STOP::prvTurnOffPreheatStartCranking()
     UTILS_DisableTimer(&_PreheatTimer);
     UTILS_ResetTimer(&_EngCrankingTimer);
     _State = ID_STATE_SS_CRANKING;
+    _hal.ObjGlcd.TurnOffBackLight();
     _u8NoOfCrankAttempts++;
     _ChargeAlt.StartExcitation();
     _bChargAltStopLatched = false;
@@ -859,6 +865,7 @@ void START_STOP::prvSkipPreheatStartCranking()
 {
     UTILS_ResetTimer(&_EngCrankingTimer);
     _State = ID_STATE_SS_CRANKING;
+    _hal.ObjGlcd.TurnOffBackLight();
     _u8NoOfCrankAttempts++;
     _ChargeAlt.StartExcitation();
     _bChargAltStopLatched = false;

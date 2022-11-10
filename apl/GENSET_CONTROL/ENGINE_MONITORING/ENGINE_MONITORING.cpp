@@ -21,6 +21,15 @@
 /* supporting private macros */
 #define IS_START_STOP_SM_IN_CRANK_STATE()       (  (_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANKING)   \
                                                || (_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANK_REST))
+/*
+ * SuryaPranayTeja.BVV 10-11-2022
+ * The below Macros IS_LOAD_ON_MAINS and IS_LOAD_ON_GEN
+ * do not have any Meaning based on the name.
+ * They are intended to use for updating BTS run Hrs and to replicate conditions
+ * as per NXP.
+ */
+#define IS_LOAD_ON_MAINS()    (((_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring) && (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bResultInstant))||((!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring) && BASE_MODES::IsMainsContactorClosed()))
+#define IS_LOAD_ON_GEN()      (((_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring) && (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bResultInstant))||((!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring) && BASE_MODES::IsGenContactorClosed()))
 
 uint8_t ENGINE_MONITORING::_u8EngineOff = 0;
 uint8_t ENGINE_MONITORING::_u8EngineOn = 0;
@@ -94,86 +103,33 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::getAssumedLoadStatus(CO
      * LOAD_ON_MAINS if load is ASSUMED to be on Mains,
      * LOAD_NOT_ON_GEN_MAINS otherwise.
      */
-    bool bCertainlyNotOnGenset = false;
-    bool bCertainlyNotOnMains = false;
-    if (!ci.bCtOnLoadCable)
+
+    bool bOnMainsWhenNotInManual= (ci.bMainsContactorOutputStatus) && ( ci.bCtOnLoadCable) && (ci.bMainsContactorOutputAssigned) && (BASE_MODES::GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE);
+    bool bOnMainsInManualFdbckNotAssigned = (ci.bMainsContactorOutputStatus) && ( ci.bCtOnLoadCable) && (ci.bMainsContactorOutputAssigned) && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring) ;
+    bool bOnMainsInManualFdbckAssigned = ( ci.bCtOnLoadCable) && (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring) && (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bResultInstant) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE);
+
+    if( (bOnMainsWhenNotInManual) ||(bOnMainsInManualFdbckNotAssigned) || (bOnMainsInManualFdbckAssigned))
     {
-        //i.e. CT is on alternator output cable
-        //hence,
+        return LOAD_CONT_STATUS_t::LOAD_ON_MAINS;
+    }
+
+    //When Gen contactor not configured and only mains contactor configured and in Manual mode. If falsely Mains contactor is used then LOAD is on GEN.
+    bool bOnGensetByChanceInManual = (!ci.bGensetContactorOutputAssigned) && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring)
+                                     && (!(((ci.bMainsContactorOutputStatus) && (ci.bMainsContactorOutputAssigned) && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring))
+                                             || ((_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring) && (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bResultInstant) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE))));
+
+    bool  bOnGensetWhenNotInManual  = (ci.bGensetContactorOutputStatus) && (ci.bGensetContactorOutputAssigned) && (BASE_MODES::GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE);
+
+    bool   bOnGensetInManualFdbckNotAssigned = (ci.bGensetContactorOutputStatus) && (ci.bGensetContactorOutputAssigned) && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring);
+
+    bool  bOnGensetInManualFdbckAssigned = (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring) && (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bResultInstant) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE);
+
+    if ((bOnGensetByChanceInManual) || (bOnGensetWhenNotInManual) || (bOnGensetInManualFdbckNotAssigned) || (bOnGensetInManualFdbckAssigned))
+    {
         return LOAD_CONT_STATUS_t::LOAD_ON_GEN;
     }
-    if (ci.bGensetContactorFeedbackIsAssigned)
-    {
-        if (ci.bGensetContactorFeedbackInputStatus)
-        {
-            return LOAD_CONT_STATUS_t::LOAD_ON_GEN;
-        }
-        //else is not necessary
-        bCertainlyNotOnGenset = true;
-    }
-    if (ci.bMainsContactorFeedbackIsAssigned)
-    {
-        if (ci.bMainsContactorFeedbackInputStatus)
-        {
-            return LOAD_CONT_STATUS_t::LOAD_ON_MAINS;
-        }
-        //else is not necessary
-        bCertainlyNotOnMains = true;
-    }
-    if ((ci.bGensetContactorFeedbackIsAssigned)
-        && (ci.bMainsContactorFeedbackIsAssigned)
-        && (!ci.bGensetContactorFeedbackInputStatus)
-        && (!ci.bMainsContactorFeedbackInputStatus))
-    {
-        //if both (Genset and Mains) feedback inputs are assigned
-        //and both those inputs are off, means load is certainly
-        //not on Genset nor on Mains. Hence
-        return LOAD_CONT_STATUS_t::LOAD_NOT_ON_GEN_MAINS;
-    }
-    if (!ci.bGensetContactorFeedbackIsAssigned)
-    {
-        //feedback not available:
-        if (ci.bGensetContactorOutputAssigned)
-        {
-            //output is assigned and is not pulse type
-            if (ci.bGensetContactorOutputStatus)
-            {
-                return LOAD_CONT_STATUS_t::LOAD_ON_GEN;
-            }
-            //else is not necessary
-            bCertainlyNotOnGenset = true;
-        }
-        else
-        {
-            //output is not assigned at all
-            //do nothing here, we will anyway default to Genset
-        }
-    }
-    //now check mains
-    if (!ci.bMainsContactorFeedbackIsAssigned)
-    {
-        //feedback not available:
-        if (ci.bMainsContactorOutputAssigned)
-        {
-                //output is assigned and is not pulse type
-                if (ci.bMainsContactorOutputStatus)
-                {
-                    return LOAD_CONT_STATUS_t::LOAD_ON_MAINS;
-                }
-                //else is not necessary
-                bCertainlyNotOnMains = true;
-        }
-        else
-        {
-            //output is not assigned at all
-            //do nothing here, we will anyway default to Genset
-        }
-    }
-    if ((bCertainlyNotOnGenset) || (bCertainlyNotOnMains))
-    {
-        return LOAD_CONT_STATUS_t::LOAD_NOT_ON_GEN_MAINS;
-    }
-    return LOAD_CONT_STATUS_t::LOAD_ON_GEN;
+
+    return LOAD_CONT_STATUS_t::LOAD_NOT_ON_GEN_MAINS;
 }
 bool ENGINE_MONITORING::IsModeSelectInputConfigured()
 {
@@ -202,14 +158,15 @@ bool ENGINE_MONITORING::mainsContactorFeedbackInputStatus()
 }
 bool ENGINE_MONITORING::isMainsContactorOutputAssigned()
 {
+    //not equal to not_configured, means it must be assigned!
+    return((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED)
+            ||(_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_OUT)!=ACT_Manager::ACT_NOT_CONFIGURED));
 
-        //not equal to not_configured, means it must be assigned!
-        return(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED);
 }
 bool ENGINE_MONITORING::isGensetContactorOutputAssigned()
 {
-
-    return (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED);
+    return ((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR)!=ACT_Manager::ACT_NOT_CONFIGURED)
+            ||(_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_OUT)!=ACT_Manager::ACT_NOT_CONFIGURED));
 }
 
 bool ENGINE_MONITORING::haveWeTriedToCloseGensetContactor()
@@ -247,45 +204,6 @@ void ENGINE_MONITORING::UpdateContactorLoadStatus()
     ci.bGensetContactorOutputStatus = haveWeTriedToCloseGensetContactor();
     ci.bMainsContactorOutputStatus = haveWeTriedToCloseMainsContactor();
     _eLoadStatusCurrent = getAssumedLoadStatus(ci);
-
-//    if((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)==ACT_Manager::ACT_NOT_CONFIGURED)
-//        && (!_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::MAINS_CONTACTOR_LATCHED))
-//        && (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR)==ACT_Manager::ACT_NOT_CONFIGURED)
-//        && (!_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::GEN_CONTACTOR_LATCHED)))
-//    {
-//        eLoadStatusCurrent = LOAD_ON_GEN;
-//    }
-//    else if((_cfgz.GetCFGZ_Param(CFGZ::ID_CT_LOCATION) == 1) // On Load Cable
-//           && (BASE_MODES::IsMainsContactorClosed()) && (!_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::MAINS_CONTACTOR_LATCHED)))
-//    {
-//        eLoadStatusCurrent = LOAD_ON_MAINS;
-//    }
-//    else if((_cfgz.GetCFGZ_Param(CFGZ::ID_CT_LOCATION) == 1) // On Load Cable
-//            && (_GCUAlarms.AlarmResultInstat(GCU_ALARMS::MAINS_CONTACTOR_LATCHED)))
-//    {
-//        eLoadStatusCurrent = LOAD_ON_MAINS;
-//    }
-//    else if((_cfgz.GetCFGZ_Param(CFGZ::ID_CT_LOCATION) == 0)// On Alt Cable
-//            || ((_cfgz.GetCFGZ_Param(CFGZ::ID_CT_LOCATION) == 1) // On Load Cable
-//                  && (BASE_MODES::IsGenContactorClosed()) && (!_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::GEN_CONTACTOR_LATCHED))))
-//    {
-//        eLoadStatusCurrent = LOAD_ON_GEN;
-//    }
-//    else if((_cfgz.GetCFGZ_Param(CFGZ::ID_CT_LOCATION) == 1) // On Load Cable
-//            && (_GCUAlarms.AlarmResultInstat(GCU_ALARMS::GEN_CONTACTOR_LATCHED)))
-//    {
-//        eLoadStatusCurrent = LOAD_ON_GEN;
-//    }
-//    else if((!_GCUAlarms.IsAlarmMonEnabled(GCU_ALARMS::GEN_CONTACTOR_LATCHED))
-//            &&((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED)
-//            ||(_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_BREAKER_PULSE)!=ACT_Manager::ACT_NOT_CONFIGURED)))
-//    {
-//        eLoadStatusCurrent = LOAD_ON_GEN;
-//    }
-//    else
-//    {
-//        eLoadStatusCurrent = LOAD_NOT_ON_GEN_MAINS;
-//    }
 
     if(_eLoadStatusCurrent != eLoadStatusPrv)
     {
@@ -359,7 +277,7 @@ void ENGINE_MONITORING::prvUpdateEngineOn()
     }
     else
     {
-        UTILS_DisableTimer(&_TimerGenUpdateCumulative);
+//        UTILS_DisableTimer(&_TimerGenUpdateCumulative);
     }
 }
 
@@ -791,6 +709,7 @@ void ENGINE_MONITORING::prvUpdateEngineONstatus(void)
         _u8EngineOn = 1;
         UTILS_ResetTimer(&_TimerOneMin);
         UTILS_ResetTimer(&_TimerGenUpdateCumulative);
+        UTILS_ResetTimer(&_TimerUpdateTamperedCumulative);
     }
     else
     {
@@ -809,7 +728,6 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
         if((_u8EngineOn == 1U) && (IsGenStartValid()) &&
             (_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ENGINE_SPEED)))
         {
-            /* todo : If required, need to update J1939 dependency on run hours */
             _stCummulativeCnt.u32EngineRunTime_min++;
 
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32EngineRunTime_min);
@@ -823,10 +741,6 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
                 (_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_WAVE_DETECTION) == CFGZ::CFGZ_ENABLE))
         {
             _stCummulativeCnt.u32TamperedRunTime_min++;
-            if(_TimerUpdateTamperedCumulative.bEnabled == false)
-            {
-                UTILS_ResetTimer(&_TimerUpdateTamperedCumulative);
-            }
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32TamperedRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerUpdateTamperedCumulative) >= u16TimeSlot)
             {
@@ -849,10 +763,12 @@ void ENGINE_MONITORING::prvUpdateMainsRunHrs()
 {
     static uint16_t u16TimeSlot = 1U;
 
-    if(((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR) != ACT_Manager::ACT_NOT_CONFIGURED)
-           ||(_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_OUT) != ACT_Manager::ACT_NOT_CONFIGURED))
-        && (_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE)
-        && BASE_MODES::IsMainsContactorClosed())
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE)
+            &&(((BASE_MODES::IsMainsContactorClosed())&&(isMainsContactorOutputAssigned()) && (BASE_MODES::GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE))
+                    || ((BASE_MODES::IsMainsContactorClosed()) && (isMainsContactorOutputAssigned()) && (!_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring))
+                    || ((_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring) && (_GCUAlarms.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bResultInstant) && (BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE) && (BASE_MODES::GetMainsStatus() == BASE_MODES::MAINS_HELATHY))
+            )
+    )
     {
         if(!UTILS_IsTimerEnabled(&_MainsRunTimeBaseTimer))
         {
@@ -883,9 +799,10 @@ void ENGINE_MONITORING::prvUpdateBTSRunHrs()
     static uint16_t u16TimeSlot = 1U;
 
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
-        && (!BASE_MODES::IsGenContactorClosed())
-        && (((!BASE_MODES::IsMainsContactorClosed()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
-                    || ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_DISABLE) && (_u8EngineOn == 0U))))
+            &&(((BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE) && (!IS_LOAD_ON_MAINS()) && (!IS_LOAD_ON_GEN()))
+                    || ((BASE_MODES::GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE)
+                            && (!BASE_MODES::IsGenContactorClosed())
+                            && (!BASE_MODES::IsMainsContactorClosed()))))
     {
         if(_BTSRunTimeBaseTimer.bEnabled == false)
         {

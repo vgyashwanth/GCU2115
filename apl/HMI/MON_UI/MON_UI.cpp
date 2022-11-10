@@ -151,15 +151,6 @@ void MON_UI::Update(bool bRefresh)
         }
         case RUNNING_MODE:
         {
-            /*
-             * TODO: The below condition is added in SGC for handling the screen status change based on Load.
-             * Need to confirm and remove if not required here in GC2111.
-             */
-            if(_EngineMon.GetAndClearIsLoadStatusChanged())
-            {
-                prvConfigureScreenEnable();
-            }
-
             if(bRefresh)
             {
                 /* TODO: need to uncomment and modify below J1939 related changes */
@@ -296,7 +287,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
              * by UP key press also the Sounder Alarm gets turned off
              * and we continue to support it
              */
-            if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == true)
+            if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == ACT_Manager::ACT_LATCHED)
             {
                 _GCUAlarms.TurnOffSounderAlarm();
             }
@@ -390,7 +381,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
         case ACK_KEY_PRESS:
         {
-            if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == true)
+            if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == ACT_Manager::ACT_LATCHED)
             {
                 _GCUAlarms.TurnOffSounderAlarm();
             }
@@ -624,6 +615,12 @@ void MON_UI::prvDisplayMonScreen()
     else
 #endif
     {
+        //In GC2111, while in test mode. T will be displayed at the left bottom corner.
+        if(_eOpMode == BASE_MODES:: TEST_MODE && _stScreenNo !=DISP_MON_HOME)
+        {
+            _Disp.gotoxy(GLCD_X(6),GLCD_Y(53));
+            _Disp.printStringCenterAligned((char *)"T", FONT_VERDANA);
+        }
          prvNormalMonScreens();
     }
 }
@@ -2372,7 +2369,7 @@ void MON_UI::prvNormalMonScreens()
 
                 if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
                 {
-                    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1) == CFGZ::CFGZ_ENABLE)
+                    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WITH_STEP) == CFGZ::CFGZ_ENABLE)
                     {
                         stTemp.stValAndStatus.f32InstSensorVal =
                                 stTemp.stValAndStatus.f32InstSensorVal
@@ -2970,11 +2967,11 @@ void MON_UI::prvStopKeyPressAction()
                     &&(_manualMode.GetBTSModeState()!= BASE_MODES::STATE_BTS_RETURN_DELAY))
             {
                 _manualMode.SwitchToManualMode();
-                _startStop.StopCommand();
+//                _startStop.StopCommand();
             }
             else
             {
-               _startStop.StopCommand();
+//               _startStop.StopCommand();//On a s
             }
         }
         else if(_eOpMode == BASE_MODES::CYCLIC_MODE)
@@ -2996,11 +2993,11 @@ void MON_UI::prvStopKeyPressAction()
             else if(_manualMode.GetCyclicModeState() != BASE_MODES::STATE_CYCLIC_GEN_ON_LOAD)
             {
                 _manualMode.SwitchToManualMode();
-                _startStop.StopCommand();
+//                _startStop.StopCommand();
             }
             else
             {
-                _startStop.StopCommand();
+//                _startStop.StopCommand();
             }
         }
         else if(_eOpMode == BASE_MODES::TEST_MODE)

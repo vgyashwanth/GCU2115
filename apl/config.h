@@ -62,6 +62,14 @@
 #define EXT_EEPROM_CUMMULATIVE_LENGTH              512
 #define EXT_EEPROM_CUMMULATIVE_START_ADD_SECT1    (EXT_EEPROM_CUMMULATIVE_START_ADD_SECT0 +\
                                                    EXT_EEPROM_CUMMULATIVE_LENGTH)
+/*
+ * SuryaPranayTeja.BVV 09-11-2022
+ * The below address locations of EEPROM is used for the miscellaneous parameters
+ * which need to be saved.
+ * In GC2111 , One such parameter is Modbus Connection Count which is shown in the Event Log Screen.
+ */
+#define EXT_EEPROM_MISC_PARAM_START                0x5400
+#define EXT_EEPROM_MISC_PARAM_LENGTH               256
 
 /**********************************************************/
 

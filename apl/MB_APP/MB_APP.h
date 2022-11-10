@@ -202,6 +202,13 @@ offset 14.
         bool    bAckKey  ;
         bool    bKeyEvent ;
     }KEY_MB_CAN_EVENT_t;
+
+    typedef struct
+    {
+        uint16_t u16Mbcount;
+        uint16_t u16Dummy[3];
+    }MISC_EEPROM_t ;
+
     /**
      * Constructs this class. This internally initiates the modbus module.
      * @param hal - Reference to hardware abstraction layer.
@@ -250,10 +257,9 @@ offset 14.
 
     static void GetMBEventStatus(KEY_MB_CAN_EVENT_t *stEvent);
 
-
-
-
     static uint16_t MB_Count;
+
+    static MISC_EEPROM_t stEepromMisc;
 private:
     #define MODBUS_GEN_START_CMD        (0x01)
     #define MODBUS_GEN_STOP_CMD         (0x02)
@@ -278,6 +284,8 @@ private:
 
   //  static MODBUS_CMD_STATUS_t _eMBCmdStatus;
     static KEY_MB_CAN_EVENT_t stMBEvent ;
+
+
 
     static uint64_t Curr_MB_Valid_Count;
 
@@ -360,6 +368,8 @@ private:
      * None
      */
     void prvUpdateGCUAlarms();
+
+    void prvGetMiscParams();
 
 };
 

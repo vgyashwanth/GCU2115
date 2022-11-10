@@ -132,9 +132,9 @@ public:
       */
      float FuelCalcfor0_5VSens(float height);
 
-     float GetPin23SensorCurrentValue();
+     float GetS3SensorCurrentValue();
 
-     float GetPin23SensorVoltValue();
+     float GetS3SensorVoltValue();
 private:
     /**
      * Private variable to store the Sensor name
@@ -180,7 +180,7 @@ private:
      */
     ANLG_IP &_AnlgIp;
 
-    float _f32Pin23CurrentVal;
+    float _f32S3CurrentVal;
 
     float _f32Pin23VoltVal;
 

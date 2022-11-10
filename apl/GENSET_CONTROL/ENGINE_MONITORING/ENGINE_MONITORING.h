@@ -115,7 +115,6 @@ public:
 /* Updation prototypes */
     void ReadEnergySetEnergyOffset(bool bFromEeprom);
 
-    float GetRawEngSpeed();
     float GetTamprEEPromCummEnergy();
 //    float GetGenEEPromCummKWH();
 //    float GetGenEEPromCummKVAH();

@@ -397,12 +397,12 @@ float A_SENSE::GetFilteredPulseInpuRPM(void)
 
 float A_SENSE::GetPin23CurrentValMilliAmp()
 {
-    return _sensors[HAL_PIN_23].GetPin23SensorCurrentValue();
+    return _sensors[HAL_PIN_21].GetS3SensorCurrentValue();
 }
 
 float A_SENSE::GetPin23VoltVal()
 {
-    return _sensors[HAL_PIN_23].GetPin23SensorVoltValue();
+    return _sensors[HAL_PIN_21].GetS3SensorVoltValue();
 }
 
 AnalogSensor::AnalogSensor(ANLG_IP &anlgIp):
@@ -412,7 +412,7 @@ AnalogSensor::AnalogSensor(ANLG_IP &anlgIp):
  _eRef(ANLG_IP::REF_BATT_NEGATIVE),
  _stSensVal{0.0, ANLG_IP::BSP_STATE_NORMAL},
  _AnlgIp(anlgIp),
- _f32Pin23CurrentVal(0),
+ _f32S3CurrentVal(0),
  _f32Pin23VoltVal(0)
 {
 
@@ -486,7 +486,7 @@ void AnalogSensor::Update()
 
         if(_eName == A_SENSE_LUBE_OIL_PRESSURE_4_20)
         {
-            _f32Pin23CurrentVal =  stVal.f32InstSensorVal;
+            _f32S3CurrentVal =  stVal.f32InstSensorVal;
         }
         if(_eName == A_SENSE_LUBE_OIL_PRESSURE_0_TO_5V)
         {
@@ -534,12 +534,12 @@ float AnalogSensor::FuelCalcfor0_5VSens(float height)
     }
 
 }
-float AnalogSensor::GetPin23SensorCurrentValue()
+float AnalogSensor::GetS3SensorCurrentValue()
 {
-    return _f32Pin23CurrentVal;
+    return _f32S3CurrentVal;
 }
 
-float AnalogSensor::GetPin23SensorVoltValue()
+float AnalogSensor::GetS3SensorVoltValue()
 {
     return _f32Pin23VoltVal;
 }

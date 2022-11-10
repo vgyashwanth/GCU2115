@@ -96,7 +96,7 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
               The below functionality is added as in NXP
                by UP key press also the Sounder Alarm gets turned off
                and we need to support it*/
-               if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == true)
+               if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == ACT_Manager::ACT_LATCHED)
                {
                    _alarm.TurnOffSounderAlarm();
                }
@@ -203,7 +203,7 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
        case ACK_KEY_PRESS:
       {
 
-          if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == true)
+          if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == ACT_Manager::ACT_LATCHED)
           {
               _alarm.TurnOffSounderAlarm();
           }

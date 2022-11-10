@@ -186,6 +186,7 @@ void EVENT_LOG_UI::prvDisplayEventScreen()
 
         _Disp.gotoxy(GLCD_X(80),GLCD_Y(51));
         sprintf(arrTemp,"MB: %d",MB_APP::MB_Count);
+        sprintf(arrTemp,"MB: %d",MB_APP::stEepromMisc.u16Mbcount);
         _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
 
     }

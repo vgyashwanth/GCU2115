@@ -39,7 +39,7 @@ extern const uint8_t u8ArrAlarmLogo[3][20];
 extern const uint8_t gau8LIShelterTemp[4][32];
 
 extern const uint8_t gau8GeneratorVoltLogo[4][32];
-extern const uint8_t gau8GenPFLogo[5][32];
+extern const uint8_t gau8GenPFLogo[4][30];
 
 extern const char *StrMonth[1][12];
 extern const char *strPhase[];

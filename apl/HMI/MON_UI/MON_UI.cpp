@@ -1982,7 +1982,7 @@ void MON_UI::prvNormalMonScreens()
             }
             else
             {
-                _Disp.printImage((uint8_t *)gau8GenPFLogo, 5, 32, 26, 7);
+                _Disp.printImage((uint8_t *)gau8GenPFLogo, 4, 30, 26, 7);
                 sprintf(arrTemp,"%s-%s    %0.1f",(char *)StrPF,
                    (char *)strPhase[R_PHASE],
                 _hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)R_PHASE));
@@ -2024,7 +2024,7 @@ void MON_UI::prvNormalMonScreens()
             else
             {
                 /* Below logo will be displayed for Gen and Mains as well */
-                _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 26, 7);
+                _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 30, 7);
 
                 _Disp.gotoxy(GLCD_X(40),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
@@ -2629,7 +2629,7 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
     {
         /* Below logo will be displayed for Gen and Mains as well */
 
-        _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 26, 7);
+        _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 30, 7);
 
         _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));
         _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
@@ -2715,7 +2715,7 @@ void MON_UI::prvPrintPower(POWER_TYPE_t eType, uint8_t u8AcSystemType, SOURCE_TY
     {
 
         /* Below logo will be displayed for Gen and Mains as well */
-        _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 26, 7);
+        _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 30, 7);
 
         _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));
         _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);

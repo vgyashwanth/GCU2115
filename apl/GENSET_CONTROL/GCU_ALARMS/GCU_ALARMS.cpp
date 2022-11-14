@@ -26,6 +26,8 @@ void ReadEventNumber(EEPROM::EVENTS_t evt);
 void ReadRollOver(EEPROM::EVENTS_t evt);
 void EventWriteCB(EEPROM::EVENTS_t evt);
 
+bool GCU_ALARMS::_bModeSwitchAlarm = false;
+bool GCU_ALARMS::_bAutomaticModeSwitchStatus = false;
 bool GCU_ALARMS::_bEventNumberReadDone=false;
 bool GCU_ALARMS::_bRollOverReadDone=false;
 CircularQueue<GCU_ALARMS::EVENT_LOG_Q_t> GCU_ALARMS::_EventQueue = {GCU_ALARMS::_EventQArr,EVENT_LOG_Q_SIZE};
@@ -136,7 +138,6 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
 
     _u8AuxSensS2 = (uint8_t)(stAuxSensS2.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT);
     _u8AuxSensS3 = (uint8_t)((stAuxSensS3.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)&&(stAuxSensS3.stValAndStatus.eState != ANLG_IP::BSP_STATE_SHORT_TO_BAT));
-//    _u8AuxSensS4 = (uint8_t)((stAuxSensS4.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)&&(stAuxSensS4.stValAndStatus.eState != ANLG_IP::BSP_STATE_SHORT_TO_BAT));
 
     _u8LopHiOilPressMon = (uint8_t)(stLOP.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT);
 
@@ -182,7 +183,7 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
             _bUpdateFuelTheftCalc = true;
             UTILS_ResetTimer(&_FuelTheftWakeUpTimer);
         }
-        if(UTILS_GetElapsedTimeInSec(&_Modbus10minTimer) >= 60)
+        if(UTILS_GetElapsedTimeInSec(&_Modbus10minTimer) >= 60*3)
         {
             UTILS_ResetTimer(&_Modbus10minTimer);
             _bUpdateModbusCountCalc = true;
@@ -210,49 +211,12 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
                 prvUpdateOutputs();
                 prvIsFuelTheftAlarm();
 
-                prvCoolantTempCtrlFunction();
                 prvMainsHighLowOutputs();
                 FillDisplayAlarmArray();
             }
         }
     }
 }
-
-//void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-//                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
-//                                    uint8_t u8Threshold, uint16_t u16CounterMax)
-//{
-//    ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
-//    ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = bMonitoringPolarity;
-//    ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = u8LoggingID;
-//    ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = u8Threshold;
-//    ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = u16CounterMax;
-//    ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
-//}
-//
-//void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-//                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
-//                                    uint16_t u16Threshold, uint16_t u16CounterMax)
-//{
-//    ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
-//    ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = bMonitoringPolarity;
-//    ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = u8LoggingID;
-//    ArrAlarmMonitoring[u8AlarmIndex].Threshold.u16Value = u16Threshold;
-//    ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = u16CounterMax;
-//    ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = TWO_BYTE_INT;
-//}
-//
-//void GCU_ALARMS::prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-//                                    bool bMonitoringPolarity, uint8_t u8LoggingID,
-//                                    float f32Threshold, uint16_t u16CounterMax)
-//{
-//    ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = (uint8_t *)Pu8LocalEnable;
-//    ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = bMonitoringPolarity;
-//    ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = u8LoggingID;
-//    ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = f32Threshold;
-//    ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = u16CounterMax;
-//    ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-//}
 
 void GCU_ALARMS::prvSetAlarmAction_NoWESN(uint8_t u8AlarmIndex, uint8_t u8AlarmAction)
 {
@@ -1757,6 +1721,19 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             //Implemented Completely in prvAssignInputSettings func.
         }
         break;
+        case AUTOMATIC_MD_SWITCH:
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true;
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableNotification = true;
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
+            ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Automatic_md_switch_id;
+            ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 1;
+            ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
+        }
+        ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[AUTOMATIC_MODE_SWITCH_STATUS];
+        break;
         case ALARM_AMBER_LAMP :
             //        {
             //            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CAN_J1939_COMM_ACTION_AMBER) != CFGZ::CFGZ_ACTION_NONE);
@@ -2076,6 +2053,8 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
 
     _ArrAlarmValue[LOP_SENS_OVER_VAL].u8Value = prvIsLopSensOverVal();
 
+    _ArrAlarmValue[AUTOMATIC_MODE_SWITCH_STATUS].u8Value = _bAutomaticModeSwitchStatus;
+
     _ArrAlarmValue[J1939_PROTECT_LAMP_STATUS].u8Value = gpJ1939->IsProtectLampON();
     _ArrAlarmValue[J1939_AMBER_LAMP_STATUS].u8Value = gpJ1939->IsAmberLampON();
     _ArrAlarmValue[J1939_RED_LAMP_STATUS].u8Value = gpJ1939->IsRedLampON();
@@ -2285,6 +2264,9 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
         case Lop_Short_To_Battery_id:
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[LOP_SENS_SHORT_TO_BATTERY].bAlarmActive;
             break;
+        case Automatic_md_switch_id:
+            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[AUTOMATIC_MD_SWITCH].bAlarmActive;
+            break;
         case Alarm_Amber_Lamp_id:
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[ALARM_AMBER_LAMP].bAlarmActive;
             break;
@@ -2479,8 +2461,7 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
             else
             {
                 ArrAlarmMonitoring[_u8AlarmIndex].u16Counter = 0;
-                if(((ArrAlarmMonitoring[_u8AlarmIndex].bWarningLatched))
-                        || (ArrAlarmMonitoring[_u8AlarmIndex].bNotificationLatched ))
+                if(ArrAlarmMonitoring[_u8AlarmIndex].bNotificationLatched )
                 {
                     ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant = false;
                     ArrAlarmMonitoring[_u8AlarmIndex].bResultLatched = false;
@@ -2493,19 +2474,18 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
              */
             ArrAlarmMonitoring[_u8AlarmIndex].bNotificationLatched = ArrAlarmMonitoring[_u8AlarmIndex].bEnableNotification &&
                                    ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant;
+
             if(_u8AlarmIndex == HIGH_OIL_PRESS_DETECTED )
             {
                 ArrAlarmMonitoring[_u8AlarmIndex].bWarningLatched = ArrAlarmMonitoring[_u8AlarmIndex].bEnableWarning &&
                         ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant;
-
-                // This is required as High Oil press detected gets auto clear.
-                // Once if the alarm gets regenerated then over Alarm UI. The result latched was not true.
-                // So it pops the previous uncleared alarm also.
-                ArrAlarmMonitoring[OIL_PRESS_MON].bResultInstant = false;
-                ArrAlarmMonitoring[OIL_PRESS_MON].bResultLatched = false;
-                ArrAlarmMonitoring[LLOP_MON].bResultInstant = false;
-                ArrAlarmMonitoring[LLOP_MON].bResultLatched = false;
-
+            }
+            // This is required as High Oil press detected gets auto clear.
+            // Once if the alarm gets regenerated then over Alarm UI. The result latched was not true.
+            // So it pops the previous uncleared alarm also.
+            if((_u8AlarmIndex == OIL_PRESS_MON )|| (_u8AlarmIndex == LLOP_MON))
+            {
+                ArrAlarmMonitoring[_u8AlarmIndex].bResultLatched = ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant;
             }
 
 
@@ -2970,7 +2950,7 @@ void GCU_ALARMS::prvUpdateOutputs()
     //Activate and Deactivate of ACT_CLOSE_GEN_CONTACTOR is done in BASE_MODES
     //Activate and Deactivate of ACT_CLOSE_MAINS_CONTACTOR is done in BASE_MODES
     prvActDeactOutput(!(BASE_MODES::GetMainsStatus() ==  BASE_MODES::MAINS_HELATHY), ACTUATOR::ACT_MAINS_FAILURE);
-    prvActDeactOutput(_bCommonAlarm, ACTUATOR::ACT_ALARM);
+    prvActDeactOutput((_bCommonAlarm || _bModeSwitchAlarm), ACTUATOR::ACT_ALARM);
     prvActDeactOutput(_bCommonElectricTrip, ACTUATOR::ACT_ELEC_TRIP);
     prvActDeactOutput(_bCommonShutdown, ACTUATOR::ACT_SHUTDOWN);
     prvActDeactOutput(_bCommonWarning, ACTUATOR::ACT_WARNING);
@@ -3424,64 +3404,9 @@ void GCU_ALARMS::prvMainsHighLowOutputs()
     }
 }
 
-void GCU_ALARMS::prvCoolantTempCtrlFunction(void)
-{
-    A_SENSE::SENSOR_RET_t stTemp = GetSelectedTempSensVal();
-
-    if(((_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-           &&(stTemp.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)))
-//            || ((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) > CFGZ::ENG_CONVENTIONAL)))
-//                    &&(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE)))&& (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_CTRL_EN) == CFGZ::CFGZ_ENABLE))
-    {
-           prvActDeactCLNTTempCtrlOutput();
-    }
-    else
-    {
-        _bCLNTTempCtrl = false;
-    }
-
-}
-
-void GCU_ALARMS::prvActDeactCLNTTempCtrlOutput(void)
-{
-//    A_SENSE::SENSOR_RET_t stTemp = GetSelectedTempSensVal();
-
-//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_CTRL) == CFGZ::CFGZ_HEATER_CONTROL)
-//    {
-//        if((int16_t)round(stTemp.stValAndStatus.f32InstSensorVal) <= (int16_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_ON_THRESH)))
-//        {
-//            _bCLNTTempCtrl = true;
-//        }
-//        else if((int16_t)round(stTemp.stValAndStatus.f32InstSensorVal) >= (int16_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_OFF_THRESH)))
-//        {
-//            _bCLNTTempCtrl = false;
-//        }
-//    }
-//    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_CTRL) == CFGZ::CFGZ_COOLER_CONTROL)
-//    {
-//        if((int16_t)round(stTemp.stValAndStatus.f32InstSensorVal) >= (int16_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_ON_THRESH)))
-//        {
-//            _bCLNTTempCtrl = true;
-//        }
-//        else if((int16_t)round(stTemp.stValAndStatus.f32InstSensorVal) <= (int16_t)(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_OFF_THRESH)))
-//        {
-//            _bCLNTTempCtrl = false;
-//        }
-//    }
-}
-
-
 bool GCU_ALARMS::prvIsNeedToCheckSensFltAlarm()
 {
-    if(START_STOP::IsFuelRelayOn()
-        && (!IsAlarmActive(GCU_ALARMS::MPU_LOSS)
-        &&  ENGINE_MONITORING::IsEngineCranked())
-      )
-    {
-        return true;
-    }
-
-    return false;
+    return(START_STOP::IsFuelRelayOn() && (!IsAlarmActive(GCU_ALARMS::MPU_LOSS) &&  ENGINE_MONITORING::IsEngineCranked()));
 }
 
 void ReadEventNumber(EEPROM::EVENTS_t evt)
@@ -3543,8 +3468,6 @@ A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLOPSensorVal()
     return stLOP;
 }
 
-
-
 void GCU_ALARMS::ActivateHighOilPressAlarmSens()
 {
   _u8HighOilPressDetectedAlarm = 1;
@@ -3569,14 +3492,13 @@ A_SENSE::SENSOR_RET_t GCU_ALARMS::GetSelectedTempSensVal()
 float GCU_ALARMS::GetSelectedBatteryVtg()
 {
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_BATTERY_MON_BY_J1939)== CFGZ::CFGZ_ENABLE)
-            &&(_cfgz.GetEngType()!=CFGZ::ENG_CONVENTIONAL)
-            )
+            &&(_cfgz.GetEngType()!=CFGZ::ENG_CONVENTIONAL))
     {
         if(!gpJ1939->IsCommunicationFail())
         {
             if((isnan(gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0)) == true) || (isinf(gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0)) == true))
             {
-                 return 0;
+                return 0;
             }
             return (float)gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0);
         }
@@ -3591,23 +3513,6 @@ float GCU_ALARMS::GetSelectedBatteryVtg()
 
 uint32_t GCU_ALARMS::GetSelectedEngRunMin()
 {
-//    if((_cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ENG)== CFGZ::CFGZ_ENABLE)
-//            &&(_cfgz.GetEngType()!=CFGZ::ENG_CONVENTIONAL)
-//           )
-//    {
-//        if(!gpJ1939->IsCommunicationFail())
-//        {
-//            if((isnan(gpJ1939->GetReadData(RX_PGN_HOURS_65253, 0) * 60) == true) || (isinf(gpJ1939->GetReadData(RX_PGN_HOURS_65253, 0) * 60) == true))
-//            {
-//                return 0;
-//            }
-//             return (uint32_t)(gpJ1939->GetReadData(RX_PGN_HOURS_65253, 0) * 60);
-//        }
-//        else
-//        {
-//            return 0;
-//        }
-//    }
     return ( ENGINE_MONITORING::GetEngineRunTimeMin());
 }
 
@@ -3631,6 +3536,10 @@ void GCU_ALARMS::UpdateFuelTheftCalculation()
      * This function is used to set _bUpdateFuelTheftCalc
      *  which updates the fuel theft calculations*/
     _bUpdateFuelTheftCalc = true;
+}
+void GCU_ALARMS::ClearAutoModeSwitchAlarm()
+{
+    _bModeSwitchAlarm = false;
 }
 
 bool GCU_ALARMS::IsLowFuelLevelAlarmActive()

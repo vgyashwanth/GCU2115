@@ -799,7 +799,7 @@ void ENGINE_MONITORING::prvUpdateBTSRunHrs()
     static uint16_t u16TimeSlot = 1U;
 
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
-            &&(((BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE) && (!IS_LOAD_ON_MAINS()) && (!IS_LOAD_ON_GEN()))
+            &&(((BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE) && (!IS_LOAD_ON_MAINS()) && (!IS_LOAD_ON_GEN()) && (_GCUAlarms.IsBTSBattHealthy()))
                     || ((BASE_MODES::GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE)
                             && (!BASE_MODES::IsGenContactorClosed())
                             && (!BASE_MODES::IsMainsContactorClosed()))))

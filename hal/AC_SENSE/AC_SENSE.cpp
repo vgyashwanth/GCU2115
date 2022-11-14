@@ -123,12 +123,17 @@ void AC_SENSE::Update()
 
 }
 
+void AC_SENSE::ConfigureCTRatio(uint16_t u16CTFactor, uint16_t u16ECTFactor, float fCTCorrfactor)
+{
+    _fCTMultiplier = (float)u16CTFactor/(float)MAX_CT_SECONDARY_CURRENT_A;
+    _fCTMultiplier = _fCTMultiplier*fCTCorrfactor;
+    _fECTMultiplier =  (float)u16ECTFactor/(float)MAX_CT_SECONDARY_CURRENT_A;
+}
 void AC_SENSE::ConfigureCTRatio(uint16_t u16CTFactor, uint16_t u16ECTFactor)
 {
     _fCTMultiplier = (float)u16CTFactor/(float)MAX_CT_SECONDARY_CURRENT_A;
     _fECTMultiplier =  (float)u16ECTFactor/(float)MAX_CT_SECONDARY_CURRENT_A;
 }
-
 void AC_SENSE::ConfigureGenPTRatio(uint16_t u16GenPTPrimaryFactor,uint16_t u16GenPTSecondaryFactor)
 {
     _fGenPTMultiplier = (float)u16GenPTPrimaryFactor/(float)u16GenPTSecondaryFactor;

@@ -159,6 +159,7 @@ public:
         MODE_SELECT,
         INVALID_DG_START,
         AMB_TEMP_SWITCH,
+        AUTOMATIC_MD_SWITCH,
         ALARM_AMBER_LAMP,
         ALARM_RED_LAMP,
         ALARM_MIL_LAMP,
@@ -297,6 +298,7 @@ public:
         Fan_Low_Current_id,
         Invalid_gen_start_id,
         Lop_Short_To_Battery_id,
+        Automatic_md_switch_id,
         Alarm_Amber_Lamp_id,
         Alarm_Red_Lamp_id,
         Alarm_Mil_Lamp_id,
@@ -540,6 +542,9 @@ public:
 
     uint8_t GetAlarmId(uint8_t u8Val);
 
+    static bool         _bModeSwitchAlarm;
+    static bool         _bAutomaticModeSwitchStatus;
+
     static bool         _bEventNumberReadDone;
     static bool         _bRollOverReadDone;
     uint32_t GetCurrentEventNumber();
@@ -575,6 +580,7 @@ public:
     bool RemoteStopReceived();
 
     void UpdateFuelTheftCalculation();
+    void ClearAutoModeSwitchAlarm();
     static bool _bUpdateModbusCountCalc;
 private:
     #define FUEL_THEFT_WAKEUP_TIMER         (4U)
@@ -656,6 +662,7 @@ private:
         LOP_SENS_OVER_VAL,
         FUEL_OPEN_CKT_VAL,
         LOP_CURR_STB,
+        AUTOMATIC_MODE_SWITCH_STATUS,
         J1939_AMBER_LAMP_STATUS,
         J1939_RED_LAMP_STATUS,
         J1939_MIL_LAMP_STATUS,
@@ -774,18 +781,6 @@ private:
 
     void prvUpdateGCUAlarmsValue();
 
-//    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-//            bool bMonitoringPolarity, uint8_t u8LoggingID, uint8_t u8Threshold,
-//                uint16_t u16CounterMax);
-//
-//    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-//            bool bMonitoringPolarity, uint8_t u8LoggingID,
-//                uint16_t u16Threshold, uint16_t u16CounterMax);
-//
-//    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-//            bool bMonitoringPolarity, uint8_t u8LoggingID,
-//                float f32Threshold, uint16_t u16CounterMax);
-
     /**
      * The prvSetAlarmAction function with different extensions
      * are used to distinguish different Action drop down present in CFGZ.
@@ -832,10 +827,6 @@ private:
     void prvClearAllAction(uint8_t u8AlarmIndex);
 
     void prvMainsHighLowOutputs();
-
-    void prvCoolantTempCtrlFunction();
-
-    void prvActDeactCLNTTempCtrlOutput();
 
     void prvCheckTripAction(uint8_t u8ReturnIndex, uint8_t u8TripIndex, bool status);
 

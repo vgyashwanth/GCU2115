@@ -366,7 +366,6 @@ void MAIN_UI::prvLEDHandling()
         {
             switch(_ManualMode.GetGCUOperatingMode())
             {
-
                 case BASE_MODES::MANUAL_MODE:
                 {
                     if(prvIsEnginNotInONstate())
@@ -792,10 +791,16 @@ void MAIN_UI::prvHandleDisplayModes()
                UTILS_ResetTimer(&_ScreenChangeOverTimer);
            }
            else
-          {
-            /* do nothing */
-          }
-            _DispAlarm.Update(_bRefresh);
+           {
+               /* do nothing */
+           }
+           /*
+            * SuryaPranayTeja.BVV 14-11-2022
+            * Added the below MON UI Update function so that the Auto or Mode Select input switched will work
+            * Even if the input is given in Alarm Screen
+            */
+           _MonUI.Update(false);
+           _DispAlarm.Update(_bRefresh);
        }
         break;
 

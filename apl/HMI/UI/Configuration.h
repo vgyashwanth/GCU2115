@@ -26,7 +26,8 @@
 #define MAX_EDITABLE_ITEMS_PER_SCREEN       3
 #define MAX_MENU_ITEMS                     37
 
-#define SUBMENUS_IN_MODULE                  6
+//#define SUBMENUS_IN_MODULE                  6
+#define SUBMENUS_IN_MODULE                  7
 #define SUBMENUS_IN_INPUTS                 16
 #define SUBMENUS_IN_OUTPUTS                 7
 #define SUBMENUS_IN_TIMERS                  2
@@ -44,6 +45,7 @@
 #define LEAFNODES_IN_BTS_CONFIG             4
 #define LEAFNODES_IN_CYCLIC_CONFIG          3
 #define LEAFNODES_IN_NIGHT_MODE_CONFG       3
+#define LEAFNODES_IN_AUTO_MD_SWITCH         3
  /*Inputs*/
 #define LEAFNODES_IN_DIG_IN_A               5
 #define LEAFNODES_IN_DIG_IN_B               5
@@ -136,6 +138,10 @@
        SID_NIGHT_MODE_CONFG_NIGHT_MODE,
        SID_NIGHT_MODE_CONFG_START_TIME,
        SID_NIGHT_MODE_CONFG_OFF_DURATION,
+
+       SID_AUTO_MD_SWITCH_AUTO_MD_SWITCH,
+       SID_AUTO_MD_SWITCH_MANUAL_MODE_TIME,
+       SID_AUTO_MD_SWITCH_OUTPUT_ON_TIME,
 
        SID_DIG_IN_A_SOURCE,
        SID_DIG_IN_A_POLARITY,
@@ -577,6 +583,7 @@
        ID_BTS_CONFIG,
        ID_CYCLIC_CONFIG_S,
        ID_NIGHT_MODE_CONFG,
+       ID_AUTO_MD_SWITCH,
        /*Inputs*/
        ID_DIG_IN_A_S,
        ID_DIG_IN_B_S,
@@ -665,6 +672,10 @@ enum
     INDEX_OF_NIGHT_MODE_CONFG_NIGHT_MODE,
     INDEX_OF_NIGHT_MODE_CONFG_START_TIME,
     INDEX_OF_NIGHT_MODE_CONFG_OFF_DURATION,
+
+    INDEX_OF_AUTO_MD_SWITCH_AUTO_MD_SWITCH,
+    INDEX_OF_AUTO_MD_SWITCH_MANUAL_MODE_TIME,
+    INDEX_OF_AUTO_MD_SWITCH_OUTPUT_ON_TIME,
     /*Inputs menu*/
     INDEX_OF_DIG_IN_A_SOURCE,
     INDEX_OF_DIG_IN_A_POLARITY,

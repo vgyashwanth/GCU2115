@@ -466,10 +466,9 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                     {
                         UTILS_ResetTimer(&_CyclicOnTimer);
                     }
+                    UTILS_DisableTimer(&_CyclicOffTimer);
 
                     _bStartOffTimer = false;
-                    //Doubt after adding
-                    UTILS_DisableTimer(&_CyclicOffTimer);
                     SwitchLoadToGen();
                     _eCyclicState = STATE_CYCLIC_GEN_ON_LOAD;
                     UTILS_DisableTimer(&_EngCoolDownTimer);

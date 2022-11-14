@@ -117,7 +117,6 @@ public:
      }MON_SCREEN_st;
 
 
-
     /**
      * Private variable for the screen number.
      */
@@ -969,6 +968,11 @@ private:
     /** Timer for
      */
     stTimer ExternalInputUpdateTimer;
+
+    /**
+     * Timer to switch from Manual mode to Auto mode automatically.
+     */
+    stTimer AutomaticModeSwitchingTimer;
     /**
      * Array of the screens which contains its enable / disable status.
      */
@@ -1059,6 +1063,8 @@ private:
      * @return none
      */
     void prvAutoKeyPressAction();
+
+    void prvHandleAutomaticModeSwitching();
 
     /** This is used to Display error messages.
      * @param none

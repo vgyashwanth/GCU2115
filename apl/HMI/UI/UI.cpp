@@ -30,6 +30,7 @@ uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] =
  LEAFNODES_IN_BTS_CONFIG,
  LEAFNODES_IN_CYCLIC_CONFIG,
  LEAFNODES_IN_NIGHT_MODE_CONFG,
+ LEAFNODES_IN_AUTO_MD_SWITCH,
  LEAFNODES_IN_DIG_IN_A,
  LEAFNODES_IN_DIG_IN_B,
  LEAFNODES_IN_DIG_IN_C,
@@ -346,6 +347,7 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "BTS CONFIG",
         "CYCLIC CONFIG",
         "NIGHT MODE CONFG",
+        "AUTO MD SWITCH",
         //Inputs
         "DIG IN A",
         "DIG IN B",
@@ -434,6 +436,10 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "NIGHT MODE",
         "START TIME",
         "OFF DURATION",
+        //"AUTO MD SWITCH",
+        "AUTO MD SWITCH",
+        "MANUAL MODE TIME",
+        "OUTPUT ON TIME",
         //"DIG IN A"
         "SOURCE",
         "POLARITY",
@@ -933,6 +939,10 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFG_START_TIME] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFG_START_TIME),strLeafNode[_u8LanguageArrayIndex][SID_NIGHT_MODE_CONFG_START_TIME], arrUnit[ID_MINS], "%u", (uint16_t)0, (uint16_t)2359,true, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFG_OFF_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_NIGHT_MODE_CONFG_OFF_DURATION),strLeafNode[_u8LanguageArrayIndex][SID_NIGHT_MODE_CONFG_OFF_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)1439, CEditableItem::PIN1_PIN2_ALLOWED );
 
+    ArrEditableItem[INDEX_OF_AUTO_MD_SWITCH_AUTO_MD_SWITCH] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUTO_MD_SWITCH_AUTO_MD_SWITCH),strLeafNode[_u8LanguageArrayIndex][SID_AUTO_MD_SWITCH_AUTO_MD_SWITCH], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_AUTO_MD_SWITCH_MANUAL_MODE_TIME] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUTO_MD_SWITCH_MANUAL_MODE_TIME),strLeafNode[_u8LanguageArrayIndex][SID_AUTO_MD_SWITCH_MANUAL_MODE_TIME], arrUnit[ID_MINS], "%u", (uint16_t)16, (uint16_t)120, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_AUTO_MD_SWITCH_OUTPUT_ON_TIME] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUTO_MD_SWITCH_OUTPUT_ON_TIME), strLeafNode[_u8LanguageArrayIndex][SID_AUTO_MD_SWITCH_OUTPUT_ON_TIME], arrUnit[ID_MINS], "%u", (uint8_t)5, (uint8_t)15, CEditableItem::PIN1_PIN2_PIN3_ALLOWED );
+
     ArrEditableItem[INDEX_OF_DIG_IN_A_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_A_SOURCE], "", "%s",  strInputSources[_u8LanguageArrayIndex], 21, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_DIG_IN_A_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_POLARITY),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_A_POLARITY], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_POLARITY], 2, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_DIG_IN_A_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_A_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::PIN1_PIN2_ALLOWED );
@@ -1324,7 +1334,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_CRANK_DISCONN_DISCONN_ON_LLOP_SW] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_ON_LLOP_SW),strLeafNode[_u8LanguageArrayIndex][SID_CRANK_DISCONN_DISCONN_ON_LLOP_SW], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_CRANK_DISCONN_LLOP_SW_TRANS_TIME] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_LLOP_SW_TRANS_TIME),strLeafNode[_u8LanguageArrayIndex][SID_CRANK_DISCONN_LLOP_SW_TRANS_TIME],arrUnit[ID_SEC], "%f", (float)0.0, (float)3.0,(float)0.1, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_CRANK_DISCONN_ALT_FREQUENCY] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ALT_FREQUENCY), strLeafNode[_u8LanguageArrayIndex][SID_CRANK_DISCONN_ALT_FREQUENCY], arrUnit[ID_HZ], "%u",(uint16_t)10, (uint16_t)25,CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_CRANK_DISCONN_ENGINE_SPEED] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ENGINE_SPEED),strLeafNode[_u8LanguageArrayIndex][SID_CRANK_DISCONN_ENGINE_SPEED], arrUnit[ID_MINS], "%u", (uint16_t)150, (uint16_t)800, CEditableItem::PIN1_PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_CRANK_DISCONN_ENGINE_SPEED] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ENGINE_SPEED),strLeafNode[_u8LanguageArrayIndex][SID_CRANK_DISCONN_ENGINE_SPEED], arrUnit[ID_RPM], "%u", (uint16_t)150, (uint16_t)800, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_CRANK_DISCONN_DISCONN_ON_CHG_ALT_VOLT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_DISCONN_ON_CHG_ALT_VOLT), strLeafNode[_u8LanguageArrayIndex][SID_CRANK_DISCONN_DISCONN_ON_CHG_ALT_VOLT], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE],2, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_CRANK_DISCONN_CHG_ALT_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_CHG_ALT_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_CRANK_DISCONN_CHG_ALT_THRESHOLD], arrUnit[ID_V], "%f", (float)5.0, (float)30.0, (float)0.1,CEditableItem::PIN1_PIN2_ALLOWED );
 
@@ -1498,9 +1508,6 @@ void UI::SaveConfigFile()
         }
         else
         {
-
-
-            //RushiStart
             uint16_t id_float = (CFGZ::ID_BTS_CONFIG_LOW_BATT_THRESHOLD);
             uint16_t id_uint16 = (CFGZ::ID_BTS_CONFIG_LOW_BATT_MON_DELAY);
             uint16_t id_uint8 = (CFGZ::ID_GENERAL_PROFILE_NAME);
@@ -1523,7 +1530,7 @@ void UI::SaveConfigFile()
                 }
                 else
                 {
-
+                    //The conditions that comes to this point of execution are not present.
                 }
             }
 
@@ -1557,7 +1564,6 @@ void UI::SaveConfigFile()
                 _objDisplay.gotoxy(GLCD_X(35),GLCD_Y(50));
             }
 
-            //RushiEnd
 
             for(uint16_t i = CFGZ::ID_ARR_AUX_INPUT_A;i<=CFGZ::ID_ARR_PROFILE;i++)
             {
@@ -1623,7 +1629,6 @@ void UI::SaveConfigFile()
 
 void UI::DigitalInputMenuVisiblity(uint16_t u16SourceIndex)
 {
-
     if(ArrEditableItem[u16SourceIndex].value.u8Val==CFGZ::CFGZ_SENSOR_NOT_USED)
     {
         menuItemsLowestLevel[u16SourceIndex + 1].isEnabled =false;
@@ -1641,34 +1646,29 @@ void UI::DigitalInputMenuVisiblity(uint16_t u16SourceIndex)
         {
             case CFGZ::CFGZ_USER_CONFIGURED_SENSOR:
             case CFGZ::CFGZ_VBEL_BROKEN_SWITCH:
-            case CFGZ::CFGZ_LOW_WATER_LVL_SWITCH:
             case CFGZ::CFGZ_BATTERY_CHARGER_FAIL:
             case CFGZ::CFGZ_SMOKE_FIRE:
-            case CFGZ::CFGZ_MODE_SELECT:
-            case CFGZ::CFGZ_AMB_TEMP_SELECT:
             {
                //Do nothing
             }
             break;
+
             case CFGZ::CFGZ_LOW_FUEL_LEVEL_SWITCH:
             case CFGZ::CFGZ_LOW_LUBE_OIL_PRESS_SWITCH:
             case CFGZ::CFGZ_HIGH_ENGINE_TEMP_SWITCH:
-            case CFGZ::CFGZ_MAINS_CONTACTOR_LATCHED:
-            case CFGZ::CFGZ_GEN_CONTACTOR_LATCHED:
+            case CFGZ::CFGZ_LOW_WATER_LVL_SWITCH:
             {
                 menuItemsLowestLevel[u16SourceIndex + 3].isEnabled =false;
             }
             break;
 
+            case CFGZ::CFGZ_EMERGENCY_STOP:
             case CFGZ::CFGZ_SIMULATE_START:
             case CFGZ::CFGZ_SIMULATE_STOP:
             case CFGZ::CFGZ_SIMULATE_AUTO:
-            case CFGZ::CFGZ_EMERGENCY_STOP:
             case CFGZ::CFGZ_CLOSE_GEN_OPEN_MAINS_SWITCH:
             case CFGZ::CFGZ_CLOSE_MAINS_OPEN_GEN_SWITCH:
             case CFGZ::CFGZ_SIMULATE_MAINS:
-           // case CFGZ::CFGZ_REMOTE_ALARM_MUTE:
-         //   case CFGZ::CFGZ_REMOTE_ALARM_ACK:
             {
                 menuItemsLowestLevel[u16SourceIndex + 2].isEnabled =false;
                 menuItemsLowestLevel[u16SourceIndex + 3].isEnabled =false;
@@ -1678,10 +1678,13 @@ void UI::DigitalInputMenuVisiblity(uint16_t u16SourceIndex)
             break;
 
             case CFGZ::CFGZ_REMOTE_START_STOP:
+            case CFGZ::CFGZ_MAINS_CONTACTOR_LATCHED:
+            case CFGZ::CFGZ_GEN_CONTACTOR_LATCHED:
+            case CFGZ::CFGZ_MODE_SELECT:
+            case CFGZ::CFGZ_AMB_TEMP_SELECT:
             {
                 menuItemsLowestLevel[u16SourceIndex + 2].isEnabled =false;
                 menuItemsLowestLevel[u16SourceIndex + 3].isEnabled =false;
-               // TurnOFFActionActivation(u16SourceIndex);
             }
             break;
             default: break;
@@ -1765,6 +1768,8 @@ void UI::HandleMenuVisibility(void)
         LowestLevelMenuEnDis(INDEX_OF_CYCLIC_CONFIG_DG_OFF_DURATION,INDEX_OF_CYCLIC_CONFIG_DG_ON_DURATION,false);
     if(ArrEditableItem[INDEX_OF_NIGHT_MODE_CONFG_NIGHT_MODE].value.u8Val == CFGZ::CFGZ_DISABLE)
         LowestLevelMenuEnDis(INDEX_OF_NIGHT_MODE_CONFG_START_TIME,INDEX_OF_NIGHT_MODE_CONFG_OFF_DURATION,false);
+    if(ArrEditableItem[INDEX_OF_AUTO_MD_SWITCH_AUTO_MD_SWITCH].value.u8Val == CFGZ::CFGZ_DISABLE)
+        LowestLevelMenuEnDis(INDEX_OF_AUTO_MD_SWITCH_MANUAL_MODE_TIME,INDEX_OF_AUTO_MD_SWITCH_OUTPUT_ON_TIME,false);
     //INPUTS MENU
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_A_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_B_SOURCE);
@@ -1777,7 +1782,7 @@ void UI::HandleMenuVisibility(void)
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_I_SOURCE);
 
     //Sensor J
-    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED || ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
         LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE,INDEX_OF_LOP_RES_DIG_J_V10,false);
     if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE].value.u8Val == CFGZ::CFGZ_SENSOR_NOT_USED)
         LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_DIG_POLARITY,INDEX_OF_LOP_RES_DIG_J_V10,false);
@@ -2402,51 +2407,95 @@ void UI::Handler(int keyCode)
     }
 }
 
-volatile uint16_t table_x_S1_sens[10] = {100,   200,   300,   400,   500,   600,   700,   800,   900,   1000};
-volatile float    table_y_S1_sens[10] = {100.0f,200.0f,300.0f,400.0f,500.0f,600.0f,700.0f,800.0f,900.0f,1000.0f};
+volatile float table_x_4_20mA_Sens[10] = {4,  6,  7,  9,  10, 12, 14, 15, 17, 20};
+volatile float table_x_0to5V_Sens[10] = {0.5f ,0.9f ,1.3f ,1.7f ,2.1f ,2.5f ,2.9f ,3.3f ,3.7f ,4.5f};
 
-volatile uint16_t table_x_Shelt_Temp[10] = {400, 800, 1200, 1600, 2000, 2400, 2800, 3200, 3600, 4000};
-volatile int16_t  table_y_Shelt_Temp[10] = {85,  75,  65,   55,   45,   35,   25,   15,   5,    -5};
-
-volatile uint8_t table_x_4_20mA_Sens[10] = {4,  6,  7,  9,  10, 12, 14, 15, 17, 20};
-volatile float   table_y_4_20mA_Sens[10] = {10.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f, 70.0f, 80.0f, 90.0f, 100.0f};
-volatile float table_y_LOP_Curr_sens[10] = {1.0f,  2.0f,  3.0f,  4.0f,  5.0f,  6.0f,  7.0f,  8.0f,  9.0f,  10.0f};
-
-
-volatile float table_x_0to5V_Sens[10] = {0.5f ,1.0f ,1.5f ,2.0f ,2.5f ,3.0f ,3.5f ,4.0f ,4.5f ,5.0f};
-volatile float table_y_0to5V_Sens[10] = {10.0f,20.0f,30.0f,40.0f,50.0f,60.0f,70.0f,80.0f,90.0f,100.0f};
+volatile float table_LOP_Bar[10] = {0.0f, 1.0f,2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 10.0f};
 
 void UI::InitialiseCustomSensor()
 {
+    if((ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val != ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].tempValue.u8Val))
+    {
+        if((ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].tempValue.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
+        {
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION].value.u8Val = CFGZ::CFGZ_ACTION_NONE;
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION].tempValue.u8Val = CFGZ::CFGZ_ACTION_NONE;
 
-//    if((ArrEditableItem[INDEX_OF_AUX_S1_DIG_M_SENSOR].value.u8Val != ArrEditableItem[INDEX_OF_AUX_S1_DIG_M_SENSOR].tempValue.u8Val))
-//    {
-//        if((ArrEditableItem[INDEX_OF_AUX_S1_DIG_M_SENSOR].tempValue.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
-//        {
-//            ArrEditableItem[INDEX_OF_AUX_S1_CKT_FAULT_ACTION].value.u8Val = CFGZ::CFGZ_ACTION_NONE;
-//            ArrEditableItem[INDEX_OF_AUX_S1_CKT_FAULT_ACTION].tempValue.u8Val = CFGZ::CFGZ_ACTION_NONE;
-//
-//            for(uint8_t i = 0; i<10; i++)
-//            {
-//                 ArrEditableItem[INDEX_OF_AUX_S1_SENS_R1 + (i*2)].value.u16Val = table_x_S1_sens[i];
-//                 ArrEditableItem[INDEX_OF_AUX_S1_SENS_R1 + (i*2)].tempValue.u16Val = table_x_S1_sens[i];
-//                 ArrEditableItem[INDEX_OF_AUX_S1_SENS_V1 + (i*2)].value.fVal = table_y_S1_sens[i];
-//                 ArrEditableItem[INDEX_OF_AUX_S1_SENS_V1 + (i*2)].tempValue.fVal = table_y_S1_sens[i];
-//            }
-//        }
-//        else if(ArrEditableItem[INDEX_OF_AUX_S1_DIG_M_SENSOR].tempValue.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
-//        {
-//          for(uint8_t i = 0; i<10; i++)
-//          {
-//               ArrEditableItem[INDEX_OF_AUX_S1_SENS_R1 + (i*2)].value.u16Val = table_x_Shelt_Temp[i];
-//               ArrEditableItem[INDEX_OF_AUX_S1_SENS_R1 + (i*2)].tempValue.u16Val = table_x_Shelt_Temp[i];
-//               ArrEditableItem[INDEX_OF_AUX_S1_SENS_V1 + (i*2)].value.i16Val = table_y_Shelt_Temp[i];
-//               ArrEditableItem[INDEX_OF_AUX_S1_SENS_V1 + (i*2)].tempValue.i16Val = table_y_Shelt_Temp[i];
-//          }
-//        }
-//    }
+            for(uint8_t i = 0; i<10; i++)
+            {
+                 ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_P1 + (i*2)].value.fVal = table_LOP_Bar[i];
+                 ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_P1 + (i*2)].tempValue.fVal = table_LOP_Bar[i];
+                 ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].value.fVal = table_x_4_20mA_Sens[i];
+                 ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].tempValue.fVal = table_x_4_20mA_Sens[i];
+            }
+        }
+        else if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].tempValue.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+        {
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION].value.u8Val = CFGZ::CFGZ_ACTION_NONE;
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION].tempValue.u8Val = CFGZ::CFGZ_ACTION_NONE;
 
-       if((ArrEditableItem[INDEX_OF_CURRENT_MONITOR_LOAD_CT_RATIO].tempValue.u16Val !=ArrEditableItem[INDEX_OF_CURRENT_MONITOR_LOAD_CT_RATIO].value.u16Val))
+          for(uint8_t i = 0; i<10; i++)
+          {
+               ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_P1 + (i*2)].value.fVal = table_LOP_Bar[i];
+               ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_P1 + (i*2)].tempValue.fVal = table_LOP_Bar[i];
+               ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].value.fVal = table_x_0to5V_Sens[i];
+               ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1 + (i*2)].tempValue.fVal = table_x_0to5V_Sens[i];
+          }
+        }
+    }
+
+    //If LOP resistive is selected then disable the 4-20mA sensor or 0-5V sensor if it is selected as LOP.
+    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val != ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].tempValue.u8Val)
+    {
+        if((ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val>=CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                &&(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].tempValue.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
+        {
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+            ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].tempValue.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+        }
+    }
+    //If LOP 4-20mA or 0-5V sensor is selected then disable the resistive sensor if it is selected as LOP.
+    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val != ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].tempValue.u8Val)
+    {
+        if((ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                &&(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].tempValue.u8Val>=CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
+        {
+            ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+            ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].tempValue.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+        }
+    }
+    //If Fuel resistive sensor is selected then disable the 0-5V sensor if it is selected as Fuel.
+    if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val != ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].tempValue.u8Val)
+    {
+        if((ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                &&(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].tempValue.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
+        {
+            ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+            ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].tempValue.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+        }
+    }
+    //If Fuel 0-5V sensor is selected then disable the resistive sensor if it is selected as Fuel.
+    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val != ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].tempValue.u8Val)
+    {
+        if((ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                &&(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].tempValue.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
+        {
+            ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+            ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].tempValue.u8Val = CFGZ::CFGZ_ANLG_SENSOR_NOT_USED;
+        }
+    }
+
+
+    /*
+     * SuryaPranayTeja.BVV 11-11-2022
+     * When CT factor is changed then the Active energy calculations made from power on reset will get changed.
+     * To avoid such scenario, when it is being edited then we are saving the calculations.
+     *
+     * For the CT correction factor(float parameter). So to avoid the warning of float comparison with "==" or "!="
+     * In hand with its resolution of 3 digits, the values are multiplied by 1000.
+     */
+       if((ArrEditableItem[INDEX_OF_CURRENT_MONITOR_LOAD_CT_RATIO].tempValue.u16Val !=ArrEditableItem[INDEX_OF_CURRENT_MONITOR_LOAD_CT_RATIO].value.u16Val)
+               ||((uint16_t)(1000*ArrEditableItem[INDEX_OF_CURRENT_MONITOR_CT_CORRECTION_FACTOR].tempValue.fVal)!= (uint16_t)(1000* ArrEditableItem[INDEX_OF_CURRENT_MONITOR_CT_CORRECTION_FACTOR].value.fVal)))
     {
         _engMon.ReadEnergySetEnergyOffset(false);
         _engMon.StoreCummulativeCnt();

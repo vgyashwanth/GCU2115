@@ -36,6 +36,7 @@ _BTSMode(BTSMode),
 _cyclicMode(cyclicMode),
 _eOpMode (BASE_MODES::MANUAL_MODE),
 ExternalInputUpdateTimer{0},
+AutomaticModeSwitchingTimer{0},
 _ArrScreenEnDs{false,false,false,
     false,false,false,false,false,false,false,
     false,false,false,false,false,false,false,false,false,false,false,
@@ -45,6 +46,7 @@ _u8ScreenMin(DISP_MON_HOME),
 _u8ScreenMax(DISP_MON_LAST)
 {
     UTILS_ResetTimer(&ExternalInputUpdateTimer);
+    UTILS_DisableTimer(&AutomaticModeSwitchingTimer);
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_POWER_ON_LAMP_TEST) == CFGZ::CFGZ_ENABLE)
     {
         //Turn on all LED's if power on lamp test is enabled.
@@ -70,6 +72,10 @@ _u8ScreenMax(DISP_MON_LAST)
 void MON_UI::Init()
 {
    prvConfigureScreenEnable(); /* Enable or disable the screens */
+
+   UTILS_DisableTimer(&AutomaticModeSwitchingTimer);
+   GCU_ALARMS::_bModeSwitchAlarm = false;
+   GCU_ALARMS::_bAutomaticModeSwitchStatus = false;
 
 /* TODO: think the need of getting _eOpMode here in MON_UI */
    /*
@@ -213,6 +219,9 @@ void MON_UI::Update(bool bRefresh)
                 _stScreenNo = DISP_MON_HOME;
                 eMonScreenType = MON_SCREEN_NORMAL;
             }
+
+            prvHandleAutomaticModeSwitching();
+
         }
         break;
 
@@ -385,6 +394,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
             {
                 _GCUAlarms.TurnOffSounderAlarm();
             }
+            _GCUAlarms.ClearAutoModeSwitchAlarm();
             _GCUAlarms.ClearAllAlarms();
             if(eMonScreenType == MON_SCREEN_NORMAL)
             {
@@ -1860,6 +1870,8 @@ void MON_UI::prvNormalMonScreens()
 
             _Disp.gotoxy(GLCD_X(3),GLCD_Y(51));
 
+
+
             if(_manualMode.IsNightModeRestrictOn())
             {
                 _Disp.printStringLeftAligned((char *)StrNightModeRestrict[_u8LanguageIndex],FONT_VERDANA);
@@ -1883,6 +1895,7 @@ void MON_UI::prvNormalMonScreens()
             {
                 _Disp.printStringLeftAligned((char *)strGCUMode[_u8LanguageIndex][_eOpMode],FONT_VERDANA);
             }
+
         }
         break;
 
@@ -1943,7 +1956,7 @@ void MON_UI::prvNormalMonScreens()
         {
             {
                 prvPrintPower(APARENT,
-                          _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM),GENSET);
+                              _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM),GENSET);
             }
 
         }
@@ -1952,7 +1965,7 @@ void MON_UI::prvNormalMonScreens()
         {
             {
                 prvPrintPower(REACTIVE,
-                        _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM),GENSET);
+                              _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM),GENSET);
             }
         }
         break;
@@ -1971,8 +1984,8 @@ void MON_UI::prvNormalMonScreens()
                 for(u8Local = R_PHASE; u8Local < PHASE_END ; u8Local++)
                 {
                     sprintf(arrTemp,"%s-%s    %0.1f",(char *)StrPF,
-                        (char *)strPhase[u8Local],
-                        abs(_hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)u8Local)));
+                            (char *)strPhase[u8Local],
+                            abs(_hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)u8Local)));
                     _Disp.gotoxy(GLCD_X(55),GLCD_Y(u8Position));
                     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
                     u8Position = u8Position + 15;
@@ -1982,8 +1995,8 @@ void MON_UI::prvNormalMonScreens()
             {
                 _Disp.printImage((uint8_t *)gau8GenPFLogo, 5, 32, 26, 7);
                 sprintf(arrTemp,"%s-%s    %0.1f",(char *)StrPF,
-                   (char *)strPhase[R_PHASE],
-                _hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)R_PHASE));
+                        (char *)strPhase[R_PHASE],
+                        _hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)R_PHASE));
                 _Disp.gotoxy(GLCD_X(48),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
             }
@@ -1998,10 +2011,10 @@ void MON_UI::prvNormalMonScreens()
 
             _pGET_VAL_t ArrGetCurrentVal[TYPE_LAST]=
             {
-                  &AC_SENSE::GENSET_GetCurrentAmps,
-                  &AC_SENSE::MAINS_GetCurrentAmps,
+             &AC_SENSE::GENSET_GetCurrentAmps,
+             &AC_SENSE::MAINS_GetCurrentAmps,
             };
-//Look Keypress_processor.c Line 1740 in NXP code. Similarly for Mains and also look into Assignment of Load on Gen and Load and Mains.
+            //Look Keypress_processor.c Line 1740 in NXP code. Similarly for Mains and also look into Assignment of Load on Gen and Load and Mains.
             if((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM))
             {
                 for(u8Local = R_PHASE; u8Local < PHASE_END ; u8Local++)
@@ -2049,9 +2062,9 @@ void MON_UI::prvNormalMonScreens()
             _Disp.printImage((uint8_t *)u8ArrDollar, 4, 32, 26, 7);
             _pGetdoubleValCommon_t ArrGetVal[POWER_LAST]=
             {
-                &AC_SENSE::GENSET_GetTotalActiveEnergySinceInitWH,
-                &AC_SENSE::GENSET_GetTotalApparentEnergySinceInitVAH,
-                &AC_SENSE::GENSET_GetTotalReactiveEnergySinceInitVARH
+             &AC_SENSE::GENSET_GetTotalActiveEnergySinceInitWH,
+             &AC_SENSE::GENSET_GetTotalApparentEnergySinceInitVAH,
+             &AC_SENSE::GENSET_GetTotalReactiveEnergySinceInitVARH
             };
 
             u8Position = 22;
@@ -2101,8 +2114,8 @@ void MON_UI::prvNormalMonScreens()
             SOURCE_TYPE_t eSysType = MAINS;
             _pGET_VAL_t ArrGetCurrentVal[TYPE_LAST]=
             {
-                  &AC_SENSE::GENSET_GetCurrentAmps,
-                  &AC_SENSE::MAINS_GetCurrentAmps,
+             &AC_SENSE::GENSET_GetCurrentAmps,
+             &AC_SENSE::MAINS_GetCurrentAmps,
             };
 
             if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM) || (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_3PH_CALC_EN_FOR_1PH) == CFGZ::CFGZ_ENABLE))
@@ -2149,9 +2162,9 @@ void MON_UI::prvNormalMonScreens()
             _Disp.printImage((uint8_t *)u8ArrDollar, 4, 32, 26, 7);
             _pGetdoubleValCommon_t ArrGetVal[POWER_LAST]=
             {
-                &AC_SENSE::MAINS_GetTotalActiveEnergySinceInitWH,
-                &AC_SENSE::MAINS_GetTotalApparentEnergySinceInitVAH,
-                &AC_SENSE::MAINS_GetTotalReactiveEnergySinceInitVARH
+             &AC_SENSE::MAINS_GetTotalActiveEnergySinceInitWH,
+             &AC_SENSE::MAINS_GetTotalApparentEnergySinceInitVAH,
+             &AC_SENSE::MAINS_GetTotalReactiveEnergySinceInitVARH
             };
 
             u8Position = 22;
@@ -2249,17 +2262,17 @@ void MON_UI::prvNormalMonScreens()
         {
             _Disp.printImage((uint8_t *)u8ArrEngineHours, 4, 32, 26, 7);
 
-                _Disp.gotoxy(GLCD_X(70),GLCD_Y(35));
-                sprintf(arrTemp, "%ld",(_EngineMon.GetBTSRunTimeMin()/60));
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(72),GLCD_Y(35));
-                _Disp.printStringLeftAligned((char *)"hrs",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(68),GLCD_Y(35));
+            sprintf(arrTemp, "%ld",(_EngineMon.GetBTSRunTimeMin()/60));
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+            _Disp.gotoxy(GLCD_X(70),GLCD_Y(35));
+            _Disp.printStringLeftAligned((char *)"hrs",FONT_VERDANA);
 
-                _Disp.gotoxy(GLCD_X(100),GLCD_Y(35));
-                sprintf(arrTemp, "%ld",(_EngineMon.GetBTSRunTimeMin()%60));
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(102),GLCD_Y(35));
-                _Disp.printStringLeftAligned((char *)"min",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(100),GLCD_Y(35));
+            sprintf(arrTemp, "%ld",(_EngineMon.GetBTSRunTimeMin()%60));
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+            _Disp.gotoxy(GLCD_X(102),GLCD_Y(35));
+            _Disp.printStringLeftAligned((char *)"min",FONT_VERDANA);
         }
         break;
         case DISP_MON_TAMPERED_RUN_HRS:
@@ -2282,19 +2295,19 @@ void MON_UI::prvNormalMonScreens()
             stTemp =_GCUAlarms.GetSelectedTempSensVal();
             _Disp.printImage((uint8_t *)u8ArrEngineTemp, 4, 32, 26, 7);
 
-          _Disp.gotoxy(GLCD_X(115),GLCD_Y(33));
+            _Disp.gotoxy(GLCD_X(115),GLCD_Y(33));
 
-          {
-              prvPrintSensorStatus(stTemp,(char*)"`C", INTEGER_TYPE);
-              if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
-              {
-                 sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
-                 _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
-                 _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                 _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
-                 _Disp.printStringLeftAligned((char*)"`F",FONT_VERDANA);
-              }
-          }
+            {
+                prvPrintSensorStatus(stTemp,(char*)"`C", INTEGER_TYPE);
+                if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+                {
+                    sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
+                    _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
+                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                    _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
+                    _Disp.printStringLeftAligned((char*)"`F",FONT_VERDANA);
+                }
+            }
 
         }
         break;
@@ -2309,21 +2322,29 @@ void MON_UI::prvNormalMonScreens()
             {
                 if(stTemp.eStatus == A_SENSE::SENSOR_NOT_CONFIGRUED)
                 {
-                   _Disp.gotoxy(GLCD_X(70),GLCD_Y(37));
-                   _Disp.printStringLeftAligned((char*)StrNotConfigured,FONT_VERDANA);
+                    _Disp.gotoxy(GLCD_X(70),GLCD_Y(37));
+                    _Disp.printStringLeftAligned((char*)StrNotConfigured,FONT_VERDANA);
                 }
                 else if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
                 {
-                    sprintf(arrTemp,"%0.1f",stTemp.stValAndStatus.f32InstSensorVal);
-                    _Disp.gotoxy(GLCD_X(93),GLCD_Y(25));
-                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                    _Disp.gotoxy(GLCD_X(94),GLCD_Y(25));
-                    _Disp.printStringLeftAligned((char*)"bar",FONT_VERDANA);
-                    sprintf(arrTemp,"%d",(uint16_t)( stTemp.stValAndStatus.f32InstSensorVal * PSI_CONVERSION));
-                    _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
-                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                    _Disp.gotoxy(GLCD_X(94),GLCD_Y(42));
-                    _Disp.printStringLeftAligned((char*)"psi",FONT_VERDANA);
+                    if(_GCUAlarms.AlarmResultInstat(GCU_ALARMS::LOP_CURR_SENS_OVER_CURR))
+                    {
+                        _Disp.gotoxy(GLCD_X(78),GLCD_Y(37));
+                        _Disp.printStringRightAligned((char *)"LOP Sensor Value",FONT_ARIAL);
+                    }
+                    else
+                    {
+                        sprintf(arrTemp,"%0.1f",stTemp.stValAndStatus.f32InstSensorVal);
+                        _Disp.gotoxy(GLCD_X(93),GLCD_Y(25));
+                        _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                        _Disp.gotoxy(GLCD_X(94),GLCD_Y(25));
+                        _Disp.printStringLeftAligned((char*)"bar",FONT_VERDANA);
+                        sprintf(arrTemp,"%d",(uint16_t)( stTemp.stValAndStatus.f32InstSensorVal * PSI_CONVERSION));
+                        _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
+                        _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                        _Disp.gotoxy(GLCD_X(94),GLCD_Y(42));
+                        _Disp.printStringLeftAligned((char*)"psi",FONT_VERDANA);
+                    }
                 }
                 else
                 {
@@ -2415,11 +2436,11 @@ void MON_UI::prvNormalMonScreens()
             prvPrintSensorStatus(stTemp,(char*)"`C", INTEGER_TYPE);
             if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
             {
-               sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
-               _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
-               _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-               _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
-               _Disp.printStringLeftAligned((char*)"`F",FONT_VERDANA);
+                sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
+                _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
+                _Disp.printStringLeftAligned((char*)"`F",FONT_VERDANA);
             }
         }
         break;
@@ -2427,8 +2448,8 @@ void MON_UI::prvNormalMonScreens()
         /* TODO: aux 1 is commented in GC2111 NXP code */
         case DISP_MON_AUX_2:
         {
-             stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S2_SENSOR);
-             prvPrintSensorStatus(stTemp,(char*)"", FLOAT_TYPE , 80 , 37);
+            stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S2_SENSOR);
+            prvPrintSensorStatus(stTemp,(char*)"", FLOAT_TYPE , 80 , 37);
         }
         break;
 
@@ -2472,7 +2493,7 @@ void MON_UI::prvNormalMonScreens()
         break;
 
         default:
-        break;
+            break;
     }
 }
 
@@ -3243,6 +3264,50 @@ void MON_UI::prvAutoKeyPressAction()
     }
 
     _manualMode.SetGCUOperatingMode(_eOpMode);
+}
+void MON_UI::prvHandleAutomaticModeSwitching()
+{
+    static uint32_t prevAutomaticModeSwitchTime = 0;
+
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_MD_SWITCH_AUTO_MD_SWITCH) == CFGZ::CFGZ_ENABLE)
+    {
+        if(_eOpMode != BASE_MODES::MANUAL_MODE)
+        {
+            UTILS_DisableTimer(&AutomaticModeSwitchingTimer);
+            GCU_ALARMS::_bModeSwitchAlarm = false;
+            GCU_ALARMS::_bAutomaticModeSwitchStatus = false;
+        }
+        else if((_eOpMode == BASE_MODES::MANUAL_MODE) && !UTILS_IsTimerEnabled(&AutomaticModeSwitchingTimer))
+        {
+            UTILS_ResetTimer(&AutomaticModeSwitchingTimer);
+        }
+        else if(UTILS_GetElapsedTimeInSec(&AutomaticModeSwitchingTimer) >= _cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_MD_SWITCH_MANUAL_MODE_TIME)*60)
+        {
+            prvAutoKeyPressAction();
+            GCU_ALARMS::_bModeSwitchAlarm = false;
+        }
+
+        uint16_t ModeSwitchDispTime = _cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_MD_SWITCH_MANUAL_MODE_TIME) - _cfgz.GetCFGZ_Param(CFGZ::ID_AUTO_MD_SWITCH_OUTPUT_ON_TIME);
+        if(UTILS_GetElapsedTimeInSec(&AutomaticModeSwitchingTimer) >= ModeSwitchDispTime*60 && prevAutomaticModeSwitchTime < ModeSwitchDispTime*60)
+        {
+            GCU_ALARMS::_bModeSwitchAlarm = true;
+        }
+        if(UTILS_GetElapsedTimeInSec(&AutomaticModeSwitchingTimer) >= ModeSwitchDispTime*60)
+        {
+            GCU_ALARMS:: _bAutomaticModeSwitchStatus = true;
+        }
+        else
+        {
+            GCU_ALARMS:: _bAutomaticModeSwitchStatus = false;
+        }
+    }
+    else
+    {
+        UTILS_DisableTimer(&AutomaticModeSwitchingTimer);
+        GCU_ALARMS::_bModeSwitchAlarm = false;
+        GCU_ALARMS::_bAutomaticModeSwitchStatus = false;
+    }
+    prevAutomaticModeSwitchTime = UTILS_GetElapsedTimeInSec(&AutomaticModeSwitchingTimer);
 }
 
 void MON_UI::MBChangeModeRequest()

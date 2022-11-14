@@ -738,6 +738,7 @@ RS485::PARITY_t CFGZ::prvGetRS485Parity()
 void CFGZ::prvConfigureACSense()
 {
     uint16_t u16CTRation = _All_Param.u16ArrParam[ID_CURRENT_MONITOR_LOAD_CT_RATIO];
+    float fCTCorrFactor =  _All_Param.f32ArrParam[ID_CURRENT_MONITOR_CT_CORRECTION_FACTOR];
 
     /*
      * By SuryaPranayTeja.BVV
@@ -746,7 +747,7 @@ void CFGZ::prvConfigureACSense()
      */
     RMS::SetRMSFilterConstForDisplay(0);
 
-    _hal.AcSensors.ConfigureCTRatio(u16CTRation, _All_Param.u16ArrParam[ID_FAN_CURR_MONITOR_FAN_MON_CT_RATIO]);
+    _hal.AcSensors.ConfigureCTRatio(u16CTRation, _All_Param.u16ArrParam[ID_FAN_CURR_MONITOR_FAN_MON_CT_RATIO], fCTCorrFactor);
 
     /*
      *By SuryaPranayTeja.BVV

@@ -73,6 +73,7 @@ public:
      * @return
      * None
      */
+    void ConfigureCTRatio(uint16_t u16CTFactor, uint16_t u16ECTFactor, float fCTCorrfactor);
     void ConfigureCTRatio(uint16_t u16CTFactor, uint16_t u16ECTFactor);
 
     /**

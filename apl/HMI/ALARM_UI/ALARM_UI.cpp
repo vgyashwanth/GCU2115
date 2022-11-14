@@ -211,6 +211,7 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
           {
                 /* do nothing */
           }
+          _alarm.ClearAutoModeSwitchAlarm();
           _alarm.ClearAllAlarms();
           u8AlarmScreenNum = 0;
 

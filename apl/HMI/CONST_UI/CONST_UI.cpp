@@ -460,6 +460,7 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"Low Canopy Fan Current",
       (char*)"Invalid DG Run",
       (char*)"LOP Sensor - Short to Battery",
+      (char*)"Switching to Auto mode",
       (char*)"Amber Lamp",
       (char*)"Red Lamp",
       (char*)"MIL Lamp",

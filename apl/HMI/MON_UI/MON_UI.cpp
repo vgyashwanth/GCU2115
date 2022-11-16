@@ -157,6 +157,16 @@ void MON_UI::Update(bool bRefresh)
         }
         case RUNNING_MODE:
         {
+
+            /*
+             * SuryaPranayTeja.BVV 15-11-2022
+             * IN GC2111, The Mains KW,KVar,KVah will be visible only if Load is on Mains.
+             * So whenever there is change in the Load status then we need to configure the screens accordingly.
+             */
+            if(_EngineMon.GetAndClearIsLoadStatusChanged())
+            {
+                prvConfigureScreenEnable();
+            }
             if(bRefresh)
             {
                 /* TODO: need to uncomment and modify below J1939 related changes */
@@ -1854,7 +1864,7 @@ void MON_UI::prvNormalMonScreens()
                     }
                     else
                     {
-                        /* program should not enter here */
+                        sprintf(arrTemp," %d",0);// Execution comes here for a moment at the time of mode switching.
                     }
                 }
                 else
@@ -1869,7 +1879,6 @@ void MON_UI::prvNormalMonScreens()
             }
 
             _Disp.gotoxy(GLCD_X(3),GLCD_Y(51));
-
 
 
             if(_manualMode.IsNightModeRestrictOn())
@@ -2330,7 +2339,7 @@ void MON_UI::prvNormalMonScreens()
                     if(_GCUAlarms.AlarmResultInstat(GCU_ALARMS::LOP_CURR_SENS_OVER_CURR))
                     {
                         _Disp.gotoxy(GLCD_X(78),GLCD_Y(37));
-                        _Disp.printStringRightAligned((char *)"LOP Sensor Value",FONT_ARIAL);
+                        _Disp.printStringRightAligned((char *)"Over Value",FONT_ARIAL);
                     }
                     else
                     {
@@ -2457,11 +2466,11 @@ void MON_UI::prvNormalMonScreens()
         {
             _Disp.printImage((uint8_t *)u8ArrEngineSpeed, 4, 32, 26, 7);
 
-            _Disp.gotoxy(GLCD_X(64),GLCD_Y(37));
+            _Disp.gotoxy(GLCD_X(84),GLCD_Y(37));
             sprintf(arrTemp,"%d ",(uint16_t) _GCUAlarms.GetSpeedValue());
             _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
 
-            _Disp.gotoxy(GLCD_X(65),GLCD_Y(37));
+            _Disp.gotoxy(GLCD_X(85),GLCD_Y(37));
             _Disp.printStringLeftAligned((char*)"RPM",FONT_VERDANA);
 
         }
@@ -2652,7 +2661,8 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
             if(!prvIsValDigitsGreaterThan3((uint16_t)
                                            ((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local)))
             {
-                sprintf(arrTemp,"%d",(uint16_t)((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local));
+                 sprintf(arrTemp,"%d",(uint16_t)((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local));
+//                sprintf(arrTemp,"%.2f",(float)((&_hal.AcSensors)->*ArrGetVtgVal[eSource])((PHASE_t)u8Local));
                 _Disp.gotoxy(GLCD_X(50),GLCD_Y(u8Position));
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
                 _Disp.printStringLeftAligned((char *)" V",FONT_VERDANA);
@@ -2931,8 +2941,6 @@ void MON_UI::prvPrintSensorStatus(A_SENSE::SENSOR_RET_t stTemp,char *str,
 
 void MON_UI::prvStopKeyPressAction()
 {
-    _startStop.StopKeyPressed();
-
     if(eDisplayMode == DISP_MON_MODE)
     {
         _bMBModeChnageCMDRcvd = false;
@@ -3024,7 +3032,7 @@ void MON_UI::prvStopKeyPressAction()
         else if(_eOpMode == BASE_MODES::TEST_MODE)
         {
             _manualMode.ComeOutOfTestMode();
-            _startStop.StopCommand();
+            _manualMode.Stop();
             _manualMode.DisableTestModeTimer();
             _eOpMode = BASE_MODES::MANUAL_MODE;
         }
@@ -3061,7 +3069,6 @@ void MON_UI::prvStartKeyPressAction()
     {
         _manualMode.Start();
     }
-    _startStop.StartKeyPressed();
 }
 
 void MON_UI::prvAutoKeyPressAction()

@@ -1294,7 +1294,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_ACTION) != CFGZ::CFGZ_ACTION_NONE_NoWESN);
                 prvSetAlarmAction_NoWESN(u8AlarmIndex,_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_ACTION));
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
+                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8AuxSensS2;
                 ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = (bool)(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_THRESHOLD_TYPE));
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Aux_S2_id;
                 ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_THRESHOLD);
@@ -2472,8 +2472,11 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
              * SuryaPranayTeja.BVV 9-11-2022
              * As per discussion with SysE, All the notifications get auto cleared and Only High Oil press detected gets auto cleared.
              */
-            ArrAlarmMonitoring[_u8AlarmIndex].bNotificationLatched = ArrAlarmMonitoring[_u8AlarmIndex].bEnableNotification &&
-                                   ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant;
+            if(_u8AlarmIndex != CA_FAIL)
+            {
+                ArrAlarmMonitoring[_u8AlarmIndex].bNotificationLatched = ArrAlarmMonitoring[_u8AlarmIndex].bEnableNotification &&
+                        ArrAlarmMonitoring[_u8AlarmIndex].bResultInstant;
+            }
 
             if(_u8AlarmIndex == HIGH_OIL_PRESS_DETECTED )
             {

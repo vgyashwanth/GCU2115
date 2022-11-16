@@ -561,16 +561,31 @@ uint32_t CYCLIC_MODE::GetCyclicModeTime(BASE_MODES::TIMER_STATE_t eTimer)
     uint32_t RemainingTimeInSec = 0;
     switch(eTimer)
     {
-       case BASE_MODES::CYCLIC_ON_TIMER:
-           RemainingTimeInSec = (uint32_t)(ceil((float)((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION)*60) - UTILS_GetElapsedTimeInSec(&_CyclicOnTimer)) /60.0f));
-           break;
+        /*
+         * SuryaPranayTeja.BVV 16-11-2022
+         * In the below case statements the if conditions are added not to display
+         * very high values which occurs when the values go negative.
+         * This situation occurs when
+         * 1. DG running in Cyclic on duration.
+         * 2. Cyclic remaining on time less than the configured return to mains delay.
+         * 3. Make mains healthy.
+         */
+        case BASE_MODES::CYCLIC_ON_TIMER:
+            if(UTILS_GetElapsedTimeInSec(&_CyclicOnTimer)<= _cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION)*60)
+            {
+                RemainingTimeInSec = (uint32_t)(ceil((float)((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_ON_DURATION)*60) - UTILS_GetElapsedTimeInSec(&_CyclicOnTimer)) /60.0f));
+            }
+            break;
 
-       case BASE_MODES::CYCLIC_OFF_TIMER:
-           RemainingTimeInSec = (uint32_t)(ceil((float)((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60) - UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)) /60.0f));
-           break;
+        case BASE_MODES::CYCLIC_OFF_TIMER:
+            if(UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)<= _cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60)
+            {
+                RemainingTimeInSec = (uint32_t)(ceil((float)((_cfgz.GetCFGZ_Param(CFGZ::ID_CYCLIC_CONFIG_DG_OFF_DURATION)*60) - UTILS_GetElapsedTimeInSec(&_CyclicOffTimer)) /60.0f));
+            }
+            break;
 
-       default:
-           break;
+        default:
+            break;
 
     }
     return RemainingTimeInSec;

@@ -289,7 +289,7 @@ class CFGZ
      */
     typedef enum
     {
-        ID_GENERAL_PROFILE_NAME,
+        ID_GENERAL_PROFILE_NAME, //Not used now but might get needed.
         ID_GENERAL_POWER_ON_MODE,
         ID_GENERAL_POWER_ON_LAMP_TEST,
         ID_GENERAL_PASSWORD_LOCK,

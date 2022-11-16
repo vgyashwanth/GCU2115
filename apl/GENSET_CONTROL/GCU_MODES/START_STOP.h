@@ -178,9 +178,6 @@ public:
 
     bool CheckPreheatTempCondition();
 
-    void StartKeyPressed();
-    void StopKeyPressed();
-
     uint32_t GetCrankStartDelay();
 
 private:
@@ -222,9 +219,6 @@ private:
     stTimer                     _StopHoldTimer;
     stTimer                     _PowerOnTimer;
     stTimer                     _DGIDleRunTimer;
-
-    bool                        _bStartKeyPressed;
-    bool                        _bStopKeyPressed;
 
     static stTimer              _EngStoppingTimer;
     static stTimer              _SafetyMonTimer;

@@ -60,9 +60,7 @@ _EngCrankRestTimer{0},
 _StartStopSMUpdateTimer{0},
 _StopHoldTimer{0},
 _PowerOnTimer{0},
-_DGIDleRunTimer{0},
-_bStartKeyPressed(false),
-_bStopKeyPressed(false)
+_DGIDleRunTimer{0}
 {
     UTILS_ResetTimer(&_PowerOnTimer);
     _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY);
@@ -551,15 +549,6 @@ void START_STOP::StopCommand()
 bool START_STOP::IsStopCommand()
 {
   return _bStopCommand ;
-}
-
-void START_STOP::StartKeyPressed()
-{
-    _bStartKeyPressed = true;
-}
-void START_STOP::StopKeyPressed()
-{
-    _bStopKeyPressed = true;
 }
 
 bool START_STOP::IsEngStoppingTimerEnabled()

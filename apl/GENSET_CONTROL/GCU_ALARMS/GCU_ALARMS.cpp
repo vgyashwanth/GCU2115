@@ -2469,8 +2469,8 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
             }
 
             /*
-             * SuryaPranayTeja.BVV 9-11-2022
-             * As per discussion with SysE, All the notifications get auto cleared and Only High Oil press detected gets auto cleared.
+             * SuryaPranayTeja.BVV 16-11-2022
+             * As per discussion with SysE, All the notifications get auto cleared except Charge fail and Only High Oil press detected gets auto cleared.
              */
             if(_u8AlarmIndex != CA_FAIL)
             {
@@ -3017,7 +3017,7 @@ void GCU_ALARMS::prvUpdateOutputs()
 //           ACT_BTS_BATTERY_HYBRID_MODE,
     //Activate and Deactivate of ACT_PREHEAT is done in START_STOP
 //           ACT_ECU_START,
-    prvActDeactOutput(ArrAlarmMonitoring[ALARM_MIL_LAMP].bResultInstant, ACTUATOR::ACT_MIL);/*DOUBT*/
+    prvActDeactOutput(ArrAlarmMonitoring[ALARM_MIL_LAMP].bResultInstant, ACTUATOR::ACT_MIL);
 }
 
 

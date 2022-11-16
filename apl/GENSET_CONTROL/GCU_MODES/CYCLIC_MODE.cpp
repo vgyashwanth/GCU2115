@@ -453,7 +453,7 @@ void CYCLIC_MODE::Update(bool bDeviceInConfigMode)
                 {
                     _bStartOffTimer = false; // Clearing flag
                     _vars.GCUState = ELECTRIC_TRIP;
-                    UTILS_DisableTimer(&_CyclicOffTimer); //Doubt
+                    UTILS_DisableTimer(&_CyclicOffTimer);
                 }
                 else if(_bStartOffTimer && (_MainsStatus == MAINS_UNHELATHY))
                 {

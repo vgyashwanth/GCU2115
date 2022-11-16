@@ -211,7 +211,6 @@ void MANUAL_MODE::Update(bool bDeviceInConfigMode)
                 }
                 break;
             default:
-                //TODO:: define the error code value for this situation.
                 break;
         }
 

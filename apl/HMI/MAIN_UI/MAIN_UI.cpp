@@ -552,7 +552,6 @@ bool MAIN_UI::prvIsSleepEnabled()
  don't take sleep at all. This means need to kick sleep timer, so that
  it should not cross the set delay. */
 
-// TODO : the conditions found in GC2111 to kick sleep timer. guarded below need to check and use if required
 #if 0
     if(((!IS_GCU_MANUAL_MODE() && !IS_GCU_AUTO_MODE()) || _EngMon.IsEngineOn()) &&
         ((IS_GCU_AUTO_MODE()) || ((_StartStop.GetStartStopSMDState() != START_STOP::ID_STATE_SS_ENG_OFF_ERR) &&

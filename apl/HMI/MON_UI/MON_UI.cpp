@@ -77,7 +77,6 @@ void MON_UI::Init()
    GCU_ALARMS::_bModeSwitchAlarm = false;
    GCU_ALARMS::_bAutomaticModeSwitchStatus = false;
 
-/* TODO: think the need of getting _eOpMode here in MON_UI */
    /*
     * By SuryaPranayTeja.BVV
     * The if else logic below is used for setting the mode
@@ -106,14 +105,9 @@ void MON_UI::Init()
    }
    _manualMode.SetGCUOperatingMode(_eOpMode);
 
-/* Shubham.Wader 13.09.2022
-   TODO: Some of the times is observed that, due to mismatch in "CFGZ.smc" and "CFGZ.h", the contrast value gets set to some
-   random value. Sometimes the value was < 10. At that time, one may not able to go inside config -> change contrast and then check
-   what is happening. So as a precaution measure, should we check cfgz contrast value with some hard coded threshold value here below ?
-   Will that affect/render customers requirement ?
-
-   Actually this defensive type of action should be taken inside any function.
-*/
+/*
+ * FIXME:How about not allowing a Contrast value less than 10 and if less than 10 still maintain minimum as 10?
+ */
    _hal.ObjGlcd.AdjustContrast(_cfgz.GetCFGZ_Param(CFGZ::ID_DISPLAY_CONTRAST));
    _u8LanguageIndex = _cfgz.GetArrLanguageIndex();
    /*default settings */
@@ -169,7 +163,7 @@ void MON_UI::Update(bool bRefresh)
             }
             if(bRefresh)
             {
-                /* TODO: need to uncomment and modify below J1939 related changes */
+                /* Need to uncomment and modify below J1939 related changes */
                 // if(eMonScreenType == MON_SCREEN_J1939)
                 // {
                 //     prvPGNScreenDataAssignment(u8ArrMatrixDispAndRXPGN[_stScreenNo-DISP_MON_SCREEN_LAST-1]);
@@ -299,7 +293,6 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
         case UP_SHORT_PRESS:  //Up key Press
         {
-
             /*
              * SuryaPranayTeja.Bvv 13-10-2022
              * The below functionality is added as in NXP
@@ -309,10 +302,6 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
             if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == ACT_Manager::ACT_LATCHED)
             {
                 _GCUAlarms.TurnOffSounderAlarm();
-            }
-            else
-            {
-                /* do nothing */
             }
 
             if(_stScreenNo == _u8ScreenMin)
@@ -330,15 +319,6 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                 else if(eMonScreenType == MON_SCREEN_J1939)
                 {
                     MON_UI::_stScreenNo = DISP_MON_HOME;
-                    if( _cfgz.GetEngType()==CFGZ::ENG_KUBOTA) /* TODO: properly add the engine types */
-                    {
-                        ALARM_UI::ChangeAlarmScreenType(ALARM_UI::NCD); /* suggestion sgc4xx: its better if we keep some meaningful name for enum.(NCD)*/
-                    }
-                    else
-                    {
-                        ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
-                        _j1939.RequestDM2Messages();
-                    }
                 }
             }
             _stScreenNo--;
@@ -351,15 +331,15 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
         case DN_SHORT_PRESS: //Down key Press
         {
-            //Note while check for _stScreenNo shall be placed immediately
             /*
              * SuryaPranayTeja.BVV
-             * The condition in the while and after while are same.
-             * But the condition need to present as if the while condition
-             * is false ever then array index goes out of bounds
-             * In case of Up key: Home Screen is always enabled.(i.e Min Screen)
-             * TODO: Look for such array index out of bound.
+             * The condition inside the while and after execution of while are same.
+             * But the conditions need to be present as if the while condition
+             * is false for all the screens then array index goes out of bounds
+             * In case of Up key this issue will not be there as Home Screen is always enabled.(i.e Min Screen).
+             * So array index does not go out of bounds.
              */
+            //Note Also the while check for _stScreenNo should be placed first unlike the UpKey press.
             _stScreenNo++;
             while(_ArrScreenEnDs[_stScreenNo] == false)
             {
@@ -378,7 +358,6 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                         ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
                         _j1939.RequestDM2Messages();
                     }
-
                 }
             }
 
@@ -423,7 +402,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
         case DN_LONG_PRESS:
         {
-            if(!_manualMode.IsGenRunTimersInProcess()) /* TODO: yet to add engine type dependency. */
+            if(!_manualMode.IsGenRunTimersInProcess())
             {
                 if(eMonScreenType == MON_SCREEN_NORMAL)
                 {
@@ -456,7 +435,7 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
 
 void MON_UI::prvConfigureScreenEnable()
 {
-    /*TODO:All the Screens of CAN are hard coded as disabled */
+    /*TODO :All the Screens of CAN are hard coded as disabled */
     static uint8_t u8Screen;
     for(u8Screen = DISP_MON_HOME ; u8Screen<DISP_MON_LAST; u8Screen++)
     {
@@ -1935,7 +1914,7 @@ void MON_UI::prvNormalMonScreens()
             sprintf(arrTemp,"%s","ECU Link : ");
             _Disp.gotoxy(GLCD_X(10),GLCD_Y(35));
             _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
-            if(0) /* TODO: in nxp code is it always true */
+            if(0)
             {
                 sprintf(arrTemp,"%s","Not Ok");
             }
@@ -2454,7 +2433,6 @@ void MON_UI::prvNormalMonScreens()
         }
         break;
 
-        /* TODO: aux 1 is commented in GC2111 NXP code */
         case DISP_MON_AUX_2:
         {
             stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S2_SENSOR);

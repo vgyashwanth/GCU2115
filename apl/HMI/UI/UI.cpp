@@ -1763,6 +1763,14 @@ void UI::MenuVisiblituyOfMainsThresh(uint16_t u16Index)
 }
 void UI::HandleMenuVisibility(void)
 {
+    /*
+     * SuryaPranayTeja.BVV 16-11-2022
+     * TODO :Handling Menu Visibility will create a problem on the top Screen Number/Total number display
+     * if we try to hide or unhide a parameter which is above the decision parameter.
+     * Example lets say:
+     * Actual display order is Threshold and after that Enable parameter.
+     * Based on the enable parameter if we hide the threshold , it will cause the problem.
+     */
     LowestLevelMenuEnDis(INDEX_OF_GENERAL_PROFILE_NAME,INDEX_OF_ALARM_DUE_DATE_SERVICE_DATE,true);
     menuItemsMidLevel[ID_PREHEAT_S].isEnabled =true;
     /*................................Module Menu........................................................................................................*/

@@ -365,7 +365,6 @@ void AUTO_MODE::Update(bool bDeviceInConfigMode)
                 }
                 break;
             default:
-                // TODO: error codes
                 break;
         }
     }

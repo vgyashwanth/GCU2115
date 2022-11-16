@@ -31,8 +31,6 @@ _eOldAlarmType(ALARM)
 
 void ALARM_UI::Update(bool bRefresh)
 {
-
-
     if(_cfgz.GetEngType()== CFGZ::ENG_CONVENTIONAL)
     {
         _eAlarmType = ALARM;
@@ -99,10 +97,6 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == ACT_Manager::ACT_LATCHED)
                {
                    _alarm.TurnOffSounderAlarm();
-               }
-               else
-               {
-                   /* do nothing */
                }
            }
            if(u8AlarmScreenNum == 0)
@@ -206,10 +200,6 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
           if(_hal.actuators.GetActStatus(ACTUATOR::ACT_AUDIBLE_ALARM) == ACT_Manager::ACT_LATCHED)
           {
               _alarm.TurnOffSounderAlarm();
-          }
-          else
-          {
-                /* do nothing */
           }
           _alarm.ClearAutoModeSwitchAlarm();
           _alarm.ClearAllAlarms();

@@ -44,7 +44,7 @@ _PasswordEntry(hal, pcfgz, Disp),
 _objUI(hal,_PasswordEntry,pcfgz,Disp ,EngMon),
 _bRefresh(true),
 _bEventLogEntry(false),
-_u16ScreenChangeTime(SCREEN_CHANGE_OVER_PAUSE)
+_u16ScreenChangeTime(_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME))
 
 {
     UTILS_ResetTimer(&_RefreshTimer);
@@ -274,6 +274,12 @@ bool MAIN_UI::Update()
 /* Shubham Wader 17.09.2022
    below condition is confirmed with Mihir B. (SYSE). SW will execute screen changeover delay from config only if it is
    greater that the hard code delay that user dont know.*/
+        /*
+         * The below conditions are added for the below reason.
+         * If user has pressed any key then if the configured
+         * screen time is less than 2 mins then We do not change the screen for minimum of 2 minutes.
+         * After that if no key press is observed then we continue to use the configured change over time.
+         */
         if ( _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME) > SCREEN_CHANGE_OVER_PAUSE)
         {
             _u16ScreenChangeTime = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME);

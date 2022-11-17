@@ -183,7 +183,7 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
             _bUpdateFuelTheftCalc = true;
             UTILS_ResetTimer(&_FuelTheftWakeUpTimer);
         }
-        if(UTILS_GetElapsedTimeInSec(&_Modbus10minTimer) >= 60*3)
+        if(UTILS_GetElapsedTimeInSec(&_Modbus10minTimer) >= 60*10)
         {
             UTILS_ResetTimer(&_Modbus10minTimer);
             _bUpdateModbusCountCalc = true;
@@ -2592,7 +2592,7 @@ uint8_t GCU_ALARMS::prvIsLopSensOverVal()
 {
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
-        if(_hal.AnalogSensors.GetPin23CurrentValMilliAmp() > LOP_CURRENT_MAX_VAL)
+        if(_hal.AnalogSensors.GetS3CurrentValMilliAmp() > LOP_CURRENT_MAX_VAL)
         {
             return 1;
         }
@@ -2600,7 +2600,7 @@ uint8_t GCU_ALARMS::prvIsLopSensOverVal()
     }
     else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
     {
-        if(_hal.AnalogSensors.GetPin23VoltVal() > LOP_VOLT_MAX_VAL)
+        if(_hal.AnalogSensors.GetS3VoltVal() > LOP_VOLT_MAX_VAL)
         {
             return 1;
         }

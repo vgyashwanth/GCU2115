@@ -33,7 +33,14 @@
 #define SENSOR_FILT_CONST          (80U)
 #define RPM_CONVERSION_CONST       (120U) // 60sec * 2 for positive and negative cycle
 #define RPM_CLEAR_TIMER_MS         (1000)
-#define MIN_COMPARTOR_SENSE_VTG    (70.0)
+/*
+ * SuryaPranayTeja.BVV 17-11-2022
+ * The MIN_COMPARTOR_SENSE_VTG was 70 previously.
+ * The observations with O.micron is
+ * From (30V to 50V) and (5Hz to 15Hz) fluctuations of 50-60 RPM is observed.
+ * Changed to 30 as per the discussion with SysE.
+ */
+#define MIN_COMPARTOR_SENSE_VTG    (30.0)
 #define SPEED_FLT_DETECT_DLY       (250U)
 /* Forward declaration of ANLG_IP*/
 class ANLG_IP;
@@ -135,6 +142,8 @@ public:
      float GetS3SensorCurrentValue();
 
      float GetS3SensorVoltValue();
+
+     float GetS4SensorVoltValue();
 private:
     /**
      * Private variable to store the Sensor name
@@ -182,7 +191,9 @@ private:
 
     float _f32S3CurrentVal;
 
-    float _f32Pin23VoltVal;
+    float _f32S3VoltVal;
+
+    float _f32S4VoltVal;
 
 };
 
@@ -294,18 +305,12 @@ public:
      */
     void Update();
 
-    /**
-     * It will return the RPM through Pulse input
-     * @param None
-     * @return RPM value
-     */
-    float GetPulseInpuRPM();
-
     float GetFilteredPulseInpuRPM();
 
-    float GetPin23CurrentValMilliAmp();
+    float GetS3CurrentValMilliAmp();
 
-    float GetPin23VoltVal();
+    float GetS3VoltVal();
+    float GetS4VoltVal();
 
     /** This function is used to get the RPM of R-phase
      * through comparator input

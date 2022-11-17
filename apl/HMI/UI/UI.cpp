@@ -2068,6 +2068,34 @@ void UI::HandleMenuVisibility(void)
 
     //Maintenance
 
+    /*
+     * SuryaPranayTeja.BVV 17-11-2022
+     * The below statements are necessary so that while the sensor
+     * is not configured as the Digital input, then we change the DIG Source to Not Configured.
+     * Otherwise it takes the values which are present inside(as they get hide we cannot see)
+     * and continue to take actions as if they are configured.
+     */
+    if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].value.u8Val != CFGZ::CFGZ_ANLG_DIG_IN)
+    {
+        ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_DIG_SOURCE].value.u8Val = CFGZ::CFGZ_NOT_CONFIGURED;
+        ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_DIG_SOURCE].tempValue.u8Val = CFGZ::CFGZ_NOT_CONFIGURED;
+    }
+    if(ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_SENSOR_SELECTION].value.u8Val != CFGZ::CFGZ_ANLG_DIG_IN)
+    {
+        ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_DIG_SOURCE].value.u8Val = CFGZ::CFGZ_NOT_CONFIGURED;
+        ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_DIG_SOURCE].tempValue.u8Val = CFGZ::CFGZ_NOT_CONFIGURED;
+    }
+    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val != CFGZ::CFGZ_ANLG_DIG_IN)
+    {
+        ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_DIG_SOURCE].value.u8Val = CFGZ::CFGZ_NOT_CONFIGURED;
+        ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_DIG_SOURCE].tempValue.u8Val = CFGZ::CFGZ_NOT_CONFIGURED;
+    }
+    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val != CFGZ::CFGZ_ANLG_DIG_IN)
+    {
+        ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_DIG_SOURCE].value.u8Val = CFGZ::CFGZ_NOT_CONFIGURED;
+        ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_DIG_SOURCE].tempValue.u8Val = CFGZ::CFGZ_NOT_CONFIGURED;
+    }
+
     if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
         ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION].numOfStringFixedOptions = 2;

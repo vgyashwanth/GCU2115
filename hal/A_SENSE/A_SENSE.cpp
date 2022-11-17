@@ -380,29 +380,24 @@ void A_SENSE::prvUpdateCompInpuFreqRPM(float f32Freq)
     }
 }
 
-float A_SENSE::GetPulseInpuRPM(void)
-{
-    if(_AC_SENSE.GENSET_GetVoltageVoltsRaw(R_PHASE) > MIN_COMPARTOR_SENSE_VTG)
-    {
-    return _f32CompInputRPM;
-    }
-    return 0;
-
-}
-
 float A_SENSE::GetFilteredPulseInpuRPM(void)
 {
     return _f32FilteredPulseIpRPM;
 }
 
-float A_SENSE::GetPin23CurrentValMilliAmp()
+float A_SENSE::GetS3CurrentValMilliAmp()
 {
     return _sensors[HAL_PIN_21].GetS3SensorCurrentValue();
 }
 
-float A_SENSE::GetPin23VoltVal()
+float A_SENSE::GetS3VoltVal()
 {
     return _sensors[HAL_PIN_21].GetS3SensorVoltValue();
+}
+
+float A_SENSE::GetS4VoltVal()
+{
+    return _sensors[HAL_PIN_23].GetS4SensorVoltValue();
 }
 
 AnalogSensor::AnalogSensor(ANLG_IP &anlgIp):
@@ -413,7 +408,8 @@ AnalogSensor::AnalogSensor(ANLG_IP &anlgIp):
  _stSensVal{0.0, ANLG_IP::BSP_STATE_NORMAL},
  _AnlgIp(anlgIp),
  _f32S3CurrentVal(0),
- _f32Pin23VoltVal(0)
+ _f32S3VoltVal(0),
+ _f32S4VoltVal(0)
 {
 
 }
@@ -490,7 +486,11 @@ void AnalogSensor::Update()
         }
         if(_eName == A_SENSE_LUBE_OIL_PRESSURE_0_TO_5V)
         {
-            _f32Pin23VoltVal = stVal.f32InstSensorVal;
+            _f32S3VoltVal = stVal.f32InstSensorVal;
+        }
+        if(_eName == A_SENSE_FUEL_LEVEL_0_TO_5V)
+        {
+            _f32S4VoltVal = stVal.f32InstSensorVal;
         }
 
         stVal.f32InstSensorVal = prvInterpolation(stVal.f32InstSensorVal,
@@ -541,5 +541,10 @@ float AnalogSensor::GetS3SensorCurrentValue()
 
 float AnalogSensor::GetS3SensorVoltValue()
 {
-    return _f32Pin23VoltVal;
+    return _f32S3VoltVal;
+}
+
+float AnalogSensor::GetS4SensorVoltValue()
+{
+    return _f32S4VoltVal;
 }

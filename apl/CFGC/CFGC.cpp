@@ -75,7 +75,10 @@ uint8_t CFGC::GetProductSuffix()
 {
     return(_stCfgc.u8ProductSuffix);
 }
-
+uint8_t CFGC::GetCustomerCode()
+{
+    return(_stCfgc.u8CustomerCode);
+}
 void CFGC::GetSeriesProductID(char acGCUSeries[])
 {
     acGCUSeries[0] = _stCfgc.strSeriesProductID[0];

@@ -330,7 +330,7 @@ void ENGINE_MONITORING::prvUpdateGenReady()
             && (!_GCUAlarms.IsCommonElectricTrip()) && (!_GCUAlarms.IsCommonShutdown())
             && (UTILS_GetElapsedTimeInMs(&_EngWarmUpTimer) >= FIFTY_MSEC))
         {
-            _u8GenReady = true;
+            _u8GenReady = 1;
 
             if(IsGenStartValid())
             {
@@ -355,7 +355,7 @@ void ENGINE_MONITORING::prvUpdateGenReady()
     }
     else if((_GCUAlarms.IsCommonShutdown()) || (_GCUAlarms.IsCommonElectricTrip()) || (_u8EngineOn == 0U))
     {
-        _u8GenReady = false;
+        _u8GenReady = 0;
         UTILS_DisableTimer(&_GenWarmUpTimer);
     }
     else

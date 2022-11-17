@@ -838,3 +838,8 @@ uint8_t CFGZ::GetArrLanguageIndex()
 {
     return (uint8_t)(0); //No multiple language support.
 }
+
+uint8_t CFGZ::GetCustomerCodefromCFGC()
+{
+    return _cfgc.GetCustomerCode();
+}

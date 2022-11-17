@@ -855,7 +855,7 @@ class CFGZ
     void     GetCFGZ_Param(ARRAY_PARAMS_t _ArrParam, char* pu8ArrValue);
 
     uint16_t GetMisc_Param(MISC_PARAM_16_t ePram);
-    uint8_t GetMisc_Param(MISC_PARAM_8_t ePram);
+    uint8_t  GetMisc_Param(MISC_PARAM_8_t ePram);
 
     /**
      * This function is used to request to write the parameter values in
@@ -908,6 +908,8 @@ class CFGZ
    void GetEngSrNo(char EngSrNo[]);
 
    uint8_t GetArrLanguageIndex();
+
+   uint8_t GetCustomerCodefromCFGC();
 private:
 
     /**

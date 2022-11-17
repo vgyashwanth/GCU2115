@@ -97,6 +97,8 @@ public:
 
     uint8_t GetProductSuffix();
 
+    uint8_t GetCustomerCode();
+
     void GetEngineSerialNo(uint8_t au8EngSerNo[]);
 
     void GetSeriesProductID(char acGCUSeries[]);

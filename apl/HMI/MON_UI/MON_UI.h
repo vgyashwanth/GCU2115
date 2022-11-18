@@ -213,10 +213,10 @@ private:
          DISP_GROUP_GENERATOR,
 
          DISP_GROUP_MAINS,
-         DISP_GROUP_LOAD,
-         DISP_GROUP_LOAD,
-         DISP_GROUP_LOAD,
-         DISP_GROUP_LOAD,
+         DISP_GROUP_MAINS,
+         DISP_GROUP_MAINS,
+         DISP_GROUP_MAINS,
+         DISP_GROUP_MAINS,
          DISP_GROUP_MAINS,
 
          DISP_GROUP_ENGINE,

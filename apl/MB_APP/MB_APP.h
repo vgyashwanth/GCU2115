@@ -43,7 +43,7 @@
 #include "ENGINE_MONITORING.h"
 #include "AUTO_MODE.h"
 
-#define AUTOMATION 1
+#define AUTOMATION 0
 /*Defines the number of discontinuous address groups*/
 #define MODBUS_ADDRESS_GROUPS   (2U)
 /*Number of entries in the first address group*/
@@ -206,7 +206,8 @@ offset 14.
     typedef struct
     {
         uint16_t u16Mbcount;
-        uint16_t u16Dummy[3];
+        uint16_t u16Dummy[2];
+        uint16_t u16CRC;
     }MISC_EEPROM_t ;
 
     /**

@@ -170,10 +170,13 @@ void PASSWORD_ENTRY_UI::prvCheckEnteredPassword()
 //    {
 //        _u8EnteredPassword = PIN3;
 //    }
-    else if(_u16EnterdPassword == MASTER_PASSWORD)  //Master Password
-    {
-        _u8EnteredPassword = MASTER_PIN;
-    }
+//    else if(_u16EnterdPassword == MASTER_PASSWORD)  //Master Password
+//    {
+//        _u8EnteredPassword = MASTER_PIN;
+//    }
+    /*
+     * Removed the Master password for GC2111 as per the requirement.
+     */
 
     if(_u8EnteredPassword > 0)
     {

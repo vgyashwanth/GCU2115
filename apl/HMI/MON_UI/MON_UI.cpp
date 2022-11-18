@@ -154,16 +154,6 @@ void MON_UI::Update(bool bRefresh)
         }
         case RUNNING_MODE:
         {
-
-            /*
-             * SuryaPranayTeja.BVV 15-11-2022
-             * IN GC2111, The Mains KW,KVar,KVah will be visible only if Load is on Mains.
-             * So whenever there is change in the Load status then we need to configure the screens accordingly.
-             */
-            if(_EngineMon.GetAndClearIsLoadStatusChanged())
-            {
-                prvConfigureScreenEnable();
-            }
             if(bRefresh)
             {
                 /* Need to uncomment and modify below J1939 related changes */
@@ -473,16 +463,18 @@ void MON_UI::prvConfigureScreenEnable()
                 break;
             case DISP_MON_MAINS_LOAD_KW :
             case DISP_MON_MAINS_LOAD_KVA :
-            case DISP_MON_MAINS_LOAD_KVAR :
-                /* load on mains && mains mon on &&  mains contactor configured */
-                if((_EngineMon.GetContactorLoadStatus() ==ENGINE_MONITORING::LOAD_ON_MAINS) &&
-                   (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE) &&
+                /* mains mon on &&  mains contactor configured */
+                if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE) &&
                    (_manualMode.IsMainsContactorConfigured()))
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
                 break;
-
+            case DISP_MON_MAINS_LOAD_KVAR :
+            {
+                _ArrScreenEnDs[u8Screen] = false; //Always disable as per NXP.
+            }
+            break;
             case DISP_MON_MAINS_ENERGY :
                 if((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE) &&
                    (_manualMode.IsMainsContactorConfigured()))
@@ -2357,8 +2349,8 @@ void MON_UI::prvNormalMonScreens()
                     stTemp.stValAndStatus.f32InstSensorVal =
                             stTemp.stValAndStatus.f32InstSensorVal
                             * _cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)/100;
-
-                    uint32_t u16RunTimeExpect = (uint32_t) ((stTemp.stValAndStatus.f32InstSensorVal * 60)/_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_CONSUMPTION));
+                    //The sensor value is type casted with uint16_t to avoid rapid fluctuations of display
+                    uint32_t u16RunTimeExpect = (uint32_t) (((uint16_t)stTemp.stValAndStatus.f32InstSensorVal * 60)/_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_CONSUMPTION));
 
                     _Disp.gotoxy(GLCD_X(120),GLCD_Y(37));
                     sprintf(arrTemp,"%ld hrs %d min",(u16RunTimeExpect/60), (uint8_t)(u16RunTimeExpect%60));
@@ -2406,8 +2398,8 @@ void MON_UI::prvNormalMonScreens()
                                     * (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_1))
                                     *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000000 * 100);
                         }
-
-                        uint32_t u16RunTimeExpect = (uint32_t) ((stTemp.stValAndStatus.f32InstSensorVal * 60)/_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_CONSUMPTION));
+                        //The sensor value is type casted with uint16_t to avoid rapid fluctuations of display
+                        uint32_t u16RunTimeExpect = (uint32_t) (((uint16_t)stTemp.stValAndStatus.f32InstSensorVal * 60)/_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_CONSUMPTION));
 
                         _Disp.gotoxy(GLCD_X(120),GLCD_Y(37));
                         sprintf(arrTemp,"%ld hrs %d min",(u16RunTimeExpect/60), (uint8_t)(u16RunTimeExpect%60));

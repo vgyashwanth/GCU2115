@@ -421,13 +421,14 @@ void START_STOP::prvEngineOnGenStartAction()
             _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, CFGZ::CFGZ_ACTION_NONE_NoWESN);
         }
     }
+    _State = ID_STATE_SS_CRANK_REST;
 
-    _bGenStarted = true;
-    _ChargeAlt.StartExcitation();
-    UTILS_ResetTimer(&_SafetyMonTimer);
-    _State = ID_STATE_SS_ENG_ON;
-    _vars.TimerState = BASE_MODES::SAFETY_MON_TIMER;
-    _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
+//    _bGenStarted = true;
+//    _ChargeAlt.StartExcitation();
+//    UTILS_ResetTimer(&_SafetyMonTimer);
+//    _State = ID_STATE_SS_ENG_ON;
+//    _vars.TimerState = BASE_MODES::SAFETY_MON_TIMER;
+//    _vars.GCUState = BASE_MODES::ENGINE_ON_HEALTHY;
 }
 void START_STOP::prvStopCommandAction()
 {

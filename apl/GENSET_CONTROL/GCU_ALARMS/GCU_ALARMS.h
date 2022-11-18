@@ -576,6 +576,7 @@ public:
     bool IsBPhaseUnderVoltAlarmActive();
 
 /* Public functions accessible to objects, return true if event monitoring enabled and event occured.*/
+    bool RemoteStartConfigured();
     bool RemoteStartReceived();
     bool RemoteStopReceived();
 

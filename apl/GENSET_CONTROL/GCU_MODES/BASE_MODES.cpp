@@ -388,19 +388,21 @@ Below mode and state related assignments done by referencing the GC2111 NXP code
             if(IS_BTS_MODE_CONFIG_ENABLED())
             {
                 SET_GCU_OPERATING_MODE(BTS_MODE);
-                SET_BTS_MODE_STATE(STATE_BTS_GEN_OFF_MAINS_OFF);
+                SET_BTS_MODE_STATE(STATE_BTS_GEN_OFF_MAINS_ON);
             }
             else if(IS_CYCLIC_MODE_CONFIG_ENABLED())
             {
                 SET_GCU_OPERATING_MODE(CYCLIC_MODE);
-                SET_CYCLIC_MODE_STATE(STATE_CYCLIC_GEN_OFF_MAINS_OFF);
+                SET_CYCLIC_MODE_STATE(STATE_CYCLIC_GEN_OFF_MAINS_ON);
             }
             else
             {
                 SET_GCU_OPERATING_MODE(AUTO_MODE);
-                SET_AUTO_MODE_STATE(STATE_AMF_GEN_OFF_MAINS_OFF);
+                SET_AUTO_MODE_STATE(STATE_AMF_GEN_OFF_MAINS_ON);
             }
+
             _GCUAlarms.ResetMainsMonParams();
+            SwitchLoadToMains();
         }
         break;
 

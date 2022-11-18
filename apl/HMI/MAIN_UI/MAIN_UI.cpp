@@ -478,7 +478,7 @@ void MAIN_UI::prvLEDHandling()
        }
 
        if((_ManualMode.IsMainsContactorConfigured()) && (_ManualMode.IsMainsContactorClosed())
-           && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+           && ((_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE)|| _GCUAlarms.RemoteStartConfigured()))
        {
            _hal.ledManager.led7.TurnOn();
        }

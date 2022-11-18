@@ -1915,9 +1915,16 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[BTS_VOLTAGE].f32Value =  _hal.AnalogSensors.GetFilteredVBTSbattVolts();
     _ArrAlarmValue[GEN_MAX_CURRENT].u16Value = (uint16_t)prvGetMaxGensetCurent();
     _ArrAlarmValue[ENG_RUN_HOURS].u16Value = (uint16_t)(GetSelectedEngRunMin()/60);
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
+    {
     _ArrAlarmValue[TOTAL_KW_PERCENT].u16Value = (uint16_t)((_hal.AcSensors.GENSET_GetActivePowerWatts(R_PHASE) +
                                                 _hal.AcSensors.GENSET_GetActivePowerWatts(Y_PHASE) +
                                                 _hal.AcSensors.GENSET_GetActivePowerWatts(B_PHASE))/(_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_GEN_RATING)*10));
+    }
+    else
+    {
+        _ArrAlarmValue[TOTAL_KW_PERCENT].u16Value = (uint16_t)((_hal.AcSensors.GENSET_GetActivePowerWatts(R_PHASE))/(_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_GEN_RATING)*10));
+    }
 
     _ArrAlarmValue[FUEL_THEFT_ALARM].u8Value = _u8FuelTheftAlarm;
     _ArrAlarmValue[GEN_PHASE_ROTATION_STATUS].u8Value = (uint8_t)_hal.AcSensors.GENSET_GetPhaseRotStatus();
@@ -3589,7 +3596,10 @@ bool GCU_ALARMS::IsBPhaseUnderVoltAlarmActive()
 {
    return (_u8BPhaseUnderVoltAlarm == 1);
 }
-
+bool GCU_ALARMS::RemoteStartConfigured()
+{
+    return ArrAlarmMonitoring[REMOTE_SS].bEnableMonitoring;
+}
 bool GCU_ALARMS::RemoteStartReceived()
 {
     if(ArrAlarmMonitoring[REMOTE_SS].bEnableMonitoring)

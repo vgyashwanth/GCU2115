@@ -643,8 +643,8 @@ void MB_APP::prvUpdateModbusParamInEventLog()
 
             MB_Count++;
             stEepromMisc.u16Mbcount++;
-            stEepromMisc.u16CRC =(uint16_t) CRC16::ComputeCRCGeneric((uint8_t *)&stEepromMisc,
-                                                         sizeof(MISC_EEPROM_t) - sizeof(uint16_t)
+            stEepromMisc.u32CRC =(uint16_t) CRC16::ComputeCRCGeneric((uint8_t *)&stEepromMisc,
+                                                         sizeof(MISC_EEPROM_t) - sizeof(uint32_t)
                                                          , CRC_MEMORY_SEED);
 
             _hal.Objeeprom.RequestWrite( EXT_EEPROM_MISC_PARAM_START ,
@@ -1133,9 +1133,9 @@ void MB_APP::prvGetMiscParams()
     _hal.Objeeprom.BlockingRead( EXT_EEPROM_MISC_PARAM_START ,
                                            (uint8_t*)&stEepromMisc, sizeof(MISC_EEPROM_t));
 
-    uint16_t u16CRC= CRC16::ComputeCRCGeneric((uint8_t *)&stEepromMisc, sizeof(MISC_EEPROM_t) -sizeof(uint16_t)
+    uint32_t u32CRC= CRC16::ComputeCRCGeneric((uint8_t *)&stEepromMisc, sizeof(MISC_EEPROM_t) -sizeof(uint32_t)
                                                   , CRC_MEMORY_SEED);
-    if(u16CRC != stEepromMisc.u16CRC)
+    if(u32CRC != stEepromMisc.u32CRC)
     {
         stEepromMisc.u16Mbcount = 0;
     }

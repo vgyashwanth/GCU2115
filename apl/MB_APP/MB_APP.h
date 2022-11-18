@@ -206,8 +206,8 @@ offset 14.
     typedef struct
     {
         uint16_t u16Mbcount;
-        uint16_t u16Dummy[2];
-        uint16_t u16CRC;
+        uint16_t u16Dummy[1];
+        uint32_t u32CRC;
     }MISC_EEPROM_t ;
 
     /**

@@ -517,8 +517,7 @@ bool MAIN_UI::prvIsEnginNotInONstate()
        ||(_StartStop.GetStartStopSMDState()== START_STOP::ID_STATE_SS_FAIL_TO_STOP)
        ||(_StartStop.GetStartStopSMDState()== START_STOP::ID_STATE_SS_STOPPING)
        ||(_StartStop.GetStartStopSMDState()== START_STOP::ID_STATE_SS_STOP_HOLD)
-       ||(_ManualMode.GetManualModeState() == BASE_MODES::STATE_MANUAL_ENGINE_COOLING)
-       ||(_ManualMode.GetAutoModeState() == BASE_MODES::STATE_AMF_ENGINE_COOLING))
+       ||(_ManualMode.GetManualModeState() == BASE_MODES::STATE_MANUAL_ENGINE_COOLING))
         {
             return true;
         }

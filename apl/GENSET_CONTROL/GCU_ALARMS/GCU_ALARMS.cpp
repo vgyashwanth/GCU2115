@@ -1866,9 +1866,9 @@ float GCU_ALARMS::GetSpeedValue()
         return 0;
     }
 }
-float GCU_ALARMS::GetRawSpeedValue()
+float GCU_ALARMS::GetInvalidDGSpeedValue()
 {
-    return _hal.AnalogSensors.GetRPMThruCompartor();
+    return _hal.AnalogSensors.GetRPMForInvalidDG();
 }
 void GCU_ALARMS::prvUpdateGCUAlarmsValue()
 {

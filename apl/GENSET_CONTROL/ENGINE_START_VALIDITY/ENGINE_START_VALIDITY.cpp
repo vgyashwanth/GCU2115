@@ -26,7 +26,7 @@
 #define GET_CONFIGURED_LOWER_SPEED()             (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ENGINE_SPEED))
 #define GET_CONFIGURED_UPPER_SPEED()             (_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_UNDER_SPEED_THRESHOLD))
 //#define GET_CURRENT_SPEED()                      (_GCUAlarms.GetSpeedValue())
-#define GET_CURRENT_SPEED()                (_GCUAlarms.GetRawSpeedValue())
+#define GET_CURRENT_SPEED()                      (_GCUAlarms.GetInvalidDGSpeedValue())
 
 /* Time until which validity detection to be performed */
 #define TIMEOUT_FOR_RAMP_SPEED_DETECTION         (_cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME))
@@ -88,7 +88,7 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
                 if(IS_ENGINE_START_VALIDITY_ENABLED())
                 {
                     bStartValidDetectionEnaled = true;
-                    if(IS_GEN_IN_START_STATE())
+
                     {
                         if(GET_CURRENT_SPEED() > _u16LowerSpeedThreshold_rpm)
                         {
@@ -100,10 +100,7 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
                             /* do nothing */
                         }
                     }
-                    else
-                    {
-                        /* do nothing */
-                    }
+
                 }
                 else
                 {

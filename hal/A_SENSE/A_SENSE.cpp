@@ -21,6 +21,7 @@ uint16_t  A_SENSE::_u16NumberOfTeeth                  = 0;
 volatile uint16_t  A_SENSE::_u16NoOfPulsesToskip               = 0;
 volatile uint16_t  A_SENSE::_u16PulsesPerCalcCycle             = 0;
 volatile float     A_SENSE::_f32CompInputRPM                   = 0.0;
+volatile float     A_SENSE::_f32InvalidDGRPM                   = 0.0;
 volatile float     A_SENSE::_f32FilteredRPM                    = 0.0;
 volatile float     A_SENSE::_f32FilteredPulseIpRPM             = 0.0;
 volatile float     A_SENSE::_f32CompGenRFreq                   = 0.0;
@@ -346,13 +347,13 @@ float A_SENSE::GetGensetFreqThruCompartor()
     }
 }
 
-float A_SENSE::GetRPMThruCompartor()
+float A_SENSE::GetRPMForInvalidDG()
 {
     //To avoid noise comparator input should be considered when
     //R-Phase voltage is greater than MIN_COMPARTOR_SENSE_VTG
-    if(_AC_SENSE.GENSET_GetVoltageVoltsRaw(R_PHASE) > MIN_COMPARTOR_SENSE_VTG)
+    if(_AC_SENSE.GENSET_GetVoltageVoltsRaw(R_PHASE) > MIN_COMPARTOR_SENSE_INVALID_DG_DETECT)
     {
-        return (_f32CompInputRPM);
+        return (_f32InvalidDGRPM);
     }
     else
     {
@@ -367,16 +368,27 @@ float A_SENSE::GetFiltRPMThruCompartor()
 
 void A_SENSE::prvUpdateCompInpuFreqRPM(float f32Freq)
 {
-    if(_f32GenRPhaseRawVtg > 20.0f)
+    /*
+     * The Logic of Filter is done to solve the field issue of Invalid DG
+     */
+    #define FILTER_TO_INVALID_DG 0.25f
+    if(_f32GenRPhaseRawVtg > MIN_COMPARTOR_SENSE_INVALID_DG_DETECT)
     {
         _f32CompGenRFreq = f32Freq;
+
         _f32CompInputRPM = ((_f32CompGenRFreq * RPM_CONVERSION_CONST) / _u8NumberOfPoles);
+
+        _f32InvalidDGRPM  = (FILTER_TO_INVALID_DG* _f32InvalidDGRPM) + ((1-FILTER_TO_INVALID_DG)*_f32CompInputRPM);
 
         if(_UpdateCompRPM_cb !=NULL)
         {
             _UpdateCompRPM_cb(_f32CompInputRPM) ;
         }
         UTILS_ResetTimer(&A_SENSE::_RPMResetTimerComparator);
+    }
+    else
+    {
+        _f32InvalidDGRPM  = (FILTER_TO_INVALID_DG* _f32InvalidDGRPM);
     }
 }
 

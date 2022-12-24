@@ -40,7 +40,22 @@
  * From (30V to 50V) and (5Hz to 15Hz) fluctuations of 50-60 RPM is observed.
  * Changed to 30 as per the discussion with SysE.
  */
-#define MIN_COMPARTOR_SENSE_VTG    (30.0)
+/*
+ * SuryaPranayTeja.BVV 22-12-2022
+ * Further changed the valueFrom 30V to 20V after facing the issue
+ * of Invalid DG run. Do not have a solid reason to change it but
+ * with assumption that there could be some other issue we changed it.
+ */
+#define MIN_COMPARTOR_SENSE_VTG    (20.0)
+/*
+ * SuryaPranayTeja.BVV 24-12-2022
+ * Invented the macro with value of 10 to solve the field issue.
+ * Please find the data in the Confluence page GC2111 Field info.
+ * This will be used only for the Invalid DG Run and
+ * The Call Back function where we get the RPM also will be changed.
+ * This has been agreed with SYSE.
+ */
+#define MIN_COMPARTOR_SENSE_INVALID_DG_DETECT (10.0)
 #define SPEED_FLT_DETECT_DLY       (250U)
 /* Forward declaration of ANLG_IP*/
 class ANLG_IP;
@@ -317,7 +332,7 @@ public:
      * @param None
      * @return RPM value
      */
-    float GetRPMThruCompartor();
+    float GetRPMForInvalidDG();
 
     /** This function is used to get the RPM of R-phase
      * through comparator input
@@ -538,6 +553,8 @@ private:
      * Comparator Input RPM value
      */
     volatile static float _f32CompInputRPM;
+
+    volatile static float _f32InvalidDGRPM;
 
     volatile static float _f32FilteredRPM;
 

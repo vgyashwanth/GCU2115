@@ -554,7 +554,7 @@ public:
     void ActivateHighOilPressAlarmSens();
     void TurnOffSounderAlarm();
     float GetSpeedValue();
-    float GetRawSpeedValue();
+    float GetInvalidDGSpeedValue();
     bool IsCommonAlarm();
     A_SENSE::SENSOR_RET_t GetSelectedTempSensVal();
     float GetSelectedBatteryVtg();

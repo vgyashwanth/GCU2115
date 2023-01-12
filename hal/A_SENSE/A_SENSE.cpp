@@ -371,7 +371,7 @@ void A_SENSE::prvUpdateCompInpuFreqRPM(float f32Freq)
     /*
      * The Logic of Filter is done to solve the field issue of Invalid DG
      */
-    #define FILTER_TO_INVALID_DG 0.25f
+    #define FILTER_TO_INVALID_DG 0.5f
     if(_f32GenRPhaseRawVtg > MIN_COMPARTOR_SENSE_INVALID_DG_DETECT)
     {
         _f32CompGenRFreq = f32Freq;

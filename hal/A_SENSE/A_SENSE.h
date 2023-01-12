@@ -55,7 +55,7 @@
  * The Call Back function where we get the RPM also will be changed.
  * This has been agreed with SYSE.
  */
-#define MIN_COMPARTOR_SENSE_INVALID_DG_DETECT (10.0)
+#define MIN_COMPARTOR_SENSE_INVALID_DG_DETECT (20.0)
 #define SPEED_FLT_DETECT_DLY       (250U)
 /* Forward declaration of ANLG_IP*/
 class ANLG_IP;

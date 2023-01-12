@@ -1870,6 +1870,10 @@ float GCU_ALARMS::GetInvalidDGSpeedValue()
 {
     return _hal.AnalogSensors.GetRPMForInvalidDG();
 }
+float GCU_ALARMS::GetRawVoltageValue()
+{
+    return _hal.AcSensors.GENSET_GetVoltageVoltsRaw(R_PHASE);
+}
 void GCU_ALARMS::prvUpdateGCUAlarmsValue()
 {
     A_SENSE::SENSOR_RET_t stLOP  = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};

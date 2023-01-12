@@ -555,6 +555,7 @@ public:
     void TurnOffSounderAlarm();
     float GetSpeedValue();
     float GetInvalidDGSpeedValue();
+    float GetRawVoltageValue();
     bool IsCommonAlarm();
     A_SENSE::SENSOR_RET_t GetSelectedTempSensVal();
     float GetSelectedBatteryVtg();

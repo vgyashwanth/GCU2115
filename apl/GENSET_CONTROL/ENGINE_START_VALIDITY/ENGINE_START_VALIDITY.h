@@ -20,17 +20,18 @@
 
 class ENGINE_START_VALIDITY
 {
-/* MACRO */
+    /* MACRO */
     /* While start operation , Expected minimum time that should be taken by engine
         to traverse from lower threshold speed to higher threshold. If higher speed achieved
         before that, the engine start process is been tampered. */
-    #define MINIMUM_RAMP_TIME_FOR_VALID_START      (100U) /* 100 mili sec */
+#define MINIMUM_RAMP_TIME_FOR_SPEED      (100U) /* 100 mili sec */
+#define MINIMUM_RAMP_TIME_FOR_VOLT       (200U) /* 200 mili sec */
 
-/* General constant values to be considered to check start validity , if user sets unpractical value */
-    #define CONSTANT_LOWER_SPEED_THRESHOLD         (600U)  /* rpm */
-    #define CONSTANT_UPPER_SPEED_THRESHOLD         (1200U) /* rpm */
+    /* General constant values to be considered to check start validity , if user sets unpractical value */
+#define CONSTANT_LOWER_SPEED_THRESHOLD         (600U)  /* rpm */
+#define CONSTANT_UPPER_SPEED_THRESHOLD         (1200U) /* rpm */
 
-/* Public class restricted enum */
+    /* Public class restricted enum */
     /* Start Validity State Machine States */
     typedef enum
     {
@@ -46,32 +47,40 @@ public:
 
     ENGINE_START_VALIDITY(CFGZ &cfgz, GCU_ALARMS &GCUAlarms); /* constructor */
 
-/* PUBLIC FUNCTIONS */
+    /* PUBLIC FUNCTIONS */
     void InitEngineStartValidityConfig();
     void EngineStartValiditySM(bool bDeviceInConfigMode);
 
-/* Shubham Wader 22.09.2022
+    /* Shubham Wader 22.09.2022
    Below prototypes and variables made static intentionally to expand
    scope of accessibility without object. */
     static bool IsEngineStartValidityDetectionEnabled();
     static bool IsValidEngineStartFound();
 
-/* PUBLIC variables */
+    /* PUBLIC variables */
     static bool bStartValidDetectionEnaled;
     static bool bFoundValidEngineStart;
 
 private:
-/* Private object references */
+    /* Private object references */
     CFGZ            &_cfgz;
     GCU_ALARMS      &_GCUAlarms;
 
-/* Private Timer Instances */
+    /* Private Timer Instances */
     stTimer         _SpeedRampDetectTimer;
+    stTimer         _VoltRampDetectTimer;
 
-/* Private variables */
-    START_VALIDITY_SM_STATE_t  _eValidStartDetectionState;
+    /* Private variables */
+    START_VALIDITY_SM_STATE_t  _eValidSpeedRampDetectionState;
+    START_VALIDITY_SM_STATE_t  _eValidVoltRampDetectionState;
     uint16_t        _u16LowerSpeedThreshold_rpm;
     uint16_t        _u16HigherSpeedThreshold_rpm;
+
+    bool _bFoundValidSpeedRamp;
+    bool _bFoundValidVoltRamp;
+
+    void prvIsSpeedRampValid();
+    void prvIsVoltRampValid();
 
 };
 

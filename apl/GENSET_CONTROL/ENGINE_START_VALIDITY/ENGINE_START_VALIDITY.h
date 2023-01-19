@@ -37,8 +37,7 @@ class ENGINE_START_VALIDITY
     {
         SV_SM_IDLE = 0,           /* Start Validity State Machine Idle */
         SV_SM_CHECK_VALID_START,
-        SV_SM_FOUND_VALID_START,
-        SV_SM_FOUND_INVALID_START,
+        SV_SM_VALIDITY_DETECTION_COMPLETE,
         SV_SM_RESET,
         SV_SM_LAST
     }START_VALIDITY_SM_STATE_t;
@@ -58,7 +57,7 @@ public:
     static bool IsValidEngineStartFound();
 
     /* PUBLIC variables */
-    static bool bStartValidDetectionEnaled;
+    static bool bStartValidDetectionEnabled;
     static bool bFoundValidEngineStart;
 
 private:

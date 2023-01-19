@@ -350,8 +350,8 @@ float A_SENSE::GetGensetFreqThruCompartor()
 float A_SENSE::GetRPMForInvalidDG()
 {
     //To avoid noise comparator input should be considered when
-    //R-Phase voltage is greater than MIN_COMPARTOR_SENSE_VTG
-    if(_AC_SENSE.GENSET_GetVoltageVoltsRaw(R_PHASE) > MIN_COMPARTOR_SENSE_INVALID_DG_DETECT)
+    //R-Phase voltage is greater than VOLTAGE_THRESHOLD_FOR_SPEED_COMPUTATION
+    if(_AC_SENSE.GENSET_GetVoltageVoltsRaw(R_PHASE) > VOLTAGE_THRESHOLD_FOR_SPEED_COMPUTATION)
     {
         return (_f32InvalidDGRPM);
     }
@@ -372,7 +372,7 @@ void A_SENSE::prvUpdateCompInpuFreqRPM(float f32Freq)
      * The Logic of Filter is done to solve the field issue of Invalid DG
      */
     #define FILTER_TO_INVALID_DG 0.5f
-    if(_f32GenRPhaseRawVtg > MIN_COMPARTOR_SENSE_INVALID_DG_DETECT)
+    if(_f32GenRPhaseRawVtg > VOLTAGE_THRESHOLD_FOR_SPEED_COMPUTATION)
     {
         _f32CompGenRFreq = f32Freq;
 

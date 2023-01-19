@@ -34,7 +34,7 @@
 #define LOWER_VOLTAGE_THRESH 40U
 #define HIGHER_VOLTAGE_THRESH 180U
 
-bool ENGINE_START_VALIDITY::bStartValidDetectionEnaled = false;
+bool ENGINE_START_VALIDITY::bStartValidDetectionEnabled = false;
 bool ENGINE_START_VALIDITY::bFoundValidEngineStart = true;
 
 ENGINE_START_VALIDITY::ENGINE_START_VALIDITY(CFGZ &cfgz, GCU_ALARMS &GCUAlarms):
@@ -44,7 +44,9 @@ _SpeedRampDetectTimer{0, false},
 _eValidSpeedRampDetectionState(SV_SM_IDLE),
 _eValidVoltRampDetectionState(SV_SM_IDLE),
 _u16LowerSpeedThreshold_rpm(0U),
-_u16HigherSpeedThreshold_rpm(0U)
+_u16HigherSpeedThreshold_rpm(0U),
+_bFoundValidSpeedRamp(true),
+_bFoundValidVoltRamp(true)
 {
     InitEngineStartValidityConfig();
 }
@@ -100,7 +102,7 @@ void ENGINE_START_VALIDITY::prvIsSpeedRampValid()
         {
             if(IS_ENGINE_START_VALIDITY_ENABLED())
             {
-                bStartValidDetectionEnaled = true;
+                bStartValidDetectionEnabled = true;
 
                 if(GET_CURRENT_SPEED() > _u16LowerSpeedThreshold_rpm)
                 {
@@ -112,7 +114,7 @@ void ENGINE_START_VALIDITY::prvIsSpeedRampValid()
             {
                 /* If validity check is disabled, every start to be considered as valid start.
                           Skip validity check execution  */
-                bStartValidDetectionEnaled = false;
+                bStartValidDetectionEnabled = false;
                 _bFoundValidSpeedRamp = true;
                 return;
             }
@@ -126,12 +128,12 @@ void ENGINE_START_VALIDITY::prvIsSpeedRampValid()
                 if(UTILS_GetElapsedTimeInMs(&_SpeedRampDetectTimer) >= MINIMUM_RAMP_TIME_FOR_SPEED)
                 {
                     _bFoundValidSpeedRamp = true;
-                    _eValidSpeedRampDetectionState = SV_SM_FOUND_VALID_START;
+                    _eValidSpeedRampDetectionState = SV_SM_VALIDITY_DETECTION_COMPLETE;
                 }
                 else
                 {
                     _bFoundValidSpeedRamp = false;
-                    _eValidSpeedRampDetectionState = SV_SM_FOUND_INVALID_START;
+                    _eValidSpeedRampDetectionState = SV_SM_VALIDITY_DETECTION_COMPLETE;
                 }
             }
             else if((UTILS_GetElapsedTimeInSec(&_SpeedRampDetectTimer) >= TIMEOUT_FOR_RAMP_DETECTION) &&
@@ -141,7 +143,7 @@ void ENGINE_START_VALIDITY::prvIsSpeedRampValid()
                         has at least maintained speed greater than lower speed threshold for the configured portion of time.
                         Hence, Engine will enter in ON state anyway and GCU considers this as a valid start. */
                 _bFoundValidSpeedRamp = true;
-                _eValidSpeedRampDetectionState = SV_SM_FOUND_VALID_START;
+                _eValidSpeedRampDetectionState = SV_SM_VALIDITY_DETECTION_COMPLETE;
             }
             else if(UTILS_GetElapsedTimeInSec(&_SpeedRampDetectTimer) >= TIMEOUT_FOR_RAMP_DETECTION)
             {
@@ -158,27 +160,9 @@ void ENGINE_START_VALIDITY::prvIsSpeedRampValid()
             }
         }
         break;
-        case SV_SM_FOUND_VALID_START :
+        case SV_SM_VALIDITY_DETECTION_COMPLETE :
         {
-            /* For future purpose
-                    if any private functionality needs execution immediate after
-                    valid start detection, should be called in this state */
-            if(IS_ENGINE_TURNED_OFF())
-            {
-                _eValidSpeedRampDetectionState = SV_SM_RESET;
-            }
-            else
-            {
-                /* execution will remain in same state until engine gets off. */
-            }
-        }
-        break;
-        case SV_SM_FOUND_INVALID_START :
-        {
-            /* For future purpose
-                    if any private functionality needs execution immediate after
-                    invalid start detection, should be called in this state */
-            if(IS_ENGINE_TURNED_OFF())
+             if(IS_ENGINE_TURNED_OFF())
             {
                 _eValidSpeedRampDetectionState = SV_SM_RESET;
             }
@@ -210,7 +194,7 @@ void ENGINE_START_VALIDITY::prvIsVoltRampValid()
         {
             if(IS_ENGINE_START_VALIDITY_ENABLED())
             {
-                bStartValidDetectionEnaled = true;
+                bStartValidDetectionEnabled = true;
 
                 if(GET_CURRENT_VOLTAGE() > LOWER_VOLTAGE_THRESH)
                 {
@@ -222,7 +206,7 @@ void ENGINE_START_VALIDITY::prvIsVoltRampValid()
             {
                 /* If validity check is disabled, every start to be considered as valid start.
                           Skip validity check execution  */
-                bStartValidDetectionEnaled = false;
+                bStartValidDetectionEnabled = false;
                 _bFoundValidVoltRamp = true;
                 return;
             }
@@ -236,12 +220,12 @@ void ENGINE_START_VALIDITY::prvIsVoltRampValid()
                 if(UTILS_GetElapsedTimeInMs(&_VoltRampDetectTimer) >= MINIMUM_RAMP_TIME_FOR_VOLT)
                 {
                     _bFoundValidVoltRamp = true;
-                    _eValidVoltRampDetectionState = SV_SM_FOUND_VALID_START;
+                    _eValidVoltRampDetectionState = SV_SM_VALIDITY_DETECTION_COMPLETE;
                 }
                 else
                 {
                     _bFoundValidVoltRamp = false;
-                    _eValidVoltRampDetectionState = SV_SM_FOUND_INVALID_START;
+                    _eValidVoltRampDetectionState = SV_SM_VALIDITY_DETECTION_COMPLETE;
                 }
             }
             else if((UTILS_GetElapsedTimeInSec(&_VoltRampDetectTimer) >= TIMEOUT_FOR_RAMP_DETECTION) &&
@@ -251,7 +235,7 @@ void ENGINE_START_VALIDITY::prvIsVoltRampValid()
                         has at least maintained speed greater than lower speed threshold for the configured portion of time.
                         Hence, Engine will enter in ON state anyway and GCU considers this as a valid start. */
                 _bFoundValidVoltRamp = true;
-                _eValidVoltRampDetectionState = SV_SM_FOUND_VALID_START;
+                _eValidVoltRampDetectionState = SV_SM_VALIDITY_DETECTION_COMPLETE;
             }
             else if(UTILS_GetElapsedTimeInSec(&_VoltRampDetectTimer) >= TIMEOUT_FOR_RAMP_DETECTION)
             {
@@ -268,26 +252,8 @@ void ENGINE_START_VALIDITY::prvIsVoltRampValid()
             }
         }
         break;
-        case SV_SM_FOUND_VALID_START :
+        case SV_SM_VALIDITY_DETECTION_COMPLETE :
         {
-            /* For future purpose
-                    if any private functionality needs execution immediate after
-                    valid start detection, should be called in this state */
-            if(IS_ENGINE_TURNED_OFF())
-            {
-                _eValidVoltRampDetectionState = SV_SM_RESET;
-            }
-            else
-            {
-                /* execution will remain in same state until engine gets off. */
-            }
-        }
-        break;
-        case SV_SM_FOUND_INVALID_START :
-        {
-            /* For future purpose
-                    if any private functionality needs execution immediate after
-                    invalid start detection, should be called in this state */
             if(IS_ENGINE_TURNED_OFF())
             {
                 _eValidVoltRampDetectionState = SV_SM_RESET;
@@ -316,7 +282,7 @@ bool ENGINE_START_VALIDITY::IsEngineStartValidityDetectionEnabled()
 {
     /* return true : if Engine start validity detection is enabled
        return false: if Engine start validity detection is disabled */
-    return bStartValidDetectionEnaled;
+    return bStartValidDetectionEnabled;
 }
 
 bool ENGINE_START_VALIDITY::IsValidEngineStartFound()

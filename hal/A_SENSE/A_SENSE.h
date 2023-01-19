@@ -49,13 +49,15 @@
 #define MIN_COMPARTOR_SENSE_VTG    (20.0)
 /*
  * SuryaPranayTeja.BVV 24-12-2022
- * Invented the macro with value of 10 to solve the field issue.
+ * Invented the macro with different value to solve the field issue.
+ * Later decided to use the same value as MIN_COMPARTOR_SENSE_VTG.
+ * Still the macro is in use to allow the flexibility to change in future if required.
  * Please find the data in the Confluence page GC2111 Field info.
  * This will be used only for the Invalid DG Run and
  * The Call Back function where we get the RPM also will be changed.
  * This has been agreed with SYSE.
  */
-#define MIN_COMPARTOR_SENSE_INVALID_DG_DETECT (20.0)
+#define VOLTAGE_THRESHOLD_FOR_SPEED_COMPUTATION (20.0)
 #define SPEED_FLT_DETECT_DLY       (250U)
 /* Forward declaration of ANLG_IP*/
 class ANLG_IP;

@@ -293,6 +293,16 @@ float AC_SENSE::GENSET_GetVoltageVoltsRaw(PHASE_t Phase)
     return 0;
 }
 
+float AC_SENSE::GENSET_GetPollFrequency(PHASE_t Phase)
+{
+    if(prvIsPhaseAvilableInSelectedACSys(Phase, _eGenSystemType))
+       {
+           return _aPowers[Phase].GetGensetPollFrequency();
+       }
+       return 0;
+
+}
+
 float AC_SENSE::GENSET_GetPercentPower()
 {
      if(_fGenRating> 0.0f)

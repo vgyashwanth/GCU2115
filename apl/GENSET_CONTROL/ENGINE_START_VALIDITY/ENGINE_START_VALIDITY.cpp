@@ -86,7 +86,8 @@ void ENGINE_START_VALIDITY:: EngineStartValiditySM(bool bDeviceInConfigMode)
     {
         prvIsSpeedRampValid();
         prvIsVoltRampValid();
-        bFoundValidEngineStart = (_bFoundValidSpeedRamp || _bFoundValidVoltRamp);
+       // bFoundValidEngineStart = (_bFoundValidSpeedRamp || _bFoundValidVoltRamp);
+        bFoundValidEngineStart = _bFoundValidSpeedRamp;
     }
     else
     {

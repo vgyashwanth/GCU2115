@@ -138,6 +138,8 @@ public:
      */
     float GENSET_GetVoltageVoltsRaw(PHASE_t Phase);
 
+    float GENSET_GetPollFrequency(PHASE_t Phase);
+
     /**
      * Returns the Genset R, Y or B phase RMS current.
      * @param - None

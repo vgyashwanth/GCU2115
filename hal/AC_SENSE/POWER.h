@@ -99,6 +99,8 @@ public:
      */
     float GetGensetVoltageRaw();
 
+    float GetGensetPollFrequency();
+
 
     /**
      * Returns the Mains RMS voltage.

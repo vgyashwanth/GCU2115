@@ -317,6 +317,10 @@ float POWER::GetGensetVoltageRaw()
     return _GensetVoltageCalc.GetRawRMS();
 
 }
+float POWER::GetGensetPollFrequency()
+{
+    return _GensetFreqParams.fFrequency;
+}
 
 float POWER::GetMainsVoltage()
 {

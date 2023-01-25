@@ -328,10 +328,9 @@ private:
     #define DC_OFFSET_WINDOW_SIZE         (10000U)
 
     //For Invalid DG Run the frequency is used from the polling and to match the
-    // Hysteresis of +- 20 ADCs we achieve a +- 15mv band at the controller
-    // Which is similar to the Hysteresis of 30mV
-    #define ZCD_UPPER_THRESHOLD_SAMPLES   (20)
-    #define ZCD_LOWER_THRESHOLD_SAMPLES   (-20)
+    // Hysteresis of +- 25 ADCs used to achieve the required results
+    #define ZCD_UPPER_THRESHOLD_SAMPLES   (25)
+    #define ZCD_LOWER_THRESHOLD_SAMPLES   (-25)
 
     #define SAMPLE_UPDATE_TIME_PERIOD_S   (0.0002F)
     #define MILLI_SECONDS_IN_HOUR         (3600000.0F)

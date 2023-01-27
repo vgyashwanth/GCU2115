@@ -1871,7 +1871,7 @@ float GCU_ALARMS::GetInvalidDGSpeedValue()
 {
    // return _hal.AnalogSensors.GetRPMForInvalidDG();
 #define CONST_FOR_RPM_CONVERSION 120U
-    return _hal.AcSensors.GENSET_GetPollFrequency(R_PHASE) * 30.0f ;
+    return _hal.AcSensors.GENSET_GetPollFrequency(R_PHASE) *  CONST_FOR_RPM_CONVERSION/ (float)((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_NUMBER_OF_POLES)*2) +2) ;
 
 }
 float GCU_ALARMS::GetRawVoltageValue()

@@ -49,7 +49,7 @@ static void RS485Cb(uint8_t *pu8Data, uint16_t u16Len);
 
 uint64_t MODBUS::MB_Valid_Count = 0;
 
-const int SilenceMsArray[]=
+const uint8_t SilenceMsArray[]=
 {
  30,
  15,

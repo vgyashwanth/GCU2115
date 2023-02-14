@@ -49,6 +49,18 @@ static void RS485Cb(uint8_t *pu8Data, uint16_t u16Len);
 
 uint64_t MODBUS::MB_Valid_Count = 0;
 
+const int SilenceMsArray[]=
+{
+ 30,
+ 15,
+ 8,
+ 4,
+ 4,
+ 2,
+ 2,
+ 2
+};
+
 MODBUS::MODBUS(RS485 &rs485, ADDRESS_GRP_LST_t &addressGrp):
 _rs485(rs485),
 _u8SlaveID(0x00),
@@ -67,7 +79,7 @@ _isModbusEnabled(false)
 
 void MODBUS::Update()
 {
-    if(_ParseComplete)
+    if(_ParseComplete && (UTILS_GetElapsedTimeInMs (&_waitToRespond) > 3 ))
     {
         if(_isModbusEnabled)
         {
@@ -86,12 +98,13 @@ void MODBUS::Update()
     }
 }
 
-void MODBUS::Configure(uint32_t u32Baud, uint8_t u8StationAddress, bool bEnable)
+void MODBUS::Configure(uint8_t u8BaudOption, uint8_t u8StationAddress, bool bEnable)
 {
     _u8SlaveID = u8StationAddress;
     /*Calculate silence in milliseconds corresponding to BYTES_OF_SILENCE characters.
      */
-    _u8SilenceInMS = (uint8_t)((1000/(u32Baud/BITS_PER_UART_BYTE))*BYTES_OF_SILENCE) + 1;
+  //  _u8SilenceInMS = (uint8_t)((1000/(u32Baud/BITS_PER_UART_BYTE))*BYTES_OF_SILENCE) + 1;
+    _u8SilenceInMS = SilenceMsArray[u8BaudOption];
     _isModbusEnabled = bEnable;
 }
 
@@ -122,7 +135,7 @@ void MODBUS::HandleIncomingData(uint8_t u8Byte)
         case MB_WAIT_FOR_DATA:
         {
             /*Wait for the silence time to pick the next frame*/
-            if(UTILS_GetElapsedTimeInMs(&_tmr) > _u8SilenceInMS)
+            if (UTILS_GetElapsedTimeInMs (&_tmr) > _u8SilenceInMS)
             {
                 /*Start using this packet only if it contains the station address
                   of this server*/
@@ -263,6 +276,11 @@ void MODBUS::HandleIncomingData(uint8_t u8Byte)
             _eParserState = MB_WAIT_FOR_DATA;
             break;
         }
+    }
+
+    if(_ParseComplete == true)
+    {
+        UTILS_ResetTimer(&_waitToRespond);
     }
     UTILS_ResetTimer(&_tmr);
 }

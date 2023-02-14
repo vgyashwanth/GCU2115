@@ -688,7 +688,7 @@ void CFGZ::prvConfigureMODBUS()
     RS485::BAUD_t eBaud     = prvGetRS485Baud();
     RS485::PARITY_t eParity = prvGetRS485Parity();
     /*Baud is needed by MODBUS module to configure silence period*/
-    _modbus.Configure((uint32_t)eBaud, u8MBSlaveID, bModbusEnable);
+    _modbus.Configure((uint8_t)_All_Param.u8ArrParam[ID_MODBUS_COMM_MODBUS_BAUDRATE], u8MBSlaveID, bModbusEnable);
     _hal.ObjRS485.ConfigureBaudParity(eBaud, eParity);
 }
 

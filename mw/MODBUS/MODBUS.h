@@ -79,7 +79,7 @@ public:
      * @return
      * None
      */
-    void Configure(uint32_t u32Baud, uint8_t u8StationAddress, bool bEnable);
+    void Configure(uint8_t u8BaudOption, uint8_t u8StationAddress, bool bEnable);
 
     /**
      * Runs the modbus slave procedures. The function is expected to be called in
@@ -155,6 +155,8 @@ private:
     uint8_t            _u8SilenceInMS;
     /*Timer used to handle silence during parsing*/
     stTimer            _tmr;
+
+    stTimer             _waitToRespond;
     MODBUS_PKT_t       _pkt;
     /*Determines weather modbus is enabled/disabled*/
     bool               _isModbusEnabled;

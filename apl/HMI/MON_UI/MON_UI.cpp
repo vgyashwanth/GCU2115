@@ -2527,24 +2527,29 @@ void MON_UI::prvProductInfo()
  * SuryaPranayTeja.BVV
  * Engine Serial number does not have all the ASCII characters
  * So the below loop copy the appropriate character and display
+ *
+ * Shubham Wader 02.03.2023
+ * To address the issue "intersection of characters in engine seril number",
+ * firstly the characters from engine serial number is pushed in an array (arrTemp)
+ * and then sent the same for display.
  */
     for(int i=0;i<12;i++)
     {
         if(EngSrNo[i] == 47)
         {
-            sprintf(arrTemp,"%c",35);
+            arrTemp[i] = 35;
         }
         else if(EngSrNo[i] > 57)
         {
-            sprintf(arrTemp,"%c",EngSrNo[i]+7);
+            arrTemp[i] = EngSrNo[i]+7;
         }
         else
         {
-            sprintf(arrTemp,"%c",EngSrNo[i]);
+            arrTemp[i] = EngSrNo[i];
         }
-        _Disp.gotoxy(GLCD_X(43+6*i),GLCD_Y(34));
-        _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
     }
+    _Disp.gotoxy(GLCD_X(43),GLCD_Y(34));
+    _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
     sprintf(arrTemp,(char*)StrInfoDate[_u8LanguageIndex]);
     _Disp.gotoxy(GLCD_X(2),GLCD_Y(47));

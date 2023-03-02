@@ -2548,6 +2548,8 @@ void MON_UI::prvProductInfo()
             arrTemp[i] = EngSrNo[i];
         }
     }
+    arrTemp[12] = '\0';
+
     _Disp.gotoxy(GLCD_X(43),GLCD_Y(34));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 

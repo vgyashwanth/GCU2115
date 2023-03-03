@@ -2501,6 +2501,7 @@ void MON_UI::prvDisplayBootLogo()
 void MON_UI::prvProductInfo()
 {
     char arrTemp[32];
+    static int i = 0;
 
     RTC::TIME_t CurrentTime;
     _hal.ObjRTC.GetTime(&CurrentTime);
@@ -2515,7 +2516,7 @@ void MON_UI::prvProductInfo()
     _Disp.gotoxy(GLCD_X(2),GLCD_Y(22));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
-    sprintf(arrTemp,"%s%d-R%d.%02d",SeriesId,_cfgc.GetProductID(),_cfgc.GetProductRevision(),_cfgc.GetProductVersion());
+    sprintf(arrTemp,"%s%d-R%02d.%02d",SeriesId,_cfgc.GetProductID(),_cfgc.GetProductRevision(),_cfgc.GetProductVersion());
     _Disp.gotoxy(GLCD_X(43),GLCD_Y(22));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
@@ -2533,20 +2534,9 @@ void MON_UI::prvProductInfo()
  * firstly the characters from engine serial number is pushed in an array (arrTemp)
  * and then sent the same for display.
  */
-    for(int i=0;i<12;i++)
+    for(i=0;i<12;i++)
     {
-        if(EngSrNo[i] == 47)
-        {
-            arrTemp[i] = 35;
-        }
-        else if(EngSrNo[i] > 57)
-        {
-            arrTemp[i] = EngSrNo[i]+7;
-        }
-        else
-        {
-            arrTemp[i] = EngSrNo[i];
-        }
+        arrTemp[i] = EngSrNo[i];
     }
     arrTemp[12] = '\0';
 

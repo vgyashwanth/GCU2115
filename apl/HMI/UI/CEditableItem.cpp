@@ -575,15 +575,39 @@ CEditableItem::EditableItemValue_t CEditableItem::incrementValue(
         break;
 
     case DT_ENG_SR_NO:
+
+/* Shubham Wader 03.03.2023
+   Allowed editable characters for engine serial number :
+   ['#'(ASCII: 35), '0 to 9'(ASCII: 48 to 57), 'A to Z'(ASCII: 65 to 90)].
+   Below If-Else ladder will allow user to nevigate and store the
+   above the list of allowed characters only.
+   1. User is binded to the above limitation for eng sr number modification
+      through GCU keypad only.
+   2. User will be able to modify the eng sr number with any sysmbol with
+      the EOL utility. Hence various corner checks are added in firmware.
+   Same kind of ladder is implemented in the decrement function.
+*/
         if(u8MultiItemEditIndex < 12)
         {
-            if( aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] < maxVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex])
+            if((aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] >= 57) && (aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] < 65))
             {
-                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex]++;
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = 65;
+            }
+            else if((aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] >= 35) && (aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] < 48))
+            {
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = 48;
+            }
+            else if(aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] >= maxVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex])
+            {
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = minVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex];
+            }
+            else if(aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] < minVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex])
+            {
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = minVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex];
             }
             else
             {
-                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = minVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex];
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex]++;
             }
         }
         break;
@@ -825,13 +849,25 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
     case DT_ENG_SR_NO:
         if(u8MultiItemEditIndex < 12)
         {
-            if( aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] > minVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex])
+            if((aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] <= 48) && (aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] > 35))
             {
-                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex]--;
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = 35;
+            }
+            else if((aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] <= 65) && (aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] > 57))
+            {
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = 57;
+            }
+            else if (aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] <= minVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex])
+            {
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = maxVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex];
+            }
+            else if(aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] > maxVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex])
+            {
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = minVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex];
             }
             else
             {
-                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex] = maxVal.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex];
+                aValue.stEngSrNo.u8EngSrNo[u8MultiItemEditIndex]--;
             }
         }
                 break;
@@ -933,18 +969,7 @@ void CEditableItem::CopyPrevValue()
 void CEditableItem:: DisplayEngSrChar(uint8_t val)
 {
     char arrTemp[32]={0};
-    if(val == 47)
-    {
-        sprintf(arrTemp," %c ",35);
-    }
-    else if(val > 57)
-    {
-        sprintf(arrTemp," %c ",val+7);
-    }
-    else
-    {
-        sprintf(arrTemp," %c ",val);
-    }
+    sprintf(arrTemp," %c ",val);
     gpDisplay->printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
 }
 void CEditableItem::prvPrint_Password_Edit_Screen(EditableItemValue_t val)

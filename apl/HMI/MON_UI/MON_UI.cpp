@@ -2501,7 +2501,7 @@ void MON_UI::prvDisplayBootLogo()
 void MON_UI::prvProductInfo()
 {
     char arrTemp[32];
-    static int i = 0;
+    uint8_t nu8EngSrNo;
 
     RTC::TIME_t CurrentTime;
     _hal.ObjRTC.GetTime(&CurrentTime);
@@ -2534,11 +2534,11 @@ void MON_UI::prvProductInfo()
  * firstly the characters from engine serial number is pushed in an array (arrTemp)
  * and then sent the same for display.
  */
-    for(i=0;i<12;i++)
+    for(nu8EngSrNo=0;nu8EngSrNo<12;nu8EngSrNo++)
     {
-        arrTemp[i] = EngSrNo[i];
+        arrTemp[nu8EngSrNo] = EngSrNo[nu8EngSrNo];
     }
-    arrTemp[12] = '\0';
+    arrTemp[nu8EngSrNo] = '\0';
 
     _Disp.gotoxy(GLCD_X(43),GLCD_Y(34));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);

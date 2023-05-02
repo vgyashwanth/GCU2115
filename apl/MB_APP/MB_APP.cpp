@@ -305,11 +305,11 @@ void MB_APP::prvUpdateElectricalParams()
 
     /*KWH in 0.1 resolution*/
 
-    u32Tmp = (uint32_t)(ac.GENSET_GetTotalApparentEnergySinceInitVAH()/100);
+    u32Tmp = (uint32_t)(ac.GENSET_GetTotalApparentEnergySinceInitVAH()/1000);
     SetReadRegisterValue(MB_GEN_CUMM_APPARENT_ENERGY_1, (uint16_t)(u32Tmp & 0xFFFFU));
     SetReadRegisterValue(MB_GEN_CUMM_APPARENT_ENERGY_2, (uint16_t)(u32Tmp>>16));
 
-    u32Tmp = (uint32_t)(ac.GENSET_GetTotalReactiveEnergySinceInitVARH()/100);
+    u32Tmp = (uint32_t)(ac.GENSET_GetTotalReactiveEnergySinceInitVARH()/1000);
     SetReadRegisterValue(MB_GEN_CUMM_REACTIVE_ENERGY_1, (uint16_t)(u32Tmp & 0xFFFFU));
     SetReadRegisterValue(MB_GEN_CUMM_REACTIVE_ENERGY_2, (uint16_t)(u32Tmp>>16));
 

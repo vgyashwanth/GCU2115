@@ -1979,7 +1979,7 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.printImage((uint8_t *)gau8GenPFLogo, 4, 30, 26, 7);
                 sprintf(arrTemp,"%s-%s    %0.2f",(char *)StrPF,
                         (char *)strPhase[R_PHASE],
-                        _hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)R_PHASE));
+                        abs(_hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)R_PHASE)));
                 _Disp.gotoxy(GLCD_X(48),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
             }

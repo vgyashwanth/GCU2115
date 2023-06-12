@@ -407,7 +407,14 @@ void MAIN_UI::prvLEDHandling()
        }
        else if(IS_GCU_TEST_MODE())
        {
-           UpdateLEDStatus(eState, eState, TURN_OFF);
+           if(prvIsEnginNotInONstate())
+           {
+               UpdateLEDStatus(eState, eState, TURN_OFF);
+           }
+           else
+           {
+               UpdateLEDStatus(TURN_ON, TURN_ON, TURN_OFF);
+           }
        }
        else
        {

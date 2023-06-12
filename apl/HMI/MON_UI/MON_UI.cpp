@@ -2193,17 +2193,20 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.printStringLeftAligned((char*)"V",FONT_VERDANA);
             }
 
-            /* V BTS */
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
+            {
+                /* V BTS */
 
-            _Disp.gotoxy(GLCD_X(40),GLCD_Y(47));
-            _Disp.printStringLeftAligned((char *)"BTS BATT",FONT_VERDANA);
+                _Disp.gotoxy(GLCD_X(40),GLCD_Y(47));
+                _Disp.printStringLeftAligned((char *)"BTS BATT",FONT_VERDANA);
 
-            _Disp.gotoxy(GLCD_X(112),GLCD_Y(47));
-            sprintf(arrTemp,"%0.1f",
-                    _hal.AnalogSensors.GetFilteredVBTSbattVolts());
-            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-            _Disp.gotoxy(GLCD_X(116),GLCD_Y(47));
-            _Disp.printStringLeftAligned((char*)"V",FONT_VERDANA);
+                _Disp.gotoxy(GLCD_X(112),GLCD_Y(47));
+                sprintf(arrTemp,"%0.1f",
+                        _hal.AnalogSensors.GetFilteredVBTSbattVolts());
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                _Disp.gotoxy(GLCD_X(116),GLCD_Y(47));
+                _Disp.printStringLeftAligned((char*)"V",FONT_VERDANA);
+            }
 
         }
         break;

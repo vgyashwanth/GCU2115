@@ -1589,7 +1589,7 @@ void UI::SaveConfigFile()
                     AllParam.u8ArrParam[CFGZ::ID_ALARM_DUE_DATE_SERVICE_DATE_2] = (uint8_t)_stMaintenanceDt.u8Month;
                     AllParam.u16ArrParam[CFGZ:: ID_ALARM_DUE_DATE_SERVICE_DATE_3] = (uint16_t)_stMaintenanceDt.u16Year;
                     _objDisplay.gotoxy(GLCD_X(35),GLCD_Y(50));
-                    _objDisplay.printStringCenterAligned((char *)StrMaintDate[_u8LanguageArrayIndex], FONT_VERDANA);
+                    _objDisplay.printStringCenterAligned((char *)StrMaintDate[0][0], FONT_VERDANA);
                 }
                 else
                 {
@@ -1597,7 +1597,7 @@ void UI::SaveConfigFile()
                     AllParam.u8ArrParam[CFGZ::ID_ALARM_DUE_DATE_SERVICE_DATE_2] = (uint8_t)ArrEditableItem[INDEX_OF_ALARM_DUE_DATE_SERVICE_DATE].value.stDate.u8Month;
                     AllParam.u16ArrParam[CFGZ:: ID_ALARM_DUE_DATE_SERVICE_DATE_3] = (uint16_t)ArrEditableItem[INDEX_OF_ALARM_DUE_DATE_SERVICE_DATE].value.stDate.u16Year;
                     _objDisplay.gotoxy(GLCD_X(35),GLCD_Y(50));
-                    _objDisplay.printStringCenterAligned((char *)StrMaintDate[_u8LanguageArrayIndex], FONT_VERDANA);
+                    _objDisplay.printStringCenterAligned((char *)StrMaintDate[0][1], FONT_VERDANA);
                 }
             }
             else
@@ -1916,7 +1916,7 @@ void UI::HandleMenuVisibility(void)
         LowestLevelMenuEnDis(INDEX_OF_AUX_S3_DIG_O_DIG_SOURCE,INDEX_OF_AUX_S3_DIG_O_P10,false);
     if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_DIG_SOURCE].value.u8Val == CFGZ::CFGZ_SENSOR_NOT_USED)
         LowestLevelMenuEnDis(INDEX_OF_AUX_S3_DIG_O_DIG_POLARITY,INDEX_OF_AUX_S3_DIG_O_P10,false);
-    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
+    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
     {
         DigitalInputMenuVisiblity(INDEX_OF_AUX_S3_DIG_O_DIG_SOURCE);
         LowestLevelMenuEnDis(INDEX_OF_AUX_S3_DIG_O_SHUTDOWN,INDEX_OF_AUX_S3_DIG_O_P10,false);
@@ -1933,7 +1933,7 @@ void UI::HandleMenuVisibility(void)
         LowestLevelMenuEnDis(INDEX_OF_AUX_S4_DIG_P_DIG_SOURCE,INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2,false);
     if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_DIG_SOURCE].value.u8Val == CFGZ::CFGZ_SENSOR_NOT_USED)
         LowestLevelMenuEnDis(INDEX_OF_AUX_S4_DIG_P_DIG_POLARITY,INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2,false);
-    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S2_RES_DIG_N_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
+    if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
     {
         DigitalInputMenuVisiblity(INDEX_OF_AUX_S4_DIG_P_DIG_SOURCE);
         LowestLevelMenuEnDis(INDEX_OF_AUX_S4_DIG_P_SHUTDOWN,INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2,false);

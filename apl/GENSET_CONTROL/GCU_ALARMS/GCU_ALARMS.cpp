@@ -3154,8 +3154,6 @@ float GCU_ALARMS::GetMinMainsFreq()
 float GCU_ALARMS::GetMinGenFreq()
 {
     static float f32MinGenFreq;
-    static float f32GenFreqOld1=0, f32GenFreqOld2=0;
-    static float f32MaxGenOldFreq;
     f32MinGenFreq = _hal.AcSensors.GENSET_GetApproxFreq(R_PHASE);
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
     {
@@ -3169,20 +3167,7 @@ float GCU_ALARMS::GetMinGenFreq()
             f32MinGenFreq = _hal.AcSensors.GENSET_GetApproxFreq(B_PHASE);
         }
     }
-
-    f32MaxGenOldFreq = f32MinGenFreq;
-    if(f32GenFreqOld1 > f32MaxGenOldFreq)
-    {
-        f32MaxGenOldFreq = f32GenFreqOld1;
-    }
-
-    if(f32GenFreqOld2 > f32MaxGenOldFreq)
-    {
-        f32MaxGenOldFreq = f32GenFreqOld2;
-    }
-    f32GenFreqOld2 = f32GenFreqOld1;
-    f32GenFreqOld1 = f32MinGenFreq;
-    return f32MaxGenOldFreq;
+    return f32MinGenFreq;
 
 }
 

@@ -338,9 +338,9 @@ void ALARM_UI::prvDisplayAlarmScreen()
         }
 
         _Disp.gotoxy(GLCD_X(2),GLCD_Y(50));
-        _Disp.printStringLeftAligned((char *)arrTemp1, FONT_VERDANA);
+        _Disp.printStringLeftAligned((char *)arrTemp, FONT_VERDANA);
         _Disp.gotoxy(GLCD_X(126),GLCD_Y(50));
-        _Disp.printStringRightAligned((char *)arrTemp, FONT_VERDANA);
+        _Disp.printStringRightAligned((char *)arrTemp1, FONT_VERDANA);
     }
 }
 

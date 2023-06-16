@@ -21,7 +21,7 @@ extern const uint8_t u8BmpLogoLoad[3][20];
 extern const uint8_t u8BmpLogoshelterTemp[3][20];
 extern const char *strTimerStatus[1][14];
 extern const char *strGCUStatus[1][10];
-extern const char *strMonScreens[1][30]; /*todo : MON_UI::DISP_MON_LAST should be used here for indexing */
+extern const char *strMonScreens[1][32]; /*todo : MON_UI::DISP_MON_LAST should be used here for indexing */
 extern const char *strGCUMode[1][5];
 extern const char *strIDLMode[];
 extern const uint8_t u8ArrContactor1[6][16];
@@ -146,6 +146,7 @@ typedef struct
     char*    pSpnName;
     char*    pSpanishSpnName;
 }J1939_SPN_NAME_STRING;
+/*
 extern const J1939_SPN_NAME_STRING gstDmNoString[NO_OF_SPNS_IN_DM];
 extern const char SPNStringTable[SPN_LAST][SPN_NAME_MAX_LEN];
 extern const char SpanishSPNStringTable[SPN_LAST][SPN_NAME_MAX_LEN];
@@ -155,6 +156,7 @@ extern const DM01_FMI_STRINGS_t gstDM1FmiData[1][MAX_NUM_OF_FMIS];
 extern const PCD_NCD_ALARMS_DATA_t    gstPcdNcdData[1][MAX_NUM_OF_PCD_NCD_ALARMS];
 extern const NCD_INDUCE_STRATEGTY_t   gstNcdInduceData[1][MAX_NUM_OF_NCD_INDUCE_STRAT];
 extern const char* arrPGNAbbreviations[1][NUMBER_OF_PGN_SCREENS];
+*/
 
 extern const char *Error;
 extern const char * const array_units[];
@@ -171,4 +173,24 @@ extern const char *StrLampIcons[2];
 extern const char *StrExhaustAFT[2];
 extern const char *StrOff[2];
 extern const char *StrOn[2];
+extern const char *StrNotAvailable;
+extern const char *StrCANErr;
+extern const char *StrErr;
+
+extern const char *EngType[];
+/* To store DTC data */
+
+typedef struct
+{
+    uint32_t u32spn_no;
+    uint8_t  u8fmi;
+    char*    FaultCode;
+    char*    Description;
+} stCNG_15KVA_DTC;
+
+
+#define PCODE_LAST_CNG_15KVA 38 //added for testing need to remove after getting exact requirement
+
+
+extern const stCNG_15KVA_DTC J1939AlarmArrayStringsCNG_15KVA[PCODE_LAST_CNG_15KVA];
 #endif /* APL_HMI_UI_CONST_UI_H_ */

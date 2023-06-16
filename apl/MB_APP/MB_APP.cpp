@@ -35,6 +35,7 @@
 #include "../HMI/MAIN_UI/MAIN_UI.h"
 #include "START_STOP.h"
 
+extern J1939APP *gpJ1939;
 MB_APP::KEY_MB_CAN_EVENT_t MB_APP::stMBEvent={0};
 MB_APP::MISC_EEPROM_t MB_APP::stEepromMisc = {0};
 uint64_t MB_APP::Curr_MB_Valid_Count = 0;
@@ -349,7 +350,7 @@ void MB_APP::prvUpdateAnalogParams()
 {
 
     A_SENSE &sensor = _hal.AnalogSensors;
-
+    A_SENSE::SENSOR_RET_t sensorVal = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};
     uint16_t  u16Tmp = 0;
 
     /*Initialize registers to zero*/
@@ -358,33 +359,68 @@ void MB_APP::prvUpdateAnalogParams()
     SetReadRegisterValue(MD_FUEL_PERCENTAGE, u16Tmp);
     SetReadRegisterValue(MB_FUEL_IN_LIT, u16Tmp);
 
-    A_SENSE::SENSOR_RET_t sensorVal = _gcuAlarm.GetLOPSensorVal();
 
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) >= CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-            && (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS)
-            && (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL))
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
+        && (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
     {
-        /*Scale factor is 0.1*/
-        u16Tmp = (uint16_t)(sensorVal.stValAndStatus.f32InstSensorVal*10);
-        SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
+        if((!gpJ1939->IsCommunicationFail()) && (gpJ1939->GetSPNErrorStatus(RX_PGN_EFL_P1_65263,0) == J1939APP::VALID_DATA))
+        {
+            u16Tmp =(uint16_t)((round(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263, 0)*10)*10) * 0.01);
+            SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
+        }
+        else
+        {
+            u16Tmp = 0;
+            SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
+        }
     }
-    else if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) &&
-        (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
-        (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+    else
     {
-        /*Scale factor is 0.1*/
-        u16Tmp = (uint16_t)(sensorVal.stValAndStatus.f32InstSensorVal*10);
-        SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
+        A_SENSE::SENSOR_RET_t sensorVal = _gcuAlarm.GetLOPSensorVal();
+
+        if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) >= CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                && (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS)
+                && (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL))
+        {
+            /*Scale factor is 0.1*/
+            u16Tmp = (uint16_t)(sensorVal.stValAndStatus.f32InstSensorVal*10);
+            SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
+        }
+        else if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) &&
+            (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
+            (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+        {
+            /*Scale factor is 0.1*/
+            u16Tmp = (uint16_t)(sensorVal.stValAndStatus.f32InstSensorVal*10);
+            SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
+        }
+
     }
 
-
-    sensorVal = _gcuAlarm.GetSelectedTempSensVal();
-
-    if((sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
-        (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
+            && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
     {
-        u16Tmp = (int16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal));
-        SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
+        if((!gpJ1939->IsCommunicationFail()) && (gpJ1939->GetSPNErrorStatus(RX_PGN_ET1_65262,0) == J1939APP::VALID_DATA))
+        {
+            u16Tmp = (int16_t)gpJ1939->GetReadData(RX_PGN_ET1_65262,0);
+            SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
+        }
+        else
+        {
+            u16Tmp = 0;
+            SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
+        }
+    }
+    else
+    {
+        sensorVal = _gcuAlarm.GetSelectedTempSensVal();
+
+        if((sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
+            (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+        {
+            u16Tmp = (int16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal));
+            SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
+        }
     }
 
 
@@ -1139,4 +1175,104 @@ void MB_APP::prvGetMiscParams()
     {
         stEepromMisc.u16Mbcount = 0;
     }
+}
+
+uint16_t MB_APP::GetGenStatusRegister()
+{
+    uint16_t u16GenStatus = 0;
+
+    /* Bit-15 for GCU Mode */
+    if(IS_DISP_CONFIG_MODE()||IS_DISP_PASSWORD_ENTRY_MODE()||IS_DISP_EVENT_LOG_MODE())
+    {
+        u16GenStatus|= (1U<<15);
+    }
+
+    /* Bit-14 for Mains healthy/unhealthy*/
+    if((_Automode.GetMainsStatus()==BASE_MODES::MAINS_HELATHY)
+            && _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING))
+    {
+        u16GenStatus|= 1<<14;
+    }
+
+    /* Bit-13 and 12 unimplemented */
+    u16GenStatus |= (1 << 13);
+    u16GenStatus |= (0 << 12);
+
+    /*Bit-11 for DG Current Mode (Auto - Manual)*/
+    if(_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE)
+    {
+        u16GenStatus |= (1 << 11);
+    }
+
+    /*Bit-10 Load on Mains*/
+    if(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)==ACT_Manager::ACT_LATCHED)
+
+    {
+        u16GenStatus |= ((uint16_t)1U << 10U);
+    }
+
+    /*
+     * Bit-9 Load on DG*/
+    u16GenStatus |= _Automode.IsGenContactorClosed()<< 9U;
+
+    /*Bit-8 Current DG Status*/
+    if(_engineMonitoring.IsEngineOn())
+    {
+        u16GenStatus |= 1U << 8U;
+    }
+
+    /* Bit-7 DG Stopped Normally*/
+    if((_engineMonitoring.IsEngineOn()==false)
+            &&!(_gcuAlarm.IsCommonShutdown()
+                    ||_gcuAlarm.IsCommonElectricTrip()))
+    {
+        u16GenStatus |= 1U << 7U;
+    }
+
+    /* Bit-6 DG Stopped With Fault*/
+    if((_engineMonitoring.IsEngineOn()==false)
+            &&(_gcuAlarm.IsCommonShutdown()
+                    ||_gcuAlarm.IsCommonElectricTrip()))
+    {
+        u16GenStatus |= 1U << 6U;
+    }
+
+    /*
+     * Bit-5 DG fail to start*/
+    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::FAIL_TO_START))
+    {
+        u16GenStatus |= 1<< 5;
+    }
+
+    /* Bit-4 Genset Available*/
+    if( _engineMonitoring.IsGenAvailable())
+    {
+        u16GenStatus |= 1<< 4;
+    }
+
+    /* Bit-3 - Common shutdown */
+    if( _gcuAlarm.IsCommonShutdown())
+    {
+        u16GenStatus |= 1<< 3;
+    }
+
+    /* Bit-2 - Common electric trip*/
+    if( _gcuAlarm.IsCommonElectricTrip())
+    {
+        u16GenStatus |= 1<< 2;
+    }
+
+    /* Bit-1 - Common warning*/
+    if( _gcuAlarm.IsCommonWarning())
+    {
+        u16GenStatus |= 1<< 1;
+    }
+
+    /* Bit-0 - Common notification */
+    if( _gcuAlarm.IsCommonNotification())
+    {
+        u16GenStatus |= 1;
+    }
+
+    return u16GenStatus;
 }

@@ -16,6 +16,8 @@
 #include "CFGZ.h"
 #include "productSelection.h"
 
+#define MAX_DTC_ALLOWED             (106U)
+
 class GCU_ALARMS{
 public:
 
@@ -160,6 +162,7 @@ public:
         INVALID_DG_START,
         AMB_TEMP_SWITCH,
         AUTOMATIC_MD_SWITCH,
+        ALARM_COM_FAIL,
         ALARM_AMBER_LAMP,
         ALARM_RED_LAMP,
         ALARM_MIL_LAMP,
@@ -299,6 +302,7 @@ public:
         Invalid_gen_start_id,
         Lop_Short_To_Battery_id,
         Automatic_md_switch_id,
+        J1939_com_fail_id,
         Alarm_Amber_Lamp_id,
         Alarm_Red_Lamp_id,
         Alarm_Mil_Lamp_id,
@@ -366,6 +370,7 @@ public:
         Alarm_P2315_id,
         Alarm_P2316_id,
         Alarm_P2317_id,
+        J1939DTC_id,
         ID_ALL_ALARMS_LAST
     }ALARM_LOGGING_ID_t;
 
@@ -383,6 +388,8 @@ public:
         uint8_t u8Month;
         uint8_t u8EventId;
         uint8_t u8EventType;
+        uint32_t u32SPN;
+        uint16_t u16FMI;
         uint8_t u8Dummy;
     }EVENT_LOG_t ;
 
@@ -523,6 +530,8 @@ public:
      */
     void LogEvent(uint8_t u8EventID, uint8_t u8EventType);
 
+    void LogEvent(uint8_t u8EventID, uint8_t u8EventType, uint32_t u32SPN, uint16_t u16FMI);
+
     float GetMinMainsFreq();
 
     float GetMinGenFreq();
@@ -584,6 +593,36 @@ public:
     void UpdateFuelTheftCalculation();
     void ClearAutoModeSwitchAlarm();
     static bool _bUpdateModbusCountCalc;
+
+    /**
+     * checks whether shutdown is enabled for the particular alarm.
+     * @param AlarmID: enum of the alarm list whose action needs to be checked
+     * @return : returns true if requested alarm is shutdown alarm or not.
+     */
+    bool IsShutdownAlarmEnabled(ALARM_LIST_t AlarmID);
+
+    /**
+     * checks whether electric trip is enabled for the particular alarm.
+     * @param AlarmID: enum of the alarm list whose action needs to be checked
+     * @return : returns true if requested alarm is electric trip alarm or not.
+     */
+    bool IsElectricTripAlarmEnabled(ALARM_LIST_t AlarmID);
+
+    /**
+     * checks whether warning is enabled for the particular alarm.
+     * @param AlarmID: enum of the alarm list whose action needs to be checked
+     * @return : returns true if requested alarm is warning alarm or not.
+     */
+    bool IsWarningAlarmEnabled(ALARM_LIST_t AlarmID);
+
+
+    /**
+     * checks whether notification is enabled for the particular alarm.
+     * @param AlarmID: enum of the alarm list whose action needs to be checked
+     * @return : returns true if requested alarm is notification alarm or not.
+     */
+    bool IsNotificationAlarmEnabled(ALARM_LIST_t AlarmID);
+
 private:
     #define FUEL_THEFT_WAKEUP_TIMER         (4U)
     typedef enum{
@@ -665,6 +704,7 @@ private:
         FUEL_OPEN_CKT_VAL,
         LOP_CURR_STB,
         AUTOMATIC_MODE_SWITCH_STATUS,
+        J1939_COM_FAIL_STATUS,
         J1939_AMBER_LAMP_STATUS,
         J1939_RED_LAMP_STATUS,
         J1939_MIL_LAMP_STATUS,
@@ -684,6 +724,7 @@ private:
                                              ((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == FLOAT_TYPE) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->f32Value) > ArrAlarmMonitoring[_u8AlarmIndex].Threshold.f32Value))
     #define EVENT_LOG_LOP_SENSOR_NA         (0xFFDC)
     #define EVENT_LOG_LOP_SENSOR_OC         (0xFFDD)
+
 
     /*Reference to the hal*/
     HAL_Manager   &_hal;
@@ -765,6 +806,14 @@ private:
 
     typedef struct
     {
+        uint8_t u8OC;
+        uint8_t u8FMI;
+        uint32_t u32SpnNo;
+    }PREVIOUS_DTC_t;
+
+    PREVIOUS_DTC_t prvPreviousDTC_OC[MAX_DTC_ALLOWED];
+    typedef struct
+    {
         uint32_t     u32EventNo;
         EVENT_LOG_t  stEventLog;
     }EVENT_LOG_Q_t;
@@ -833,6 +882,19 @@ private:
     void prvCheckTripAction(uint8_t u8ReturnIndex, uint8_t u8TripIndex, bool status);
 
     uint8_t prvIsLopSensOverVal();
+    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
+            bool bMonitoringPolarity, uint8_t u8LoggingID, uint8_t u8Threshold,
+                uint16_t u16CounterMax);
+
+    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
+            bool bMonitoringPolarity, uint8_t u8LoggingID,
+                uint16_t u16Threshold, uint16_t u16CounterMax);
+
+    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
+            bool bMonitoringPolarity, uint8_t u8LoggingID,
+                float f32Threshold, uint16_t u16CounterMax);
+    void prvUpdateDTCEventLog();
+    bool prvIsNewDTC(uint32_t u32Spn, uint8_t u8FMI, uint8_t u8Occurances);
 
 };
 #endif

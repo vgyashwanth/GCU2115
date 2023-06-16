@@ -14,182 +14,125 @@
 
 #include "J1939APP.h"
 #include "START_STOP.h"
+static const float F32_Null = 0xFFFFFFFF;
+bool J1939APP::bEnableEngineStart      = false;
+bool J1939APP::bExecutePreheat         = false;
 
-//static const float F32_Null = (float)(0xFFFFFFFF);
-bool J1939APP::bTXBufferisEmpty        = true;
-bool J1939APP::bAvrFaultShutDn         = false;
-bool J1939APP::bTransferSWFaultShutDn  = false;
-bool J1939APP::bAvrVoltNotDetect       = false;
-bool J1939APP::bAvrFreqNotDetect       = false;
-bool J1939APP::bAvrFaultWarning        = false;
-bool J1939APP::bTransferSWFaultWarning = false;
-bool J1939APP::bCurrentTransNotDetect  = false;
-bool J1939APP::bCANCommShutDn          = false;
-bool J1939APP::bCANCommWarning         = false;
-bool J1939APP::bTransferSWFault        = false;
-bool J1939APP::bAvrFault               = false;
-MB_APP::KEY_MB_CAN_EVENT_t J1939APP::stCANEvent={0};
 
-J1939APP::J1939APP(HAL_Manager &hal, CFGC &cfgc, CFGZ &cfgz, ENGINE_MONITORING &engineMonitoring,
-         GCU_ALARMS &gcuAlarm ,MB_APP &mbApp, AUTO_MODE  &Automode):
+J1939APP::J1939APP(HAL_Manager &hal, CFGC &cfgc, CFGZ &cfgz,ENGINE_MONITORING &engineMonitoring, GCU_ALARMS &gcuAlarm,
+        MB_APP &mbApp, AUTO_MODE  &Automode /*, EGOV &egov */):
 J1939DRIVER(hal),
 _hal(hal),
 _ObjCfgc(cfgc),
 _cfgz(cfgz),
-_ObjmbApp(mbApp),
 _engMon(engineMonitoring),
-_Automode(Automode),
 _gcuAlarm(gcuAlarm),
+_ObjmbApp(mbApp),
+_Automode(Automode),
 ubypReadTxPgns
 {
-        (J1939_PGNs)&(gstPGNs.PGNGC1_64915),        //0
-        (J1939_PGNs)&(gstPGNs.PGNPROPB80_65408),    //1
-        (J1939_PGNs)&(gstPGNs.PGNPROPB46_65350),    //2
-        (J1939_PGNs)&(gstPGNs.PGNTSC1_0),           //3
-        (J1939_PGNs)&(gstPGNs.PGNPROPB55_65365),    //4
-        (J1939_PGNs)&(gstPGNs.PGNPROPB01_65281),    //5
-        (J1939_PGNs)&(gstPGNs.PGNPROPB16_65302),    //6
-        (J1939_PGNs)&(gstPGNs.PGNPROPB00_65280),    //7
-        (J1939_PGNs)&(gstPGNs.PGNPROPBF7_65527),    //8
-        (J1939_PGNs)&(gstPGNs.PGNPROPB69_65385),    //9
-        (J1939_PGNs)&(gstPGNs.PGNPROPB73_65395),    //9
-        (J1939_PGNs)&(gstPGNs.PGNPROPB7E_65406),    //9
-        (J1939_PGNs)&(gstPGNs.PGNCM1_57344),        //10
-        (J1939_PGNs)&(gstPGNs.PGNETC5_65219),       //11
-        (J1939_PGNs)&(gstPGNs.PGNPROPB53_65363),   //12
-        (J1939_PGNs)&(gstPGNs.PGNCCVS_65265),      //13
-        (J1939_PGNs)&(gstPGNs.PGNPROPB08_65288),   //14
-        (J1939_PGNs)&(gstPGNs.PGNETC3_65223),      //15
-        (J1939_PGNs)&(gstPGNs.PGNEBC1_61441),      //16
-        (J1939_PGNs)&(gstPGNs.PGNRQST_59904),      //17
+        (J1939_PGNs)&(gstPGNs.PGNUtilityPhABasicACQty),
+        (J1939_PGNs)&(gstPGNs.PGNUtilityPhBBasicACQty),
+        (J1939_PGNs)&(gstPGNs.PGNUtilityPhCACBasicQty),
+        (J1939_PGNs)&(gstPGNs.PGNGenAvgBasicACQty),
+        (J1939_PGNs)&(gstPGNs.PGNGenPhABasicQty),
+        (J1939_PGNs)&(gstPGNs.PGNGenPhAACPower),
+        (J1939_PGNs)&(gstPGNs.PGNGenPhAACReactPow),
+        (J1939_PGNs)&(gstPGNs.PGNGenPhBBasicQty),
+        (J1939_PGNs)&(gstPGNs.PGNGenPhBACPow),
+        (J1939_PGNs)&(gstPGNs.PGNGenPhBACReactPow),
+        (J1939_PGNs)&(gstPGNs.PGNGenPhCBasicQty),
+        (J1939_PGNs)&(gstPGNs.PGNGenPhCACPow),
+        (J1939_PGNs)&(gstPGNs.PGNGenPhCACReactPow),
+        (J1939_PGNs)&(gstPGNs.PGNGenTotalACActiveEnergy),
+        (J1939_PGNs)&(gstPGNs.PGNGenTotalACPow),
+        (J1939_PGNs)&(gstPGNs.PGNGenTotalACReactPow),
+        (J1939_PGNs)&(gstPGNs.PGNGenTotlaACPercentPow),
+        (J1939_PGNs)&(gstPGNs.PGNSedemacProprietary),
+        (J1939_PGNs)&(gstPGNs.PGNPropStatusCnts),
+        (J1939_PGNs)&(gstPGNs.PGNRunHrs),
+        (J1939_PGNs)&(gstPGNs.PGNAlarms1_4),
+        (J1939_PGNs)&(gstPGNs.PGNAlarms5_8),
+        (J1939_PGNs)&(gstPGNs.PGNAlarms9_12),
+        (J1939_PGNs)&(gstPGNs.PGNPrcntgLdFuelCA),
+        (J1939_PGNs)&(gstPGNs.PGNCumltvDGKwhKvah),
+        (J1939_PGNs)&(gstPGNs.PGNCumltvDGKvarh),
+        (J1939_PGNs)&(gstPGNs.PGN_RQST_59904),
 },
+
 ubypReadRxPgns{
 
-    (J1939_PGNs)&(gstPGNs.PGN_PROPB62_65378    ),
-    (J1939_PGNs)&(gstPGNs.PGN_PROPB57_65367    ),
-    (J1939_PGNs)&(gstPGNs.PGN_EMR_PREHEAT_65284),
-    (J1939_PGNs)&(gstPGNs.PGN_IVECO_ENG_STATUS_65282),
-    (J1939_PGNs)&(gstPGNs.PGN_LFE_65266       ),
-    (J1939_PGNs)&(gstPGNs.PGN_EEC2_61443      ),
-    (J1939_PGNs)&(gstPGNs.PGN_AMB_65269       ),
-    (J1939_PGNs)&(gstPGNs.PGN_HOURS_65253     ),
-    (J1939_PGNs)&(gstPGNs.PGN_VEP1_65271      ),
-    (J1939_PGNs)&(gstPGNs.PGN_DD_65276        ),
-    (J1939_PGNs)&(gstPGNs.PGN_WFI_65279       ),
-    (J1939_PGNs)&(gstPGNs.PGN_LFC_65257       ),
-    (J1939_PGNs)&(gstPGNs.PGN_EEC4_65214      ),
-    (J1939_PGNs)&(gstPGNs.PGN_LFI_65203       ),
-    (J1939_PGNs)&(gstPGNs.PGN_IC2_64976       ),
-    (J1939_PGNs)&(gstPGNs.PGN_EOI_64914       ),
-    (J1939_PGNs)&(gstPGNs.PGN_ET2_65188       ),
-    (J1939_PGNs)&(gstPGNs.PGN_EEC3_65247      ),
-    (J1939_PGNs)&(gstPGNs.PGN_S2_65166        ),
-    (J1939_PGNs)&(gstPGNs.PGN_EFL_P2_65243    ),
-    (J1939_PGNs)&(gstPGNs.PGN_SHUTDOWN_65252  ),
-    (J1939_PGNs)&(gstPGNs.PGN_EFG1_61450      ),
-    (J1939_PGNs)&(gstPGNs.PGN_DPF1S_64796     ),
-    (J1939_PGNs)&(gstPGNs.PGN_ET1_65262       ),
-    (J1939_PGNs)&(gstPGNs.PGN_EEC1_61444      ),
-    (J1939_PGNs)&(gstPGNs.PGN_EFL_P1_65263    ),
-    (J1939_PGNs)&(gstPGNs.PGN_IC1_65270       ),
-    (J1939_PGNs)&(gstPGNs.PGN_AT1IG1_61454    ),
-    (J1939_PGNs)&(gstPGNs.PGN_A1DOC_64800     ),
-    (J1939_PGNs)&(gstPGNs.PGN_AT1IG2_64948    ),
-    (J1939_PGNs)&(gstPGNs.PGN_AT1IMG_64946    ),
-    (J1939_PGNs)&(gstPGNs.PGN_AT1OG1_61455    ),
-    (J1939_PGNs)&(gstPGNs.PGN_A1SCRDSI1_61475 ),
-    (J1939_PGNs)&(gstPGNs.PGN_A1SCRDSI2_64833 ),
-    (J1939_PGNs)&(gstPGNs.PGN_A1SCRDSR1_61476 ),
-    (J1939_PGNs)&(gstPGNs.PGN_A1SCREGT1_64830 ),
-    (J1939_PGNs)&(gstPGNs.PGN_AT2IG1_61456    ),
-    (J1939_PGNs)&(gstPGNs.PGN_AT2OG1_61457    ),
-    (J1939_PGNs)&(gstPGNs.PGN_A2SCRDSI2_64827 ),
-    (J1939_PGNs)&(gstPGNs.PGN_A2SCRDSI1_61478 ),
-    (J1939_PGNs)&(gstPGNs.PGN_A2SCRDSR1_61479 ),
-    (J1939_PGNs)&(gstPGNs.PGN_A2SCREGT1_64824 ),
-    (J1939_PGNs)&(gstPGNs.PGN_AT1OG2_64947    ),
-    (J1939_PGNs)&(gstPGNs.PGN_AT1S2_64697     ),
-    (J1939_PGNs)&(gstPGNs.PGN_AT1S_64891      ),
-    (J1939_PGNs)&(gstPGNs.PGN_AT1T1I_65110    ),
-    (J1939_PGNs)&(gstPGNs.PGN_PROPB_32_65330  ),
-    (J1939_PGNs)&(gstPGNs.PGN_PROPB5E_65374   ),
-    (J1939_PGNs)&(gstPGNs.PGN_DPFC1_64892     ),
-    (J1939_PGNs)&(gstPGNs.PGN_PROPB51_65361   ),
-    (J1939_PGNs)&(gstPGNs.PGNPROPB01_65281    ),
-    (J1939_PGNs)&(gstPGNs.PGN_VOLVO_PREHEAT_65351),
-    (J1939_PGNs)&(gstPGNs.PGN_PROSTOUT_65364),
-    (J1939_PGNs)&(gstPGNs.PGN_HATZ_PROPB_PHYS_65280   ),
-    (J1939_PGNs)&(gstPGNs.PGN_AI_65237   ),
-    (J1939_PGNs)&(gstPGNs.PGN_ETC5_65219   ),
-    (J1939_PGNs)&(gstPGNs.PGN_OII_64554   ),
-    (J1939_PGNs)&(gstPGNs.PGN_IT1_65154       ),
-    (J1939_PGNs)&(gstPGNs.PGN_GFP_65163       ),
-    (J1939_PGNs)&(gstPGNs.PGN_IMI1_65190       ),
-    (J1939_PGNs)&(gstPGNs.PGN_FD1_65213     ),
-    (J1939_PGNs)&(gstPGNs.PGN_DLCC1_64775     ),
-    (J1939_PGNs)&(gstPGNs.PGN_GFC_65199       ),
-    (J1939_PGNs)&(gstPGNs.PGN_EPT1_65187      ),
-    (J1939_PGNs)&(gstPGNs.PGN_EPT2_65186      ),
-    (J1939_PGNs)&(gstPGNs.PGN_EPT3_65185      ),
-    (J1939_PGNs)&(gstPGNs.PGN_EPT4_65184      ),
-    (J1939_PGNs)&(gstPGNs.PGN_EPT5_65183      ),
-    (J1939_PGNs)&(gstPGNs.PGN_ET4_64870       ),
-    (J1939_PGNs)&(gstPGNs.PGN_TCI4_65176      ),
-    (J1939_PGNs)&(gstPGNs.PGN_EFL_P12_64735   ),
-    (J1939_PGNs)&(gstPGNs.PGN_CCVS_HATZ_65265   ),
-    (J1939_PGNs)&(gstPGNs.PGN_DM11_65235      )
+    (J1939_PGNs)&(gstPGNs.PGN_DPFC1_64892 ),
+    (J1939_PGNs)&(gstPGNs.PGN_AT1T1I_65110 ),
+    (J1939_PGNs)&(gstPGNs.PGN_EEC1_61444 ),
+    (J1939_PGNs)&(gstPGNs.PGN_EEC2_61443 ),
+    (J1939_PGNs)&(gstPGNs.PGN_EOI_64914 ),
+    (J1939_PGNs)&(gstPGNs.PGN_HOURS_65253 ),
+    (J1939_PGNs)&(gstPGNs.PGN_LFC1_65257 ),
+    (J1939_PGNs)&(gstPGNs.PGN_ET1_65262 ),
+    (J1939_PGNs)&(gstPGNs.PGN_EFL_P1_65263 ),
+    (J1939_PGNs)&(gstPGNs.PGN_AMB_65269 ),
+    (J1939_PGNs)&(gstPGNs.PGN_VEP1_65271 ),
+    (J1939_PGNs)&(gstPGNs.PGN_WFI_OI_65279 ),
+    (J1939_PGNs)&(gstPGNs.PGN_DEFA_65383 ),
+    (J1939_PGNs)&(gstPGNs.PGN_SHUTDN_65252 ),
+    (J1939_PGNs)&(gstPGNs.PGN_CSA_64966),
+    (J1939_PGNs)&(gstPGNs.PGN_DM11_65235 ),
+    (J1939_PGNs)&(gstPGNs.PGN_DM03_65228 ),
+    (J1939_PGNs)&(gstPGNs.PGN_IC1_65270  ),
+    (J1939_PGNs)&(gstPGNs.PGN_LFE1_65266  )
 
 },
-    _f32Pgn64915Data{0},
-    _f32Pgn65408Data{0},
-    _f32Pgn65350Data{0},
-    _f32Pgn0Data{0},
-    _f32Pgn65365Data{0},
-    _f32Pgn65281Data{0},
-    _f32Pgn65302Data{0},
-    _f32Pgn65280Data{0},
-    _f32Pgn65527Data{0},
-    _f32Pgn65385Data{0},
-    _f32Pgn65395Data{0},
-    _f32Pgn65406Data{0},
-    _f32Pgn57344Data{0},
-    _f32Pgn65219Data{0},
-    _f32Pgn65363Data{0},
-    _f32Pgn65265Data{0},
-    _f32Pgn65288Data{0},
-    _f32Pgn65223Data{0},
-    _f32Pgn61441Data{0},
+
+    f32PGN_65014Data{0},
+    f32PGN_65011Data{0},
+    f32PGN_65008Data{0},
+    f32PGN_65030Data{0},
+    f32PGN_65027Data{0},
+    f32PGN_65026Data{0},
+    f32PGN_65025Data{0},
+    f32PGN_65024Data{0},
+    f32PGN_65023Data{0},
+    f32PGN_65022Data{0},
+    f32PGN_65021Data{0},
+    f32PGN_65020Data{0},
+    f32PGN_65019Data{0},
+    f32PGN_65018Data{0},
+    f32PGN_65029Data{0},
+    f32PGN_65028Data{0},
+    f32PGN_64911Data{0},
+    f32PGN_65280Data{0},
+    f32PGN_65289Data{0},
+    f32PGN_65290Data{0},
+    f32PGN_65291Data{0},
+    f32PGN_65292Data{0},
+    f32PGN_65293Data{0},
+    f32PGN_65295Data{0},
+    f32PGN_65296Data{0},
+    f32PGN_65297Data{0},
     _au8CalcSPNData{0},
     _astPGNTxDataBuff{0},
     _u32RequestedPGN(0),
     _u8PGN_Num(0),
     _u8NumOfDM1SPN(0),
     _u8NumOfDM2SPN(0),
-    _u8J1939PIDTune_Normal(0),
+    _u8NoOfInvalidSpnInDm1Msg(0),
+    _u8NoOfInvalidSpnInDm2Msg(0),
     _ConfigParam{0},
     _bDeviceInConfigMode(false),
-    _u16FW_CRC(0),
-    _Timer100ms{0},
-    _Timer200ms{0},
-    _Timer500ms{0},
-    _Timer1s{0},
-    _Timer250ms{0},
+    _Timer10ms{0},
+    _Timer20ms{0},
     _Timer50ms{0},
     _Timer80ms{0},
-    _Timer20ms{0},
-    _Timer10ms{0},
-    _Timer40ms{0},
+    _Timer100ms{0},
+    _Timer250ms{0},
+    _Timer300ms{0},
+    _Timer500ms{0},
+    _Timer1s{0},
     _CommFailTimeout{0},
     _u8ArrDM1SPNData{0},
     _u8ArrDM2SPNData{0},
-    _u8ArrPropB5EPGNData{0},
-    _u8NumOf500msPGN(0),
-    _u8NoOfInvalidSpnInDm1Msg(0),
-    _u8NoOfInvalidSpnInDm2Msg(0),
-    _u32TSC1CANMessageID(0),
-    _u32PropBF7CANMessageID(0),
-    _u8PGN0xFFF7MessageCounter(0),
-    _u8PGN0MessageCounter(0),
+    _u8SPNIndexInRQSTPGN(0),
     _u8ActiveDtcAmberLampStatus(0),
     _u8ActiveDtcProtectLampStatus(0),
     _u8ActiveDtcRedLampStatus(0),
@@ -200,41 +143,96 @@ ubypReadRxPgns{
     _bRequestDM2PGN(false),
     _bRequestDM11PGN(false),
     _ArrPgnReadData{0},
-    _bEngineStartPreheatStatus(false),
-    _bPreheatFailed(false),
-    _u8AccPedalCounter(0),
     _stDm1Decode{0,0,0},
     _stDm2Decode{0,0,0}
 {
 
     UTILS_ResetTimer(&_Timer100ms);
     UTILS_ResetTimer(&_Timer250ms);
+    UTILS_ResetTimer(&_Timer300ms);
     UTILS_ResetTimer(&_Timer500ms);
     UTILS_ResetTimer(&_Timer1s);
     UTILS_ResetTimer(&_Timer20ms);
     UTILS_ResetTimer(&_Timer10ms);
     UTILS_ResetTimer(&_Timer50ms);
     UTILS_ResetTimer(&_Timer80ms);
-    UTILS_ResetTimer(&_Timer40ms);
-    UTILS_ResetTimer(&_Timer200ms);
     UTILS_ResetTimer(&_CommFailTimeout);
     InitAfterConfigChange();
 
 }
 
+
 void J1939APP::InitAfterConfigChange()
 {
     ResetLampsStatus();
+    ClearAllPGNsDataBuffs();
     uint8_t gu8PGNNumber, gu8SPNNumber;
     for( gu8PGNNumber = 0; gu8PGNNumber < RX_PGN_LAST; gu8PGNNumber++)
     {
         for(gu8SPNNumber = 0; gu8SPNNumber < MAX_NO_SPN_IN_PGN; gu8SPNNumber++)
         {
             _ArrSpnErrorNAStatus[gu8PGNNumber][gu8SPNNumber] = NOT_AVAILABLE;
-            (void)memset((void *)(&_ArrPgnReadData[gu8PGNNumber][gu8SPNNumber]), 0xFFFFFFFF, sizeof(double));
+            (void)memset((void *)(&_ArrPgnReadData[gu8PGNNumber][gu8SPNNumber]), 0xFFFFFFFFF, sizeof(double));
         }
     }
 }
+
+void J1939APP::ClearAllPGNsDataBuffs(void)
+{
+    uint8_t u8Local;
+
+    for(u8Local=0; u8Local<4; u8Local++)
+    {
+        f32PGN_65014Data[u8Local] = F32_Null;
+        f32PGN_65011Data[u8Local]= F32_Null;
+        f32PGN_65008Data[u8Local] = F32_Null;
+        f32PGN_65030Data[u8Local] = F32_Null;
+        f32PGN_65027Data[u8Local] = F32_Null;
+        f32PGN_65024Data[u8Local] = F32_Null;
+        f32PGN_65021Data[u8Local] = F32_Null;
+        f32PGN_65290Data[u8Local] = F32_Null;
+        f32PGN_65295Data[u8Local] = F32_Null;
+
+    }
+
+    for(u8Local=0; u8Local<2; u8Local++)
+    {
+        f32PGN_65026Data[u8Local] = F32_Null;
+        f32PGN_65023Data[u8Local] = F32_Null;
+        f32PGN_65020Data[u8Local] = F32_Null;
+        f32PGN_65018Data[u8Local] = F32_Null;
+        f32PGN_65029Data[u8Local] = F32_Null;
+        f32PGN_65296Data[u8Local] = F32_Null;
+        f32PGN_65297Data[u8Local] = F32_Null;
+    }
+
+    for(u8Local=0; u8Local<3; u8Local++)
+    {
+        f32PGN_65025Data[u8Local] = F32_Null;
+        f32PGN_65022Data[u8Local] = F32_Null;
+        f32PGN_65019Data[u8Local] = F32_Null;
+        f32PGN_65028Data[u8Local] = F32_Null;
+        f32PGN_64911Data[u8Local] = F32_Null;
+    }
+
+    for(u8Local=0; u8Local<5; u8Local++)
+    {
+        f32PGN_65280Data[u8Local] = F32_Null;
+    }
+
+    for(u8Local=0; u8Local<16; u8Local++)
+    {
+        f32PGN_65291Data[u8Local] = F32_Null;
+        f32PGN_65292Data[u8Local] = F32_Null;
+        f32PGN_65293Data[u8Local] = F32_Null;
+    }
+
+    for(u8Local=0; u8Local<32; u8Local++)
+    {
+        f32PGN_65289Data[u8Local] = F32_Null;
+    }
+}
+
 
 void J1939APP::GenerateFrame(uint8_t u8PGNNum)
 {
@@ -254,7 +252,6 @@ void J1939APP::GenerateFrame(uint8_t u8PGNNum)
         else if(_bRequestDM11PGN)
         {
             UpdateDM11RequestData(au8CalSPNData);
-
             _bRequestDM11PGN = false;
         }
         else
@@ -264,13 +261,11 @@ void J1939APP::GenerateFrame(uint8_t u8PGNNum)
     }
     else
     {
-
         (((J1939APP*)this)->*J1939APP::afpUpdatePGNData[(u8PGNNum)])();
 
         /// calculate the SPN's data which is pointed by pu8CalcSPNData pointer
         LoadData(u8PGNNum, au8CalSPNData);
     }
-
 
     _astPGNTxDataBuff[u8PGNNum].u8LockDataBuff = 1;
     for(u8Index = 0; u8Index < 8; u8Index++)
@@ -313,61 +308,10 @@ void J1939APP::GetPGN(uint8_t ubyPGN, uint8_t u8RxOrTx, J1939_PGN_DB_t *pstGetPG
     {
         (void)memcpy((void *)(pstGetPGN), (void *)(ubypReadRxPgns[ubyPGN]),10);
     }
-
-    /* While transmitting PGNs - Source address should refer from configuration.
-    */
-        if(u8RxOrTx == CALC_FOR_TRANSMIT)
+            if(u8RxOrTx == CALC_FOR_TRANSMIT)
         {
-           // pstGetPGN->ubyPDU_SA = _cfgz.GetCFGZ_Param(CFGZ::ID_SGC_SOURCE_ADDRESS);
-            pstGetPGN->ubyPDU_SA = 0x3;
-           /* For HATZ Engine, the Source Address should for TSC1 should be "3" always */
-           if(CFGZ::ENG_HATZ == _cfgz.GetEngType())
-            {
-                pstGetPGN->ubyPDU_SA = 0x3;
-            }
-
-
-           if(((CFGZ::ENG_YUCHAI_YCGCU == _cfgz.GetEngType())||(CFGZ::ENG_HATZ == _cfgz.GetEngType())) && (PGN_TSC1 == ubyPGN))
-             {
-                 pstGetPGN->ubyPDU_SA = 0x3;
-             }
-             else if((CFGZ::ENG_IVECO == _cfgz.GetEngType()) && (PGN_PROPB_00 == ubyPGN))
-             {
-                 pstGetPGN->ubyPDU_SA = 0x27;
-             }
-             else if(CFGZ::ENG_PERKINS_ADAM4 == _cfgz.GetEngType() && ((PGN_GC1 == ubyPGN) || (PGN_ETC3 == ubyPGN)))
-             {
-                 pstGetPGN->ubyPDU_SA = 0xEA;
-             }
-             else if((CFGZ::ENG_YUCHAI_BOSCH == _cfgz.GetEngType())&&(PGN_EBC1 == ubyPGN))
-             {
-                 pstGetPGN->ubyPDU_SA = 0x0B;
-             }
-             else if((CFGZ::ENG_YUCHAI_BOSCH == _cfgz.GetEngType())&& (PGN_TSC1 == ubyPGN))
-             {
-                 pstGetPGN->ubyPDU_SA = 0x03;
-             }
-             else if((CFGZ::ENG_YUCHAI_BOSCH == _cfgz.GetEngType())&& (PGN_TX_RQST == ubyPGN))
-             {
-                 pstGetPGN->ubyPDU_SA = 0x21;
-             }
-             else if(((CFGZ::ENG_YUCHAI_YCGCU == _cfgz.GetEngType())||(CFGZ::ENG_HATZ == _cfgz.GetEngType()))&& ((PGN_CM1 == ubyPGN)||(PGN_GC1 == ubyPGN)))
-             {
-                 pstGetPGN->ubyPDU_SA = 0x03;
-             }
-
-             //As per DEIF's requirement , changed the Priority of CM1 PGN to 3 for Yuchai YCGCU , Hatz & Weichai Engine Type
-             if(((CFGZ::ENG_YUCHAI_YCGCU == _cfgz.GetEngType())
-                     ||(CFGZ::ENG_HATZ == _cfgz.GetEngType())
-                     ||(CFGZ::ENG_WECHAI == _cfgz.GetEngType())
-                     ||(CFGZ::ENG_PERKINS_ADAM4 == _cfgz.GetEngType()))
-                     &&(PGN_CM1 == ubyPGN))
-             {
-                 pstGetPGN->ubyPDU_Prio = 0x03;
-             }
-
+            pstGetPGN->ubyPDU_SA = _cfgz.GetCFGZ_Param(CFGZ::ID_SGC_SOURCE_ADDRESS);
         }
-
 }
 
 void J1939APP::GetSPN(uint8_t ubyPGN, uint8_t ubySPN, uint8_t u8TxOrRX,
@@ -399,6 +343,7 @@ void J1939APP::LoadData(uint8_t u8PGNNum, uint8_t au8SPNDataBuf[8])
         GetSPN(u8PGNNum, u8SPNNum, CALC_FOR_TRANSMIT, &tSupportSPN);
         tSPN.f64SPNData = (PGN_DataFrames[u8PGNNum][u8SPNNum]);
 
+
         /*If SPN is in No. of bits i.e length is less than a byte then we need to handle it differently
          * as functions which calculates SPN takes data in DOUBLE data type but our data is in FLOAT type
          * so while passing FLOAT data type to the function which expects DOUBLE it is converting
@@ -429,552 +374,738 @@ void J1939APP::LoadData(uint8_t u8PGNNum, uint8_t au8SPNDataBuf[8])
 }
 
 
-
-void J1939APP::prvUpdatePGN64915Data(void)
+void J1939APP::prvUpdatePGN65014Data(void)
 {
-    memset((void*)&_f32Pgn64915Data, 0x00, sizeof(_f32Pgn64915Data));
-
-    /* Nikhil - 24-Mar-2020
-    * Below are states for SPN3542
-    * Bit state 0000 = Normal Engine Shutdown
-    * Bit state 0001 = Rapid Engine Shutdown
-    * Bit state 0010 = Emergency Engine Shutdown
-    * Bit state 0011 = Normal Engine Start
-    * Bit state 0100 = Rapid Engine Start
-    * Bit states 0101-1101 = available for SAE assignment
-    * Bit state 1110 = Reserved
-    * Bit state 1111 = Don't Care / Take No Action
-    */
-
-    if(IS_START_STOP_RELAY_J1939_CONFIGURED())
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING))
     {
-      if(START_STOP::IsStartRelayON())
-      {
-          /* Normal Engine Start*/
-          _f32Pgn64915Data[PGN_64915_REQ_ENG_CONTROL_MODE] = NORMAL_ENGINE_START;
-      }
-      else if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EMERGENCY_STOP)== DigitalSensor::SENSOR_LATCHED)
-      {
-          /* Emergency Engine Shutdown*/
-          _f32Pgn64915Data[PGN_64915_REQ_ENG_CONTROL_MODE] = EMERGENCY_ENGINE_SHUTDOWN;
-      }
-      else if(START_STOP::IsStopRelayON())
-      {
-          /* Normal Engine Shutdown*/
-          _f32Pgn64915Data[PGN_64915_REQ_ENG_CONTROL_MODE] = NORMAOL_ENGINE_SHUTDOWN;
-      }
-      else
-      {
-          /* Take No action */
-          _f32Pgn64915Data[PGN_64915_REQ_ENG_CONTROL_MODE] = NO_ACTION_DONT_CARE;
-      }
-    }
-    else
-    {
-      /* Take No action */
-        _f32Pgn64915Data[PGN_64915_REQ_ENG_CONTROL_MODE] = NO_ACTION_DONT_CARE;
-    }
-
-    /* Amruta - 20-Jan-2020
-    * Below are states for SPN3567
-    * 00 = inactive (ready to start automatically)
-    * 01 = active (not ready to start automatically)
-    * 10 = error
-    * 11 = not available
-    */
-    if((!_gcuAlarm.IsCommonAlarm())
-          && (!_engMon.IsEngineOn())
-          && ((_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE))
-      )
-    {
-        _f32Pgn64915Data[PGN_64915_AUTO_MODE]= 0;
-    }
-    else
-    {
-        _f32Pgn64915Data[PGN_64915_AUTO_MODE]= 1;
-    }
-
-    _f32Pgn64915Data[PGN_64915_PARALLEL_MODE] = 3;
-
-
-    /* Amruta - 20-Jan-2020
-    * Below are states for SPN3568
-    * 00 = inactive (ready to parallel)
-    * 01 = active (not ready to parallel)
-    * 10 = error
-    * 11 = not available
-    */
-    /* This SPN is not transmitted in SGC1XX products as there is no paralleling mode */
-    _f32Pgn64915Data[PGN_64915_PARALLEL_MODE] = 0x3;
-    _f32Pgn64915Data[PGN_64915_UNUSED_SPN_1] = 0xFFFF;
-    _f32Pgn64915Data[PGN_64915_UNUSED_SPN_2] = 0xFFFF;
-    _f32Pgn64915Data[PGN_64915_UNUSED_SPN_3] = 0xFFFF;
-    _f32Pgn64915Data[PGN_64915_UNUSED_SPN_4] = 0xFF;
-}
-void J1939APP::prvUpdatePGN65408Data(void)
-{
-    //  f32PGN_65408Data
-    //As per SRS first byte should be 0xF1 so following data is extracted from it.
-    memset((void*)&_f32Pgn65408Data, 0x00, sizeof(_f32Pgn65408Data));
-    _f32Pgn65408Data[PGN_65408_HARD_CODE_VAL] = 0xA0;
-    if(IS_START_STOP_RELAY_J1939_CONFIGURED())
-    {
-        _f32Pgn65408Data[PGN_65408_ENG_START_BYTE] = START_STOP::IsStartRelayON();
-        _f32Pgn65408Data[PGN_65408_ENG_STOP_BYTE] = START_STOP::IsStopRelayON();   //28-Apr-20:code review comment
-    }
-    _f32Pgn65408Data[PGN_65408_UNUSED_SPN_1] = 0xFF;
-    _f32Pgn65408Data[PGN_65408_UNUSED_SPN_2] = 0xF;
-    _f32Pgn65408Data[PGN_65408_UNUSED_SPN_3] = 3;
-    _f32Pgn65408Data[PGN_65408_UNUSED_SPN_4] = 63;
-    _f32Pgn65408Data[PGN_65408_UNUSED_SPN_5] = 0xFFFF;
-    _f32Pgn65408Data[PGN_65408_UNUSED_SPN_6] = 0xFFFF;
-}
-void J1939APP::prvUpdatePGN65350Data(void)
-{
-    memset((void*)&_f32Pgn65350Data, 0x00, sizeof(_f32Pgn65350Data));
-
-    if(IS_PREHEAT_J1939_CONFIGURED())
-    {
-        _f32Pgn65350Data[PGN_65350_PREHEAT_BYTE] = ((START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_START_WAIT)||(START_STOP::GetStartStopSMDState() == START_STOP::ID_STATE_SS_PREHEAT));
-    }
-    if(IS_START_STOP_RELAY_J1939_CONFIGURED())
-    {
-        _f32Pgn65350Data[PGN_65350_ENG_START_BYTE] = START_STOP::IsStartRelayON();
-        _f32Pgn65350Data[PGN_65350_FUEL_DISABLE_BYTE] = !START_STOP::IsFuelRelayOn();
-        _f32Pgn65350Data[PGN_65350_ENG_STOP_BYTE] = START_STOP::IsStopRelayON();         // 28-Apr-20: code review comment
-    }
-
-    _f32Pgn65350Data[PGN_65350_UNUSED_SPN_1] = 0xF;
-    _f32Pgn65350Data[PGN_65350_UNUSED_SPN_2] = 0xF;
-    _f32Pgn65350Data[PGN_65350_UNUSED_SPN_3] = 3;
-    _f32Pgn65350Data[PGN_65350_ACCELERATOR_PEDAL_POS] = 50; //Pedal Position
-    _f32Pgn65350Data[PGN_65350_UNUSED_SPN_5] = 127;
-    _f32Pgn65350Data[PGN_65350_ACCELERATOR_PEDAL_COUNTER] = _u8AccPedalCounter;
-     /*Accelerator Pedal Position Checksum Calculation*/
-     prvCalculateAccPedalPosChecksum();
-    _f32Pgn65350Data[PGN_65350_UNUSED_SPN_6] = 0xFF;
-    _f32Pgn65350Data[PGN_65350_UNUSED_SPN_7] = 0xFF;
-}
-void J1939APP::prvUpdatePGN0Data(void)
-{
-    /* As per SRS first byte should be 0xF1 so F1 = 0b­11110001.
-         * Hence PGN_0_ENG_OVERRIDE_CONTROL_MODE = 01
-         * PGN_0_ENG_REQ_SPEED_CONTROL = 00
-         * PGN_0_OVERRIDE_CONTROL_MODE_PRIORITY = 11
-         * PGN_0_HARDCODE_VALUE = 11                              */
-
-        _f32Pgn0Data[PGN_0_ENG_OVERRIDE_CONTROL_MODE] = 1;
-        _f32Pgn0Data[PGN_0_ENG_REQ_SPEED_CONTROL] = 0;
-        _f32Pgn0Data[PGN_0_OVERRIDE_CONTROL_MODE_PRIORITY] = 3;
-        _f32Pgn0Data[PGN_0_HARDCODE_VALUE] = 3;
-//        if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_TO_ECU))
-//        {
-//            if(START_STOP::IsIdleModeActive())
-//            {
-//                _f32Pgn0Data[PGN_0_ENG_REQ_SPEED] =_cfgz.GetCFGZ_Param(CFGZ::ID_INITIAL_LOW_SPEED);
-//            }
-//            else
-//            {
-//                _f32Pgn0Data[PGN_0_ENG_REQ_SPEED] =_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_REQUESTED_SPEED_TO_ECU);
-//            }
-//        }
-//        else
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM)!=CFGZ::CFGZ_1_PHASE_SYSTEM)
         {
-            _f32Pgn0Data[PGN_0_ENG_REQ_SPEED] = 0xFFFF;
+             f32PGN_65014Data[0] = _hal.AcSensors.MAINS_GetRYVolts();
         }
 
-        //Not transmitting this SPN so send max value 0xFF.
-        _f32Pgn0Data[PGN_0_ENG_TORQUE] = 0xFF;
-        /* Transmission rate as per SRS is 50 ms.
-         *  STATE                       TRANSMISSION RATE
-         *    0                             1000ms
-         *    1                             750ms
-         *    2                             500ms
-         *    3                             250ms
-         *    4                             100ms
-         *    5                             50ms
-         *    6                             20ms
-         *    7                             Use Standard    */
-        _f32Pgn0Data[PGN_0_TRANSMISSION_RATE] = 7;
-
-        // Not transmitting this SPN so send max value 0x1F.
-        _f32Pgn0Data[PGN_0_CONTROL_PURPOSE] = 0x1F;
-
-        // Not transmitting this SPN so send 0xFFFF.
-        _f32Pgn0Data[PGN_0_ENG_REQ_TORQUE_FRACTION] = 0xFFFF;
-        _f32Pgn0Data[PGN_0_MESSAGE_COUNTER] = _u8PGN0MessageCounter;
-
-        /* Check sum calculation */
-        CalculateTsc1Checksum();
-}
-void J1939APP::prvUpdatePGN65365Data(void)
-{
-    if(IS_START_STOP_RELAY_J1939_CONFIGURED())
-    {
-        _f32Pgn65365Data[PGN_65365_ENG_START_BYTE] =START_STOP::IsStartRelayON();
-        _f32Pgn65365Data[PGN_65365_ENG_STOP_BYTE] = START_STOP::IsStopRelayON();
+         f32PGN_65014Data[1]= _hal.AcSensors.MAINS_GetVoltageVolts(R_PHASE);
+         f32PGN_65014Data[2]= _hal.AcSensors.MAINS_GetApproxFreq(R_PHASE);
     }
-    _f32Pgn65365Data[PGN_65365_UNUSED_SPN_1] = 0xF;
-    _f32Pgn65365Data[PGN_65365_UNUSED_SPN_2] = 0xFFFF;
-    _f32Pgn65365Data[PGN_65365_UNUSED_SPN_3] = 0xFFFF;
-    _f32Pgn65365Data[PGN_65365_UNUSED_SPN_4] = 0xFFFF;
-    _f32Pgn65365Data[PGN_65365_UNUSED_SPN_5] = 0xFF;
 }
-void J1939APP::prvUpdatePGN65281Data(void)
+void J1939APP::prvUpdatePGN65011Data(void)
 {
-    /* PGN-65281(PropB_01) : MTU Engine Start Stop(ESS) for Engine type "MTU"  */
-    if(IS_START_STOP_RELAY_J1939_CONFIGURED())
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING))
     {
-        _f32Pgn65281Data[PGN_65281_CAN_ENG_START] = START_STOP::IsStartRelayON();
-        _f32Pgn65281Data[PGN_65281_CAN_REQ_ENG_STOP]= START_STOP::IsStopRelayON();
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM)!= CFGZ::CFGZ_1_PHASE_SYSTEM)
+        {
+            f32PGN_65011Data[1] = _hal.AcSensors.MAINS_GetVoltageVolts(Y_PHASE);
+        }
+
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM)
+        {
+             f32PGN_65011Data[2] = _hal.AcSensors.MAINS_GetApproxFreq(Y_PHASE);
+
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM)
+            {
+                 f32PGN_65011Data[0] = _hal.AcSensors.MAINS_GetYBVolts();
+            }
+        }
     }
-    _f32Pgn65281Data[PGN_65281_UNUSED_SPN_1] = 0xF;
-    _f32Pgn65281Data[PGN_65281_UNUSED_SPN_2] = 0xFFFF;
-    _f32Pgn65281Data[PGN_65281_UNUSED_SPN_3] = 0xFFFF;
-    _f32Pgn65281Data[PGN_65281_UNUSED_SPN_4] = 0xFF;
-    _f32Pgn65281Data[PGN_65281_UNUSED_SPN_5] = 0x3;
-    _f32Pgn65281Data[PGN_65281_UNUSED_SPN_6] = 0x3F;
-    _f32Pgn65281Data[PGN_65281_UNUSED_SPN_7] = 0xFF;
-
 }
-void J1939APP::prvUpdatePGN65302Data(void)
-{
-    /* PGN-65302(PropB_16) : EMR Engine Stop Request for Engine type "DEUTZ"  */
 
-    _f32Pgn65302Data[PGN_65302_ENG_STOP_BYTE] = START_STOP::IsStopRelayON();
-    _f32Pgn65302Data[PGN_65302_UNUSED_SPN_1] = 0x3F;
-    _f32Pgn65302Data[PGN_65302_UNUSED_SPN_2] = 0xFFFF;
-    _f32Pgn65302Data[PGN_65302_UNUSED_SPN_3] = 0xFFFF;
-    _f32Pgn65302Data[PGN_65302_UNUSED_SPN_4] = 0xFFFF;
-    _f32Pgn65302Data[PGN_65302_UNUSED_SPN_5] = 0xFF;
+void J1939APP::prvUpdatePGN65008Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING))
+    {
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM)
+        {
+             f32PGN_65008Data[0] = _hal.AcSensors.MAINS_GetRBVolts();
+             f32PGN_65008Data[1] = _hal.AcSensors.MAINS_GetVoltageVolts(B_PHASE);
+             f32PGN_65008Data[2] = _hal.AcSensors.MAINS_GetApproxFreq(B_PHASE);
+        }
+    }
+}
+void J1939APP::prvUpdatePGN65030Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+      if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)!=CFGZ::CFGZ_1_PHASE_SYSTEM)
+      {
+          f32PGN_65030Data[0]=_hal.AcSensors.GENSET_GetRawAverageL_L();
+      }
+      f32PGN_65030Data[1]= _hal.AcSensors.GENSET_GetRawAverageL_N();
+      f32PGN_65030Data[2]= _hal.AcSensors.GENSET_GetAvgFreq();
+      f32PGN_65030Data[3]= _hal.AcSensors.GENSET_GetRawAvgCurrent();
+    }
+}
+void J1939APP::prvUpdatePGN65027Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        f32PGN_65027Data[1] = _hal.AcSensors.GENSET_GetVoltageVolts(R_PHASE);
+        f32PGN_65027Data[2] = _hal.AcSensors.GENSET_GetApproxFreq(R_PHASE);
+        f32PGN_65027Data[3] = _hal.AcSensors.GENSET_GetCurrentAmps(R_PHASE) ;
+
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)!=CFGZ::CFGZ_1_PHASE_SYSTEM)
+        {
+            f32PGN_65027Data[0] = _hal.AcSensors.GENSET_GetRYVolts();
+        }
+    }
+}
+
+void J1939APP::prvUpdatePGN65026Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        f32PGN_65026Data[0] =  _hal.AcSensors.GENSET_GetActivePowerWatts(R_PHASE);
+        f32PGN_65026Data[1] =  _hal.AcSensors.GENSET_GetApparentPowerVA(R_PHASE);
+    }
+}
+void J1939APP::prvUpdatePGN65025Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        f32PGN_65025Data[0] =  _hal.AcSensors.GENSET_GetReactivePowerVAR(R_PHASE);
+        f32PGN_65025Data[1] =   abs(_hal.AcSensors.GENSET_GetPowerFactor(R_PHASE));
+    }
+}
+void J1939APP::prvUpdatePGN65024Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)!=CFGZ::CFGZ_1_PHASE_SYSTEM)
+        {
+            f32PGN_65024Data[1] = _hal.AcSensors.GENSET_GetVoltageVolts(Y_PHASE);
+            f32PGN_65024Data[2] = _hal.AcSensors.GENSET_GetApproxFreq(Y_PHASE);
+            f32PGN_65024Data[3] = _hal.AcSensors.GENSET_GetCurrentAmps(Y_PHASE);
+
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM)
+            {
+                f32PGN_65024Data[0] = _hal.AcSensors.GENSET_GetYBVolts();
+            }
+        }
+    }
+}
+void J1939APP::prvUpdatePGN65023Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)!=CFGZ::CFGZ_1_PHASE_SYSTEM)
+        {
+            f32PGN_65023Data[0] =  _hal.AcSensors.GENSET_GetActivePowerWatts(Y_PHASE);
+            f32PGN_65023Data[1] = _hal.AcSensors.GENSET_GetApparentPowerVA(Y_PHASE);
+        }
+    }
+}
+
+void J1939APP::prvUpdatePGN65022Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)!=CFGZ::CFGZ_1_PHASE_SYSTEM)
+        {
+            f32PGN_65022Data[0] = _hal.AcSensors.GENSET_GetReactivePowerVAR(Y_PHASE);
+        }
+
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) ==  CFGZ::CFGZ_3_PHASE_SYSTEM)
+        {
+            f32PGN_65022Data[1] = abs( _hal.AcSensors.GENSET_GetPowerFactor(Y_PHASE)) ;
+        }
+    }
+}
+void J1939APP::prvUpdatePGN65021Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM)
+        {
+            f32PGN_65021Data[0] = _hal.AcSensors.GENSET_GetRBVolts();
+            f32PGN_65021Data[1] = _hal.AcSensors.GENSET_GetVoltageVolts(B_PHASE);
+            f32PGN_65021Data[2] = _hal.AcSensors.GENSET_GetApproxFreq(B_PHASE);
+            f32PGN_65021Data[3] =  _hal.AcSensors.GENSET_GetCurrentAmps(B_PHASE);
+        }
+    }
+}
+
+void J1939APP::prvUpdatePGN65020Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM)
+        {
+            f32PGN_65020Data[0] = _hal.AcSensors.GENSET_GetActivePowerWatts(B_PHASE);
+            f32PGN_65020Data[1] = _hal.AcSensors.GENSET_GetApparentPowerVA(B_PHASE);
+        }
+    }
+}
+void J1939APP::prvUpdatePGN65019Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM)
+        {
+            f32PGN_65019Data[0] = _hal.AcSensors.GENSET_GetReactivePowerVAR(B_PHASE);
+
+            f32PGN_65019Data[1] =  abs(_hal.AcSensors.GENSET_GetPowerFactor(B_PHASE));
+        }
+    }
+}
+
+
+void J1939APP::prvUpdatePGN65018Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+            f32PGN_65018Data[0] = (float)(_hal.AcSensors.GENSET_GetTotalActiveEnergySinceInitWH()/1000.0f);
+
+            f32PGN_65018Data[1] = F32_Null;
+    }
+}
+
+void J1939APP::prvUpdatePGN65029Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        f32PGN_65029Data[0] = _hal.AcSensors.GENSET_GetTotalActivePowerWatts();
+        f32PGN_65029Data[1] = _hal.AcSensors.GENSET_GetTotalApparentPowerVA();
+    }
+}
+void J1939APP::prvUpdatePGN65028Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+       f32PGN_65028Data[0] = _hal.AcSensors.GENSET_GetTotalReactivePowerVAR();
+       f32PGN_65028Data[1] = _hal.AcSensors.GENSET_GetAveragePowerFactor();
+    }
+}
+
+void J1939APP::prvUpdatePGN64911Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        f32PGN_64911Data[0] = _hal.AcSensors.GENSET_GetPercentPower();
+    }
 }
 void J1939APP::prvUpdatePGN65280Data(void)
-{/* PGN-65280(PropB_00) : IVECO Engine Control Telegram(ENG_CNTRL) for Engine type "IVECO"  */
-
-    /*  "No operations" = 00000000b,
-        "Start request active" = 10000000b, Preheat
-        "Start request by-pass cold procedure" = 10100000b,
-        "Stop request active" = 00001000b.  */
-   if(START_STOP::IsStartRelayON() && (!_bEngineStartPreheatStatus))
-   {
-       _f32Pgn65280Data[PGN_65280_ENG_START_STOP_BYTE] = 0xA0;
-   }
-   else if(START_STOP::IsStopRelayON())
-   {
-       _f32Pgn65280Data[PGN_65280_ENG_START_STOP_BYTE] = 0x08;
-   }
-   else if(_bEngineStartPreheatStatus && START_STOP::IsStartRelayON())
-   {
-       _f32Pgn65280Data[PGN_65280_ENG_START_STOP_BYTE] = 0x80;
-   }
-   else
-   {
-       _f32Pgn65280Data[PGN_65280_ENG_START_STOP_BYTE] = 0;
-   }
-   _f32Pgn65280Data[PGN_65280_UNUSED_SPN_1] = 0xFFFF;
-   _f32Pgn65280Data[PGN_65280_UNUSED_SPN_2] = 0xFFFF;
-   _f32Pgn65280Data[PGN_65280_UNUSED_SPN_3] = 0xFFFF;
-   _f32Pgn65280Data[PGN_65280_UNUSED_SPN_4] = 0xFF;
-}
-
-void J1939APP::prvUpdatePGN65527Data(void)
-{/* PGN-65527(same as TSC1) : SCANIA Engine */
-    /* As per SRS first byte should be 0xF1 so F1 = 0b11110001.
-     * Hence PGN_0_ENG_OVERRIDE_CONTROL_MODE = 01
-     * PGN_0_ENG_REQ_SPEED_CONTROL = 00
-     * PGN_0_OVERRIDE_CONTROL_MODE_PRIORITY = 11
-     * PGN_0_HARDCODE_VALUE = 11                               */
-
-    _f32Pgn65527Data[PGN_0_ENG_OVERRIDE_CONTROL_MODE] = 1;
-    _f32Pgn65527Data[PGN_0_ENG_REQ_SPEED_CONTROL] = 0;
-    _f32Pgn65527Data[PGN_0_OVERRIDE_CONTROL_MODE_PRIORITY] = 3;
-    _f32Pgn65527Data[PGN_0_HARDCODE_VALUE] = 3;
-//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_TO_ECU))
-//    {
-//        if(START_STOP::IsIdleModeActive())
-//        {
-//            _f32Pgn65527Data[PGN_0_ENG_REQ_SPEED] = _cfgz.GetCFGZ_Param(CFGZ::ID_INITIAL_LOW_SPEED);
-//        }
-//        else
-//        {
-//            _f32Pgn65527Data[PGN_0_ENG_REQ_SPEED] = _cfgz.GetCFGZ_Param(CFGZ::ID_ENG_REQUESTED_SPEED_TO_ECU);
-//        }
-//    }
-//    else
+{
+    if((BASE_MODES::GetGCUOperatingMode()== BASE_MODES::MANUAL_MODE)
+            &&(!_engMon.IsEngineOn())&& (!_bDeviceInConfigMode))
     {
-        _f32Pgn65527Data[PGN_0_ENG_REQ_SPEED] = 0xFFFF;
+       f32PGN_65280Data[0] = 0;       // Operating Manual and Engine is OFF
+    }
+    else if((BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
+            &&(_engMon.IsEngineOn()))
+    {
+      f32PGN_65280Data[0] = 2;        // Operating Manual and Engine is ON
+    }
+    else if(BASE_MODES::GetGCUOperatingMode() ==  BASE_MODES::AUTO_MODE)
+    {
+       f32PGN_65280Data[0] = 1;       // Operating Auto mode irrespective of engine status
+    }
+    else
+    {
+        f32PGN_65280Data[0] = 3;      //Error
     }
 
-    //Not transmitting this SPN so send max value 0xFF.
-    _f32Pgn65527Data[PGN_0_ENG_TORQUE] = 0xFF;
 
-    /* Transmission rate as per SRS is 50 ms.
-     *  STATE                       TRANSMISSION RATE
-     *    0                             1000ms
-     *    1                             750ms
-     *    2                             500ms
-     *    3                             250ms
-     *    4                             100ms
-     *    5                             50ms
-     *    6                             20ms
-     *    7                             Use Standard    */
-    _f32Pgn65527Data[PGN_0_TRANSMISSION_RATE] = 7;
+    f32PGN_65280Data[1] = 3;  //Reserved
 
-    // Not transmitting this SPN so send max value 0x1F.
-    _f32Pgn65527Data[PGN_0_CONTROL_PURPOSE] = 0x1F;
 
-    // Not transmitting this SPN so send 0xFFFF.
-    _f32Pgn65527Data[PGN_0_ENG_REQ_TORQUE_FRACTION] = 0xFFFF;
-    _f32Pgn65527Data[PGN_0_MESSAGE_COUNTER] = _u8PGN0xFFF7MessageCounter;
-
-    // Checksum calculation
-    CalculatePropB_F7Checksum();
+    f32PGN_65280Data[2] = 0xFFFF; //Reserved
+    f32PGN_65280Data[3] = _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_FREQ);
+    f32PGN_65280Data[4] = _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_VOLT);
 }
-void J1939APP::prvUpdatePGN65385Data(void)
-{/* PGN-65385(CUMMINS) : CUMMINS Engine */
-    /* When engine governing mode is Fixed speed (0% droop i.e ISOCHRONOUS send the speed %.
-     * When engine governing mode is load based droop then send the value of percentage load.
-     * If device does not have the governing mode then send the 0xFF i.e Not Available */
-    /* Value 32768 sent as per DEIF's requirement . Since CUMMINS engine weren't working on earlier logic*/
-    _f32Pgn65385Data[PGN_65385_CUMMINS_GOVERNING_RQST] = 32768;
-    _f32Pgn65385Data[PGN_65385_UNUSED_SPN_1] = 0xFFFF;
-    _f32Pgn65385Data[PGN_65385_UNUSED_SPN_2] = 0xFFFF;
-    _f32Pgn65385Data[PGN_65385_UNUSED_SPN_3] = 0xFFFF;
-    _f32Pgn65385Data[PGN_65385_UNUSED_SPN_3] = 32768;
-}
-void J1939APP::prvUpdatePGN57344Data(void)
-{/* PGN-57344(CM1) : KUBOTA Engine */
+void J1939APP::prvUpdatePGN65289Data(void)
+{
+    uint8_t u8DummyOne = 0x01;
+    uint16_t u16GenStatus = 0;
 
+    memset((void*)&f32PGN_65289Data, 0x00, sizeof(f32PGN_65289Data));
+
+    /* f32PGN_65289Data[0] to f32PGN_65289Data[15] are used for Input Output
+     * diagnostics*/
+    for(uint8_t u8Index = 15 ,u8Local=GCU_ALARMS::DIG_IN_A; u8Local <=GCU_ALARMS::DIG_IN_H; u8Local++)
     {
-        _f32Pgn57344Data[PGN_57344_REGEN_SW_INHIBIT] = 3;
+        f32PGN_65289Data[u8Index] = ((uint8_t)_gcuAlarm.AlarmResultLatched((GCU_ALARMS::ALARM_LIST_t)u8Local));
+        u8Index--;
     }
 
-    _f32Pgn57344Data[PGN_57344_UNUSED_SPN_1] = 0xFFFF;
-    _f32Pgn57344Data[PGN_57344_UNUSED_SPN_2] = 0xFFFF;
-    _f32Pgn57344Data[PGN_57344_UNUSED_SPN_3] = 0xFF;
-    _f32Pgn57344Data[PGN_57344_UNUSED_SPN_4] = 0xF;
-    if(CFGZ::ENG_HATZ == _cfgz.GetEngType())
+    for(uint8_t u8Index = 7 ,u8Local=CFGZ::ID_OUT_A_SOURCE; u8Local <=CFGZ::ID_OUT_G_SOURCE; u8Local=u8Local+2)
     {
-        if((START_STOP::GetStartStopSMDState() >=START_STOP::ID_STATE_SS_STOPPING)
-                &&(START_STOP::GetStartStopSMDState() <=START_STOP::ID_STATE_SS_STOP_HOLD))
+        f32PGN_65289Data[u8Index] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u8Local))
+                == ACT_Manager::ACT_LATCHED));
+        u8Index--;
+    }
+
+
+    /* f32PGN_65289Data[16] to f32PGN_65289Data[29] are used to represent Gen status*/
+    u16GenStatus = _ObjmbApp.GetGenStatusRegister();
+    for(uint8_t u8Indx2 = 0, u8Index = 16; u8Index < 30; u8Index++)
+    {
+        if(u8Indx2 == 11U)
         {
-            _f32Pgn57344Data[PGN_57344_ENG_AUTOMATIC_STRT_EN_SW] = 0 ;
-        }
-        else if((START_STOP::GetStartStopSMDState() >=START_STOP::ID_STATE_SS_PREHEAT)
-                &&(START_STOP::GetStartStopSMDState() <=START_STOP::ID_STATE_SS_CRANK_REST))
-        {
-            _f32Pgn57344Data[PGN_57344_ENG_AUTOMATIC_STRT_EN_SW] = 1;
+            f32PGN_65289Data[u8Index] = 0x0u;
+            f32PGN_65289Data[u8Index]  = ((u16GenStatus & ((uint16_t)0x01 << u8Indx2)) >> u8Indx2)
+                                                     |((u16GenStatus & ((uint16_t)0x01 << (u8Indx2 + 1U))) >> u8Indx2)
+                                                     |((u16GenStatus & ((uint16_t)0x01 << (u8Indx2 + 2U))) >> u8Indx2);
+
+            /*Following explicit handling is to keep bit pattern safe*/
+            u8DummyOne = (uint8_t) f32PGN_65289Data[u8Index];
+            f32PGN_65289Data[u8Index]= u8DummyOne;
+            u8DummyOne = 0x01u;
+            /********************************************************/
+            u8Indx2 += 2U;
         }
         else
         {
-            _f32Pgn57344Data[PGN_57344_ENG_AUTOMATIC_STRT_EN_SW] = 3;
+            uint32_t u32Temp = (u16GenStatus & ((uint16_t)0x01U << u8Indx2)) >> u8Indx2;
+            f32PGN_65289Data[u8Index] = (float)u32Temp;
+            if(u32Temp == 1)
+            {
+                (void *)memcpy((void *)&( f32PGN_65289Data[u8Index]), (void *)&u8DummyOne, 1U);
+            }
+
         }
-    }
-    else
-    {
-        _f32Pgn57344Data[PGN_57344_ENG_AUTOMATIC_STRT_EN_SW] = 0x3;
+        u8Indx2++;
     }
 
-    _f32Pgn57344Data[PGN_57344_UNUSED_SPN_5] = 0xFFFF;
+    /* f32PGN_65289Data[30] to f32PGN_65289Data[31] are used to send Number
+     * of Starts and Trips.*/
+    f32PGN_65289Data[30] = (float)_engMon.GetEngineNoOfStarts();
+    f32PGN_65289Data[31] = (float)_engMon.GetEngineNoOfTrips();
 }
-void J1939APP::prvUpdatePGN65219Data(void)
-{    /* PGN-65219(ETC5) : KUBOTA Engine */
 
-    if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor:: DI_GEN_CONTACTOR_LATCHED)
-            != DigitalSensor:: SENSOR_NOT_CONFIGRUED )
-    {
-        _f32Pgn65219Data[PGN_65219_TRANS_NEUTRAL_SW] = 0;
-    }
-    else
-    {
-        _f32Pgn65219Data[PGN_65219_TRANS_NEUTRAL_SW] = 3;
-    }
-
-    _f32Pgn65219Data[PGN_65219_UNUSED_SPN_1] = 0xFF;
-    _f32Pgn65219Data[PGN_65219_UNUSED_SPN_2] = 0x3;
-    _f32Pgn65219Data[PGN_65219_UNUSED_SPN_3] = 0xF;
-    _f32Pgn65219Data[PGN_65219_UNUSED_SPN_4] = 0xFFFF;
-    _f32Pgn65219Data[PGN_65219_UNUSED_SPN_5] = 0xFFFF;
-    _f32Pgn65219Data[PGN_65219_UNUSED_SPN_6] = 0xFFFF;
-}
-void J1939APP::prvUpdatePGN65363Data(void)
+void J1939APP::prvUpdatePGN65290Data(void)
 {
-  /* PGN-65363(KBT PROPB_53 GEN4) : KUBOTA Engine */
-//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_TO_ECU))
-//    {
-//        if(START_STOP::IsIdleModeActive())
-//        {
-//            _f32Pgn65363Data[PGN_65363_TARGET_ENG_SPEED] = _cfgz.GetCFGZ_Param(CFGZ::ID_INITIAL_LOW_SPEED);;
-//        }
-//        else
-//        {
-//            _f32Pgn65363Data[PGN_65363_TARGET_ENG_SPEED] =_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_REQUESTED_SPEED_TO_ECU);
-//        }
-//    }
-//    else
-    {
-        _f32Pgn65363Data[PGN_65363_TARGET_ENG_SPEED] = 0xFFFF;
-    }
-
-    _f32Pgn65363Data[PGN_65363_EGOV_CHARACTER] = 0x01;
-
-    if(_engMon.IsEngineOn())
-    {
-        _f32Pgn65363Data[PGN_65363_ENGINE_STOP_INFO] = 0;
-    }
-    else
-    {
-        _f32Pgn65363Data[PGN_65363_ENGINE_STOP_INFO] = 0x1;
-    }
+    f32PGN_65290Data[0] = (uint16_t)(_engMon.GetEngineRunTimeMin() /60);
+    f32PGN_65290Data[1] = (uint16_t)(_engMon.GetEngineRunTimeMin() % 60);
 }
 
-void J1939APP::prvUpdatePGN65265Data(void)
-{
 
-    if(CFGZ::ENG_CUMMINS == _cfgz.GetEngType())
+void J1939APP::UpdateAlarmRegValue(uint8_t u8AlarmID, uint8_t u8Offset , float* f32PGN)
+{
+    if(_gcuAlarm.IsAlarmMonEnabled((GCU_ALARMS::ALARM_LIST_t)u8AlarmID))
     {
-        _f32Pgn65265Data[PGN_65265_PARKING_BRAKE_SW] = 0x03;
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_1] = 0x03;
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_2] = 0x0F;
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_3] = 0xFF;
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_4] = 0xFFFF;
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_5] = 0xFFFF;
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_6] = 0x00FF;
-    }
-    else
-    {
-        /* PGN-65265(CCVS) : KUBOTA Engine */
-        if(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor:: DI_GEN_CONTACTOR_LATCHED)
-                != DigitalSensor:: SENSOR_NOT_CONFIGRUED )
+        if(_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8AlarmID))
         {
-            if(1)
-            {
-                _f32Pgn65265Data[PGN_65265_PARKING_BRAKE_SW] = 1;
-            }
-            else
-            {
-                _f32Pgn65265Data[PGN_65265_PARKING_BRAKE_SW] = 0;
-            }
-
+            UpdateAlarmRegStatus(u8AlarmID, u8Offset , (float*)&f32PGN[0]);
         }
         else
         {
-            _f32Pgn65265Data[PGN_65265_PARKING_BRAKE_SW] = 3;
+            f32PGN[u8Offset] = (uint16_t)(ALARM_INACTIVE);
         }
+    }
+}
 
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_1] = 0x3;
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_2] = 0xF;
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_3] = 0xFF;
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_4] = 0xFFFF;
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_5] = 0xFFFF;
-        _f32Pgn65265Data[PGN_65265_UNUSED_SPN_6] = 0xFFFF;
+void J1939APP::UpdateAlarmRegStatus(uint8_t u8AlarmID,  uint8_t u8Offset , float* f32PGN)
+{
+    if(_gcuAlarm.IsShutdownAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8AlarmID))
+    {
+        f32PGN[u8Offset] = (uint16_t)(ALARM_SHUTDOWN);
+    }
+    else if(_gcuAlarm.IsElectricTripAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8AlarmID))
+    {
+        f32PGN[u8Offset]  = (uint16_t)(ALARM_ELEC_TRIP );
+    }
+    else if(_gcuAlarm.IsWarningAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8AlarmID))
+    {
+        f32PGN[u8Offset]  = (uint16_t)(ALARM_WARNING);
+    }
+    else if(_gcuAlarm.IsNotificationAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8AlarmID))
+    {
+        f32PGN[u8Offset] = (uint16_t)(ALARM_NOTIFICATION);
+    }
+
+}
+
+void  J1939APP::UpdateDGVoltAlarms( uint8_t u8WarningID, uint8_t u8ShutdownID, uint8_t u8Offset , float* f32PGN)
+{
+    if((_gcuAlarm.IsAlarmMonEnabled((GCU_ALARMS::ALARM_LIST_t)u8WarningID))
+            || (_gcuAlarm.IsAlarmMonEnabled((GCU_ALARMS::ALARM_LIST_t)u8ShutdownID)))
+    {
+        if(_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8ShutdownID))
+        {
+            f32PGN[u8Offset] =  (uint16_t)(ALARM_SHUTDOWN);
+        }
+        else if(_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8WarningID))
+        {
+            f32PGN[u8Offset] =  (uint16_t)(ALARM_WARNING);
+        }
+        else
+        {
+            f32PGN[u8Offset] =  (uint16_t)(ALARM_INACTIVE );
+        }
+    }
+    else
+    {
+        f32PGN[u8Offset] =  (uint16_t)(ALARM_DISABLED );
+    }
+}
+
+void  J1939APP::prvUpdateDGVoltAlarmsInAnyPhase( uint8_t u8WarningID, uint8_t u8ShutdownID, uint8_t u8Offset , float* f32PGN)
+{
+    if((_gcuAlarm.IsAlarmMonEnabled((GCU_ALARMS::ALARM_LIST_t)u8WarningID)) || (_gcuAlarm.IsAlarmMonEnabled((GCU_ALARMS::ALARM_LIST_t)(u8WarningID+2)))
+            ||(_gcuAlarm.IsAlarmMonEnabled((GCU_ALARMS::ALARM_LIST_t)(u8WarningID+4)))
+            || (_gcuAlarm.IsAlarmMonEnabled((GCU_ALARMS::ALARM_LIST_t)u8ShutdownID)) || (_gcuAlarm.IsAlarmMonEnabled((GCU_ALARMS::ALARM_LIST_t)(u8ShutdownID+2)))
+            || (_gcuAlarm.IsAlarmMonEnabled((GCU_ALARMS::ALARM_LIST_t)(u8ShutdownID+4))))
+    {
+        if(_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8ShutdownID) || _gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)(u8ShutdownID+2)) || _gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)(u8ShutdownID+4)) )
+        {
+            f32PGN[u8Offset] =  (uint16_t)(ALARM_SHUTDOWN);
+        }
+        else if(_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8WarningID) || _gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)(u8WarningID+2)) || _gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)(u8WarningID+4)))
+        {
+            f32PGN[u8Offset] =  (uint16_t)(ALARM_WARNING);
+        }
+        else
+        {
+            f32PGN[u8Offset] =  (uint16_t)(ALARM_INACTIVE );
+        }
+    }
+
+    else
+    {
+        f32PGN[u8Offset] =  (uint16_t)(ALARM_DISABLED );
+    }
+}
+
+void  J1939APP::UpdateEngSensorAlarms( uint8_t u8SensorID,
+                    uint8_t u8SwitchID, uint8_t u8Offset , float* f32PGN)
+{
+    if((_gcuAlarm.IsAlarmMonEnabled((GCU_ALARMS::ALARM_LIST_t)u8SensorID))
+        || (_gcuAlarm.IsAlarmMonEnabled((GCU_ALARMS::ALARM_LIST_t)u8SwitchID)))
+    {
+        if((_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8SensorID))
+             &&(_gcuAlarm.IsShutdownAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8SensorID)))
+        {
+            f32PGN[u8Offset] = (uint16_t)(ALARM_SHUTDOWN );
+        }
+        else if((_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8SwitchID))
+                    &&(_gcuAlarm.IsShutdownAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8SwitchID)))
+        {
+            f32PGN[u8Offset] = (uint16_t)(ALARM_SHUTDOWN );
+        }
+        else if((_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8SensorID))
+                    &&(_gcuAlarm.IsElectricTripAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8SensorID)))
+        {
+            f32PGN[u8Offset] = (uint16_t)(ALARM_ELEC_TRIP );
+        }
+        else if((_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8SwitchID))
+                    &&(_gcuAlarm.IsElectricTripAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8SwitchID)))
+        {
+            f32PGN[u8Offset] = (uint16_t)(ALARM_ELEC_TRIP );
+        }
+        else if((_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8SensorID))
+                     &&(_gcuAlarm.IsWarningAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8SensorID)))
+        {
+            f32PGN[u8Offset] = (uint16_t)(ALARM_WARNING);
+        }
+        else if((_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8SwitchID))
+                    &&(_gcuAlarm.IsWarningAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8SwitchID)))
+        {
+            f32PGN[u8Offset]  = (uint16_t)(ALARM_WARNING);
+        }
+        else if((_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8SensorID))
+                     &&(_gcuAlarm.IsNotificationAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8SensorID)))
+        {
+            f32PGN[u8Offset] = (uint16_t)(ALARM_NOTIFICATION);
+        }
+        else if((_gcuAlarm.IsAlarmActive((GCU_ALARMS::ALARM_LIST_t)u8SwitchID))
+                    &&(_gcuAlarm.IsNotificationAlarmEnabled((GCU_ALARMS::ALARM_LIST_t)u8SwitchID)))
+        {
+            f32PGN[u8Offset] = (uint16_t)(ALARM_NOTIFICATION );
+        }
+        else
+        {
+            f32PGN[u8Offset] = (uint16_t)(ALARM_INACTIVE );
+        }
+    }
+    else
+    {
+        f32PGN[u8Offset] = (uint16_t)(ALARM_DISABLED );
+    }
+}
+
+
+
+void J1939APP::prvUpdatePGN65291Data(void)
+{
+    memset((void*)&f32PGN_65291Data, 0x00, sizeof(f32PGN_65291Data));
+
+    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN))
+    {
+        UpdateEngSensorAlarms( GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN, GCU_ALARMS::LLOP_SWITCH, ALARM_BYTE_0 , (float*)&f32PGN_65291Data[0]);
+    }
+    else
+    {
+        UpdateEngSensorAlarms( GCU_ALARMS::LOW_OIL_PRESS_WARNING, GCU_ALARMS::LLOP_SWITCH, ALARM_BYTE_0 , (float*)&f32PGN_65291Data[0]);
+    }
+    UpdateEngSensorAlarms( GCU_ALARMS::HIGH_WATER_TEMP, GCU_ALARMS::HWT_SWITCH, ALARM_BYTE_1 , (float*)&f32PGN_65291Data[0]);
+    if(_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN) ||
+            _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION)
+            ||  _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LFL_SWITCH))
+    {
+        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN))
+        {
+            f32PGN_65291Data[ALARM_BYTE_2] = ALARM_SHUTDOWN ;
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
+                && _gcuAlarm.IsShutdownAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
+        {
+            f32PGN_65291Data[ALARM_BYTE_2] = ALARM_SHUTDOWN ;
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
+                && _gcuAlarm.IsElectricTripAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
+        {
+            f32PGN_65291Data[ALARM_BYTE_2] = ALARM_ELEC_TRIP ;
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
+                && _gcuAlarm.IsWarningAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
+        {
+            f32PGN_65291Data[ALARM_BYTE_2] = ALARM_WARNING ;
+        }
+        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION))
+        {
+            f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_NOTIFICATION;
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
+                && _gcuAlarm.IsNotificationAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
+        {
+            f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_NOTIFICATION;
+        }
+        else
+        {
+            f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_INACTIVE;
+        }
+    }
+    else
+    {
+        f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_DISABLED;
+    }
+    UpdateAlarmRegValue(GCU_ALARMS::RWL_SWITCH, ALARM_BYTE_3 , (float*)&f32PGN_65291Data[0]);
+
+    UpdateAlarmRegValue(GCU_ALARMS::UNDERSPEED, ALARM_BYTE_4 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::OVERSPEED_L1, ALARM_BYTE_5 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::FAIL_TO_START, ALARM_BYTE_6 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::FAIL_TO_STOP, ALARM_BYTE_7 , (float*)&f32PGN_65291Data[0]);
+
+    f32PGN_65291Data[ALARM_BYTE_8] = F32_Null;
+    f32PGN_65291Data[ALARM_BYTE_9] = F32_Null;
+    UpdateDGVoltAlarms( GCU_ALARMS::UNDERFREQ_WARNING  ,
+               GCU_ALARMS::UNDERFREQ_SHUTDOWN, ALARM_BYTE_10,(float*)&f32PGN_65291Data[0]);
+    UpdateDGVoltAlarms( GCU_ALARMS::OVERFREQ_WARNING  ,
+               GCU_ALARMS::OVERFREQ_SHUTDOWN, ALARM_BYTE_11,(float*)&f32PGN_65291Data[0]);
+
+    UpdateAlarmRegValue(GCU_ALARMS::OVERCURRENT, ALARM_BYTE_12 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::OVERLOAD, ALARM_BYTE_13 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::LOAD_UNBALANCE, ALARM_BYTE_14 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::ESTOP, ALARM_BYTE_15 , (float*)&f32PGN_65291Data[0]);
+
+}
+void J1939APP::prvUpdatePGN65292Data(void)
+{
+    memset((void*)&f32PGN_65292Data, 0x00, sizeof(f32PGN_65292Data));
+
+    f32PGN_65292Data[ALARM_BYTE_0] = F32_Null;
+    UpdateAlarmRegValue(GCU_ALARMS::FILT_MAINTENANCE, ALARM_BYTE_1 , (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::CA_FAIL, ALARM_BYTE_2 , (float*)&f32PGN_65292Data[0]);
+    f32PGN_65292Data[ALARM_BYTE_3] = F32_Null;
+
+    UpdateAlarmRegValue(GCU_ALARMS::VBAT_UV, ALARM_BYTE_4, (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::VBAT_OV, ALARM_BYTE_5 , (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::OPEN_ENG_TEMP_CKT, ALARM_BYTE_5 , (float*)&f32PGN_65292Data[0]);
+    f32PGN_65292Data[ALARM_BYTE_7] = F32_Null;
+
+    UpdateAlarmRegValue(GCU_ALARMS::FUEL_THEFT, ALARM_BYTE_8 , (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::MPU_LOSS, ALARM_BYTE_9 , (float*)&f32PGN_65292Data[0]);
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+                    ||
+       (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
+    {
+        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::OPEN_LOP_SENS_CKT))
+        {
+            UpdateAlarmRegValue(GCU_ALARMS::OPEN_LOP_SENS_CKT, ALARM_BYTE_10,(float*)&f32PGN_65292Data[0] );
+        }
+        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOP_SENS_SHORT_TO_BATTERY))
+        {
+            UpdateAlarmRegValue(GCU_ALARMS::LOP_SENS_SHORT_TO_BATTERY, ALARM_BYTE_10 , (float*)&f32PGN_65292Data[0]);
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::OPEN_LOP_CURR_SENS_CKT))
+        {
+            UpdateAlarmRegValue(GCU_ALARMS::OPEN_LOP_CURR_SENS_CKT, ALARM_BYTE_10 , (float*)&f32PGN_65292Data[0]);
+        }
+//        else if(_cfgz.GetCFGZ_Param(CFGZ::ID_PIN23_SENS_FAULT_EN))
+//        {
+//            f32PGN_65292Data[ALARM_BYTE_10]= (uint16_t)(1U);
+//        }
+        else
+        {
+            f32PGN_65292Data[ALARM_BYTE_10]= (uint16_t)(0);
+        }
+    }
+    else
+    {
+        UpdateAlarmRegValue(GCU_ALARMS::OPEN_LOP_SENS_CKT, ALARM_BYTE_10 , (float*)&f32PGN_65292Data[0]);
+    }
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_I, ALARM_BYTE_11, (float*)&f32PGN_65292Data[0]);
+
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_A, ALARM_BYTE_12, (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_B, ALARM_BYTE_13, (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_C, ALARM_BYTE_14, (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_D, ALARM_BYTE_15, (float*)&f32PGN_65292Data[0]);
+
+}
+void J1939APP::prvUpdatePGN65293Data(void)
+{
+    memset((void*)&f32PGN_65293Data, 0x00, sizeof(f32PGN_65293Data));
+
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_E, ALARM_BYTE_0, (float*)&f32PGN_65293Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_F, ALARM_BYTE_1, (float*)&f32PGN_65293Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_G, ALARM_BYTE_2, (float*)&f32PGN_65293Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_H, ALARM_BYTE_3, (float*)&f32PGN_65293Data[0]);
+
+    prvUpdateDGVoltAlarmsInAnyPhase(GCU_ALARMS::DG_R_UV_WARNING,
+    GCU_ALARMS::DG_R_UV_SHUTDOWN, ALARM_BYTE_4 ,(float*)&f32PGN_65293Data[0]);
+    prvUpdateDGVoltAlarmsInAnyPhase(GCU_ALARMS::DG_R_OV_WARNING ,
+            GCU_ALARMS::DG_R_OV_SHUTDOWN, ALARM_BYTE_5 ,(float*)&f32PGN_65293Data[0]);
+    f32PGN_65293Data[ALARM_BYTE_6] = F32_Null;
+    f32PGN_65293Data[ALARM_BYTE_7] = F32_Null;
+
+    f32PGN_65293Data[ALARM_BYTE_8] = F32_Null;
+    f32PGN_65293Data[ALARM_BYTE_9] = F32_Null;
+    f32PGN_65293Data[ALARM_BYTE_10] = F32_Null;
+    UpdateAlarmRegValue(GCU_ALARMS::EB_PHASE_ROTATION, ALARM_BYTE_11, (float*)&f32PGN_65293Data[0]);
+
+    f32PGN_65293Data[ALARM_BYTE_12] = F32_Null;
+    f32PGN_65293Data[ALARM_BYTE_13] = F32_Null;
+    f32PGN_65293Data[ALARM_BYTE_14] = F32_Null;
+    f32PGN_65293Data[ALARM_BYTE_15] = F32_Null;
+}
+
+
+void J1939APP::prvUpdatePGN65295Data(void)
+{
+    A_SENSE::SENSOR_RET_t stval = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED} ;
+
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION)
+                           == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    {
+        stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE);
+    }
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION)
+                           == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    {
+        stval =_hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE_4_20);
+    }
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    {
+        stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_LUBE_OIL_PRESSURE_0_TO_5V);
     }
 
 
+    if((stval.eStatus!=A_SENSE::SENSOR_NOT_CONFIGRUED)
+            && (stval.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT ))
+    {
+         f32PGN_65295Data[0] =stval.stValAndStatus.f32InstSensorVal;
+    }
+    else if(stval.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT )/* If sensor is open circuit then invalid value*/
+    {
+        f32PGN_65295Data[0] = F32_Null;
+    }
+    else
+    {
+        ;
+    }
+
+    stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
 
 
+    if((stval.eStatus!=A_SENSE::SENSOR_NOT_CONFIGRUED)
+               && (stval.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT ))
+    {
+        f32PGN_65295Data[2] =stval.stValAndStatus.f32InstSensorVal
+                * _cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)/100;;
+    }
+    else if(stval.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT )/* If sensor is open circuit then invalid value*/
+    {
+       f32PGN_65295Data[2] = F32_Null;
+    }
+    else
+    {
+       ;
+    }
+
+    f32PGN_65295Data[1] = 0xFFFF;
+    f32PGN_65295Data[3] = _cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_GEN_RATING);
+}
+
+
+void J1939APP::prvUpdatePGN65296Data(void)
+{
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+         f32PGN_65296Data[0] =(float) _hal.AcSensors.GENSET_GetTotalActiveEnergySinceInitWH();
+         f32PGN_65296Data[1] =(float) _hal.AcSensors.GENSET_GetTotalApparentEnergySinceInitVAH();
+         f32PGN_65297Data[0] =(float) _hal.AcSensors.GENSET_GetTotalReactiveEnergySinceInitVARH();
+    }
+}
+void J1939APP::prvUpdatePGN65297Data(void)
+{
+    A_SENSE::SENSOR_RET_t stval;
+    stval= _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_ENG_TEMPERATURE);
+    //Engine coolent temperature as scaling in MODBUS was 0.1 so divide by 10
+    if((stval.eStatus!=A_SENSE::SENSOR_NOT_CONFIGRUED)
+               && (stval.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT ))
+    {
+         f32PGN_65297Data[1]= stval.stValAndStatus.f32InstSensorVal;
+    }
+    else if(stval.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)    /* If sensor is open circuit send Invalid data*/
+    {
+        f32PGN_65297Data[1] = F32_Null;
+    }
+    else
+    {
+        ;
+    }
+
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
+    {
+        f32PGN_65297Data[0] = (float)(_hal.AcSensors.GENSET_GetTotalReactiveEnergySinceInitVARH());
+    }
 
 }
-void J1939APP::prvUpdatePGN65288Data(void)
-{  /* PGN-65288 : Engine Speed*/
-
-    _f32Pgn65288Data[PGN_65288_ENG_SPEED] = _engMon.GetFilteredEngSpeed();
-    _f32Pgn65288Data[PGN_65288_UNUSED_SPN_1] = 0xFFFF;
-    _f32Pgn65288Data[PGN_65288_UNUSED_SPN_2] = 0xFFFF;
-    _f32Pgn65288Data[PGN_65288_UNUSED_SPN_3] = 0xFFFF;
-}
-
 
 void J1939APP::prvUpdatePGN59904Data(uint8_t *au8CalSPNData)
 {
     //Following cases for sending request for these 6 PGN's.
-    switch(_u8NumOf500msPGN)
+    switch(_u8SPNIndexInRQSTPGN)
     {
-     /* The value of u8NumOf1sPGN is never used with 0. Hence there wont be case that expression
-     * switch(u8NumOf1sPGN-1) results into -1 value */
-        case 0: //RX_PGN_HOURS_65253
+        case 0: // RX_PGN_HOURS_65253
             *au8CalSPNData = 0xE5;
             au8CalSPNData++;
             *au8CalSPNData   = 0xFE;
             break;
-        case 1://RX_PGN_LFC_65257
+
+        case 1: // RX_PGN_LFC1_65257
             *au8CalSPNData = 0xE9;
             au8CalSPNData++;
             *au8CalSPNData   = 0xFE;
             break;
-        case 2://PGN_EEC4_65214
-            *au8CalSPNData = 0xBE;
-            au8CalSPNData++;
-            *au8CalSPNData   = 0xFE;
-            break;
-        case 3://RX_PGN_LFI_65203
-            *au8CalSPNData = 0xB3;
-             au8CalSPNData++;
-            *au8CalSPNData   = 0xFE;
-            break;
-        case 4://RX_PGN_AT1S2_64697
-            *au8CalSPNData = 0xB9;
-            au8CalSPNData++;
-            *au8CalSPNData   = 0xFC;
-            break;
-        case 5://RX_PGN_AT1S_64891
-            *au8CalSPNData = 0x7B;
-            au8CalSPNData++;
-            *au8CalSPNData   = 0xFD;
-            break;
-        case 6://RX_PGN_S2_65166
-            *au8CalSPNData = 0x8E;
-            au8CalSPNData++;
-            *au8CalSPNData   = 0xFE;
-            break;
-        case 7://RX_PGN_PROPB57_65367
-            *au8CalSPNData = 0x57;
-            au8CalSPNData++;
-            *au8CalSPNData   = 0xFF;
-            break;
-        case 8://RX_PGN_PROPB5E_65374
-            *au8CalSPNData = 0x5E;
-            au8CalSPNData++;
-            *au8CalSPNData   = 0xFF;
-            break;
-        case 9://RX_PGN_IT1_65154
-            *au8CalSPNData = 0x82;
-            /* <LDRA Phase code 9S> <Assignment operation in expression.: Resolved.>
-             * <Verified by: Nikhil Mhaske> <04/02/2020> */
-            au8CalSPNData++;
-            *au8CalSPNData   = 0xFE;
-            break;
-        case 10://RX_PGN_GFP_65163
-            *au8CalSPNData = 0x8B;
-            /* <LDRA Phase code 9S> <Assignment operation in expression.: Resolved.>
-             * <Verified by: Nikhil Mhaske> <04/02/2020> */
-            au8CalSPNData++;
-            *au8CalSPNData   = 0xFE;
-            break;
-        case 11://RX_PGN_GFC_65199
-            *au8CalSPNData = 0xAF;
-            /* <LDRA Phase code 9S> <Assignment operation in expression.: Resolved.>
-             * <Verified by: Nikhil Mhaske> <04/02/2020> */
-            au8CalSPNData++;
-            *au8CalSPNData   = 0xFE;
-            break;
+
         default:
             break;
     }
 }
+
+
 void J1939APP::ExtractReadFrame(void)
 {
+
     uint8_t u8Local;
     static uint16_t  u16LocalPGN;
     static uint8_t u8CntDM1Index=0;
     static uint8_t u8CntDM2Index=0;
-    static uint8_t u8CntPropB5EIndex = 0;
-    static uint8_t u8NumberOfPacket = 0,u8ReadData=0;
-
-    uint8_t u8PS, u8PF;
-//    uint8_t u8SourceAddress;
     bool bECUSourceAddressMatched = false;
+    static uint8_t u8NumberOfPacket = 0,u8ReadData=0;
     static uint8_t u8PrevPackateNo =0;
+
+
+    uint8_t u8PS, u8PF,u8SourceAddress;
     uint8_t u8ReceivedPgnNo = RX_PGN_LAST;
     can_frame_t CAN_RxQueueBuffer;
 
@@ -986,20 +1117,23 @@ void J1939APP::ExtractReadFrame(void)
 
      uPDUIDData uPDU_ID_Data;
 
-     if(_hal.Objcan.ReadFrame(&CAN_RxQueueBuffer) == BSP_SUCCESS)
+     if(_hal.Objcan.ReadFrame(&CAN_RxQueueBuffer) ==BSP_SUCCESS)
      {
         /// read the CAN frame id
         uPDU_ID_Data.ulPDUId =  CAN_RxQueueBuffer.id;
 
+
         u8PS =(uint8_t)( uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN & 0x00FF);    // PDU Specific
         u8PF =(uint8_t) ((uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN >>8)& 0x00FF); //PDU Format
 
-//        u8SourceAddress = (uint8_t) (uPDU_ID_Data.tPDUIdFrame.ubyPDU_SA);
+        u8SourceAddress = (uint8_t) (uPDU_ID_Data.tPDUIdFrame.ubyPDU_SA);
         /* If the received source address is same as the configured ECU Source address then only received the data.  */
-//        if(u8SourceAddress == _cfgz.GetCFGZ_Param(CFGZ::ID_ECU_SOURCE_ADDRESS))
+
+        if(u8SourceAddress == _cfgz.GetCFGZ_Param(CFGZ::ID_ECU_SOURCE_ADDRESS))
         {
             bECUSourceAddressMatched = true;
         }
+        //bECUSourceAddressMatched = true;
         //  when 0 <= PF(PDU Format) <= 239 defines peer-peer communication. This is PDU1 format.
         //  In this case, PS defines a 8 bit destination node address.
         //  PGN = (DP<<9 + PF<<8 + 0)
@@ -1011,13 +1145,13 @@ void J1939APP::ExtractReadFrame(void)
 
         if((u8PF <=255)&&(u8PF >=240))
         {
-            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (uint16_t)((((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
-                                                   + (((uint16_t)u8PF)<<8U)+ u8PS);
+            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
+                                                   + (((uint16_t)u8PF)<<8U)+ u8PS;
         }
         else if((u8PF <=239)&&(u8PF >=0))
         {
-            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (uint16_t)((((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
-                                               + (((uint16_t)u8PF)<<8U));
+            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
+                                               + (((uint16_t)u8PF)<<8U) ;
         }
         if(bECUSourceAddressMatched)
         {
@@ -1026,12 +1160,14 @@ void J1939APP::ExtractReadFrame(void)
             {
 
                 case PGN_TPCM: //TPCM Transfer protocol - connection management ---> BAM-Braudcast Announce message
-                    u16LocalPGN = (uint16_t)((((uint16_t)CAN_RxQueueBuffer.data[6]) << 8U) + CAN_RxQueueBuffer.data[5]);
-                    if((u16LocalPGN == PGN_DM01)|| (u16LocalPGN == PGN_DM02) || (u16LocalPGN == PROPB_5E_PGN))
+                    u16LocalPGN = (((uint16_t)CAN_RxQueueBuffer.data[6]) << 8U) + CAN_RxQueueBuffer.data[5];
+                    if((u16LocalPGN == PGN_DM01)|| (u16LocalPGN == PGN_DM02) /*|| (u16LocalPGN == PROPB_5E_PGN*/)
                     {
                         u8ReadData = 1;
                         u8NumberOfPacket =CAN_RxQueueBuffer.data[3];
 
+                        _u8NumOfDM1SPN= (uint8_t)(((((uint16_t)CAN_RxQueueBuffer.data[2] << 8U)
+                                          |CAN_RxQueueBuffer.data[1]) - 2U) / DM1_DTC_SIZE);
                         //Number of SPN(Suspect Parameter Number)
 
                         if((u16LocalPGN == PGN_DM01))
@@ -1044,10 +1180,6 @@ void J1939APP::ExtractReadFrame(void)
                         {
                             u8CntDM2Index = 0;
                             _u8NumOfDM2SPN= (uint8_t)(((((uint16_t)CAN_RxQueueBuffer.data[2] << 8U) | CAN_RxQueueBuffer.data[1]) - 2) / DM1_DTC_SIZE);
-                        }
-                        else if(u16LocalPGN == PROPB_5E_PGN)
-                        {
-                            u8CntPropB5EIndex = 0;
                         }
                     }
                     break;
@@ -1069,12 +1201,9 @@ void J1939APP::ExtractReadFrame(void)
                                 _u8ArrDM2SPNData[u8CntDM2Index++]= CAN_RxQueueBuffer.data[u8Local];
                             }
                         }
-                        else if(u16LocalPGN == PROPB_5E_PGN)
+                        else
                         {
-                            for(u8Local = 1; u8Local < 8; u8Local++)
-                            {
-                                _u8ArrPropB5EPGNData[u8CntPropB5EIndex++]= CAN_RxQueueBuffer.data[u8Local];
-                            }
+                            /* Do nothing */
                         }
 
                         if((CAN_RxQueueBuffer.data[0] > u8PrevPackateNo)||(u8ReadData==1))
@@ -1099,28 +1228,6 @@ void J1939APP::ExtractReadFrame(void)
                                     prvExtractDmMsg(PGN_DM02, _u8NumOfDM2SPN);
                                     u8CntDM2Index = 0;
                                 }
-                                else if(u16LocalPGN == PROPB_5E_PGN)
-                                {
-                                    GetPGN(RX_PGN_PROPB5E_65374, CALC_FOR_RECEIVE, &tSupportPGN);
-                                    for(uint8_t u8RxSPNNum = 0; u8RxSPNNum < tSupportPGN.ubyPDU_SPNs; u8RxSPNNum++)
-                                    {
-                                        GetSPN(RX_PGN_PROPB5E_65374, u8RxSPNNum, CALC_FOR_RECEIVE, &tSupportSPN);
-                                        tSPN.u64SPNData = prvExtractSPN((uint8_t*)_u8ArrPropB5EPGNData, RX_PGN_PROPB5E_65374, u8RxSPNNum, tSupportSPN.u16SPN_Loc, tSupportSPN.ubySPN_DataLength);
-
-                                        CalculateSPN(tSupportSPN.ufSPN_Resolution,
-                                                tSupportSPN.ufMinValDataRange, tSupportSPN.ufMaxValDataRange, CALC_FOR_RECEIVE);
-
-                                        if(_ArrSpnErrorNAStatus[RX_PGN_PROPB5E_65374][u8RxSPNNum] == VALID_DATA)
-                                        {
-                                            _ArrPgnReadData[RX_PGN_PROPB5E_65374][u8RxSPNNum] = tSPN.f64SPNData;
-                                        }
-                                        else
-                                        {
-                                            _ArrPgnReadData[RX_PGN_PROPB5E_65374][u8RxSPNNum] = 0;
-                                        }
-                                    }
-                                    u8CntPropB5EIndex = 0;
-                                }
                                 u8ReadData = 0;
                             }
                         }
@@ -1139,6 +1246,7 @@ void J1939APP::ExtractReadFrame(void)
                         prvExtractDmMsg(PGN_DM01, _u8NumOfDM1SPN);
                         u8CntDM1Index=0;
                     break;
+
                 case PGN_DM02://DM02- Diagnostic messages
                         for(u8Local = 0; u8Local < 8; u8Local++)
                         {
@@ -1148,329 +1256,75 @@ void J1939APP::ExtractReadFrame(void)
                         prvExtractDmMsg(PGN_DM02, _u8NumOfDM2SPN);
                         u8CntDM2Index = 0;
                         break;
+
                 case PGN_RQST: //RQST- Request message
                        _u32RequestedPGN = (((uint32_t)CAN_RxQueueBuffer.data[2]) << 16) + ((uint16_t)CAN_RxQueueBuffer.data[1] << 8) + CAN_RxQueueBuffer.data[0];
                        u8ReceivedPgnNo = RX_PGN_LAST;
                        break;
 
-               case DPFC1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_DPFC1_64892  ;
-                   break;
 
-               case EEC1_PGN:
-                   UTILS_ResetTimer(&_CommFailTimeout);
-                   u8ReceivedPgnNo = RX_PGN_EEC1_61444    ;
-                   _bIsCANJ1939CommFail = false;
-                   break;
+                case DPFC1_PGN:
+                u8ReceivedPgnNo = RX_PGN_DPFC1_64892  ;
+                break;
+                case AT1T1I_PGN:
+                u8ReceivedPgnNo = RX_PGN_AT1T1I_65110  ;
+                break;
 
-               case LFE_PGN:
-                   u8ReceivedPgnNo = RX_PGN_LFE_65266     ;
-                   break;
+                case PGN_EEC1   :
+                UTILS_ResetTimer(&_CommFailTimeout);
+                u8ReceivedPgnNo = RX_PGN_EEC1_61444    ;
+                _bIsCANJ1939CommFail = false;
+                break;
+                case PGN_EEC2   :
+                u8ReceivedPgnNo = RX_PGN_EEC2_61443 ;
+                break;
+                case PGN_EOI    :
+                u8ReceivedPgnNo = RX_PGN_EOI_64914 ;
+                break;
+                case PGN_HOURS  :
+                u8ReceivedPgnNo = RX_PGN_HOURS_65253 ;
+                break;
+                case PGN_LFC1   :
+                u8ReceivedPgnNo = RX_PGN_LFC1_65257 ;
+                break;
+                case PGN_ET1    :
+                u8ReceivedPgnNo = RX_PGN_ET1_65262 ;
+                break;
+                case PGN_EFL_P1 :
+                u8ReceivedPgnNo = RX_PGN_EFL_P1_65263 ;
+                break;
+                case PGN_AMB    :
+                u8ReceivedPgnNo = RX_PGN_AMB_65269 ;
+                break;
+                case PGN_VEP1   :
+                u8ReceivedPgnNo = RX_PGN_VEP1_65271 ;
+                break;
+                case PGN_WFI_OI :
+                u8ReceivedPgnNo = RX_PGN_WFI_OI_65279 ;
+                break;
+                case PGN_DEFA   :
+                u8ReceivedPgnNo = RX_PGN_DEFA_65383 ;
+                break;
+                case PGN_SHUTDN:
+                u8ReceivedPgnNo =  RX_PGN_SHUTDN_65252;
+                break;
+                case PGN_CSA:
+                u8ReceivedPgnNo = RX_PGN_CSA_64966;
+                break;
+                case PGN_DM03   :
+                u8ReceivedPgnNo = RX_PGN_DM03_65228;
+                break;
+                case PGN_IC1   :
+                u8ReceivedPgnNo = RX_PGN_IC1_65270;
+                break;
+                case PGN_LFE1   :
+                u8ReceivedPgnNo = RX_PGN_LFE1_65266;
+                break;
 
-               case EEC2_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EEC2_61443    ;
-                   break;
-
-               case EFL_P1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EFL_P1_65263  ;
-                   break;
-
-               case IC1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_IC1_65270     ;
-                   break;
-
-               case ET1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_ET1_65262     ;
-                   break;
-
-               case AMB_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AMB_65269     ;
-                   break;
-
-               case HOURS_PGN:
-                   u8ReceivedPgnNo = RX_PGN_HOURS_65253   ;
-                   break;
-
-               case VEP1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_VEP1_65271    ;
-                   break;
-
-               case DD_PGN:
-                   u8ReceivedPgnNo = RX_PGN_DD_65276      ;
-                   break;
-
-               case WFI_PGN:
-                   u8ReceivedPgnNo = RX_PGN_WFI_65279     ;
-                   break;
-
-               case LFC_PGN:
-                   u8ReceivedPgnNo = RX_PGN_LFC_65257     ;
-                   break;
-
-               case EEC4_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EEC4_65214    ;
-                   break;
-
-               case LFI_PGN:
-                   u8ReceivedPgnNo = RX_PGN_LFI_65203     ;
-                   break;
-
-               case S2_PGN:
-                   u8ReceivedPgnNo = RX_PGN_S2_65166     ;
-                   break;
-
-               case IC2_PGN:
-                   u8ReceivedPgnNo = RX_PGN_IC2_64976     ;
-                   break;
-
-               case EOI_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EOI_64914     ;
-                   break;
-
-               case ET2_PGN:
-                   u8ReceivedPgnNo = RX_PGN_ET2_65188     ;
-                   break;
-
-               case EEC3_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EEC3_65247     ;
-                   break;
-
-               case EFL_P2_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EFL_P2_65243     ;
-                   break;
-
-               case SHUTDOWN_PGN:
-                   u8ReceivedPgnNo = RX_PGN_SHUTDOWN_65252     ;
-                   break;
-
-               case EFG1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EFG1_61450     ;
-                   break;
-
-               case DPF1S_PGN:
-                   u8ReceivedPgnNo = RX_PGN_DPF1S_64796     ;
-                   break;
-
-               case A1DOC_PGN:
-                   u8ReceivedPgnNo = RX_PGN_A1DOC_64800     ;
-                   break;
-
-               case AT1IG2_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AT1IG2_64948     ;
-                   break;
-
-               case AT1IMG_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AT1IMG_64946     ;
-                   break;
-
-               case AT1T1I_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AT1T1I_65110  ;
-                   break;
-
-               case PROPB32_KUBOTA_PGN:
-                   u8ReceivedPgnNo = RX_PGN_PROPB_32_KUBOTA_65330  ;
-                   break;
-
-               case EMR_PREHEAT_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EMR_PREHEAT_65284  ;
-                   break;
-
-               case PROPB_51_PGN:
-                   u8ReceivedPgnNo = RX_PGN_PROPB51_65361;
-                   break;
-
-               case PROPB_62_PGN:
-                   u8ReceivedPgnNo = RX_PGN_PROPB62_65378;
-                   break;
-
-               case PROPB_57_PGN:
-                   u8ReceivedPgnNo = RX_PGN_PROPB57_65367;
-                   break;
-
-               case IVECO_PREHEAT_PGN:
-                   u8ReceivedPgnNo = RX_PGN_IVECO_PREHEAT_65281;
-                   break;
-
-               case VOLVO_PREHEAT_PGN:
-                   u8ReceivedPgnNo = RX_PGN_VOLVO_PREHEAT_65351  ;
-                   break;
-
-               case IVECO_ENG_STATUS_PGN:
-                   u8ReceivedPgnNo = RX_PGN_IVECO_ENG_STATUS_65282;
-                   break;
-
-               case AT1IG1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AT1IG1_61454  ;
-                   break;
-
-               case AT1OG1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AT1OG1_61455   ;
-                   break;
-
-               case A1SCRDSI1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_A1SCRDSI1_61475;
-                   break;
-
-               case A1SCRDSI2_PGN:
-                   u8ReceivedPgnNo = RX_PGN_A1SCRDSI2_64833;
-                   break;
-
-               case A1SCRDSR1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_A1SCRDSR1_61476;
-                   break;
-
-               case A1SCREGT1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_A1SCREGT1_64830;
-                   break;
-
-               case AT2IG1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AT2IG1_61456  ;
-                   break;
-
-               case AT2OG1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AT2OG1_61457   ;
-                   break;
-
-               case A2SCRDSI2_PGN:
-                   u8ReceivedPgnNo = RX_PGN_A2SCRDSI2_64827;
-                   break;
-
-               case A2SCRDSI1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_A2SCRDSI1_61478;
-                   break;
-
-               case A2SCRDSR1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_A2SCRDSR1_61479;
-                   break;
-
-               case A2SCREGT1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_A2SCREGT1_64824;
-                   break;
-
-               case AT1OG2_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AT1OG2_64947   ;
-                   break;
-
-               case AT1S2_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AT1S2_64697    ;
-                   break;
-
-               case AT1S_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AT1S_64891     ;
-                   break;
-               case PROSTOUT_PGN:
-                   u8ReceivedPgnNo = RX_PGN_PROSTOUT_65364     ;
-                   break;
-
-               case PROPB00_PGN:
-                   u8ReceivedPgnNo = RX_PGN_HATZ_PROPB_PHYS_65280     ;
-                   break;
-
-               case AI_PGN:
-                   u8ReceivedPgnNo = RX_PGN_AI_65237     ;
-                   break;
-
-               case ETC5_PGN:
-                   u8ReceivedPgnNo = RX_PGN_ETC5_65219     ;
-                   break;
-
-               case OII_PGN:
-                   u8ReceivedPgnNo = RX_PGN_OII_64554     ;
-                   break;
-               case IT1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_IT1_65154     ;
-               break;
-               case GFP_PGN:
-                   u8ReceivedPgnNo = RX_PGN_GFP_65163     ;
-               break;
-               case IMI1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_IMI1_65190     ;
-               break;
-              case FD1_PGN  :
-                  u8ReceivedPgnNo = RX_PGN_FD1_65213     ;
-                  break;
-              case DLCC1_PGN:
-                  u8ReceivedPgnNo = RX_PGN_DLCC1_64775     ;
-              break;
-               case GFC_PGN:
-                   u8ReceivedPgnNo = RX_PGN_GFC_65199     ;
-               break;
-               case EPT1_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EPT1_65187;
-                   break;
-               case EPT2_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EPT2_65186;
-                   break;
-               case EPT3_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EPT3_65185;
-                   break;
-               case EPT4_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EPT4_65184;
-                   break;
-               case EPT5_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EPT5_65183;
-                   break;
-               case ET4_PGN:
-                   u8ReceivedPgnNo = RX_PGN_ET4_64870;
-                   break;
-               case TCI4_PGN:
-                   u8ReceivedPgnNo = RX_PGN_TCI4_65176;
-                   break;
-               case EFL_P12_PGN:
-                   u8ReceivedPgnNo = RX_PGN_EFL_P12_64735;
-                   break;
-     //          case EGOV_PID_GAINS_PGN:
-//               {
-//                   ArrEditableItem[INDEX_OF_EGOV_GEN_SET_SPEED].value.u16Val = (uint16_t)((CAN_RxQueueBuffer.data[1] << 8) + CAN_RxQueueBuffer.data[0]);
-//                   ArrEditableItem[INDEX_OF_EGOV_GEN_KP].value.u16Val = (uint16_t)((CAN_RxQueueBuffer.data[3] << 8) + CAN_RxQueueBuffer.data[2]);
-//                   ArrEditableItem[INDEX_OF_EGOV_GEN_KI].value.u16Val = (uint16_t)((CAN_RxQueueBuffer.data[5] << 8) + CAN_RxQueueBuffer.data[4]);
-//                   ArrEditableItem[INDEX_OF_EGOV_GEN_KD].value.u16Val = (uint16_t)((CAN_RxQueueBuffer.data[7] << 8) + CAN_RxQueueBuffer.data[6]);
-//
-//                   _egov.InitEgovParameters();
-//                   u8ReceivedPgnNo = RX_PGN_LAST;
-//               }
-   //                break;
-   //            case EGOV_PARAMS_PGN:
-//               {
-//                   ArrEditableItem[INDEX_OF_EGOV_GEN_DITHER].value.u16Val = (uint16_t)((CAN_RxQueueBuffer.data[1] << 8) + CAN_RxQueueBuffer.data[0]);
-//                   ArrEditableItem[INDEX_OF_EGOV_GEN_GAIN_SCHEDULE].value.fVal = (float)((CAN_RxQueueBuffer.data[3] << 8) + CAN_RxQueueBuffer.data[2]);
-//                   ArrEditableItem[INDEX_OF_EGOV_GEN_LOADING_FAC].value.u16Val = (uint16_t)((CAN_RxQueueBuffer.data[5] << 8) + CAN_RxQueueBuffer.data[4]);
-//                   ArrEditableItem[INDEX_OF_EGOV_GEN_UNLOADING_FAC].value.u16Val = (uint16_t)((CAN_RxQueueBuffer.data[7] << 8) + CAN_RxQueueBuffer.data[6]);
-//
-//                   _egov.InitEgovParameters();
-//                   u8ReceivedPgnNo = RX_PGN_LAST;
-//               }
-    //               break;
-   //            case EGOV_APPL_MODE_PGN:
-//               {
-//                   _u8J1939PIDTune_Normal = CAN_RxQueueBuffer.data[1];
-//
-//                   if(CAN_RxQueueBuffer.data[1] == 1) // Write to Flash if 1st bit is one.
-//                   {
-//                       _ConfigParam.u16ArrParam[CFGZ::ID_EGOV_GEN_SET_SPEED] = ArrEditableItem[INDEX_OF_EGOV_GEN_SET_SPEED].value.u16Val;
-//                       _ConfigParam.u16ArrParam[CFGZ::ID_EGOV_GEN_KP] = ArrEditableItem[INDEX_OF_EGOV_GEN_KP].value.u16Val;
-//                       _ConfigParam.u16ArrParam[CFGZ::ID_EGOV_GEN_KI] = ArrEditableItem[INDEX_OF_EGOV_GEN_KI].value.u16Val;
-//                       _ConfigParam.u16ArrParam[CFGZ::ID_EGOV_GEN_KD] = ArrEditableItem[INDEX_OF_EGOV_GEN_KD].value.u16Val;
-//
-//                       _ConfigParam.u16ArrParam[CFGZ::ID_EGOV_GEN_DITHER] = ArrEditableItem[INDEX_OF_EGOV_GEN_DITHER].value.u16Val;
-//                       _ConfigParam.f32ArrParam[CFGZ::ID_EGOV_GEN_GAIN_SCHEDULE] = ArrEditableItem[INDEX_OF_EGOV_GEN_GAIN_SCHEDULE].value.fVal;
-//                       _ConfigParam.u16ArrParam[CFGZ::ID_EGOV_GEN_LOADING_FAC] = ArrEditableItem[INDEX_OF_EGOV_GEN_LOADING_FAC].value.u16Val;
-//                       _ConfigParam.u16ArrParam[CFGZ::ID_EGOV_GEN_UNLOADING_FAC] = ArrEditableItem[INDEX_OF_EGOV_GEN_UNLOADING_FAC].value.u16Val;
-//
-//                       _cfgz.WriteActiveProfile(&_ConfigParam);
-//                       _egov.InitEgovParameters();
-//                   }
-//                   u8ReceivedPgnNo = RX_PGN_LAST;
-//               }
-    //               break;
-               case CCVS_PGN:
-                   u8ReceivedPgnNo = RX_PGN_HATZ_CCVS_65265     ;
-                 break;
-               case DM11_RESET_DM01:
+               case PGN_DM11:
                    _bClearActiveDTCs = true;
                    u8ReceivedPgnNo = RX_PGN_LAST;
                    break;
-
 
                 default:
                     break;
@@ -1497,11 +1351,6 @@ void J1939APP::ExtractReadFrame(void)
                     }
                 }
             }
-//             Todo: Use the DPF Ash Load percentage as a pvalue for Ash Load Maintenance Alarm
-//            if(u8ReceivedPgnNo == RX_PGN_AT1S_64891)
-//            {
-//                gstAftData.u8DPFAshLoadPercentage = _ArrPgnReadData[u8ReceivedPgnNo][1];
-//            }
         }
     }
 }
@@ -1514,14 +1363,16 @@ void J1939APP::Update(bool bDeviceInconfig)
     uint16_t u16PGN_State ;
 
     _bDeviceInConfigMode =bDeviceInconfig;
-
-    if(_bRequestDM11PGN || _bRequestDM2PGN )
+    if(_bRequestDM11PGN || _bRequestDM2PGN)
     {
         GenerateFrame(PGN_TX_RQST);
         TransmitFrame(PGN_TX_RQST);
     }
-
-     GenerateFrame(_u8PGN_Num);
+    else
+    {
+        /* nothing */
+    }
+    GenerateFrame(_u8PGN_Num);
     _u8PGN_Num++;//change name according to guidelines
     if(_u8PGN_Num >= TX_LAST_PGN)
     {
@@ -1529,288 +1380,63 @@ void J1939APP::Update(bool bDeviceInconfig)
     }
 
     ExtractReadFrame();
+    UpdateEngineStartStopDecisions();
 
-
-    CFGZ::ENGINE_TYPES_t eEngineType = _cfgz.GetEngType();
-    if((!_bDeviceInConfigMode)&&(eEngineType != CFGZ::ENG_CONVENTIONAL))
+    if((!_bDeviceInConfigMode)&&(_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
     {
-        prvHandleEngineStartStop();
 
-        if(UTILS_GetElapsedTimeInMs(&_Timer10ms)>=10)
-        {
-            for(uint8_t u8PGN=0; u8PGN < TX_LAST_PGN; u8PGN++)
-            {
-                u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[u8PGN]) ;
-                if(u16PGN_State == PGN_10MS)
-                {
-                    if(eEngineType == CFGZ::ENG_KUBOTA)
-                    {
-                        if(u8PGN == PGN_PROPB_53_KBT)
-                        {
-                            TransmitFrame(u8PGN);
-                        }
-                        if(u8PGN == PGN_TSC1)
-                        {
-                            CalculateTsc1Checksum();
-                            TransmitFrame(u8PGN);
-                            _u8PGN0MessageCounter++;
-                            if(_u8PGN0MessageCounter > 7)
-                            {
-                                _u8PGN0MessageCounter = 0;
-                            }
-                        }
-                    }
-                    else if( (u8PGN == PGN_TSC1)
-                          && ((((CFGZ::ENG_CUMMINS != eEngineType)&&(eEngineType != CFGZ::ENG_YUCHAI_YCGCU)&& (eEngineType > (uint8_t)CFGZ::ENG_VOLVO )) || (CFGZ::ENG_DEFAULT == eEngineType))))
-                    {
-                        CalculateTsc1Checksum();
-                        TransmitFrame(u8PGN);
-
-                        _u8PGN0MessageCounter++;
-                        if(_u8PGN0MessageCounter > 7)
-                        {
-                            _u8PGN0MessageCounter = 0;
-                        }
-                    }
-                    else if((u8PGN == PGN_PROPB_F7) && (CFGZ::ENG_SCANIA == eEngineType))
-                    {
-
-                        CalculatePropB_F7Checksum();
-                        TransmitFrame(u8PGN);
-
-                        _u8PGN0xFFF7MessageCounter++;
-                        if(_u8PGN0xFFF7MessageCounter > 7)
-                        {
-                            _u8PGN0xFFF7MessageCounter = 0;
-                        }
-                    }
-
-                }
-
-                (void)R_IWDT_Refresh(&g_wdt0_ctrl);
-            }
-            UTILS_ResetTimer(&_Timer10ms);
-        }
-
-        if(( UTILS_GetElapsedTimeInMs(&_Timer20ms) >= 20))
-        {
-            for(uint8_t u8PGN=0; u8PGN < TX_LAST_PGN; u8PGN++)
-            {
-               u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[u8PGN]) ;
-               if(u16PGN_State == PGN_20MS)
-               {
-                   if( (u8PGN == PGN_PROPB_80) && (CFGZ::ENG_SCANIA == eEngineType) )
-                   {
-                       TransmitFrame(u8PGN);
-                   }
-                   if( (u8PGN == PGN_PROPB_46) && (CFGZ::ENG_VOLVO == eEngineType) )
-                   {
-                       TransmitFrame(u8PGN);
-                       _u8AccPedalCounter++;
-                       if(_u8AccPedalCounter > 7)
-                       {
-                           _u8AccPedalCounter =0;
-                       }
-                   }
-               }
-               (void)R_IWDT_Refresh(&g_wdt0_ctrl);
-            }
-
-            UTILS_ResetTimer(&_Timer20ms);
-        }
-
-        if(( UTILS_GetElapsedTimeInMs(&_Timer40ms) >= 40))
-        {
-            if(CFGZ::ENG_YUCHAI_YCGCU == eEngineType)
-            {
-                for(uint8_t u8PGN=0; u8PGN < TX_LAST_PGN; u8PGN++)
-                {
-                  u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[u8PGN]) ;
-                   if(u8PGN == PGN_TSC1 )
-                  {
-                      TransmitFrame(u8PGN);
-                  }
-
-                  (void)R_IWDT_Refresh(&g_wdt0_ctrl);
-                }
-            }
-
-           UTILS_ResetTimer(&_Timer40ms);
-        }
-
-
-        if(( UTILS_GetElapsedTimeInMs(&_Timer50ms) >= 50))
-        {
-           for(uint8_t u8PGN=0; u8PGN < TX_LAST_PGN; u8PGN++)
-           {
-              u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[u8PGN]) ;
-              if(u16PGN_State == PGN_50MS)
-              {
-                  if((u8PGN == PGN_PROPB_00) && (CFGZ::ENG_IVECO == eEngineType))
-                  {
-                      TransmitFrame(u8PGN);
-                  }
-                  else if(u8PGN == PGN_PROPB_08_ENG_SPEED)
-                  {
-                      if(_u8J1939PIDTune_Normal == 1)
-                      {
-                          TransmitFrame(u8PGN);
-                      }
-                  }
-              }
-              (void)R_IWDT_Refresh(&g_wdt0_ctrl);
-           }
-
-           UTILS_ResetTimer(&_Timer50ms);
-        }
-
-        if(( UTILS_GetElapsedTimeInMs(&_Timer80ms) >= 80))
-        {
-           for(uint8_t u8PGN=0; u8PGN < TX_LAST_PGN; u8PGN++)
-           {
-               if((u8PGN == PGN_GC1)&&((CFGZ::ENG_HATZ == _cfgz.GetEngType())
-                       ||(CFGZ::ENG_YUCHAI_YCGCU == _cfgz.GetEngType())
-                       ||(CFGZ::ENG_WECHAI == _cfgz.GetEngType())
-                       ||(CFGZ::ENG_PERKINS_ADAM4 == _cfgz.GetEngType()))
-                  )
-               {
-                   u16PGN_State = PGN_80MS;
-               }
-               else if(CFGZ::ENG_CUMMINS == _cfgz.GetEngType())
-               {
-                   u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[u8PGN]) ;
-               }
-               else
-               {
-                   u16PGN_State = 0;
-               }
-              if(u16PGN_State == PGN_80MS)
-              {
-                   TransmitFrame(u8PGN);
-              }
-              (void)R_IWDT_Refresh(&g_wdt0_ctrl);
-           }
-
-           UTILS_ResetTimer(&_Timer80ms);
-        }
-
-        if(( UTILS_GetElapsedTimeInMs(&_Timer100ms) >= 100) )
+        if((UTILS_GetElapsedTimeInMs(&_Timer250ms) >= 250))
         {
             for(uint8_t u8PGN=0; u8PGN<TX_LAST_PGN; u8PGN++ )
             {
-                if((u8PGN == PGN_CM1)&&((CFGZ::ENG_HATZ == _cfgz.GetEngType())
-                        ||(CFGZ::ENG_YUCHAI_YCGCU == _cfgz.GetEngType())
-                        ||(CFGZ::ENG_PERKINS_ADAM4 == _cfgz.GetEngType())))
+                u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[u8PGN]) ;
+                if(u16PGN_State == PGN_250MS)
                 {
-                    u16PGN_State = PGN_100MS;
-                }
-                else
-                {
-                    u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[u8PGN]) ;
-                }
-                if(u16PGN_State == PGN_100MS)
-                {
-                    if( (u8PGN == PGN_GC1) && ((CFGZ::ENG_DEFAULT == eEngineType) || (CFGZ::ENG_CUMMINS == eEngineType)|| (CFGZ::ENG_MTU ==eEngineType)) )
-                    {
-                        TransmitFrame(u8PGN);
-                    }
-                    if( (u8PGN == PGN_PROPB_55) && (CFGZ::ENG_MTU == eEngineType) )
-                    {
-                        TransmitFrame(u8PGN);
-                    }
-                    if( (u8PGN == PGN_PROPB_01) && (CFGZ::ENG_MTU == eEngineType) )
-                    {
-                        TransmitFrame(u8PGN);
-                    }
-                    if( (u8PGN == PGN_PROPB_16) && (CFGZ::ENG_DEUTZ_EMR == eEngineType) )
-                    {
-                        TransmitFrame(u8PGN);
-                    }
-                    if((u8PGN == PGN_ETC5) && (CFGZ::ENG_KUBOTA == eEngineType))
-                    {
-                        TransmitFrame(u8PGN);
-                    }
-                    if((u8PGN == PGN_CCVS) && ((CFGZ::ENG_KUBOTA == eEngineType) || (CFGZ::ENG_CUMMINS == eEngineType)))
-                    {
-                        TransmitFrame(u8PGN);
-                    }
-                    if((u8PGN == PGN_CM1) &&((CFGZ::ENG_HATZ == _cfgz.GetEngType())||(CFGZ::ENG_YUCHAI_YCGCU == _cfgz.GetEngType())||(CFGZ::ENG_PERKINS_ADAM4 == _cfgz.GetEngType())))
-                    {
-                        TransmitFrame(u8PGN);
-                    }
-                    if((u8PGN == PGN_EBC1) &&((CFGZ::ENG_DCEC_CUMMINS == _cfgz.GetEngType())||(CFGZ::ENG_YUCHAI_BOSCH == _cfgz.GetEngType())))
-                    {
-                        TransmitFrame(u8PGN);
-                    }
+                    TransmitFrame(u8PGN);
                 }
                 (void)R_IWDT_Refresh(&g_wdt0_ctrl);
             }
+            UTILS_ResetTimer(&_Timer250ms);
+        }
 
+        if(( UTILS_GetElapsedTimeInMs(&_Timer100ms) >= 100))
+        {
+            for(uint8_t u8PGN=0; u8PGN<TX_LAST_PGN; u8PGN++ )
+            {
+                u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[u8PGN]) ;
+                if(u16PGN_State == PGN_100MS)
+                {
+                    TransmitFrame(u8PGN);
+                }
+                (void)R_IWDT_Refresh(&g_wdt0_ctrl);
+            }
             UTILS_ResetTimer(&_Timer100ms);
         }
 
-        if(( UTILS_GetElapsedTimeInMs(&_Timer200ms) >= 200))
+        if(( UTILS_GetElapsedTimeInMs(&_Timer300ms) >= 300))
         {
-
-            for(uint8_t u8PGN=0; u8PGN<TX_LAST_PGN; u8PGN++)
+            u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[PGN_TX_RQST]) ;
+            if(u16PGN_State == PGN_300MS)
             {
-               u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[u8PGN]) ;
-               if((u16PGN_State == PGN_200MS)&&(u8PGN == PGN_ETC3) && (CFGZ::ENG_PERKINS_ADAM4 == _cfgz.GetEngType()))
-               {
-                   TransmitFrame(u8PGN);
-               }
-               (void)R_IWDT_Refresh(&g_wdt0_ctrl);
+                TransmitFrame(PGN_TX_RQST);
+                _u8SPNIndexInRQSTPGN++;
+                if(_u8SPNIndexInRQSTPGN >= 2)
+                {
+                    _u8SPNIndexInRQSTPGN = 0;
+                }
             }
-            UTILS_ResetTimer(&_Timer200ms);
+            (void)R_IWDT_Refresh(&g_wdt0_ctrl);
+            UTILS_ResetTimer(&_Timer300ms);
         }
 
         if(( UTILS_GetElapsedTimeInMs(&_Timer500ms) >= 500))
         {
-            for(uint8_t u8PGN=0; u8PGN<TX_LAST_PGN; u8PGN++)
+            for(uint8_t u8PGN=0; u8PGN<TX_LAST_PGN; u8PGN++ )
             {
                 u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[u8PGN]) ;
                 if(u16PGN_State == PGN_500MS)
                 {
                     TransmitFrame(u8PGN);
-                    _u8NumOf500msPGN++;
-
-                    if(eEngineType == CFGZ::ENG_KUBOTA)
-                    {
-                        if(_u8NumOf500msPGN == 9)
-                        {
-                            _u8NumOf500msPGN = 0;
-                        }
-                    }
-                    else if(eEngineType == CFGZ::ENG_YUCHAI_YCGCU)
-                    {
-                        if((_u8NumOf500msPGN >= 7) &&(_u8NumOf500msPGN <= 8))
-                        {
-                            _u8NumOf500msPGN = 9;
-                        }
-                        if(_u8NumOf500msPGN > 10)
-                        {
-                            _u8NumOf500msPGN = 0;
-                        }
-                    }
-                    else if(eEngineType == CFGZ::ENG_WECHAI)
-                    {
-                        if((_u8NumOf500msPGN >= 7)&&(_u8NumOf500msPGN <11))
-                        {
-                            _u8NumOf500msPGN = 11;
-                        }
-                        else if(_u8NumOf500msPGN > 11)
-                        {
-                            _u8NumOf500msPGN = 0;
-                        }
-
-                    }
-                    else
-                    {
-                        if(_u8NumOf500msPGN >= 7)
-                        {
-                            _u8NumOf500msPGN = 0;
-                        }
-                    }
                 }
                 (void)R_IWDT_Refresh(&g_wdt0_ctrl);
             }
@@ -1819,41 +1445,37 @@ void J1939APP::Update(bool bDeviceInconfig)
 
         if(( UTILS_GetElapsedTimeInMs(&_Timer1s) >= 1000))
         {
-            for(uint8_t u8PGN=0; u8PGN < TX_LAST_PGN; u8PGN++)
+            for(uint8_t u8PGN=0; u8PGN<TX_LAST_PGN; u8PGN++ )
             {
                 u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[u8PGN]) ;
                 if(u16PGN_State == PGN_1SEC)
                 {
-                    if((u8PGN == PGN_CM1) && ((CFGZ::ENG_KUBOTA == eEngineType) || (CFGZ::ENG_WECHAI == eEngineType)))
-                    {
-                        TransmitFrame(u8PGN);
-                    }
+                    TransmitFrame(u8PGN);
                 }
                 (void)R_IWDT_Refresh(&g_wdt0_ctrl);
             }
             UTILS_ResetTimer(&_Timer1s);
         }
-
     }
 
-//    if(UTILS_GetElapsedTimeInSec(&_CommFailTimeout) > _cfgz.GetCFGZ_Param(CFGZ::ID_ECU_COMM_FAILURE_ACT_DELAY))
-//    {
-//        _bIsCANJ1939CommFail = true;
-//        ResetLampsStatus();
-//        _ArrPgnReadData[RX_PGN_EFL_P1_65263][2] = 0;
-//        _ArrPgnReadData[RX_PGN_ET1_65262][0] = 0;
-//        _ArrPgnReadData[RX_PGN_LFE_65266][0] = 0;
-//        _ArrPgnReadData[RX_PGN_HOURS_65253][0] = 0;
-//        _ArrPgnReadData[RX_PGN_VEP1_65271][0] = 0;
-//        _ArrPgnReadData[RX_PGN_VEP1_65271][1] = 0;
-//        _ArrPgnReadData[RX_PGN_EEC1_61444][2] = 0;
-//
-//    }
+    if(UTILS_GetElapsedTimeInSec(&_CommFailTimeout) > _cfgz.GetCFGZ_Param(CFGZ::ID_ECU_COMM_FAILURE_ACT_DELAY))
+    {
+        _bIsCANJ1939CommFail = true;
+        ResetLampsStatus();
+        _ArrPgnReadData[RX_PGN_EFL_P1_65263][2] = 0;
+        _ArrPgnReadData[RX_PGN_ET1_65262][0] = 0;
+        _ArrPgnReadData[RX_PGN_HOURS_65253][0] = 0;
+        _ArrPgnReadData[RX_PGN_VEP1_65271][0] = 0;
+        _ArrPgnReadData[RX_PGN_VEP1_65271][1] = 0;
+        _ArrPgnReadData[RX_PGN_EEC1_61444][2] = 0;
+
+    }
 
 }
 
 void J1939APP::TransmitFrame(uint8_t u8PGNNum)
 {
+
     can_frame_t TxFrame;
     /// get the PGN information
     GetPGN(u8PGNNum, CALC_FOR_TRANSMIT, &tSupportPGN);
@@ -1877,43 +1499,18 @@ void J1939APP::TransmitFrame(uint8_t u8PGNNum)
 
     /// load the frame id contents in CAN frame
     SetFrameID(&TxFrame);
-    bTXBufferisEmpty = false;
     _hal.Objcan.SendData(&TxFrame);
 
 }
 
 
 
-double J1939APP::GetParamsFromJ1939(J1939APP::REALDATA_st edata)
-{
-    double f64Data=0;
-    switch(edata)
-    {
-        case ENG_OIL_PRESSURE : f64Data=_ArrPgnReadData[RX_PGN_EFL_P1_65263][2];
-         break;
-        case ENG_COOLANT_TEMP : f64Data=_ArrPgnReadData[RX_PGN_ET1_65262][0];
-         break;
-        case FUEL_LEVEL       : f64Data=_ArrPgnReadData[RX_PGN_LFE_65266][0];
-         break;
-        case TOTAL_ENG_HOURS  : f64Data=_ArrPgnReadData[RX_PGN_HOURS_65253][0];
-         break;
-        case BATTERY_VOLTAGE  : f64Data=_ArrPgnReadData[RX_PGN_VEP1_65271][0];
-         break;
-        case INPUT_VOLTAGE    : f64Data=_ArrPgnReadData[RX_PGN_VEP1_65271][1];
-         break;
-        case ENG_SPEED        : f64Data=_ArrPgnReadData[RX_PGN_EEC1_61444][2];
-         break;
-    }
-
-    return f64Data;
-}
-
 
 bool J1939APP::IsJ1939CommEnable(void)
 {
     bool bStatus = false;
 
-    if(_cfgz.GetEngType() != CFGZ::ENG_CONVENTIONAL)
+    if(_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL)
     {
         bStatus = true;
     }
@@ -1936,6 +1533,18 @@ void J1939APP::SetDm2MsgCount(uint8_t u8Count)
 {
     _u8NumOfDM2SPN = u8Count;
     _u8NoOfInvalidSpnInDm2Msg = u8Count;
+
+    if(u8Count == 0)
+    {
+        memset((void *)&_stDm2Decode,0, sizeof(_stDm2Decode));
+    }
+    else
+    {
+        /* Shubham Wader
+           Currently the function is being called only to cleat the DM02 messeges by sending
+           0 as a function parameter. By assuming 0 as clear alarms, cleared memory as well.
+           for parameter other that 0, it will just update counters. */
+    }
 }
 
 uint8_t J1939APP::GetDm2MsgCount(void)
@@ -1943,36 +1552,6 @@ uint8_t J1939APP::GetDm2MsgCount(void)
     /* return only valid SPNs */
     return (_u8NumOfDM2SPN - _u8NoOfInvalidSpnInDm2Msg);
 }
-
-uint8_t J1939APP::GetPCDAlarmCount(void)
-{
-    uint8_t u8index= 0;
-    uint8_t u8NoOfPCDAlarms = 0;
-    for(u8index = PCD_REMOVAL_OF_DPF_SYSTEM; u8index <= PCD_FAILURE_OF_PCD_SYSTEM; u8index++)
-    {
-        if((uint8_t)_ArrPgnReadData[RX_PGN_PROPB51_65361][u8index] == 1)
-        {
-            u8NoOfPCDAlarms++;
-        }
-    }
-    return u8NoOfPCDAlarms;
-}
-
-
-uint8_t J1939APP::GetNCDAlarmCount(void)
-{
-    uint8_t u8index= 0;
-    uint8_t u8NoOfNCDAlarms = 0;
-    for(u8index = NCD_REMOVAL_OF_EGR_SYSTEM; u8index <= NCD_REMOVAL_OF_MAF_SENSOR; u8index++)
-    {
-        if((uint8_t)_ArrPgnReadData[RX_PGN_PROPB51_65361][u8index] == 1)
-        {
-            u8NoOfNCDAlarms++;
-        }
-    }
-    return u8NoOfNCDAlarms;
-}
-
 
  void J1939APP::UpdateDM2RequestData(uint8_t *au8CalSPNData)
 {
@@ -1993,86 +1572,6 @@ uint8_t J1939APP::GetNCDAlarmCount(void)
 }
 
 
-void J1939APP::CalculateTsc1Checksum(void)
-{
-    unsigned int uiLocal = 0;
-    uint8_t *pTxBuff = NULL;
-    uint8_t u8Checksum=0;
-
-    if(_astPGNTxDataBuff[PGN_TSC1].u8LockDataBuff)
-    {
-        pTxBuff = (uint8_t*)&_astPGNTxDataBuff[PGN_TSC1].au8TxDataBuffOld;
-    }
-    else
-    {
-        pTxBuff = (uint8_t*)&_astPGNTxDataBuff[PGN_TSC1].au8TxDataBuffUpdtd;
-    }
-
-    for (uiLocal = 0 ; uiLocal < 7 ; uiLocal++)
-    {
-        u8Checksum += *pTxBuff;
-        pTxBuff++;
-    }
-
-    _u32TSC1CANMessageID = (uint32_t)((tSupportPGN.ubyPDU_Prio << PDU_Prio_Mask_Shift)& PDU_PRIO_Mask);
-    _u32TSC1CANMessageID |= ((((uint32_t)tSupportPGN.u8PF )<< PDU_PF_Mask_Shift)& PDU_PF_Mask);
-    _u32TSC1CANMessageID |= ((((uint32_t) tSupportPGN.u8PS) << PDU_PS_Mask_Shift) & PDU_PS_Mask);
-    _u32TSC1CANMessageID |= (uint32_t) ((tSupportPGN.ubyPDU_SA & PDU_SA_Mask));
-
-    /* Message checksum is calculated using first 7 bytes, ,message counter and message identifier.
-     * Checksum = ( byte_1 + byte_2 + byte_3 + byte_4 + byte_5 + byte_6+ byte_7 + (message_counter & 0x0F)
-     *             + Msg_ID_low_byte + Msg_ID_mid_low_byte + Msg_ID_mid_high_byte + Msg_ID_high_byte)
-     * Message Checksum = (((Checksum >> 6) & 0x03) + (Checksum >> 3) + Checksum) & 0x07             */
-
-    u8Checksum = (uint8_t)(u8Checksum + (_u8PGN0MessageCounter & 0x0F) + (uint8_t)(_u32TSC1CANMessageID & 0x000000FF) +
-                  (uint8_t)((_u32TSC1CANMessageID & 0x0000FF00) >> 8) + (uint8_t)((_u32TSC1CANMessageID & 0x00FF0000) >> 16)
-                  + (uint8_t)((_u32TSC1CANMessageID & 0xFF000000) >> 24));
-
-    _f32Pgn0Data[PGN_0_MESSAGE_CHECKSUM] =(float)((((u8Checksum >> 6) & 0x03) + (u8Checksum >> 3) + u8Checksum) & 0x07);
-}
-
-
-
-void J1939APP::CalculatePropB_F7Checksum()
-{
-    unsigned int uiLocal = 0;
-    uint8_t *pTxBuff = NULL;
-    uint8_t u8ChecksumPGNFFF7 = 0;
-
-    GetPGN(PGN_PROPB_F7, CALC_FOR_TRANSMIT, &tSupportPGN);
-
-    if(_astPGNTxDataBuff[PGN_PROPB_F7].u8LockDataBuff)
-    {
-        pTxBuff = (uint8_t*)&_astPGNTxDataBuff[PGN_PROPB_F7].au8TxDataBuffOld;
-    }
-    else
-    {
-        pTxBuff = (uint8_t*)&_astPGNTxDataBuff[PGN_PROPB_F7].au8TxDataBuffUpdtd;
-    }
-
-    for (uiLocal = 0 ; uiLocal < 7 ; uiLocal++)
-    {
-        u8ChecksumPGNFFF7  += *pTxBuff;
-        pTxBuff++;
-    }
-
-    _u32PropBF7CANMessageID = (uint32_t)((tSupportPGN.ubyPDU_Prio << PDU_Prio_Mask_Shift)& PDU_PRIO_Mask);
-    _u32PropBF7CANMessageID |= ((((uint32_t)tSupportPGN.u8PF )<< PDU_PF_Mask_Shift)& PDU_PF_Mask);
-    _u32PropBF7CANMessageID |= ((((uint32_t) tSupportPGN.u8PS) << PDU_PS_Mask_Shift) & PDU_PS_Mask);
-    _u32PropBF7CANMessageID |= (uint32_t) ((tSupportPGN.ubyPDU_SA & PDU_SA_Mask));
-
-    /* Message checksum is calculated using first 7 bytes, ,message counter and message identifier.
-     * Checksum = ( byte_1 + byte_2 + byte_3 + byte_4 + byte_5 + byte_6+ byte_7 + (message_counter & 0x0F)
-     *             + Msg_ID_low_byte + Msg_ID_mid_low_byte + Msg_ID_mid_high_byte + Msg_ID_high_byte)
-     * Message Checksum = (((Checksum >> 6) & 0x03) + (Checksum >> 3) + Checksum) & 0x07             */
-
-    u8ChecksumPGNFFF7 = (uint8_t)(u8ChecksumPGNFFF7 + (_u8PGN0xFFF7MessageCounter & 0x0F) + (uint8_t)(_u32PropBF7CANMessageID & 0x000000FF) +
-            (uint8_t)((_u32PropBF7CANMessageID & 0x0000FF00) >> 8) + (uint8_t)((_u32PropBF7CANMessageID & 0x00FF0000) >> 16)
-            + (uint8_t)((_u32PropBF7CANMessageID & 0xFF000000) >> 24));
-
-    _f32Pgn65527Data[PGN_0_MESSAGE_CHECKSUM] = (float)((((u8ChecksumPGNFFF7 >> 6) & 0x03) + (u8ChecksumPGNFFF7 >> 3) + u8ChecksumPGNFFF7) & 0x07);
-}
-
 void  J1939APP::prvExtractDmMsg(uint16_t u16DmMsgNo, uint8_t u8NoOfSpnInDmMsg)
 {
     uint8_t u8Local1 = 0;
@@ -2088,7 +1587,10 @@ void  J1939APP::prvExtractDmMsg(uint16_t u16DmMsgNo, uint8_t u8NoOfSpnInDmMsg)
         ubitAmbarLamp:2,
         ubitRedLamp:2,
         ubitMalFunctionLamp:2,
-        ubitunused:8;
+        ubitFlashProtectLAmp:2,
+        ubitFlashAmbarLamp:2,
+        ubitFlashRedLamp:2,
+        ubitFlashMalFuctionLamp:2;
     }TagDM1LampStatus;
      union
     {
@@ -2153,6 +1655,59 @@ void  J1939APP::prvExtractDmMsg(uint16_t u16DmMsgNo, uint8_t u8NoOfSpnInDmMsg)
         else
         {
             _u8ActiveDtcProtectLampStatus = false;
+        }
+
+    /* Flashig sequence for each lamp */
+        if (DM1Lamp.DM1LampStatus.ubitFlashProtectLAmp == 0)
+        {
+            _u8ProtectLampFlashState = FLASH_AT_1_HZ;
+        }
+        else if(DM1Lamp.DM1LampStatus.ubitFlashProtectLAmp == 1)
+        {
+            _u8ProtectLampFlashState = FLASH_AT_2_HZ;
+        }
+        else
+        {
+            _u8ProtectLampFlashState = NO_FLASH;
+        }
+
+        if (DM1Lamp.DM1LampStatus.ubitFlashAmbarLamp == 0)
+        {
+            _u8AmbergLampFlashState = FLASH_AT_1_HZ;
+        }
+        else if(DM1Lamp.DM1LampStatus.ubitFlashAmbarLamp == 1)
+        {
+            _u8AmbergLampFlashState = FLASH_AT_2_HZ;
+        }
+        else
+        {
+            _u8AmbergLampFlashState = NO_FLASH;
+        }
+
+        if (DM1Lamp.DM1LampStatus.ubitFlashRedLamp == 0)
+        {
+            _u8RedLampFlashState = FLASH_AT_1_HZ;
+        }
+        else if(DM1Lamp.DM1LampStatus.ubitFlashRedLamp == 1)
+        {
+            _u8RedLampFlashState = FLASH_AT_2_HZ;
+        }
+        else
+        {
+            _u8RedLampFlashState = NO_FLASH;
+        }
+
+        if (DM1Lamp.DM1LampStatus.ubitFlashMalFuctionLamp == 0)
+        {
+            _u8MalFunctionLampFlashState = FLASH_AT_1_HZ;
+        }
+        else if(DM1Lamp.DM1LampStatus.ubitFlashMalFuctionLamp == 1)
+        {
+            _u8MalFunctionLampFlashState = FLASH_AT_2_HZ;
+        }
+        else
+        {
+            _u8MalFunctionLampFlashState = NO_FLASH;
         }
 
         _bIsDM1PGNRecieved = true;
@@ -2229,7 +1784,7 @@ uint32_t J1939APP::prvExtractSPN(uint8_t *pCANData, uint8_t ubyPGN, uint8_t ubyS
     uint32_t ulErrorCheckValue = 0xFB;
     uint32_t ulNotAvailableCheckVal = 0xFF;
 
-    ubyStartByte = (uint8_t) (ubyStartBit / 8);                          // Calculate the byte number in which data is present
+    ubyStartByte = (uint8_t)(ubyStartBit / 8);                          // Calculate the byte number in which data is present
     ubyTemp1 = (ubyStartBit % 8);
 
     // Remove the bits from start byte which are not is that SPN
@@ -2366,153 +1921,72 @@ uint8_t J1939APP::GetSPNErrorStatus(uint8_t u8PGNName, uint8_t u8SPNName)
     return _ArrSpnErrorNAStatus[u8PGNName][u8SPNName];
 }
 
+J1939APP::LAMP_FLASHING_SEQ_t J1939APP::GetLampFlashingSequence(LAMP_st eLamp)
+{
+    LAMP_FLASHING_SEQ_t eFlashingState = NO_FLASH;
+    switch(eLamp)
+    {
+        case RED_LAMP    :
+                   eFlashingState = (LAMP_FLASHING_SEQ_t)_u8RedLampFlashState;
+                   break;
+        case AMBER_LAMP  :
+                   eFlashingState = (LAMP_FLASHING_SEQ_t)_u8AmbergLampFlashState;
+                   break;
+        case MIL_LAMP    :
+                   eFlashingState = (LAMP_FLASHING_SEQ_t)_u8MalFunctionLampFlashState;
+                   break;
+        case PROTECT_LAMP:
+                   eFlashingState = (LAMP_FLASHING_SEQ_t)_u8ProtectLampFlashState;
+                   break;
+        default: break;
+    }
+    return eFlashingState;
+}
+
+void J1939APP::UpdateEngineStartStopDecisions(void)
+{
+    if ((uint8_t)GetReadData(RX_PGN_SHUTDN_65252,0) == 0)
+    {
+        bEnableEngineStart = true;
+    }
+    else if((uint8_t)GetReadData(RX_PGN_SHUTDN_65252,0) == 1)
+    {
+        bEnableEngineStart = false;
+    }
+    else
+    {
+        bEnableEngineStart = false;
+    }
+
+    if ((uint8_t)GetReadData(RX_PGN_CSA_64966, 0) == 0)
+    {
+        bExecutePreheat = false;
+    }
+    else if((uint8_t)GetReadData(RX_PGN_CSA_64966, 0) == 1)
+    {
+        bExecutePreheat = true;
+    }
+    else
+    {
+        bExecutePreheat = false;
+    }
+}
+bool J1939APP::IsEngineStartEnableFromPGN_65252(void)
+{
+    return bEnableEngineStart;
+}
+bool J1939APP::IsExecutePreheatFromPGN_64966(void)
+{
+    return bExecutePreheat;
+}
+
+
 void J1939APP::ResetLampsStatus(void)
 {
     _u8ActiveDtcAmberLampStatus = 0;
     _u8ActiveDtcRedLampStatus = 0;
     _u8ActiveDtcMILLampStatus = 0;
     _u8ActiveDtcProtectLampStatus = 0;
-}
-
-
-/* PGN-65395(CUMMINS) : CUMMINS Engine Genset Control parameters */
- void J1939APP::prvUpdatePGN65395Data(void)
-{
-
-   _f32Pgn65395Data[PGN_65395_UNUSED_SPN_1] = 0;
-
-   _f32Pgn65395Data[PGN_65395_CUMMINS_GAIN_SELECT] = START_STOP::IsFuelRelayOn();
-
-//   _f32Pgn65395Data[PGN_65395_CUMMINS_IDLE_SPEED] = START_STOP::IsIdleModeActive();
-   _f32Pgn65395Data[PGN_65395_CUMMINS_STARTER_SELECTION] = 3;
-   _f32Pgn65395Data[PGN_65395_CUMMINS_SHUTDOWN_OVERRIDE] = 0;
-   /*As per DEIF's requirement we should have drop down menu in ECU submenu to select the frequency(50Hz or 60Hz) Since we dont have it.
-    * Here we consider if Eng requested speed is more than 1650 then 60Hz else 50Hz. Needs to be reviewed.*/
-
-   _f32Pgn65395Data[PGN_65395_CUMMINS_FREQUENCY_RANGE] = 0;//_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_FRQ);
-
-
-   _f32Pgn65395Data[PGN_65395_UNUSED_SPN_2] = 32768;
-   _f32Pgn65395Data[PGN_65395_UNUSED_SPN_3] = 0;
-   _f32Pgn65395Data[PGN_65395_UNUSED_SPN_4] = 0;
-
-}
-/* PGN-65406(CUMMINS) : CUMMINS Governing Adjustment Parameters */
- void J1939APP::prvUpdatePGN65406Data(void)
-{
-   _f32Pgn65406Data[PGN_65406_CUMMINS_DROOP] = 0;
-   _f32Pgn65406Data[PGN_65406_CUMMINS_RES] = 0;
-   _f32Pgn65406Data[PGN_65406_CUMMINS_FREQ_ADJUSTMENT] = 0;
-   _f32Pgn65406Data[PGN_65406_CUMMINS_GAIN] = 0;//_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_GAIN);
-}
-
- /* PGN-61441 : EBC1 Engine Brake Controller*/
- void J1939APP::prvUpdatePGN61441Data(void)
- {
-     _f32Pgn61441Data[PGN_61441_UNUSED_SPN_1] = 0xFF;
-     _f32Pgn61441Data[PGN_61441_UNUSED_SPN_2] = 0xFFFF;
-     _f32Pgn61441Data[PGN_61441_UNUSED_SPN_3] = 0xF;
-
-     if(START_STOP::IsFuelRelayOn())
-     {
-         _f32Pgn61441Data[PGN_61441_ENG_AUX_SHUTDOWN_SW] = 0;
-     }
-     else
-     {
-         _f32Pgn61441Data[PGN_61441_ENG_AUX_SHUTDOWN_SW] = 1;
-     }
-
-     _f32Pgn61441Data[PGN_61441_UNUSED_SPN_4] = 0x3;
-     _f32Pgn61441Data[PGN_61441_UNUSED_SPN_5] = 0xFFFF;
-     _f32Pgn61441Data[PGN_61441_UNUSED_SPN_6] = 0xFFFF;
-
- }
- /* PGN 65223 ETC3 - PERKINS Engine */
- void J1939APP::prvUpdatePGN65223Data(void)
- {
-     _f32Pgn65223Data[PGN_65223_DEFUEL_ACT] = !START_STOP::IsFuelRelayOn();
-     _f32Pgn65223Data[PGN_65223_UNUSED_SPN_1] = 0xFFFF;
-     _f32Pgn65223Data[PGN_65223_UNUSED_SPN_2] = 0xFFFF;
-     _f32Pgn65223Data[PGN_65223_UNUSED_SPN_3] = 0xFF;
-     _f32Pgn65223Data[PGN_65223_UNUSED_SPN_4] = 0xF;
-     _f32Pgn65223Data[PGN_65223_UNUSED_SPN_5] = 3;
-     _f32Pgn65223Data[PGN_65223_UNUSED_SPN_6] = 0xFFFF;
- }
-
-void J1939APP::prvHandleEngineStartStop()
-{
-    static START_STOP::SS_STATE_t ePrvState = START_STOP::ID_STATE_SS_ENG_OFF_OK;
-    bool bStateChanged =false;
-    if(ePrvState !=START_STOP::GetStartStopSMDState())
-    {
-        bStateChanged =true;
-        ePrvState = START_STOP::GetStartStopSMDState();
-    }
-
-    switch(START_STOP::GetStartStopSMDState())
-    {
-        case START_STOP::ID_STATE_SS_ENG_OFF_OK:
-            _bEngineStartPreheatStatus = true;
-            if(_bPreheatFailed && (_cfgz.GetEngType()== CFGZ::ENG_IVECO))
-            {
-                _bPreheatFailed = false;
-            }
-            break;
-        case START_STOP::ID_STATE_SS_ENG_OFF_ERR:
-            break;
-        case START_STOP::ID_STATE_SS_PREHEAT:
-            if((_cfgz.GetEngType() ==CFGZ::ENG_IVECO) && ((uint8_t)_ArrPgnReadData[RX_PGN_IVECO_PREHEAT_65281][6] == 0))
-            {
-                _bEngineStartPreheatStatus = false;
-            }
-            break;
-        case START_STOP::ID_STATE_SS_START_WAIT:
-            if(bStateChanged)
-            {
-                bStateChanged = false;
-                if( (CFGZ::ENG_VOLVO == _cfgz.GetEngType()) && (IS_PREHEAT_J1939_CONFIGURED()) )
-                {
-                    _ArrPgnReadData[RX_PGN_VOLVO_PREHEAT_65351][0] = PREHEAT_COMPLETED;
-                }
-                else if( (CFGZ::ENG_DEUTZ_EMR == _cfgz.GetEngType()) && (IS_PREHEAT_J1939_CONFIGURED()) )
-                {
-                    _ArrPgnReadData[RX_PGN_EMR_PREHEAT_65284][0] = PREHEAT_NA;
-                }
-                else if( (CFGZ::ENG_IVECO == _cfgz.GetEngType()) && (IS_PREHEAT_J1939_CONFIGURED()) )
-                {
-                    _ArrPgnReadData[RX_PGN_IVECO_PREHEAT_65281][6] = PREHEAT_IN_PROGRESS;
-                }
-            }
-            break;
-        case START_STOP::ID_STATE_SS_CRANKING:
-            break;
-        case START_STOP::ID_STATE_SS_CRANK_REST:
-            break;
-        case START_STOP::ID_STATE_SS_ENG_ON:
-            break;
-        case START_STOP::ID_STATE_SS_STOPPING:
-            _bEngineStartPreheatStatus = true;
-            if(bStateChanged)
-            {
-
-            }
-            break;
-        case START_STOP::ID_STATE_SS_STOP_HOLD:
-
-            break;
-        case START_STOP::ID_STATE_SS_FAIL_TO_STOP:
-            break;
-
-    }
-}
-
-void J1939APP::prvCalculateAccPedalPosChecksum(void)
-{
-   uint16_t u16AccPedalPosChecksum = 0;
-   const uint16_t  u16ConstPedalPos=0x1ff; //ie. 50%
-   u16AccPedalPosChecksum = (uint8_t)(u16ConstPedalPos & 0x00FF) + (uint8_t)((u16ConstPedalPos & 0xFF00)>>8) + (_u8AccPedalCounter & 0x0F);
-   _f32Pgn65350Data[PGN_65350_ACCELERATOR_PEDAL_CHECKSUM] = (float)((((u16AccPedalPosChecksum >> 6) & 0x03) + (u16AccPedalPosChecksum >> 3) + u16AccPedalPosChecksum) & 0x07);
-
 }
 
 uint8_t J1939APP::IsRedLampON()
@@ -2534,26 +2008,17 @@ uint8_t J1939APP::IsProtectLampON()
 {
     return _u8ActiveDtcProtectLampStatus;
 }
-
+void J1939APP::RequestDM2Messages()
+{
+    _bRequestDM2PGN = true;
+}
 void J1939APP::RequestDM11PGN()
 {
     _bRequestDM11PGN = true;
 }
 
-void J1939APP::RequestDM2Messages()
-{
-    _bRequestDM2PGN = true;
-}
 void J1939APP::ClearDM2Messages()
 {
+    _u8NumOfDM2SPN = 0;
     memset((void *)&_stDm2Decode,0, sizeof(_stDm2Decode));
-}
-
-void J1939APP::ClearNCDandPCDAlarms()
-{
-    for(uint8_t u8index = PCD_REMOVAL_OF_DPF_SYSTEM; u8index <= NCD_REMOVAL_OF_MAF_SENSOR; u8index++)
-      {
-         _ArrPgnReadData[RX_PGN_PROPB51_65361][u8index] =0;
-
-      }
 }

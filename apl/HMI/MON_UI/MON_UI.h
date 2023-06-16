@@ -58,8 +58,10 @@ public:
         DISP_MON_HOME = 0,
         DISP_MON_PRODUCT_ID, /* Product ID*/
 
+        DISP_ENGINE_TYPE,
         DISP_MON_CAN_COMMUNICATION_INFO,
         DISP_MON_ENG_LINK_INFO,
+
 
         //Generator
         DISP_MON_GEN_VOLTAGE,
@@ -90,6 +92,9 @@ public:
         DISP_MON_AUX_2,
         DISP_MON_ENG_SPEED,
         DISP_MON_ENG_RUN_TIME,
+
+        DISP_EEEC1, // used for testing
+
         DISP_MON_LAST
 
     }MON_DISPLAY_LIST_t;
@@ -983,6 +988,9 @@ private:
     uint8_t _u8LanguageIndex;
 
     uint8_t _u8ScreenMin, _u8ScreenMax;
+
+    uint32_t _u32EngineRunHrs;
+
     typedef struct
     {
         uint8_t u8DPInResolution;

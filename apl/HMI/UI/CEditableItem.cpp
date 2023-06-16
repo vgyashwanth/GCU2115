@@ -234,6 +234,24 @@ CEditableItem::CEditableItem(float fVal, const char* PromptMessage,
     u8MaxOneScreenEditItems = 0;
     initTempValue();
 }
+
+CEditableItem::CEditableItem(float fVal, const char* promptMessage,
+        const char* unitOfMeasurement, const char* formatString,
+        float minFval, float maxFval, PASS_t  ePassLevel)
+{
+    CEditableItem();
+    this->value.fVal = fVal;
+    this->minVal.fVal = minFval;
+    this->maxVal.fVal = maxFval;
+    this->fValLC = 0.1;
+    this->dataType = DT_FLOAT;
+    this->promptMessage = promptMessage;
+    this->unitOfMeasurement = unitOfMeasurement;
+    this->formatString = formatString;
+    this->u8PasswordLevel = ePassLevel;
+    u8MaxOneScreenEditItems =0;
+    initTempValue();
+}
 //CEditableItem::CEditableItem(char* pStrVal, const char* promptMessage,
 //        const char* unitOfMeasurement, const char* formatString,
 //        unsigned int minLength, unsigned int maxLength, PASS_t  ePassLevel)

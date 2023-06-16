@@ -176,13 +176,29 @@ void EVENT_LOG_UI::prvDisplayEventScreen()
         sprintf(arrTemp,"%lu hrs %d min", (_stEventLog.u32EngineHrs/60),(uint8_t)(_stEventLog.u32EngineHrs%60));
         _Disp.printStringRightAligned(arrTemp, FONT_VERDANA);
 
-        //Print row 3
-        _Disp.gotoxy(GLCD_X(2),GLCD_Y(41));
-        _Disp.printStringLeftAligned( (char*)strAlaram[_cfgz.GetArrLanguageIndex()][_stEventLog.u8EventId], FONT_VERDANA);
+        if(_stEventLog.u8EventId == GCU_ALARMS::J1939DTC_id)
+        {
+          _Disp.gotoxy(GLCD_X(64),GLCD_Y(42));
+          sprintf(arrTemp,"SPN: %lu",_stEventLog.u32SPN);
+          _Disp.printStringCenterAligned( arrTemp,
+                                          FONT_VERDANA);
 
-        //Print row 4
-        _Disp.gotoxy(GLCD_X(2),GLCD_Y(51));
-        _Disp.printStringLeftAligned((char*)strAlaramType[_stEventLog.u8EventType], FONT_VERDANA);
+          _Disp.gotoxy(GLCD_X(64),GLCD_Y(53));
+          sprintf(arrTemp,"FMI: %lu",_stEventLog.u16FMI);
+          _Disp.printStringCenterAligned( arrTemp,
+                                          FONT_VERDANA);
+        }
+        else
+        {
+            //Print row 3
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(41));
+            _Disp.printStringLeftAligned( (char*)strAlaram[_cfgz.GetArrLanguageIndex()][_stEventLog.u8EventId], FONT_VERDANA);
+
+            //Print row 4
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(51));
+            _Disp.printStringLeftAligned((char*)strAlaramType[_stEventLog.u8EventType], FONT_VERDANA);
+        }
+
     }
     // The below is to print the MB count feature available in GC2111.
     // This statements are out of the if condition, so it will be get updated as the count gets updated

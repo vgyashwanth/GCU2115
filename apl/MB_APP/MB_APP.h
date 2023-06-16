@@ -261,6 +261,15 @@ offset 14.
     static uint16_t MB_Count;
 
     static MISC_EEPROM_t stEepromMisc;
+    /**
+     * GetGenStatusRegister() returns the DG status register(uint16_t variable)
+     * depending on the current state of DG. We need to send the
+     * DG status register value through MODBUS as well as CAN.
+     * @param - None
+     * @return - uint16_t u16RegValue;
+     * None
+     */
+    uint16_t GetGenStatusRegister();
 private:
     #define MODBUS_GEN_START_CMD        (0x01)
     #define MODBUS_GEN_STOP_CMD         (0x02)

@@ -73,8 +73,8 @@ private:
     HAL_Manager         &_hal;
     uint8_t     _u8NumberOfAlarms;
     static ALARM_st    _eAlarmType;
-    uint8_t     _u8ArrPCDAlarmForDisp[TOTAL_PCD_ALARMS];
-    uint8_t     _u8ArrNCDAlarmForDisp[TOTAL_NCD_ALARMS];
+//    uint8_t     _u8ArrPCDAlarmForDisp[TOTAL_PCD_ALARMS];
+//    uint8_t     _u8ArrNCDAlarmForDisp[TOTAL_NCD_ALARMS];
     ALARM_st    _eOldAlarmType ;
     /**
      * Used to display alarm

@@ -127,6 +127,8 @@ public:
      */
     float GetGensetCurrent();
 
+    float GetGensetRawCurrent();
+
      /**
      * Returns the Mains RMS current. This will return 0 in case the CT is
      * configured to be on Genset.

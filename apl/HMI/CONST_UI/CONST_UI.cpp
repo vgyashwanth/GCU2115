@@ -97,12 +97,13 @@ const char *strHystogram[]=
 
 };
 char Mains_status[32] = "MAINS READING";
-const char *strMonScreens[1][30]=
+const char *strMonScreens[1][32]=
 {
     {
         //Status & Info
         "STATUS",
         "PRODUCT INFO",
+        "ENGINE TYPE",
         "CAN BUS INFO",
         "ENGINE LINK",
         //Generator
@@ -135,7 +136,8 @@ const char *strMonScreens[1][30]=
         //Engine
         (char *)&strAuxS2String,
         "ENG SPEED",
-        "ENG RUN TIME"
+        "ENG RUN TIME",
+        "EEC1", // used for testing
     }
 };
 
@@ -580,385 +582,385 @@ const char *StrDays[1][WEEK_END] =
 
 const char *strCANMsgRcvError[2] = {"Not Available" , "No disponible"};
 
-const char SPNStringTable[SPN_LAST][SPN_NAME_MAX_LEN]
-{
+//const char SPNStringTable[SPN_LAST][SPN_NAME_MAX_LEN]
+//{
+////    {
+//        "Cool Wat Temp",            // DISP_IVECO_ENGINE_STATUS
+//        "Oil Temp",                 // DISP_IVECO_ENGINE_STATUS
+//        "Oil Press",                // DISP_IVECO_ENGINE_STATUS
+//        "Fuel Rate",                // DISP_LFE_PGN_65266
+//        "Throttle Pos",             // DISP_LFE_PGN_65266
+//        "PosAcc",                   // DISP_EEC2_PGN_61443
+//        "LoadSpeed",                // DISP_EEC2_PGN_61443
+//        "ActMax %Torq",             // DISP_EEC2_PGN_61443
+//        "P.Atmos",                  // DISP_AMB_PGN_65269
+//        "T.Ambient",                // DISP_AMB_PGN_65269
+//        "T.Air Inl.",               // DISP_AMB_PGN_65269
+//        "OPRN:",                    // DISP_HOURS_PGN_65253
+//        "Batt Pot",                 // DISP_VEP1_PGN_65271
+//        "Battery",                  // DISP_VEP1_PGN_65271
+//        "P.Fi.Fuel",                // DISP_DD_PGN_65276
+//        "P.Fi.Oil",                 // DISP_DD_PGN_65276
+//        "Water in Fuel",            // DISP_WFI_PGN_65279
+//        "Trip Fuel",                // DISP_LFC_PGN_65257
+//        "Total Fuel",               // DISP_LFC_PGN_65257
+//        "Nom Power",                // DISP_EEC4_PGN_65214
+//        "Engine Rated",             // DISP_EEC4_PGN_65214
+//        "Mean T Fuel",              // DISP_LFI_PGN_65203
+//        "A Fil diff2",              // DISP_IC2_PGN_64976
+//        "InTMan abs",               // DISP_IC2_PGN_64976
+//        "EngOprState:",             // DISP_EOI_PGN_64914
+//        "EngDerateReq:",            // DISP_EOI_PGN_64914
+//        "Eng Emerg SD:",            // DISP_EOI_PGN_64914
+//        "T-ECU",                    // DISP_ET2_PGN_65188
+//        "Nom. Friction",            // DISP_EEC3_PGN_65247
+//        "Des Eng Speed",            // DISP_EEC3_PGN_65247
+//        "D.Spd AsymAdj",            // DISP_EEC3_PGN_65247
+//        "Est Torq loss",            // DISP_EEC3_PGN_65247
+//        "A.E.Gas M.FR",             // DISP_EEC3_PGN_65247
+//        "Last Service Time",        // DISP_S2_PGN_65166
+//        "Inj Metering Pres",        // DISP_EFL_P2_PGN_65243
+//        "Wait To Start:",           // DISP_SHUTDN_PGN_65252
+//        "EPS Shutdn Eng:",          // DISP_SHUTDN_PGN_65252
+//        "EPS Appr Shutdn:",        // DISP_SHUTDN_PGN_65252
+//        "Eng Intake Air FR",        // DISP_EGF1_PGN_61450
+//        "Soot Mass",                // DISP_DPF1S_PGN_64796
+//        "T.Coolant",                // DISP_ET1_PGN_65262_1
+//        "T.Fuel",                   // DISP_ET1_PGN_65262_1
+//        "T.Oil",                    // DISP_ET1_PGN_65262_1
+//        "T.Tur.Oil",                // DISP_ET1_PGN_65262_2
+//        "T.Int.Co",                 // DISP_ET1_PGN_65262_2
+//        "IntTNOx",                  // DISP_AT1IG1_PGN_61454
+//        "INT O2",                   // DISP_AT1IG1_PGN_61454
+//        "Intake GasTemp",           // DISP_A1DOC_PGN_64800
+//        "DPF Gas Temp",             // DISP_AT1IG2_PGN_64948
+//        "DPF Diff Press",           // DISP_AT1IMG_PGN_64948
+//        "OutLNOx",                  // DISP_AT1OG1_PGN_61455
+//        "OUT O2",                   // DISP_AT1OG1_PGN_61455
+//        "ExhFA.DQ",                 // DISP_A2SCRDSI1_PGN_64827
+//        "ExhFluDAB",                // DISP_A2SCRDSI1_PGN_64827
+//        "ExhFlu DT",                // DISP_A1SCRDSI2_PGN_64833
+//        "ExhFluDRQ",                // DISP_A1SCRDSR1_PGN_61476
+//        "SCRCInG",                  // DISP_A1SCREGT1_PGN_64830
+//        "SCRCOuG",                  // DISP_A1SCREGT1_PGN_64830
+//        "IntTNOx",                  // DISP_AT2IG1_PGN_61456
+//        "OutLNOx",                  // DISP_AT2OG1_PGN_61457
+//        "ExhFlu DT",                // DISP_A2SCRDSI2_PGN_61478
+//        "ExhFA.DQ",                 // DISP_A2SCRDSI1_PGN_64827
+//        "ExhFluDAB",                // DISP_A2SCRDSI1_PGN_64827
+//        "ExhFluDRQ",                // DISP_A2SCRDSR1_PGN_61479
+//        "SCRCOuG",                  // DISP_A2SCREGT1_PGN_64824
+//        "SCRCInG",                  // DISP_A2SCREGT1_PGN_64824
+//        "DPF OutLT",                // DISP_AT1OG2_PGN_64947
+//        "Next Regen",               // DISP_AT1S2_PGN_64697
+//        "DPF Soot Load",            // DISP_AT1S_PGN_64891
+//        "DPF Ash Load",             // DISP_AT1S_PGN_64891
+//        "Eng Torq Mode",            // DISP_EEC1_PGN_61444_1
+//        "DDETorque",                // DISP_EEC1_PGN_61444_1
+//        "ACTorque",                 // DISP_EEC1_PGN_61444_1
+//        "Speed",                    // DISP_EEC1_PGN_61444_1
+//        "SA cont. device",          // DISP_EEC1_PGN_61444_2
+//        "StartMode",                // DISP_EEC1_PGN_61444_2
+//        "EDETorque",                // DISP_EEC1_PGN_61444_2
+//        "P.Fuel",                   // DISP_EFL_P1_PGN_65263_1
+//        "L.Oil",                    // DISP_EFL_P1_PGN_65263_1
+//        "P.Oil",                    // DISP_EFL_P1_PGN_65263_1
+//        "P.Crankc.",                // DISP_EFL_P1_PGN_65263_2
+//        "P.Coolant",                // DISP_EFL_P1_PGN_65263_2
+//        "L.Coolant",                // DISP_EFL_P1_PGN_65263_2
+//        "Trap Inlet",               // DISP_IC1_PGN_65270_1
+//        "P.Boost",                  // DISP_IC1_PGN_65270_1
+//        "T Int.Man",                // DISP_IC1_PGN_65270_1
+//        "P.In.Air",                 // DISP_IC1_PGN_65270_1
+//        "A Fil diff1",              // DISP_IC1_PGN_65270_2
+//        "T.Ex.Gas",                 // DISP_IC1_PGN_65270_2
+//        "C Fil diff",               // DISP_IC1_PGN_65270_2
+//        "DEF LEVEL",                // DISP_AT1T1I_PGN_65110
+//        "ExhFluTankTemp",           // DISP_AT1T1I_PGN_65110
+//        "ExhFluTankLLInd",          // DISP_AT1T1I_PGN_65110
+//        "SCR IND.SEV.",             // DISP_AT1T1I_PGN_65110
+//        "Acc Time DPF",             // DISP_PROPB5E_PGN_65374_1
+//        "Removal of DPF",           // DISP_PROPB5E_PGN_65374_1
+//        "OT DPF Removal",           // DISP_PROPB5E_PGN_65374_2
+//        "DPF Removal Time",         // DISP_PROPB5E_PGN_65374_2
+//        "Loss of DPF",              // DISP_PROPB5E_PGN_65374_3
+//        "No of Loss DPF",           // DISP_PROPB5E_PGN_65374_3
+//        "OC for DPF Loss",          // DISP_PROPB5E_PGN_65374_4
+//        "DPF Loss Time",            // DISP_PROPB5E_PGN_65374_4
+//        "Acc Time PCD Fail",        // DISP_PROPB5E_PGN_65374_5
+//        "No of PCD Fail",           // DISP_PROPB5E_PGN_65374_5
+//        "OC Time PCD Fail",         // DISP_PROPB5E_PGN_65374_6
+//        "PCD Fail Time",            // DISP_PROPB5E_PGN_65374_6
+//        "Rem Srvc Hr:",             //DISP_PROSTOUT_PGN_65364_1
+//        "Engine Running:",          //DISP_PROSTOUT_PGN_65364_1
+//        "Service Delay:",           //DISP_PROSTOUT_PGN_65364_1
+//        "Pre-glow Active:",         //DISP_PROSTOUT_PGN_65364_1
+//        "P.Oil Missing:",           //DISP_PROSTOUT_PGN_65364_2
+//        "Eng Diagn. Lmp:",          //DISP_PROSTOUT_PGN_65364_2
+//        "Eng OverTemp:",            //DISP_PROSTOUT_PGN_65364_2
+//        "Air Filt Switch:",         //DISP_PROSTOUT_PGN_65364_2
+//        "Phys.Inj Qty:",            // DISP_HATZ_PROPB_PHYS_PGN_65280
+//        "Phys. Torq:",              // DISP_HATZ_PROPB_PHYS_PGN_65280
+//        "Alt 1 Stat:",              // DISP_AI_PGN_65237
+//        "Tx. Neutral SW:",          // DISP_ETC5_PGN_65219
+//        "TrqDerate Time1",          // DISP_OII_PGN_64554
+//        "TrqDerate Time2",          // DISP_OII_PGN_64554,
+//        "Cylinder1 Timing",                  //DISP_IT1_PGN_65154
+//        "Int Abs.Pres:",                     //DISP_GFP_PGN_65163
+//        "Turb 1 P.Boost:","Turb 2 P.Boost:", //DISP_IMI1_PGN_65190
+//        "Fan1 Est. % Spd:","Fan Drv State:","Fan Speed:",                 // DISP_FD1_65213
+//        "Amber Wrn L.Cmd:","Red Stop L.Cmd:",                     // DISP_DLCC1_64775
+//        "Trip Fuel(Gas.)","Total Fuel Used",                              // DISP_GFC_PGN_65199
+//        "Gas port 1", "Gas port 2", "Gas port 3", "Gas port 4",        // DISP_EPT1_PGN_65187,
+//        "Gas port 5", "Gas port 6", "Gas port 7", "Gas port 8",        // DISP_EPT2_PGN_65186,
+//        "Gas port 9", "Gas port 10", "Gas port 11", "Gas port 12",     // DISP_EPT3_PGN_65185,
+//        "Gas port 13", "Gas port 14", "Gas port 15", "Gas port 16",    // DISP_EPT4_PGN_65184,
+//        "Gas port 17", "Gas port 18", "Gas port 19", "Gas port 20",    // DISP_EPT5_PGN_65183,
+//        "Cool Temp 2", "Pump Out Temp", "Cool Temp 3",                 // DISP_ET4_PGN_64870,
+//        "Turb In Temp 1", "Turb In Temp 2",                            // DISP_TCI4_PGN_65176,
+//        "Filt Fuel Press",                                             // DISP_EFL_P12_PGN_64735,
+//        "Parking Brake SW",         // DISP_HATZ_CCVS_PGN_65265
+//        "Vehicle Spd",              // DISP_HATZ_CCVS_PGN_65265
+//        "Brake SW",                 // DISP_HATZ_CCVS_PGN_65265
+//};
+//const char SpanishSPNStringTable[SPN_LAST][SPN_NAME_MAX_LEN]
 //    {
-        "Cool Wat Temp",            // DISP_IVECO_ENGINE_STATUS
-        "Oil Temp",                 // DISP_IVECO_ENGINE_STATUS
-        "Oil Press",                // DISP_IVECO_ENGINE_STATUS
-        "Fuel Rate",                // DISP_LFE_PGN_65266
-        "Throttle Pos",             // DISP_LFE_PGN_65266
-        "PosAcc",                   // DISP_EEC2_PGN_61443
-        "LoadSpeed",                // DISP_EEC2_PGN_61443
-        "ActMax %Torq",             // DISP_EEC2_PGN_61443
-        "P.Atmos",                  // DISP_AMB_PGN_65269
-        "T.Ambient",                // DISP_AMB_PGN_65269
-        "T.Air Inl.",               // DISP_AMB_PGN_65269
-        "OPRN:",                    // DISP_HOURS_PGN_65253
-        "Batt Pot",                 // DISP_VEP1_PGN_65271
-        "Battery",                  // DISP_VEP1_PGN_65271
-        "P.Fi.Fuel",                // DISP_DD_PGN_65276
-        "P.Fi.Oil",                 // DISP_DD_PGN_65276
-        "Water in Fuel",            // DISP_WFI_PGN_65279
-        "Trip Fuel",                // DISP_LFC_PGN_65257
-        "Total Fuel",               // DISP_LFC_PGN_65257
-        "Nom Power",                // DISP_EEC4_PGN_65214
-        "Engine Rated",             // DISP_EEC4_PGN_65214
-        "Mean T Fuel",              // DISP_LFI_PGN_65203
-        "A Fil diff2",              // DISP_IC2_PGN_64976
-        "InTMan abs",               // DISP_IC2_PGN_64976
-        "EngOprState:",             // DISP_EOI_PGN_64914
-        "EngDerateReq:",            // DISP_EOI_PGN_64914
-        "Eng Emerg SD:",            // DISP_EOI_PGN_64914
-        "T-ECU",                    // DISP_ET2_PGN_65188
-        "Nom. Friction",            // DISP_EEC3_PGN_65247
-        "Des Eng Speed",            // DISP_EEC3_PGN_65247
-        "D.Spd AsymAdj",            // DISP_EEC3_PGN_65247
-        "Est Torq loss",            // DISP_EEC3_PGN_65247
-        "A.E.Gas M.FR",             // DISP_EEC3_PGN_65247
-        "Last Service Time",        // DISP_S2_PGN_65166
-        "Inj Metering Pres",        // DISP_EFL_P2_PGN_65243
-        "Wait To Start:",           // DISP_SHUTDN_PGN_65252
-        "EPS Shutdn Eng:",          // DISP_SHUTDN_PGN_65252
-        "EPS Appr Shutdn:",        // DISP_SHUTDN_PGN_65252
-        "Eng Intake Air FR",        // DISP_EGF1_PGN_61450
-        "Soot Mass",                // DISP_DPF1S_PGN_64796
-        "T.Coolant",                // DISP_ET1_PGN_65262_1
-        "T.Fuel",                   // DISP_ET1_PGN_65262_1
-        "T.Oil",                    // DISP_ET1_PGN_65262_1
-        "T.Tur.Oil",                // DISP_ET1_PGN_65262_2
-        "T.Int.Co",                 // DISP_ET1_PGN_65262_2
-        "IntTNOx",                  // DISP_AT1IG1_PGN_61454
-        "INT O2",                   // DISP_AT1IG1_PGN_61454
-        "Intake GasTemp",           // DISP_A1DOC_PGN_64800
-        "DPF Gas Temp",             // DISP_AT1IG2_PGN_64948
-        "DPF Diff Press",           // DISP_AT1IMG_PGN_64948
-        "OutLNOx",                  // DISP_AT1OG1_PGN_61455
-        "OUT O2",                   // DISP_AT1OG1_PGN_61455
-        "ExhFA.DQ",                 // DISP_A2SCRDSI1_PGN_64827
-        "ExhFluDAB",                // DISP_A2SCRDSI1_PGN_64827
-        "ExhFlu DT",                // DISP_A1SCRDSI2_PGN_64833
-        "ExhFluDRQ",                // DISP_A1SCRDSR1_PGN_61476
-        "SCRCInG",                  // DISP_A1SCREGT1_PGN_64830
-        "SCRCOuG",                  // DISP_A1SCREGT1_PGN_64830
-        "IntTNOx",                  // DISP_AT2IG1_PGN_61456
-        "OutLNOx",                  // DISP_AT2OG1_PGN_61457
-        "ExhFlu DT",                // DISP_A2SCRDSI2_PGN_61478
-        "ExhFA.DQ",                 // DISP_A2SCRDSI1_PGN_64827
-        "ExhFluDAB",                // DISP_A2SCRDSI1_PGN_64827
-        "ExhFluDRQ",                // DISP_A2SCRDSR1_PGN_61479
-        "SCRCOuG",                  // DISP_A2SCREGT1_PGN_64824
-        "SCRCInG",                  // DISP_A2SCREGT1_PGN_64824
-        "DPF OutLT",                // DISP_AT1OG2_PGN_64947
-        "Next Regen",               // DISP_AT1S2_PGN_64697
-        "DPF Soot Load",            // DISP_AT1S_PGN_64891
-        "DPF Ash Load",             // DISP_AT1S_PGN_64891
-        "Eng Torq Mode",            // DISP_EEC1_PGN_61444_1
-        "DDETorque",                // DISP_EEC1_PGN_61444_1
-        "ACTorque",                 // DISP_EEC1_PGN_61444_1
-        "Speed",                    // DISP_EEC1_PGN_61444_1
-        "SA cont. device",          // DISP_EEC1_PGN_61444_2
-        "StartMode",                // DISP_EEC1_PGN_61444_2
-        "EDETorque",                // DISP_EEC1_PGN_61444_2
-        "P.Fuel",                   // DISP_EFL_P1_PGN_65263_1
-        "L.Oil",                    // DISP_EFL_P1_PGN_65263_1
-        "P.Oil",                    // DISP_EFL_P1_PGN_65263_1
-        "P.Crankc.",                // DISP_EFL_P1_PGN_65263_2
-        "P.Coolant",                // DISP_EFL_P1_PGN_65263_2
-        "L.Coolant",                // DISP_EFL_P1_PGN_65263_2
-        "Trap Inlet",               // DISP_IC1_PGN_65270_1
-        "P.Boost",                  // DISP_IC1_PGN_65270_1
-        "T Int.Man",                // DISP_IC1_PGN_65270_1
-        "P.In.Air",                 // DISP_IC1_PGN_65270_1
-        "A Fil diff1",              // DISP_IC1_PGN_65270_2
-        "T.Ex.Gas",                 // DISP_IC1_PGN_65270_2
-        "C Fil diff",               // DISP_IC1_PGN_65270_2
-        "DEF LEVEL",                // DISP_AT1T1I_PGN_65110
-        "ExhFluTankTemp",           // DISP_AT1T1I_PGN_65110
-        "ExhFluTankLLInd",          // DISP_AT1T1I_PGN_65110
-        "SCR IND.SEV.",             // DISP_AT1T1I_PGN_65110
-        "Acc Time DPF",             // DISP_PROPB5E_PGN_65374_1
-        "Removal of DPF",           // DISP_PROPB5E_PGN_65374_1
-        "OT DPF Removal",           // DISP_PROPB5E_PGN_65374_2
-        "DPF Removal Time",         // DISP_PROPB5E_PGN_65374_2
-        "Loss of DPF",              // DISP_PROPB5E_PGN_65374_3
-        "No of Loss DPF",           // DISP_PROPB5E_PGN_65374_3
-        "OC for DPF Loss",          // DISP_PROPB5E_PGN_65374_4
-        "DPF Loss Time",            // DISP_PROPB5E_PGN_65374_4
-        "Acc Time PCD Fail",        // DISP_PROPB5E_PGN_65374_5
-        "No of PCD Fail",           // DISP_PROPB5E_PGN_65374_5
-        "OC Time PCD Fail",         // DISP_PROPB5E_PGN_65374_6
-        "PCD Fail Time",            // DISP_PROPB5E_PGN_65374_6
-        "Rem Srvc Hr:",             //DISP_PROSTOUT_PGN_65364_1
-        "Engine Running:",          //DISP_PROSTOUT_PGN_65364_1
-        "Service Delay:",           //DISP_PROSTOUT_PGN_65364_1
-        "Pre-glow Active:",         //DISP_PROSTOUT_PGN_65364_1
-        "P.Oil Missing:",           //DISP_PROSTOUT_PGN_65364_2
-        "Eng Diagn. Lmp:",          //DISP_PROSTOUT_PGN_65364_2
-        "Eng OverTemp:",            //DISP_PROSTOUT_PGN_65364_2
-        "Air Filt Switch:",         //DISP_PROSTOUT_PGN_65364_2
-        "Phys.Inj Qty:",            // DISP_HATZ_PROPB_PHYS_PGN_65280
-        "Phys. Torq:",              // DISP_HATZ_PROPB_PHYS_PGN_65280
-        "Alt 1 Stat:",              // DISP_AI_PGN_65237
-        "Tx. Neutral SW:",          // DISP_ETC5_PGN_65219
-        "TrqDerate Time1",          // DISP_OII_PGN_64554
-        "TrqDerate Time2",          // DISP_OII_PGN_64554,
-        "Cylinder1 Timing",                  //DISP_IT1_PGN_65154
-        "Int Abs.Pres:",                     //DISP_GFP_PGN_65163
-        "Turb 1 P.Boost:","Turb 2 P.Boost:", //DISP_IMI1_PGN_65190
-        "Fan1 Est. % Spd:","Fan Drv State:","Fan Speed:",                 // DISP_FD1_65213
-        "Amber Wrn L.Cmd:","Red Stop L.Cmd:",                     // DISP_DLCC1_64775
-        "Trip Fuel(Gas.)","Total Fuel Used",                              // DISP_GFC_PGN_65199
-        "Gas port 1", "Gas port 2", "Gas port 3", "Gas port 4",        // DISP_EPT1_PGN_65187,
-        "Gas port 5", "Gas port 6", "Gas port 7", "Gas port 8",        // DISP_EPT2_PGN_65186,
-        "Gas port 9", "Gas port 10", "Gas port 11", "Gas port 12",     // DISP_EPT3_PGN_65185,
-        "Gas port 13", "Gas port 14", "Gas port 15", "Gas port 16",    // DISP_EPT4_PGN_65184,
-        "Gas port 17", "Gas port 18", "Gas port 19", "Gas port 20",    // DISP_EPT5_PGN_65183,
-        "Cool Temp 2", "Pump Out Temp", "Cool Temp 3",                 // DISP_ET4_PGN_64870,
-        "Turb In Temp 1", "Turb In Temp 2",                            // DISP_TCI4_PGN_65176,
-        "Filt Fuel Press",                                             // DISP_EFL_P12_PGN_64735,
-        "Parking Brake SW",         // DISP_HATZ_CCVS_PGN_65265
-        "Vehicle Spd",              // DISP_HATZ_CCVS_PGN_65265
-        "Brake SW",                 // DISP_HATZ_CCVS_PGN_65265
-};
-const char SpanishSPNStringTable[SPN_LAST][SPN_NAME_MAX_LEN]
-    {
-        "Temp. Agua",             // DISP_IVECO_ENGINE_STATUS
-        "Temp. Aceite",           // DISP_IVECO_ENGINE_STATUS
-        "Pres Aceite",            // DISP_IVECO_ENGINE_STATUS
-        "Propor Comb.",           // DISP_LFE_PGN_65266
-        "Pos. Acelerador",	      // DISP_LFE_PGN_65266
-        "Pos. Actuador",          // DISP_EEC2_PGN_61443
-        "CargaVel" ,              // DISP_EEC2_PGN_61443
-        "ActMax %Torq",	          // DISP_EEC2_PGN_61443
-        "Presion Atmos",          // DISP_AMB_PGN_65269
-        "T. Ambiente",            // DISP_AMB_PGN_65269
-        "T. Aire adm",            // DISP_AMB_PGN_65269
-        "OPRN:",                  // DISP_HOURS_PGN_65253
-        "Pot Bat.",               // DISP_VEP1_PGN_65271
-        "Bateria",                // DISP_VEP1_PGN_65271
-        "P.Fi.Comb",              // DISP_DD_PGN_65276
-        "P.Fi.Aceite",            // DISP_DD_PGN_65276
-        "Agua en Comb",           // DISP_WFI_PGN_65279
-        "Caida Comb",             // DISP_LFC_PGN_65257
-        "Comb total",             // DISP_LFC_PGN_65257
-        "Potencia Nom",           // DISP_EEC4_PGN_65214
-        "Capac Mot",              // DISP_EEC4_PGN_65214
-        "T Prom Comb.",           // DISP_LFI_PGN_65203
-        "A Fil diff2",            // DISP_IC2_PGN_64976
-        "inTMan abs",             // DISP_IC2_PGN_64976
-        "EstOprMotor:",           // DISP_EOI_PGN_64914
-        "MotorRebReq:",           // DISP_EOI_PGN_64914
-        "MotEmer SD",             // DISP_EOI_PGN_64914
-        "T-ECU",                  // DISP_ET2_PGN_65188
-        "Friccion Nom",           // DISP_EEC3_PGN_65247
-        "Des Vel Motor",          // DISP_EEC3_PGN_65247
-        "D.Spd Asim",             // DISP_EEC3_PGN_65247
-        "Perdida Par est",        // DISP_EEC3_PGN_65247
-        "A.E.Gas M.FR",           // DISP_EEC3_PGN_65247
-        "T ultimo serv",		  // DISP_S2_PGN_65166
-        "Medicion Pres",	      // DISP_EFL_P2_PGN_65243
-        "Espera arranque",        // DISP_SHUTDN_PGN_65252
-        "EPS Paro Mot.:",         // DISP_SHUTDN_PGN_65252
-        "Paro Appr EPS", 	      // DISP_SHUTDN_PGN_65252
-        "Adm aire Mot FR",  	  // DISP_EGF1_PGN_61450
-        "Masa Hollin",            // DISP_DPF1S_PGN_64796
-        "T. Refrigerante",        // DISP_ET1_PGN_65262_1
-        "T. Combustible",         // DISP_ET1_PGN_65262_1
-        "T. Aceite",              // DISP_ET1_PGN_65262_1
-        "T.Aceite turb",          // DISP_ET1_PGN_65262_2
-        "T.Postenfriador",        // DISP_ET1_PGN_65262_2
-        "admTNOx",                // DISP_AT1IG1_PGN_61454
-        "admO2",                  // DISP_AT1IG1_PGN_61454
-        "Temp Gas adm",			  // DISP_A1DOC_PGN_64800
-        "Temp Gas DPF",			  // DISP_AT1IG2_PGN_64948
-        "P. Diff DPF",			  // DISP_AT1IMG_PGN_64948
-        "SalidaLNOx",             // DISP_AT1OG1_PGN_61455
-        "Salida O2",              // DISP_AT1OG1_PGN_61455
-        "EscFA.DQ",               // DISP_A2SCRDSI1_PGN_64827
-        "EscFlu.DAB",             // DISP_A2SCRDSI1_PGN_64827
-        "EscFlu DT",              // DISP_A1SCRDSI2_PGN_64833
-        "Esc-FluDRQ",             // DISP_A1SCRDSR1_PGN_61476
-        "SCRCInG",                // DISP_A1SCREGT1_PGN_64830
-        "SCRCOuG",                // DISP_A1SCREGT1_PGN_64830
-        "admTNOx",                // DISP_AT2IG1_PGN_61456
-        "SalidaLNOx",             // DISP_AT2OG1_PGN_61457
-        "EscFlu DT",              // DISP_A2SCRDSI2_PGN_61478
-        "EscFA.DQ",               // DISP_A2SCRDSI1_PGN_64827
-        "EscFlu.DAB",             // DISP_A2SCRDSI1_PGN_64827
-        "Esc-FluDRQ",             // DISP_A2SCRDSR1_PGN_61479
-        "SCRCOuG",                // DISP_A2SCREGT1_PGN_64824
-        "SCRCInG",                // DISP_A2SCREGT1_PGN_64824
-        "DPF SalidaLT",           // DISP_AT1OG2_PGN_64947
-        "Sig. Regem",             // DISP_AT1S2_PGN_64697
-        "DPF Car holliin",        // DISP_AT1S_PGN_64891
-        "DPF Car ceniza",         // DISP_AT1S_PGN_64891
-        "Modo torque",            // DISP_EEC1_PGN_61444_1
-        "Torque",                 // DISP_EEC1_PGN_61444_1
-        "AC torque",              // DISP_EEC1_PGN_61444_1
-        "Velocidad",              // DISP_EEC1_PGN_61444_1
-        "Disp SA Cont",           // DISP_EEC1_PGN_61444_2
-        "modo Arranque",          // DISP_EEC1_PGN_61444_2
-        "EDE torque",	          // DISP_EEC1_PGN_61444_2
-        "P. Combustible",         // DISP_EFL_P1_PGN_65263_1
-        "N. Aceite",              // DISP_EFL_P1_PGN_65263_1
-        "P. Aceite",              // DISP_EFL_P1_PGN_65263_1
-        "P. Ciguenal",            // DISP_EFL_P1_PGN_65263_2
-        "P. Refrigerante",        // DISP_EFL_P1_PGN_65263_2
-        "N. Refrigerante",	      // DISP_EFL_P1_PGN_65263_2
-        "Admision Trap",          // DISP_IC1_PGN_65270_1
-        "P.Boost",                // DISP_IC1_PGN_65270_1
-        "T col admi.",            // DISP_IC1_PGN_65270_1
-        "P aire admi",            // DISP_IC1_PGN_65270_1
-        "A Fil diff1",            // DISP_IC1_PGN_65270_2
-        "T Gas Esc",              // DISP_IC1_PGN_65270_2
-        "C Fil diff",             // DISP_IC1_PGN_65270_2
-        "Nivel DEF",              // DISP_AT1T1I_PGN_65110
-        "TempTanqFluEsC",         // DISP_AT1T1I_PGN_65110
-        "IndTanqFluEsC",          // DISP_AT1T1I_PGN_65110
-        "SEV IND SCR",            // DISP_AT1T1I_PGN_65110
-        "t Acc DPF",              // DISP_PROPB5E_PGN_65374_1
-        "Remover DPF",            // DISP_PROPB5E_PGN_65374_1
-        "OT DPF elim",            // DISP_PROPB5E_PGN_65374_2
-        "t elim DPF",	          // DISP_PROPB5E_PGN_65374_2
-        "Perdida de DPF",         // DISP_PROPB5E_PGN_65374_3
-        "No. perd DPF",           // DISP_PROPB5E_PGN_65374_3
-        "Perd OC DPF",            // DISP_PROPB5E_PGN_65374_4
-        "t Perd DPF",             // DISP_PROPB5E_PGN_65374_4
-        "t Acc PCD falla",        // DISP_PROPB5E_PGN_65374_5
-        "No Falla PCD",           // DISP_PROPB5E_PGN_65374_5
-        "OC t falla PCD",         // DISP_PROPB5E_PGN_65374_6
-        "t Fallo PCD",            // DISP_PROPB5E_PGN_65374_6
-        "Rest hrs Srvc:",         //DISP_PROSTOUT_PGN_65364_1
-        "Motor Encendido:",       //DISP_PROSTOUT_PGN_65364_1
-        "Retraso Servicio:",      //DISP_PROSTOUT_PGN_65364_1
-        "Tiempo de Arr:",         //DISP_PROSTOUT_PGN_65364_1
-        "Perdida P.aceite",       //DISP_PROSTOUT_PGN_65364_2
-        "Lamp diag motor",        //DISP_PROSTOUT_PGN_65364_2
-        "Sobre T. Motor",         //DISP_PROSTOUT_PGN_65364_2
-        "SW de fltr Aire",        //DISP_PROSTOUT_PGN_65364_2
-        "Cant Inyector:",         // DISP_HATZ_PROPB_PHYS_PGN_65280
-        "Torque:",                // DISP_HATZ_PROPB_PHYS_PGN_65280
-        "Arranq. alt1:",          // DISP_AI_PGN_65237
-        "Tx. Neutral SW:",        // DISP_ETC5_PGN_65219
-        "Derrateo torq t1",       // DISP_OII_PGN_64554
-        "Derrateo torq t2",       // DISP_OII_PGN_64554,
-        "Tiempo Cil 1",           //DISP_IT1_PGN_65154
-        "Pres Abs Ent:",          //DISP_GFP_PGN_65163
-        "Turb1 P.Boster:","Turb2 P.Boster:",                                //DISP_IMI1_PGN_65190
-        "Vent1 Vel Est%:","Estado  Vent:","Vel Ven:",                       // DISP_FD1_65213
-        "Al Ambar:","Al Roja:",                                             // DISP_DLCC1_64775
-        "Caida Comb(Gas.)","Comb total",                                    // DISP_GFC_PGN_65199
-        "Puerto Gas 1", "Puerto Gas 2", "Puerto Gas 3", "Puerto Gas 4",     // DISP_EPT1_PGN_65187,
-        "Puerto Gas 5", "Puerto Gas 6", "Puerto Gas 7", "Puerto Gas 8",     // DISP_EPT2_PGN_65186,
-        "Puerto Gas 9", "Puerto Gas 10", "Puerto Gas 11", "Puerto Gas 12",  // DISP_EPT3_PGN_65185,
-        "Puerto Gas 13", "Puerto Gas 14", "Puerto Gas 15", "Puerto Gas 16", // DISP_EPT4_PGN_65184,
-        "Puerto Gas 17", "Puerto Gas 18", "Puerto Gas 19", "Puerto Gas 20", // DISP_EPT5_PGN_65183,
-        "Temp Ref 2", "Temp sal bomba", "Temp Ref 3",                       // DISP_ET4_PGN_64870,
-        "Temp ent Turb1", "Temp ent Turb2",                                 // DISP_TCI4_PGN_65176,
-        "Pres Fltr Comb",         // DISP_EFL_P12_PGN_64735,
-        "Freno estacio SW",       // DISP_HATZ_CCVS_PGN_65265
-        "Vel Vehiculo",           // DISP_HATZ_CCVS_PGN_65265
-        "Freno SW"                // DISP_HATZ_CCVS_PGN_65265
-    };
+//        "Temp. Agua",             // DISP_IVECO_ENGINE_STATUS
+//        "Temp. Aceite",           // DISP_IVECO_ENGINE_STATUS
+//        "Pres Aceite",            // DISP_IVECO_ENGINE_STATUS
+//        "Propor Comb.",           // DISP_LFE_PGN_65266
+//        "Pos. Acelerador",	      // DISP_LFE_PGN_65266
+//        "Pos. Actuador",          // DISP_EEC2_PGN_61443
+//        "CargaVel" ,              // DISP_EEC2_PGN_61443
+//        "ActMax %Torq",	          // DISP_EEC2_PGN_61443
+//        "Presion Atmos",          // DISP_AMB_PGN_65269
+//        "T. Ambiente",            // DISP_AMB_PGN_65269
+//        "T. Aire adm",            // DISP_AMB_PGN_65269
+//        "OPRN:",                  // DISP_HOURS_PGN_65253
+//        "Pot Bat.",               // DISP_VEP1_PGN_65271
+//        "Bateria",                // DISP_VEP1_PGN_65271
+//        "P.Fi.Comb",              // DISP_DD_PGN_65276
+//        "P.Fi.Aceite",            // DISP_DD_PGN_65276
+//        "Agua en Comb",           // DISP_WFI_PGN_65279
+//        "Caida Comb",             // DISP_LFC_PGN_65257
+//        "Comb total",             // DISP_LFC_PGN_65257
+//        "Potencia Nom",           // DISP_EEC4_PGN_65214
+//        "Capac Mot",              // DISP_EEC4_PGN_65214
+//        "T Prom Comb.",           // DISP_LFI_PGN_65203
+//        "A Fil diff2",            // DISP_IC2_PGN_64976
+//        "inTMan abs",             // DISP_IC2_PGN_64976
+//        "EstOprMotor:",           // DISP_EOI_PGN_64914
+//        "MotorRebReq:",           // DISP_EOI_PGN_64914
+//        "MotEmer SD",             // DISP_EOI_PGN_64914
+//        "T-ECU",                  // DISP_ET2_PGN_65188
+//        "Friccion Nom",           // DISP_EEC3_PGN_65247
+//        "Des Vel Motor",          // DISP_EEC3_PGN_65247
+//        "D.Spd Asim",             // DISP_EEC3_PGN_65247
+//        "Perdida Par est",        // DISP_EEC3_PGN_65247
+//        "A.E.Gas M.FR",           // DISP_EEC3_PGN_65247
+//        "T ultimo serv",		  // DISP_S2_PGN_65166
+//        "Medicion Pres",	      // DISP_EFL_P2_PGN_65243
+//        "Espera arranque",        // DISP_SHUTDN_PGN_65252
+//        "EPS Paro Mot.:",         // DISP_SHUTDN_PGN_65252
+//        "Paro Appr EPS", 	      // DISP_SHUTDN_PGN_65252
+//        "Adm aire Mot FR",  	  // DISP_EGF1_PGN_61450
+//        "Masa Hollin",            // DISP_DPF1S_PGN_64796
+//        "T. Refrigerante",        // DISP_ET1_PGN_65262_1
+//        "T. Combustible",         // DISP_ET1_PGN_65262_1
+//        "T. Aceite",              // DISP_ET1_PGN_65262_1
+//        "T.Aceite turb",          // DISP_ET1_PGN_65262_2
+//        "T.Postenfriador",        // DISP_ET1_PGN_65262_2
+//        "admTNOx",                // DISP_AT1IG1_PGN_61454
+//        "admO2",                  // DISP_AT1IG1_PGN_61454
+//        "Temp Gas adm",			  // DISP_A1DOC_PGN_64800
+//        "Temp Gas DPF",			  // DISP_AT1IG2_PGN_64948
+//        "P. Diff DPF",			  // DISP_AT1IMG_PGN_64948
+//        "SalidaLNOx",             // DISP_AT1OG1_PGN_61455
+//        "Salida O2",              // DISP_AT1OG1_PGN_61455
+//        "EscFA.DQ",               // DISP_A2SCRDSI1_PGN_64827
+//        "EscFlu.DAB",             // DISP_A2SCRDSI1_PGN_64827
+//        "EscFlu DT",              // DISP_A1SCRDSI2_PGN_64833
+//        "Esc-FluDRQ",             // DISP_A1SCRDSR1_PGN_61476
+//        "SCRCInG",                // DISP_A1SCREGT1_PGN_64830
+//        "SCRCOuG",                // DISP_A1SCREGT1_PGN_64830
+//        "admTNOx",                // DISP_AT2IG1_PGN_61456
+//        "SalidaLNOx",             // DISP_AT2OG1_PGN_61457
+//        "EscFlu DT",              // DISP_A2SCRDSI2_PGN_61478
+//        "EscFA.DQ",               // DISP_A2SCRDSI1_PGN_64827
+//        "EscFlu.DAB",             // DISP_A2SCRDSI1_PGN_64827
+//        "Esc-FluDRQ",             // DISP_A2SCRDSR1_PGN_61479
+//        "SCRCOuG",                // DISP_A2SCREGT1_PGN_64824
+//        "SCRCInG",                // DISP_A2SCREGT1_PGN_64824
+//        "DPF SalidaLT",           // DISP_AT1OG2_PGN_64947
+//        "Sig. Regem",             // DISP_AT1S2_PGN_64697
+//        "DPF Car holliin",        // DISP_AT1S_PGN_64891
+//        "DPF Car ceniza",         // DISP_AT1S_PGN_64891
+//        "Modo torque",            // DISP_EEC1_PGN_61444_1
+//        "Torque",                 // DISP_EEC1_PGN_61444_1
+//        "AC torque",              // DISP_EEC1_PGN_61444_1
+//        "Velocidad",              // DISP_EEC1_PGN_61444_1
+//        "Disp SA Cont",           // DISP_EEC1_PGN_61444_2
+//        "modo Arranque",          // DISP_EEC1_PGN_61444_2
+//        "EDE torque",	          // DISP_EEC1_PGN_61444_2
+//        "P. Combustible",         // DISP_EFL_P1_PGN_65263_1
+//        "N. Aceite",              // DISP_EFL_P1_PGN_65263_1
+//        "P. Aceite",              // DISP_EFL_P1_PGN_65263_1
+//        "P. Ciguenal",            // DISP_EFL_P1_PGN_65263_2
+//        "P. Refrigerante",        // DISP_EFL_P1_PGN_65263_2
+//        "N. Refrigerante",	      // DISP_EFL_P1_PGN_65263_2
+//        "Admision Trap",          // DISP_IC1_PGN_65270_1
+//        "P.Boost",                // DISP_IC1_PGN_65270_1
+//        "T col admi.",            // DISP_IC1_PGN_65270_1
+//        "P aire admi",            // DISP_IC1_PGN_65270_1
+//        "A Fil diff1",            // DISP_IC1_PGN_65270_2
+//        "T Gas Esc",              // DISP_IC1_PGN_65270_2
+//        "C Fil diff",             // DISP_IC1_PGN_65270_2
+//        "Nivel DEF",              // DISP_AT1T1I_PGN_65110
+//        "TempTanqFluEsC",         // DISP_AT1T1I_PGN_65110
+//        "IndTanqFluEsC",          // DISP_AT1T1I_PGN_65110
+//        "SEV IND SCR",            // DISP_AT1T1I_PGN_65110
+//        "t Acc DPF",              // DISP_PROPB5E_PGN_65374_1
+//        "Remover DPF",            // DISP_PROPB5E_PGN_65374_1
+//        "OT DPF elim",            // DISP_PROPB5E_PGN_65374_2
+//        "t elim DPF",	          // DISP_PROPB5E_PGN_65374_2
+//        "Perdida de DPF",         // DISP_PROPB5E_PGN_65374_3
+//        "No. perd DPF",           // DISP_PROPB5E_PGN_65374_3
+//        "Perd OC DPF",            // DISP_PROPB5E_PGN_65374_4
+//        "t Perd DPF",             // DISP_PROPB5E_PGN_65374_4
+//        "t Acc PCD falla",        // DISP_PROPB5E_PGN_65374_5
+//        "No Falla PCD",           // DISP_PROPB5E_PGN_65374_5
+//        "OC t falla PCD",         // DISP_PROPB5E_PGN_65374_6
+//        "t Fallo PCD",            // DISP_PROPB5E_PGN_65374_6
+//        "Rest hrs Srvc:",         //DISP_PROSTOUT_PGN_65364_1
+//        "Motor Encendido:",       //DISP_PROSTOUT_PGN_65364_1
+//        "Retraso Servicio:",      //DISP_PROSTOUT_PGN_65364_1
+//        "Tiempo de Arr:",         //DISP_PROSTOUT_PGN_65364_1
+//        "Perdida P.aceite",       //DISP_PROSTOUT_PGN_65364_2
+//        "Lamp diag motor",        //DISP_PROSTOUT_PGN_65364_2
+//        "Sobre T. Motor",         //DISP_PROSTOUT_PGN_65364_2
+//        "SW de fltr Aire",        //DISP_PROSTOUT_PGN_65364_2
+//        "Cant Inyector:",         // DISP_HATZ_PROPB_PHYS_PGN_65280
+//        "Torque:",                // DISP_HATZ_PROPB_PHYS_PGN_65280
+//        "Arranq. alt1:",          // DISP_AI_PGN_65237
+//        "Tx. Neutral SW:",        // DISP_ETC5_PGN_65219
+//        "Derrateo torq t1",       // DISP_OII_PGN_64554
+//        "Derrateo torq t2",       // DISP_OII_PGN_64554,
+//        "Tiempo Cil 1",           //DISP_IT1_PGN_65154
+//        "Pres Abs Ent:",          //DISP_GFP_PGN_65163
+//        "Turb1 P.Boster:","Turb2 P.Boster:",                                //DISP_IMI1_PGN_65190
+//        "Vent1 Vel Est%:","Estado  Vent:","Vel Ven:",                       // DISP_FD1_65213
+//        "Al Ambar:","Al Roja:",                                             // DISP_DLCC1_64775
+//        "Caida Comb(Gas.)","Comb total",                                    // DISP_GFC_PGN_65199
+//        "Puerto Gas 1", "Puerto Gas 2", "Puerto Gas 3", "Puerto Gas 4",     // DISP_EPT1_PGN_65187,
+//        "Puerto Gas 5", "Puerto Gas 6", "Puerto Gas 7", "Puerto Gas 8",     // DISP_EPT2_PGN_65186,
+//        "Puerto Gas 9", "Puerto Gas 10", "Puerto Gas 11", "Puerto Gas 12",  // DISP_EPT3_PGN_65185,
+//        "Puerto Gas 13", "Puerto Gas 14", "Puerto Gas 15", "Puerto Gas 16", // DISP_EPT4_PGN_65184,
+//        "Puerto Gas 17", "Puerto Gas 18", "Puerto Gas 19", "Puerto Gas 20", // DISP_EPT5_PGN_65183,
+//        "Temp Ref 2", "Temp sal bomba", "Temp Ref 3",                       // DISP_ET4_PGN_64870,
+//        "Temp ent Turb1", "Temp ent Turb2",                                 // DISP_TCI4_PGN_65176,
+//        "Pres Fltr Comb",         // DISP_EFL_P12_PGN_64735,
+//        "Freno estacio SW",       // DISP_HATZ_CCVS_PGN_65265
+//        "Vel Vehiculo",           // DISP_HATZ_CCVS_PGN_65265
+//        "Freno SW"                // DISP_HATZ_CCVS_PGN_65265
+//    };
 
-const  PGN_SUB_HEADINGS_t   gstPgnSubHeadings[1][MAX_NUM_OF_PGN_SUB_HEADINGS]
-{
-     {
-         "Intake Gas 1",
-         "Diesel Oxidation",
-         "Intake Gas 2",
-         "Intermediate Gas",
-         "Outlet Gas 1",
-         "SCR Dosing System Info 1",
-         "SCR Dosing System Info 2",
-         "SCR Dosing System Req 1",
-         "SCR Exhaust Gas Temp 1",
-         "Intake Gas 1",
-         "Outlet Gas 1",
-         "SCR Dosing System Info 2",
-         "SCR Dosing System Info 1",
-         "SCR Dosing System Req 1",
-         "SCR Exhaust Gas Temp 1",
-         "Outlet Gas 2",
-         "",
-         "Service 1",
-         "Diesel Exh Fluid Tank Info 1"
-     }
-};
-const ENG_OPERATION_STATES_t   gstEngOperatingState[1][MAX_NUM_OF_ENG_OPER_STATES]
-{
-    {
-        "Eng Stopped",
-        "Pre-Start",
-        "Starting",
-        "Warm-Up",
-        "Running",
-        "Cool-Down",
-        "Eng Stopping",
-        "Post-Run",
-        "NA",
-        "NA",
-        "NA",
-        "NA",
-        "NA",
-        "NA",
-        "NA",
-        "NA"
-    }
-};
-const  DM01_FMI_STRINGS_t  gstDM1FmiData[1][MAX_NUM_OF_FMIS]
-                                                 {
-    {
-        "Severely above range"      ,   //0
-        "Severely below range"      ,   //1
-        "Data fault"                ,   //2
-        "Voltage above normal"      ,   //3
-        "Voltage below normal"      ,   //4
-        "Low or no current"         ,   //5
-        "Shortcircuit"              ,   //6
-        "Mechanical fault"          ,   //7
-        "Abnormal signal"           ,   //8
-        "Abnormal update rate"      ,   //9
-        "Abnormal rate of change"   ,   //10
-        "Unknown fault"             ,   //11
-        "Defect"                    ,   //12
-        "Out of calibration"        ,   //13
-        ""                          ,   //14
-        "Slightly above range"      ,   //15
-        "Above range"               ,   //16
-        "Slightly below range"      ,   //17
-        "Below range"               ,   //18
-        "Data error"                ,   //19
-        ""                          ,   //20    No Text (Reserved for SAE assignment)
-        ""                              //31    No Text (Not Available or Condition Exists)
-    }
-
-};
-const PCD_NCD_ALARMS_DATA_t    gstPcdNcdData[1][MAX_NUM_OF_PCD_NCD_ALARMS]
-{
-     {
-         "Removal of DPF system",
-         "Loss of Function of  DPF   system",
-         "Failures of PCD system Differential pressure sensor 1 High",
-         "Removal of EGR system  -   No communication with EGR",
-         "Removal of MAF  sensor     (MAF sensor: Low)"
-     }
-
-};
-const NCD_INDUCE_STRATEGTY_t   gstNcdInduceData[1][MAX_NUM_OF_NCD_INDUCE_STRAT]
-{
-     {
-         "No Inducement Active",
-         "Warning Level 1 -  Initial      Warning",
-         "Not Available",
-         "Reduction Level 1 -  Low     Level Inducement Active",
-         "Warning Level 2 - Waiting   for Activation Condition",
-         "Reduction Level 2 - Severe Inducement Active",
-         "Not Available",
-         "Not Available"
-     }
-};
+//const  PGN_SUB_HEADINGS_t   gstPgnSubHeadings[1][MAX_NUM_OF_PGN_SUB_HEADINGS]
+//{
+//     {
+//         "Intake Gas 1",
+//         "Diesel Oxidation",
+//         "Intake Gas 2",
+//         "Intermediate Gas",
+//         "Outlet Gas 1",
+//         "SCR Dosing System Info 1",
+//         "SCR Dosing System Info 2",
+//         "SCR Dosing System Req 1",
+//         "SCR Exhaust Gas Temp 1",
+//         "Intake Gas 1",
+//         "Outlet Gas 1",
+//         "SCR Dosing System Info 2",
+//         "SCR Dosing System Info 1",
+//         "SCR Dosing System Req 1",
+//         "SCR Exhaust Gas Temp 1",
+//         "Outlet Gas 2",
+//         "",
+//         "Service 1",
+//         "Diesel Exh Fluid Tank Info 1"
+//     }
+//};
+//const ENG_OPERATION_STATES_t   gstEngOperatingState[1][MAX_NUM_OF_ENG_OPER_STATES]
+//{
+//    {
+//        "Eng Stopped",
+//        "Pre-Start",
+//        "Starting",
+//        "Warm-Up",
+//        "Running",
+//        "Cool-Down",
+//        "Eng Stopping",
+//        "Post-Run",
+//        "NA",
+//        "NA",
+//        "NA",
+//        "NA",
+//        "NA",
+//        "NA",
+//        "NA",
+//        "NA"
+//    }
+//};
+//const  DM01_FMI_STRINGS_t  gstDM1FmiData[1][MAX_NUM_OF_FMIS]
+//                                                 {
+//    {
+//        "Severely above range"      ,   //0
+//        "Severely below range"      ,   //1
+//        "Data fault"                ,   //2
+//        "Voltage above normal"      ,   //3
+//        "Voltage below normal"      ,   //4
+//        "Low or no current"         ,   //5
+//        "Shortcircuit"              ,   //6
+//        "Mechanical fault"          ,   //7
+//        "Abnormal signal"           ,   //8
+//        "Abnormal update rate"      ,   //9
+//        "Abnormal rate of change"   ,   //10
+//        "Unknown fault"             ,   //11
+//        "Defect"                    ,   //12
+//        "Out of calibration"        ,   //13
+//        ""                          ,   //14
+//        "Slightly above range"      ,   //15
+//        "Above range"               ,   //16
+//        "Slightly below range"      ,   //17
+//        "Below range"               ,   //18
+//        "Data error"                ,   //19
+//        ""                          ,   //20    No Text (Reserved for SAE assignment)
+//        ""                              //31    No Text (Not Available or Condition Exists)
+//    }
+//
+//};
+//const PCD_NCD_ALARMS_DATA_t    gstPcdNcdData[1][MAX_NUM_OF_PCD_NCD_ALARMS]
+//{
+//     {
+//         "Removal of DPF system",
+//         "Loss of Function of  DPF   system",
+//         "Failures of PCD system Differential pressure sensor 1 High",
+//         "Removal of EGR system  -   No communication with EGR",
+//         "Removal of MAF  sensor     (MAF sensor: Low)"
+//     }
+//
+//};
+//const NCD_INDUCE_STRATEGTY_t   gstNcdInduceData[1][MAX_NUM_OF_NCD_INDUCE_STRAT]
+//{
+//     {
+//         "No Inducement Active",
+//         "Warning Level 1 -  Initial      Warning",
+//         "Not Available",
+//         "Reduction Level 1 -  Low     Level Inducement Active",
+//         "Warning Level 2 - Waiting   for Activation Condition",
+//         "Reduction Level 2 - Severe Inducement Active",
+//         "Not Available",
+//         "Not Available"
+//     }
+//};
 
  /* Icons for DPFC1 */
  uint8_t gau8Icon0[4][24]
@@ -1032,257 +1034,257 @@ uint8_t gau8Icon7[6][27]
  };
 
 
- const J1939_SPN_NAME_STRING gstDmNoString[NO_OF_SPNS_IN_DM] =
- {
-   { 16   , (char*)"Engine Fuel Filter Differen   tial Pressure"               , (char*)"Filtro Diferencial de Presion de Combustible de Motor"          }, // Engine Fuel Filter Differential Pressure
-   { 21   , (char*)"Engine ECU Temperature"                                    , (char*)"Temperatura de ECU de Motor"				                       },
-   { 22   , (char*)"Engine Extended Crankcase Blow-by Pressure"                , (char*)"Marcha Extendida por Presion de Aire"			               },
-   { 46   , (char*)"Pneumatic Supply Pressure"                                 , (char*)"Alimentacion de Presion Pneumatica"						       },
-   { 51   , (char*)"Engine Throttle Position"                                  , (char*)"Posicion de Ascelerador"							               },
-   { 52   , (char*)"Engine Intercooler Tempera ture"                           , (char*)"Temperatura de Intercooler"                                     }, // Engine Intercooler Temperature
-   { 72   , (char*)"Engine Blower Bypass Valve Position"                       , (char*)"Posicion de la valula Bypass de Soplador"                       },
-   { 73   , (char*)"Auxiliary Pump Pressure "                                  , (char*)"Bomba Auxiliar de Presion"			                           },
-   { 81   , (char*)"Engine  Particulate  Trap     Inlet Pressure"              , (char*)"Presion en la entrada de Trampa de particulas"                  }, // Engine Particulate Trap Inlet Pressure
-   { 82   , (char*)"Engine Air Start Pressure"                                 , (char*)"Presion de Aire de Arranque"			                           },
-   { 90   , (char*)"Power Takeoff Oil Tempera ture"                            , (char*)"Temperatura del aceite de la toma de fuerza"                    }, // Power Takeoff Oil Temperature
-   { 91   , (char*)"Accelerator Pedal Position 1"                              , (char*)"Posicion Pedal de Aceeracion 1"                                 },
-   { 92   , (char*)"Engine Percent Load At Cu rrent Speed"                     , (char*)"Porcentaje de carga a velocidad Actual"                         }, // Engine Percent Load At Current Speed
-   { 94   , (char*)"Engine Fuel Delivery Pressu re"                            , (char*)"Presion de Combustible de Salida"                               }, // Engine Fuel Delivery Pressure
-   { 95   , (char*)"Engine Fuel Filter  Differen   tial Pressure"              , (char*)"Presion diferencial en filtro de combustible"                    }, // Engine Fuel Filter Differential Pressure
-   { 96   , (char*)"Fuel Level"                                                , (char*)"Nivel de Comb" 								                       },
-   { 97   , (char*)"Water In Fuel Indicator"                                   , (char*)"Aguan en Indicador de Agua"                                     },
-   { 98   , (char*)"Engine Oil Level"                                          , (char*)"Nivel de Aceite de Motor"                                       },
-   { 99   , (char*)"Engine Oil Filter Differenti  al Pressure"                 , (char*)"Presion Diferencial en Filtr  o de Aceite"                        }, // Engine Oil Filter  Differential Pressure
-   { 100  , (char*)"Engine Oil Pressure"                                       , (char*)"Presion de Aceite de Motor"                                     },
-   { 101  , (char*)"Engine Crankcase Pressure"                                 , (char*)"Presion de Aceite Ciguenal"                                     },
-   { 102  , (char*)"Engine Turbocharger Boost Pressure"                        , (char*)"Presion de aumento  Turbocargador"                              },
-   { 103  , (char*)"Engine Turbocharger 1 Spee d"                              , (char*)"Velocidad de Turbocargador 1"                                   }, // Engine Turbocharger 1 Speed
-   { 104  , (char*)"Engine Turbocharger Lube   Oil Pressure 1"                 , (char*)"Presion de Aceite de TurboCargador 1"                           },
-   { 105  , (char*)"Engine Intake Manifold 1 Te mperature"                     , (char*)"Temperatura de Entrada de Manifold 1"                           }, // Engine Intake Manifold 1 Temperature
-   { 106  , (char*)"Engine Air Inlet Pressure"                                 , (char*)"Presion de Admision de Aire"                                    },
-   { 107  , (char*)"Engine Air Filter 1 Differen tial Pressure"                , (char*)"Presion Diferencial de Filtr  o de Aire 1"                        }, // Engine Air Filter 1 Differential Pressure
-   { 108  , (char*)"Barometric Pressure"                                       , (char*)"Presion Barometrica"                                            },
-   { 109  , (char*)"Engine Coolant Pressure"                                   , (char*)"Presion de Refrigerante de Motor"                               },
-   { 110  , (char*)"Engine Coolant Temperatur e"                               , (char*)"Temperatura de Refrigerante de Motor"                           }, // Engine Coolant Temperature
-   { 111  , (char*)"Engine Coolant Level"                                      , (char*)"Nivel de Refrigerante de Motor"                                 },
-   { 112  , (char*)"Engine Coolant Filter Diffe rential Pressure"              , (char*)"Presion Diferencial de Filtr  o de Refrigerante"                  }, // Engine Coolant Filter  Differential Pressure
-   { 114  , (char*)"Net Battery Current"                                       , (char*)"Corriente Neta de Bateria"                                      },
-   { 115  , (char*)"Alternator Current"                                        , (char*)"Corriente de Alternador"                                        },
-   { 124  , (char*)"Transmission Oil Level"                                    , (char*)"Nivel de Aceite de Transmision"                                 },
-   { 126  , (char*)"Transmission Filter Differe ntial Pressure"                , (char*)"Presion Diferencial de Filtr  o de Transmicion"                   }, // Transmission Filter Differential Pressure
-   { 127  , (char*)"Transmission Oil Pressure"                                 , (char*)"Presion de Aceite de Transmision"                               },
-   { 129  , (char*)"Engine Injector Metering    Rail 2 Pressure"               , (char*)"Pres. rail dosif 2 inyector motor"             		           }, // Engine Injector Metering Rail 2 Pressure
-   { 132  , (char*)"Engine Inlet Air Mass Flow  Rate"                          , (char*)"Tasa de Flujo de entrada de Masa de aire"                       }, // Engine Intake Air Mass Flow Rate
-   { 136  , (char*)"Auxiliary Vaccum Pressure  Reading"                        , (char*)"Lectura Presion de Vacio Auxiliar"                              }, // Auxiliary Vaccum Pressure Reading
-   { 137  , (char*)"Auxiliary Gage Pressure      Reading 1"                    , (char*)"Lectura de presion manometrica auxiliar 1"                      }, // Auxiliary Gage Pressure Reading 1
-   { 138  , (char*)"Auxiliary Absolute Pressur e Reading"                      , (char*)"Lectura de presion absoluta auxiliar"                           }, // Auxiliary Absolute Pressure Reading
-   { 156  , (char*)"Engine Injector Timing Rail 1 Pressure"                    , (char*)"Presion rail sinc 1 iny motor"                                  },
-   { 157  , (char*)"Engine Injector Metering    Rail 1 Pressure"               , (char*)"Pres. rail dosif 1 inyector motor"                              }, // Engine Injector Metering Rail 1 Pressure
-   { 158  , (char*)"Battery Potential(Voltage) , Switched"                     , (char*)"Potencial de la bateria (voltaje), conmutado"                   }, // Battery Potential (Voltage),Switched
-   { 159  , (char*)"Engine Gas Supply Pressure"                                , (char*)"Presion de Entrada de Gas"                                      },
-   { 164  , (char*)"Engine Injection Control Pr essure"                        , (char*)"Presion de control de inyeccion del motor"                      }, // Engine Injection Control Pressure
-   { 166  , (char*)"Engine Rated Power"                                        , (char*)"Potencia nominal del motor"                                     },
-   { 167  , (char*)"Charging System Potential  (Voltage)"                      , (char*)"Potencial del sistema de carga (voltaje)"                       },
-   { 168  , (char*)"Electrical Potential (Voltag e)"                           , (char*)"Potencial electrico (voltaje)"                                  }, // Electrical Potential (Voltage)
-   { 171  , (char*)"Ambient Air Temperature"                                   , (char*)"Temperatura Ambiente"                                           },
-   { 172  , (char*)"Engine Air Inlet Temperatur e"                             , (char*)"Temperatura de entrada de aire del motor"                       }, // Engine Air Intake Temperature
-   { 173  , (char*)"Engine Exhaust Gas Temper ature"                           , (char*)"Temperatura de los gases de escape del motor"                   }, // Engine Exhaust Gas Temperature
-   { 174  , (char*)"Engine Fuel Temperature 1"                                 , (char*)"Temperatura del combustible del motor 1"                        },
-   { 175  , (char*)"Engine Oil Temperature 1"                                  , (char*)"Temperatura del aceite del   motor 1"                             },
-   { 176  , (char*)"Engine Turbocharger Oil Te mperature"                      , (char*)"Temperatura del aceite del turbocompresor del motor"            }, // Engine Turbocharger Oil Temperature
-   { 177  , (char*)"Transmission Oil Temperatu re"                             , (char*)"Temperatura del aceite de transmision"                          }, // Transmission Oil Temperature
-   { 182  , (char*)"Engine Trip Fuel"                                          , (char*)"Combustible de viaje del motor"                                 },
-   { 183  , (char*)"Engine Fuel Rate"                                          , (char*)"Tasa de combustible del motor"                                  },
-   { 184  , (char*)"Engine Instantaneous Fuel   Economy"                       , (char*)"Economia de combustible instantanea del motor"                  }, //  Engine Instantaneous Fuel Economy
-   { 185  , (char*)"Engine  Average  Fuel  Econ omy"                           , (char*)"Economia de combustible promedio del motor"                     }, //  Engine Average Fuel Economy
-   { 188  , (char*)"Engine Speed At Idle, Point 1 (Engine Config.)"            , (char*)"Vel mot ralenti, punto 1 (config motor)"                        },
-   { 189  , (char*)"Engine Rated Speed"                                        , (char*)"Velocidad Nominal de Motor"                                     },
-   { 190  , (char*)"Engine Speed"                                              , (char*)"Velocidad de Motor"                                             },
-   { 235  , (char*)"Engine Total Idle Hours"                                   , (char*)"Horas totales de inactividad del motor"                         },
-   { 236  , (char*)"Engine Total Idle Fuel Used"                               , (char*)"Combustible total en ralenti usado del motor"                   },
-   { 247  , (char*)"Engine Total Hours of Oper ation"                          , (char*)"Horas totales de funcionamiento del motor"                      }, //  Engine Total Hours of Operation
-   { 250  , (char*)"Engine Total Fuel Used"                                    , (char*)"Combustible total usado del motor"                              },
-   { 411  , (char*)"Engine Exhaust Gas  Recirc ulation Diff. Pressure"         , (char*)"Pres dif recirc gases esc motor"                                }, //  Engine Exhaust Gas  Recirculation Diff. Pressure
-   { 412  , (char*)"Engine Exhaust Gas  Recirc ulation Temperature"            , (char*)"Temp rec de gas esc  motor"                                     }, //  Engine Exhaust Gas  Recirculation Temperature
-   { 441  , (char*)"Auxiliary Temperature 1"                                   , (char*)"Temperatura Auxiliar 1"                                         },
-   { 442  , (char*)"Auxiliary Temperature 2"                                   , (char*)"Temperatura Auxiliar 2"                                         },
-   { 444  , (char*)"Battery 2 Potential (Voltag e)"                            , (char*)"Potencial de la bateria 2     (voltaje)"                            }, //  Battery 2 Potential (Voltag e)
-   { 515  , (char*)"Engine's Desired Operating  Speed"                         , (char*)"Velocidad de funcionamiento deseada del motor"                  }, //  Engine's Desired Operating  Speed
-   { 518  , (char*)"Engine Requested Torque/T orque Limit"                     , (char*)"Par torsion solic mot / Lim torsion"                            }, //  Engine Requested Torque/Torque Limit
-   { 522  , (char*)"Percent Clutch Slip"                                       , (char*)"Porcentaje de deslizamiento del embrague"                       },
-   { 528  , (char*)"Engine Speed At Point 2 (En gine Config.)"                 , (char*)"Vel mot punto 2 (config motor)"                                 }, //  Engine Speed At Point 2 (Engine Config.)
-   { 529  , (char*)"Engine Speed At Point 3 (En gine Config.)"                 , (char*)"Vel mot punto 3 (config motor)"                                 }, //  Engine Speed At Point 3 (Engine Config.)
-   { 530  , (char*)"Engine Speed At Point 4 (E ngine Config.)"                 , (char*)"Vel mot punto 4 (config motor)"                                 }, //  Engine Speed At Point 4 (Engine Config.)
-   { 531  , (char*)"Engine Speed At Point 5 (En gine Config.)"                 , (char*)"Vel mot punto 5 (config motor)"                                 }, //  Engine Speed At Point 5 (Engine Config.)
-   { 532  , (char*)"Engine Speed At High Idle, P oint 6 (Engine Config.)"      , (char*)"Vel mot punto 6 (config motor)"                                 }, //  Engine Speed At High Idle, Point 6 (Engine Config.)
-   { 539  , (char*)"Engine Percent Torque At I dle,Point 1 (Engine Config.)"   , (char*)"Porcen  par motor ralenti, punto 1 (config mot)"                }, //  Engine Percent Torque At Idle,Point 1 (Engine Config.)
-   { 540  , (char*)"Engine Percent Torque At   Point 2 (Engine Config.)"       , (char*)"Porcen  par motor ralenti, punto 2 (config mot)"                },
-   { 541  , (char*)"Engine Percent Torque At   Point 3 (Engine Config.)"       , (char*)"Porcen  par motor ralenti, punto 3 (config mot)"                },
-   { 542  , (char*)"Engine Percent Torque At   Point 4 (Engine Config.)"       , (char*)"Porcen  par motor ralenti, punto 4 (config mot)"                },
-   { 543  , (char*)"Engine Percent Torque At   Point 5 (Engine Config.)"       , (char*)"Porcen  par motor ralenti, punto 5 (config mot)"                },
-   { 544  , (char*)"Engine Reference Torque (E ngine Config.)"                 , (char*)"Par de referencia del motor (configuracion del motor)"          }, //  Engine Reference Torque (Engine Config.)
-   { 1109 , (char*)"Engine Protection System   Approaching Shutdown"           , (char*)"sistema proteccion motor cerca de parar"                        },
-   { 1110 , (char*)"Engine Protection System    has Shutdown Engine"           , (char*)"sistema proteccion motor ha apagado motor"                      },
-   { 1119 , (char*)"Engine Actual Exhaust Oxy gen"                             , (char*)"Oxigeno de escape real del motor"                               }, //  Engine Actual Exhaust Oxygen
-   { 1122 , (char*)"Engine Alternator Bearing 1 Temperature"                   , (char*)"Temperatura del cojinete 1 del alternador del motor"            },
-   { 1123 , (char*)"Engine Alternator Bearing 2 Temperature"                   , (char*)"Temperatura del cojinete 2 del alternador del motor"            },
-   { 1124 , (char*)"Engine Alternator Winding 1 Temperature"                   , (char*)"Temperatura del devanado 1 del alternador del motor"            },
-   { 1125 , (char*)"Engine Alternator Winding 2 Temperature"                   , (char*)"Temperatura del devanado 2 del alternador del motor"            },
-   { 1126 , (char*)"Engine Alternator Winding 3 Temperature"                   , (char*)"Temperatura del devanado 3 del alternador del motor"            },
-   { 1127 , (char*)"Engine Turbocharger 1 Boo st Pressure"                     , (char*)"Turbocompresor del motor 1 Presion de refuerzo"                 }, //  Engine Turbocharger 1 Boost Pressure
-   { 1128 , (char*)"Engine Turbocharger 2 Boo st Pressure"                     , (char*)"Turbocompresor del motor 2 Presion de refuerzo"                 }, //  Engine Turbocharger 2 Boost Pressure
-   { 1129 , (char*)"Engine Turbocharger 3 Boo st Pressure"                     , (char*)"Turbocompresor del motor 3 Presion de refuerzo"                 }, //  Engine Turbocharger 3 Boost Pressure
-   { 1130 , (char*)"Engine Turbocharger 4 Boo st Pressure"                     , (char*)"Turbocompresor del motor 4 Presion de refuerzo"                 }, //  Engine Turbocharger 4 Boost Pressure
-   { 1131 , (char*)"Engine Intake Manifold 2 Te mperature"                     , (char*)"Temperatura del colector de admision del motor 2"               }, //  Engine Intake Manifold 2 Temperature
-   { 1132 , (char*)"Engine Intake Manifold 3 Te mperature"                     , (char*)"Temperatura del colector de admision del motor 3"               }, //  Engine Intake Manifold 3 Temperature
-   { 1133 , (char*)"Engine Intake Manifold 4 Te mperature"                     , (char*)"Temperatura del colector de admision del motor 4"               }, //  Engine Intake Manifold 4 Temperature
-   { 1135 , (char*)"Engine Oil Temperature 2"                                  , (char*)"Temperatura del aceite del motor 2"                             },
-   { 1136 , (char*)"Engine ECU Temperature"                                    , (char*)"Temperatura ECU Motor"                                          },
-   { 1137 , (char*)"Engine Exhaust Gas Port 1  Temperature"                    , (char*)"Temp puerto gases esc 1 motor"                                  },
-   { 1138 , (char*)"Engine Exhaust Gas Port 2  Temperature"                    , (char*)"Temp puerto gases esc 2 motor"                                  },
-   { 1139 , (char*)"Engine Exhaust Gas Port 3  Temperature"                    , (char*)"Temp puerto gases esc 3 motor"                                  },
-   { 1140 , (char*)"Engine Exhaust Gas Port 4 Temperature"                     , (char*)"Temp puerto gases esc 4   motor"                                  },
-   { 1141 , (char*)"Engine Exhaust Gas Port 5  Temperature"                    , (char*)"Temp puerto gases esc 5 motor"                                  },
-   { 1142 , (char*)"Engine Exhaust Gas Port 6  Temperature"                    , (char*)"Temp puerto gases esc 6 motor"                                  },
-   { 1143 , (char*)"Engine Exhaust Gas Port 7  Temperature"                    , (char*)"Temp puerto gases esc 7 motor"                                  },
-   { 1144 , (char*)"Engine Exhaust Gas Port 8  Temperature"                    , (char*)"Temp puerto gases esc 8 motor"                                  },
-   { 1145 , (char*)"Engine Exhaust Gas Port 9  Temperature"                    , (char*)"Temp puerto gases esc 9 motor"                                  },
-   { 1146 , (char*)"Engine Exhaust Gas Port 10 Temperature"                    , (char*)"Temp puerto gases esc 10 motor"                                 },
-   { 1147 , (char*)"Engine Exhaust Gas Port 11 Temperature"                    , (char*)"Temp puerto gases esc 11 motor"                                 },
-   { 1148 , (char*)"Engine Exhaust Gas Port 12 Temperature"                    , (char*)"Temp puerto gases esc 12 motor"                                 },
-   { 1149 , (char*)"Engine Exhaust Gas Port 13 Temperature"                    , (char*)"Temp puerto gases esc 13 motor"                                 },
-   { 1150 , (char*)"Engine Exhaust Gas Port 14 Temperature"                    , (char*)"Temp puerto gases esc 14 motor"                                 },
-   { 1151 , (char*)"Engine Exhaust Gas Port 15 Temperature"                    , (char*)"Temp puerto gases esc 15 motor"                                 },
-   { 1152 , (char*)"Engine Exhaust Gas Port 16 Temperature"                    , (char*)"Temp puerto gases esc 16 motor"                                 },
-   { 1153 , (char*)"Engine Exhaust Gas Port 17 Temperature"                    , (char*)"Temp puerto gases esc 17 motor"                                 },
-   { 1154 , (char*)"Engine Exhaust Gas Port 18 Temperature"                    , (char*)"Temp puerto gases esc 18 motor"                                 },
-   { 1155 , (char*)"Engine Exhaust Gas Port 19 Temperature"                    , (char*)"Temp puerto gases esc 19 motor"                                 },
-   { 1156 , (char*)"Engine Exhaust Gas Port 20 Temperature"                    , (char*)"Temp puerto gases esc 20 motor"                                 },
-   { 1157 , (char*)"Engine Main Bearing 1 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 1"                 }, //  Engine Main Bearing 1 Temperature
-   { 1158 , (char*)"Engine Main Bearing 2 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 2"                 }, //  Engine Main Bearing 2 Temperature
-   { 1159 , (char*)"Engine Main Bearing 3 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 3"                 }, //  Engine Main Bearing 3 Temperature
-   { 1160 , (char*)"Engine Main Bearing 4 Temp erature"                        , (char*)"Temperatura del cojinete principal del motor 4"                 }, //  Engine Main Bearing 4 Temperature
-   { 1161 , (char*)"Engine Main Bearing 5 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 5"                 }, //  Engine Main Bearing 5 Temperature
-   { 1162 , (char*)"Engine Main Bearing 6 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 6"                 }, //  Engine Main Bearing 6 Temperature
-   { 1163 , (char*)"Engine Main Bearing 7 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 7"                 }, //  Engine Main Bearing 7 Temperature
-   { 1164 , (char*)"Engine Main Bearing 8 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 8"                 }, //  Engine Main Bearing 8 Temperature
-   { 1165 , (char*)"Engine Main Bearing 9 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 9"                 }, //  Engine Main Bearing 9 Temperature
-   { 1166 , (char*)"Engine Main Bearing 10 Temp erature"                       , (char*)"Temperatura del cojinete principal del motor 10"                }, //  Engine Main Bearing 10 Temperature
-   { 1167 , (char*)"Engine Main Bearing 11 Temp erature"                       , (char*)"Temperatura del cojinete principal del motor 11"                }, //  Engine Main Bearing 11 Temperature
-   { 1168 , (char*)"Engine Turbocharger Lube   Oil Pressure 2"                 , (char*)"Pres aceite lub turbocompresor motor 2"                         },
-   { 1169 , (char*)"Engine Turbocharger 2 Spee d"                              , (char*)"Turbocompresor de motor de 2 velocidades"                       }, //  Engine Turbocharger 2 Speed
-   { 1170 , (char*)"Engine Turbocharger 3 Spee d"                              , (char*)"Turbocompresor de motor de 3 velocidades"                       }, //  Engine Turbocharger 3 Speed
-   { 1171 , (char*)"Engine Turbocharger 4 Spe ed"                              , (char*)"Turbocompresor de motor de 4 velocidades"                       }, //  Engine Turbocharger 4 Speed
-   { 1382 , (char*)"Engine Fuel Filter(suction si de) Differential Pressure"   , (char*)"Filt comb mot (lado succion) Pres dif"                          },  //  Engine Fuel Filter(suction side) Differential Pressure
-   { 514  , (char*)"Nominal Friction - Percent   Torque"                       , (char*)"Friccion Nominal - porcentaje de torque"                        },
-   { 519  , (char*)"Engine Des. Operating Speed Asymmetry Adjustment"          , (char*)"Diseno motor Ajuste de asim vel func"                           },
-   { 2978  ,  (char*)" Estimated Engine Parasitic Losses"                      , (char*)"Perdidas parasitarias estimadas del motor"                      },
-   { 3236 , (char*)"Aftertreat Exhaust Gas Mass Flow Rate"                     , (char*)"Caudal masico del gas de escape del tratamiento post"           },
-   { 1081 , (char*) "Engine Wait to Start Lamp"                                , (char*) "Lampara de espera para arrancar del motor"                     },
-   { 3357 , (char*) "Actual Maximum Percent Torque"                            , (char*) "Porcentaje de Torque Maximo Actual"                            },
-   { 1413  , (char*)"Cylinder 1 Ignition Timing"                               , (char*)"Tiempo de Ignicion Cilindro 1"                                  },
-   { 1390 ,  (char*)"Engine Fuel Valve 1 Intake Absolute Pressure"             , (char*)"Presion absoluta de Valvula de combustible 1"                   },
-   { 3353 , (char*)"Alternator 1 Status"                                       , (char*)"Estado de alternador 1"                                         },
-   { 7426,  (char*)"Operator Inducement Time to Torque Derate Level 1"         , (char*)"Tiempo de induccion operador reducir nivel de torsion 1"        },
-   { 7428, (char*)"Operator Inducement Time to Torque Derate Level 2"          , (char*)"Tiempo de induccion operador reducir nivel de torsion 2"        },
-   { 70 , (char*)"Parking Brake Switch"                                        , (char*)"Interruptor freno estacionamiento"                              },
-   { 84 ,(char*)"Wheel-Based Vehicle Speed"                                    , (char*)"Velocidad del vehiculo basado en ruedas"                        },
-   { 597,(char*)"Brake Switch"                                                 , (char*)"Switch de Freno"                                                },
-   { 899 ,(char*)"Engine Torque Mode"                                          , (char*)"Motor en Modo Torque"                                           },
-   { 975 ,(char*)"Engine Fan 1 Estimated Percent Speed"                        , (char*)"Vel porcentual estimada del ventilador del motor 1"             },
-   { 977 ,(char*)"Fan Drive State"                                             , (char*)"Estado  Vent"                                                   },
-   { 1639, (char*)"Fan Speed"                                                  , (char*)"Vel Ven"                                                        },
-   { 5078, (char*)"Engine Amber Warning Lamp Command"                          , (char*)"Comando al lamp advertencia ambar del motor"                    },
-   { 5079,(char*)"Engine Red Stop Lamp Command"                                , (char*)"Comando paro de la lampara roja del motor"                      },
-   { 1039 ,(char*)"Trip Fuel (Gaseous)"                                        , (char*)"Caida Comb (Gaseouso)"                                            },
-   { 1040, (char*)"Total Fuel Used (Gaseous)"                                  , (char*)"Comb total (Gaseouso)"                                      }
-};
+// const J1939_SPN_NAME_STRING gstDmNoString[NO_OF_SPNS_IN_DM] =
+// {
+//   { 16   , (char*)"Engine Fuel Filter Differen   tial Pressure"               , (char*)"Filtro Diferencial de Presion de Combustible de Motor"          }, // Engine Fuel Filter Differential Pressure
+//   { 21   , (char*)"Engine ECU Temperature"                                    , (char*)"Temperatura de ECU de Motor"				                       },
+//   { 22   , (char*)"Engine Extended Crankcase Blow-by Pressure"                , (char*)"Marcha Extendida por Presion de Aire"			               },
+//   { 46   , (char*)"Pneumatic Supply Pressure"                                 , (char*)"Alimentacion de Presion Pneumatica"						       },
+//   { 51   , (char*)"Engine Throttle Position"                                  , (char*)"Posicion de Ascelerador"							               },
+//   { 52   , (char*)"Engine Intercooler Tempera ture"                           , (char*)"Temperatura de Intercooler"                                     }, // Engine Intercooler Temperature
+//   { 72   , (char*)"Engine Blower Bypass Valve Position"                       , (char*)"Posicion de la valula Bypass de Soplador"                       },
+//   { 73   , (char*)"Auxiliary Pump Pressure "                                  , (char*)"Bomba Auxiliar de Presion"			                           },
+//   { 81   , (char*)"Engine  Particulate  Trap     Inlet Pressure"              , (char*)"Presion en la entrada de Trampa de particulas"                  }, // Engine Particulate Trap Inlet Pressure
+//   { 82   , (char*)"Engine Air Start Pressure"                                 , (char*)"Presion de Aire de Arranque"			                           },
+//   { 90   , (char*)"Power Takeoff Oil Tempera ture"                            , (char*)"Temperatura del aceite de la toma de fuerza"                    }, // Power Takeoff Oil Temperature
+//   { 91   , (char*)"Accelerator Pedal Position 1"                              , (char*)"Posicion Pedal de Aceeracion 1"                                 },
+//   { 92   , (char*)"Engine Percent Load At Cu rrent Speed"                     , (char*)"Porcentaje de carga a velocidad Actual"                         }, // Engine Percent Load At Current Speed
+//   { 94   , (char*)"Engine Fuel Delivery Pressu re"                            , (char*)"Presion de Combustible de Salida"                               }, // Engine Fuel Delivery Pressure
+//   { 95   , (char*)"Engine Fuel Filter  Differen   tial Pressure"              , (char*)"Presion diferencial en filtro de combustible"                    }, // Engine Fuel Filter Differential Pressure
+//   { 96   , (char*)"Fuel Level"                                                , (char*)"Nivel de Comb" 								                       },
+//   { 97   , (char*)"Water In Fuel Indicator"                                   , (char*)"Aguan en Indicador de Agua"                                     },
+//   { 98   , (char*)"Engine Oil Level"                                          , (char*)"Nivel de Aceite de Motor"                                       },
+//   { 99   , (char*)"Engine Oil Filter Differenti  al Pressure"                 , (char*)"Presion Diferencial en Filtr  o de Aceite"                        }, // Engine Oil Filter  Differential Pressure
+//   { 100  , (char*)"Engine Oil Pressure"                                       , (char*)"Presion de Aceite de Motor"                                     },
+//   { 101  , (char*)"Engine Crankcase Pressure"                                 , (char*)"Presion de Aceite Ciguenal"                                     },
+//   { 102  , (char*)"Engine Turbocharger Boost Pressure"                        , (char*)"Presion de aumento  Turbocargador"                              },
+//   { 103  , (char*)"Engine Turbocharger 1 Spee d"                              , (char*)"Velocidad de Turbocargador 1"                                   }, // Engine Turbocharger 1 Speed
+//   { 104  , (char*)"Engine Turbocharger Lube   Oil Pressure 1"                 , (char*)"Presion de Aceite de TurboCargador 1"                           },
+//   { 105  , (char*)"Engine Intake Manifold 1 Te mperature"                     , (char*)"Temperatura de Entrada de Manifold 1"                           }, // Engine Intake Manifold 1 Temperature
+//   { 106  , (char*)"Engine Air Inlet Pressure"                                 , (char*)"Presion de Admision de Aire"                                    },
+//   { 107  , (char*)"Engine Air Filter 1 Differen tial Pressure"                , (char*)"Presion Diferencial de Filtr  o de Aire 1"                        }, // Engine Air Filter 1 Differential Pressure
+//   { 108  , (char*)"Barometric Pressure"                                       , (char*)"Presion Barometrica"                                            },
+//   { 109  , (char*)"Engine Coolant Pressure"                                   , (char*)"Presion de Refrigerante de Motor"                               },
+//   { 110  , (char*)"Engine Coolant Temperatur e"                               , (char*)"Temperatura de Refrigerante de Motor"                           }, // Engine Coolant Temperature
+//   { 111  , (char*)"Engine Coolant Level"                                      , (char*)"Nivel de Refrigerante de Motor"                                 },
+//   { 112  , (char*)"Engine Coolant Filter Diffe rential Pressure"              , (char*)"Presion Diferencial de Filtr  o de Refrigerante"                  }, // Engine Coolant Filter  Differential Pressure
+//   { 114  , (char*)"Net Battery Current"                                       , (char*)"Corriente Neta de Bateria"                                      },
+//   { 115  , (char*)"Alternator Current"                                        , (char*)"Corriente de Alternador"                                        },
+//   { 124  , (char*)"Transmission Oil Level"                                    , (char*)"Nivel de Aceite de Transmision"                                 },
+//   { 126  , (char*)"Transmission Filter Differe ntial Pressure"                , (char*)"Presion Diferencial de Filtr  o de Transmicion"                   }, // Transmission Filter Differential Pressure
+//   { 127  , (char*)"Transmission Oil Pressure"                                 , (char*)"Presion de Aceite de Transmision"                               },
+//   { 129  , (char*)"Engine Injector Metering    Rail 2 Pressure"               , (char*)"Pres. rail dosif 2 inyector motor"             		           }, // Engine Injector Metering Rail 2 Pressure
+//   { 132  , (char*)"Engine Inlet Air Mass Flow  Rate"                          , (char*)"Tasa de Flujo de entrada de Masa de aire"                       }, // Engine Intake Air Mass Flow Rate
+//   { 136  , (char*)"Auxiliary Vaccum Pressure  Reading"                        , (char*)"Lectura Presion de Vacio Auxiliar"                              }, // Auxiliary Vaccum Pressure Reading
+//   { 137  , (char*)"Auxiliary Gage Pressure      Reading 1"                    , (char*)"Lectura de presion manometrica auxiliar 1"                      }, // Auxiliary Gage Pressure Reading 1
+//   { 138  , (char*)"Auxiliary Absolute Pressur e Reading"                      , (char*)"Lectura de presion absoluta auxiliar"                           }, // Auxiliary Absolute Pressure Reading
+//   { 156  , (char*)"Engine Injector Timing Rail 1 Pressure"                    , (char*)"Presion rail sinc 1 iny motor"                                  },
+//   { 157  , (char*)"Engine Injector Metering    Rail 1 Pressure"               , (char*)"Pres. rail dosif 1 inyector motor"                              }, // Engine Injector Metering Rail 1 Pressure
+//   { 158  , (char*)"Battery Potential(Voltage) , Switched"                     , (char*)"Potencial de la bateria (voltaje), conmutado"                   }, // Battery Potential (Voltage),Switched
+//   { 159  , (char*)"Engine Gas Supply Pressure"                                , (char*)"Presion de Entrada de Gas"                                      },
+//   { 164  , (char*)"Engine Injection Control Pr essure"                        , (char*)"Presion de control de inyeccion del motor"                      }, // Engine Injection Control Pressure
+//   { 166  , (char*)"Engine Rated Power"                                        , (char*)"Potencia nominal del motor"                                     },
+//   { 167  , (char*)"Charging System Potential  (Voltage)"                      , (char*)"Potencial del sistema de carga (voltaje)"                       },
+//   { 168  , (char*)"Electrical Potential (Voltag e)"                           , (char*)"Potencial electrico (voltaje)"                                  }, // Electrical Potential (Voltage)
+//   { 171  , (char*)"Ambient Air Temperature"                                   , (char*)"Temperatura Ambiente"                                           },
+//   { 172  , (char*)"Engine Air Inlet Temperatur e"                             , (char*)"Temperatura de entrada de aire del motor"                       }, // Engine Air Intake Temperature
+//   { 173  , (char*)"Engine Exhaust Gas Temper ature"                           , (char*)"Temperatura de los gases de escape del motor"                   }, // Engine Exhaust Gas Temperature
+//   { 174  , (char*)"Engine Fuel Temperature 1"                                 , (char*)"Temperatura del combustible del motor 1"                        },
+//   { 175  , (char*)"Engine Oil Temperature 1"                                  , (char*)"Temperatura del aceite del   motor 1"                             },
+//   { 176  , (char*)"Engine Turbocharger Oil Te mperature"                      , (char*)"Temperatura del aceite del turbocompresor del motor"            }, // Engine Turbocharger Oil Temperature
+//   { 177  , (char*)"Transmission Oil Temperatu re"                             , (char*)"Temperatura del aceite de transmision"                          }, // Transmission Oil Temperature
+//   { 182  , (char*)"Engine Trip Fuel"                                          , (char*)"Combustible de viaje del motor"                                 },
+//   { 183  , (char*)"Engine Fuel Rate"                                          , (char*)"Tasa de combustible del motor"                                  },
+//   { 184  , (char*)"Engine Instantaneous Fuel   Economy"                       , (char*)"Economia de combustible instantanea del motor"                  }, //  Engine Instantaneous Fuel Economy
+//   { 185  , (char*)"Engine  Average  Fuel  Econ omy"                           , (char*)"Economia de combustible promedio del motor"                     }, //  Engine Average Fuel Economy
+//   { 188  , (char*)"Engine Speed At Idle, Point 1 (Engine Config.)"            , (char*)"Vel mot ralenti, punto 1 (config motor)"                        },
+//   { 189  , (char*)"Engine Rated Speed"                                        , (char*)"Velocidad Nominal de Motor"                                     },
+//   { 190  , (char*)"Engine Speed"                                              , (char*)"Velocidad de Motor"                                             },
+//   { 235  , (char*)"Engine Total Idle Hours"                                   , (char*)"Horas totales de inactividad del motor"                         },
+//   { 236  , (char*)"Engine Total Idle Fuel Used"                               , (char*)"Combustible total en ralenti usado del motor"                   },
+//   { 247  , (char*)"Engine Total Hours of Oper ation"                          , (char*)"Horas totales de funcionamiento del motor"                      }, //  Engine Total Hours of Operation
+//   { 250  , (char*)"Engine Total Fuel Used"                                    , (char*)"Combustible total usado del motor"                              },
+//   { 411  , (char*)"Engine Exhaust Gas  Recirc ulation Diff. Pressure"         , (char*)"Pres dif recirc gases esc motor"                                }, //  Engine Exhaust Gas  Recirculation Diff. Pressure
+//   { 412  , (char*)"Engine Exhaust Gas  Recirc ulation Temperature"            , (char*)"Temp rec de gas esc  motor"                                     }, //  Engine Exhaust Gas  Recirculation Temperature
+//   { 441  , (char*)"Auxiliary Temperature 1"                                   , (char*)"Temperatura Auxiliar 1"                                         },
+//   { 442  , (char*)"Auxiliary Temperature 2"                                   , (char*)"Temperatura Auxiliar 2"                                         },
+//   { 444  , (char*)"Battery 2 Potential (Voltag e)"                            , (char*)"Potencial de la bateria 2     (voltaje)"                            }, //  Battery 2 Potential (Voltag e)
+//   { 515  , (char*)"Engine's Desired Operating  Speed"                         , (char*)"Velocidad de funcionamiento deseada del motor"                  }, //  Engine's Desired Operating  Speed
+//   { 518  , (char*)"Engine Requested Torque/T orque Limit"                     , (char*)"Par torsion solic mot / Lim torsion"                            }, //  Engine Requested Torque/Torque Limit
+//   { 522  , (char*)"Percent Clutch Slip"                                       , (char*)"Porcentaje de deslizamiento del embrague"                       },
+//   { 528  , (char*)"Engine Speed At Point 2 (En gine Config.)"                 , (char*)"Vel mot punto 2 (config motor)"                                 }, //  Engine Speed At Point 2 (Engine Config.)
+//   { 529  , (char*)"Engine Speed At Point 3 (En gine Config.)"                 , (char*)"Vel mot punto 3 (config motor)"                                 }, //  Engine Speed At Point 3 (Engine Config.)
+//   { 530  , (char*)"Engine Speed At Point 4 (E ngine Config.)"                 , (char*)"Vel mot punto 4 (config motor)"                                 }, //  Engine Speed At Point 4 (Engine Config.)
+//   { 531  , (char*)"Engine Speed At Point 5 (En gine Config.)"                 , (char*)"Vel mot punto 5 (config motor)"                                 }, //  Engine Speed At Point 5 (Engine Config.)
+//   { 532  , (char*)"Engine Speed At High Idle, P oint 6 (Engine Config.)"      , (char*)"Vel mot punto 6 (config motor)"                                 }, //  Engine Speed At High Idle, Point 6 (Engine Config.)
+//   { 539  , (char*)"Engine Percent Torque At I dle,Point 1 (Engine Config.)"   , (char*)"Porcen  par motor ralenti, punto 1 (config mot)"                }, //  Engine Percent Torque At Idle,Point 1 (Engine Config.)
+//   { 540  , (char*)"Engine Percent Torque At   Point 2 (Engine Config.)"       , (char*)"Porcen  par motor ralenti, punto 2 (config mot)"                },
+//   { 541  , (char*)"Engine Percent Torque At   Point 3 (Engine Config.)"       , (char*)"Porcen  par motor ralenti, punto 3 (config mot)"                },
+//   { 542  , (char*)"Engine Percent Torque At   Point 4 (Engine Config.)"       , (char*)"Porcen  par motor ralenti, punto 4 (config mot)"                },
+//   { 543  , (char*)"Engine Percent Torque At   Point 5 (Engine Config.)"       , (char*)"Porcen  par motor ralenti, punto 5 (config mot)"                },
+//   { 544  , (char*)"Engine Reference Torque (E ngine Config.)"                 , (char*)"Par de referencia del motor (configuracion del motor)"          }, //  Engine Reference Torque (Engine Config.)
+//   { 1109 , (char*)"Engine Protection System   Approaching Shutdown"           , (char*)"sistema proteccion motor cerca de parar"                        },
+//   { 1110 , (char*)"Engine Protection System    has Shutdown Engine"           , (char*)"sistema proteccion motor ha apagado motor"                      },
+//   { 1119 , (char*)"Engine Actual Exhaust Oxy gen"                             , (char*)"Oxigeno de escape real del motor"                               }, //  Engine Actual Exhaust Oxygen
+//   { 1122 , (char*)"Engine Alternator Bearing 1 Temperature"                   , (char*)"Temperatura del cojinete 1 del alternador del motor"            },
+//   { 1123 , (char*)"Engine Alternator Bearing 2 Temperature"                   , (char*)"Temperatura del cojinete 2 del alternador del motor"            },
+//   { 1124 , (char*)"Engine Alternator Winding 1 Temperature"                   , (char*)"Temperatura del devanado 1 del alternador del motor"            },
+//   { 1125 , (char*)"Engine Alternator Winding 2 Temperature"                   , (char*)"Temperatura del devanado 2 del alternador del motor"            },
+//   { 1126 , (char*)"Engine Alternator Winding 3 Temperature"                   , (char*)"Temperatura del devanado 3 del alternador del motor"            },
+//   { 1127 , (char*)"Engine Turbocharger 1 Boo st Pressure"                     , (char*)"Turbocompresor del motor 1 Presion de refuerzo"                 }, //  Engine Turbocharger 1 Boost Pressure
+//   { 1128 , (char*)"Engine Turbocharger 2 Boo st Pressure"                     , (char*)"Turbocompresor del motor 2 Presion de refuerzo"                 }, //  Engine Turbocharger 2 Boost Pressure
+//   { 1129 , (char*)"Engine Turbocharger 3 Boo st Pressure"                     , (char*)"Turbocompresor del motor 3 Presion de refuerzo"                 }, //  Engine Turbocharger 3 Boost Pressure
+//   { 1130 , (char*)"Engine Turbocharger 4 Boo st Pressure"                     , (char*)"Turbocompresor del motor 4 Presion de refuerzo"                 }, //  Engine Turbocharger 4 Boost Pressure
+//   { 1131 , (char*)"Engine Intake Manifold 2 Te mperature"                     , (char*)"Temperatura del colector de admision del motor 2"               }, //  Engine Intake Manifold 2 Temperature
+//   { 1132 , (char*)"Engine Intake Manifold 3 Te mperature"                     , (char*)"Temperatura del colector de admision del motor 3"               }, //  Engine Intake Manifold 3 Temperature
+//   { 1133 , (char*)"Engine Intake Manifold 4 Te mperature"                     , (char*)"Temperatura del colector de admision del motor 4"               }, //  Engine Intake Manifold 4 Temperature
+//   { 1135 , (char*)"Engine Oil Temperature 2"                                  , (char*)"Temperatura del aceite del motor 2"                             },
+//   { 1136 , (char*)"Engine ECU Temperature"                                    , (char*)"Temperatura ECU Motor"                                          },
+//   { 1137 , (char*)"Engine Exhaust Gas Port 1  Temperature"                    , (char*)"Temp puerto gases esc 1 motor"                                  },
+//   { 1138 , (char*)"Engine Exhaust Gas Port 2  Temperature"                    , (char*)"Temp puerto gases esc 2 motor"                                  },
+//   { 1139 , (char*)"Engine Exhaust Gas Port 3  Temperature"                    , (char*)"Temp puerto gases esc 3 motor"                                  },
+//   { 1140 , (char*)"Engine Exhaust Gas Port 4 Temperature"                     , (char*)"Temp puerto gases esc 4   motor"                                  },
+//   { 1141 , (char*)"Engine Exhaust Gas Port 5  Temperature"                    , (char*)"Temp puerto gases esc 5 motor"                                  },
+//   { 1142 , (char*)"Engine Exhaust Gas Port 6  Temperature"                    , (char*)"Temp puerto gases esc 6 motor"                                  },
+//   { 1143 , (char*)"Engine Exhaust Gas Port 7  Temperature"                    , (char*)"Temp puerto gases esc 7 motor"                                  },
+//   { 1144 , (char*)"Engine Exhaust Gas Port 8  Temperature"                    , (char*)"Temp puerto gases esc 8 motor"                                  },
+//   { 1145 , (char*)"Engine Exhaust Gas Port 9  Temperature"                    , (char*)"Temp puerto gases esc 9 motor"                                  },
+//   { 1146 , (char*)"Engine Exhaust Gas Port 10 Temperature"                    , (char*)"Temp puerto gases esc 10 motor"                                 },
+//   { 1147 , (char*)"Engine Exhaust Gas Port 11 Temperature"                    , (char*)"Temp puerto gases esc 11 motor"                                 },
+//   { 1148 , (char*)"Engine Exhaust Gas Port 12 Temperature"                    , (char*)"Temp puerto gases esc 12 motor"                                 },
+//   { 1149 , (char*)"Engine Exhaust Gas Port 13 Temperature"                    , (char*)"Temp puerto gases esc 13 motor"                                 },
+//   { 1150 , (char*)"Engine Exhaust Gas Port 14 Temperature"                    , (char*)"Temp puerto gases esc 14 motor"                                 },
+//   { 1151 , (char*)"Engine Exhaust Gas Port 15 Temperature"                    , (char*)"Temp puerto gases esc 15 motor"                                 },
+//   { 1152 , (char*)"Engine Exhaust Gas Port 16 Temperature"                    , (char*)"Temp puerto gases esc 16 motor"                                 },
+//   { 1153 , (char*)"Engine Exhaust Gas Port 17 Temperature"                    , (char*)"Temp puerto gases esc 17 motor"                                 },
+//   { 1154 , (char*)"Engine Exhaust Gas Port 18 Temperature"                    , (char*)"Temp puerto gases esc 18 motor"                                 },
+//   { 1155 , (char*)"Engine Exhaust Gas Port 19 Temperature"                    , (char*)"Temp puerto gases esc 19 motor"                                 },
+//   { 1156 , (char*)"Engine Exhaust Gas Port 20 Temperature"                    , (char*)"Temp puerto gases esc 20 motor"                                 },
+//   { 1157 , (char*)"Engine Main Bearing 1 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 1"                 }, //  Engine Main Bearing 1 Temperature
+//   { 1158 , (char*)"Engine Main Bearing 2 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 2"                 }, //  Engine Main Bearing 2 Temperature
+//   { 1159 , (char*)"Engine Main Bearing 3 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 3"                 }, //  Engine Main Bearing 3 Temperature
+//   { 1160 , (char*)"Engine Main Bearing 4 Temp erature"                        , (char*)"Temperatura del cojinete principal del motor 4"                 }, //  Engine Main Bearing 4 Temperature
+//   { 1161 , (char*)"Engine Main Bearing 5 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 5"                 }, //  Engine Main Bearing 5 Temperature
+//   { 1162 , (char*)"Engine Main Bearing 6 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 6"                 }, //  Engine Main Bearing 6 Temperature
+//   { 1163 , (char*)"Engine Main Bearing 7 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 7"                 }, //  Engine Main Bearing 7 Temperature
+//   { 1164 , (char*)"Engine Main Bearing 8 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 8"                 }, //  Engine Main Bearing 8 Temperature
+//   { 1165 , (char*)"Engine Main Bearing 9 Tempe rature"                        , (char*)"Temperatura del cojinete principal del motor 9"                 }, //  Engine Main Bearing 9 Temperature
+//   { 1166 , (char*)"Engine Main Bearing 10 Temp erature"                       , (char*)"Temperatura del cojinete principal del motor 10"                }, //  Engine Main Bearing 10 Temperature
+//   { 1167 , (char*)"Engine Main Bearing 11 Temp erature"                       , (char*)"Temperatura del cojinete principal del motor 11"                }, //  Engine Main Bearing 11 Temperature
+//   { 1168 , (char*)"Engine Turbocharger Lube   Oil Pressure 2"                 , (char*)"Pres aceite lub turbocompresor motor 2"                         },
+//   { 1169 , (char*)"Engine Turbocharger 2 Spee d"                              , (char*)"Turbocompresor de motor de 2 velocidades"                       }, //  Engine Turbocharger 2 Speed
+//   { 1170 , (char*)"Engine Turbocharger 3 Spee d"                              , (char*)"Turbocompresor de motor de 3 velocidades"                       }, //  Engine Turbocharger 3 Speed
+//   { 1171 , (char*)"Engine Turbocharger 4 Spe ed"                              , (char*)"Turbocompresor de motor de 4 velocidades"                       }, //  Engine Turbocharger 4 Speed
+//   { 1382 , (char*)"Engine Fuel Filter(suction si de) Differential Pressure"   , (char*)"Filt comb mot (lado succion) Pres dif"                          },  //  Engine Fuel Filter(suction side) Differential Pressure
+//   { 514  , (char*)"Nominal Friction - Percent   Torque"                       , (char*)"Friccion Nominal - porcentaje de torque"                        },
+//   { 519  , (char*)"Engine Des. Operating Speed Asymmetry Adjustment"          , (char*)"Diseno motor Ajuste de asim vel func"                           },
+//   { 2978  ,  (char*)" Estimated Engine Parasitic Losses"                      , (char*)"Perdidas parasitarias estimadas del motor"                      },
+//   { 3236 , (char*)"Aftertreat Exhaust Gas Mass Flow Rate"                     , (char*)"Caudal masico del gas de escape del tratamiento post"           },
+//   { 1081 , (char*) "Engine Wait to Start Lamp"                                , (char*) "Lampara de espera para arrancar del motor"                     },
+//   { 3357 , (char*) "Actual Maximum Percent Torque"                            , (char*) "Porcentaje de Torque Maximo Actual"                            },
+//   { 1413  , (char*)"Cylinder 1 Ignition Timing"                               , (char*)"Tiempo de Ignicion Cilindro 1"                                  },
+//   { 1390 ,  (char*)"Engine Fuel Valve 1 Intake Absolute Pressure"             , (char*)"Presion absoluta de Valvula de combustible 1"                   },
+//   { 3353 , (char*)"Alternator 1 Status"                                       , (char*)"Estado de alternador 1"                                         },
+//   { 7426,  (char*)"Operator Inducement Time to Torque Derate Level 1"         , (char*)"Tiempo de induccion operador reducir nivel de torsion 1"        },
+//   { 7428, (char*)"Operator Inducement Time to Torque Derate Level 2"          , (char*)"Tiempo de induccion operador reducir nivel de torsion 2"        },
+//   { 70 , (char*)"Parking Brake Switch"                                        , (char*)"Interruptor freno estacionamiento"                              },
+//   { 84 ,(char*)"Wheel-Based Vehicle Speed"                                    , (char*)"Velocidad del vehiculo basado en ruedas"                        },
+//   { 597,(char*)"Brake Switch"                                                 , (char*)"Switch de Freno"                                                },
+//   { 899 ,(char*)"Engine Torque Mode"                                          , (char*)"Motor en Modo Torque"                                           },
+//   { 975 ,(char*)"Engine Fan 1 Estimated Percent Speed"                        , (char*)"Vel porcentual estimada del ventilador del motor 1"             },
+//   { 977 ,(char*)"Fan Drive State"                                             , (char*)"Estado  Vent"                                                   },
+//   { 1639, (char*)"Fan Speed"                                                  , (char*)"Vel Ven"                                                        },
+//   { 5078, (char*)"Engine Amber Warning Lamp Command"                          , (char*)"Comando al lamp advertencia ambar del motor"                    },
+//   { 5079,(char*)"Engine Red Stop Lamp Command"                                , (char*)"Comando paro de la lampara roja del motor"                      },
+//   { 1039 ,(char*)"Trip Fuel (Gaseous)"                                        , (char*)"Caida Comb (Gaseouso)"                                            },
+//   { 1040, (char*)"Total Fuel Used (Gaseous)"                                  , (char*)"Comb total (Gaseouso)"                                      }
+//};
 
 
- const char* arrPGNAbbreviations[1][NUMBER_OF_PGN_SCREENS]=
- {
-  {
-  (char*)"Ash Accumulation Time",
-  (char*)"KBT Message for HMI3",             //  PGN 65367 PROPB_57
-  (char*)"EMR EDC4 CAN STATUS",              //1 - If Engine type is EMR , PGN 65284, 1 SPN
-  (char*)"IVECO Engine Status 2",            //1 - If Engine type is IVECO ,PGN 65282, 3 SPNs
-  (char*)"Fuel Economy(Liquid)",             //2 - Fuel Economy(Liquid), PGN 65266, 1 SPN
-  (char*)"Electronic Eng Controller 2",      //3 - Electronic Engine Controller 2, PGN 61443, 2 SPN's
-  (char*)"Ambient Conditions",               //4 - Ambient Conditions, PGN 65269, 3 SPN's
-  (char*)"Engine Hours, Revolutions",        //5 - Engine Hours, Revolutions, PGN 65253, 1 SPN
-  (char*)"Vehicle Electrical Power 1",       //6 - Vehicle Electrical Power 1, PGN 65271, 2 SPN's
-  (char*)"Dash Display 1",                   //7 - Dash Display 1, PGN 65276, 2 SPN's
-  (char*)"Operator Indicators",              //8 - Operator Indicators, PGN 65279, 1 SPN
-  (char*)"Fuel Consumption(Liquid) 1",       //9 - Fuel Consumption(Liquid) 1, PGN 65257, 2 SPN's
-  (char*)"Elect Eng Controller 4",           //10 - Electronic Engine Controller 4, PGN 65214, 2 SPN's
-  (char*)"Fuel Information 1 (Liquid)",      //11 - Fuel Information 1 (Liquid), PGN 65203, 1 SPN
-  (char*)"Inlet/Exhaust Condition 2",        //12 - Inlet/Exhaust Conditions 2, PGN 64976, 2 SPN's
-  (char*)"Engine Operating Info",            //13 - Engine Operating Information, PGN 64914, 2 SPN's
-  (char*)"Engine Temperature 2",             //14 - Engine Temperature 2, PGN 65188, 1 SPN
-  (char*)"Electronic Eng Controller 3",      // Electronic engine controller 3.
-  (char*)"Electronic Eng Controller 3",      // Electronic engine controller 3.
-  (char*)"Service 2",                        // S2_65166
-  (char*)"Eng Fluid Level/Pressure 2",       // EFL_P2_65243
-  (char*)"Shutdown",                         // PGN_SHUTDOWN_65252
-  (char*)"Engine Gas Flow Rate",             // PGN_EGF1_61450
-  (char*)"DPF 1 Soot",                       // PGN_DPF1S_64796
-  (char*)"Engine Temperature 1",             //15 - Engine Temperature 1, PGN 65262, 3 SPN's
-  (char*)"Engine Temperature 1",             //16 - Engine Temperature 1, PGN 65262, 2 SPN's
-  (char*)"Electronic Eng Controller 1",      //17 - Electronic Engine Controller 1 (Screen 1), PGN 61444, 3 SPN's
-  (char*)"Electronic Eng Controller 1",      //18 - Electronic Engine Controller 1 (Screen 2), PGN 61444, 3 SPN's
-  (char*)"Eng Fluid Level/Pressure 1",       //19 - Engine Fluid Level/Pressure 1 (Screen 1), PGN 65263, 3 SPN's
-  (char*)"Eng Fluid Level/Pressure 1",       //20 - Engine Fluid Level/Pressure 1 (Screen 2), PGN 65263, 3 SPN's
-  (char*)"Inlet/Exhaust Condition 1",        //21 - Inlet/Exhaust Conditions 1 (Screen 1), PGN 65270, 4 SPN's
-  (char*)"Inlet/Exhaust Condition 1",        //22 - Inlet/Exhaust Conditions 1 (Screen 2), PGN 65270, 3 SPN's
-  (char*)"After Treatment 1",                //AT1IG1 - 23 - Aftertreatment 1 Intake Gas 1, PGN 61454, 2 SPN's
-  (char*)"After Treatment 1",                // PGN_A1DOC_64800
-  (char*)"After Treatment 1",                // PGN_AT1IG2_64948
-  (char*)"After Treatment 1",                // PGN_AT1IMG_64946
-  (char*)"After Treatment 1",                //AT1OG1 - 24 - Aftertreatment 1 Outlet Gas 1, PGN 61455, 2 SPN's
-  (char*)"After Treatment 1",                //A1SCRDSI1 - 25 - Aftertreatment 1 SCR Dosing System Information 1, PGN 61475,
-  (char*)"After Treatment 1",                //A1SCRDSI2 - 26 - Aftertreatment 1 SCR Dosing System Information 2, PGN 64833
-  (char*)"After Treatment 1",                //A1SCRDSR1 - 27 - Aftertreatment 1 SCR Dosing System Requests 1, PGN 61476
-  (char*)"After Treatment 1",                //A1SCREGT1 - 28 - Aftertreatment 1 SCR Exhaust Gas Temperature 1, PGN 64830
-  (char*)"After Treatment 2",                //AT2IG1 - 29 - Aftertreatment 2 Intake Gas 1, PGN 61456
-  (char*)"After Treatment 2",                //AT2OG1 - 30 - Aftertreatment 2 Outlet Gas 1, PGN 61457
-  (char*)"After Treatment 2",                //A2SCRDSI2 - 31 - Aftertreatment 2 SCR Dosing System Information 2, PGN 61478
-  (char*)"After Treatment 2",                //A2SCRDSI1 32 - Aftertreatment 2 SCR Dosing System Information 1, PGN 64827
-  (char*)"After Treatment 2",                //A2SCRDSR1 - 33 - Aftertreatment 2 SCR Dosing System Requests 1, PGN 61479
-  (char*)"After Treatment 2",                //A2SCREGTI - 34 - Aftertreatment 2 SCR Exhaust Gas Temperature 1, PGN 64824
-  (char*)"After Treatment 1",                //AT1OG2 - 35 - Aftertreatment 1 Outlet Gas 2, PGN 64947
-  (char*)"After Treatment 1",                //AT1S2 - 36 - Aftertreatment 1 Service 2, PGN 64697
-  (char*)"After Treatment 1",                //AT1S - 37 - Aftertreatment 1 Service, PGN 64891
-  (char*)"After Treatment 1",                //AT1T1I - 38 - Aftertreatment 1 Diesel Exhaust Fluid Tank 1 Information.
-  (char*)"NCD Inducement Strategy",
-  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_1
-  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_2
-  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_3
-  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_4
-  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_5
-  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_6
-  (char*)"Hatz ProStOut",                    //8 - Hatz ProStout Screen 1 , PGN 65364 , 4 SPNs
-  (char*)"Hatz ProStOut",                    //9 - Hatz ProStout Screen 2 , PGN 65364, 4 SPNs
-  (char*)"Hatz Proprietary Phys",            //10 - Hatz Proprietary Phys , PGN 65280, 2 SPNs
-  (char*)"Alternator Information",           //11 - Alternator information , PGN 65237, 1 SPN
-  (char*)"Elect Transmission Cntrl. 5",      //12 - Electronic Transmission Controller 5 , PGN 65219, 1 SPN
-  (char*)"Operator Inducement Info",         //13 - Operator Inducement Information , PGN 64554 , 2 SPNs
-  (char*)"Ignition Timing 1",                //5 - Ignition Timing 1 , PGN 65154 , 1 SPN
-  (char*)"Gaseous Fuel Pressure",            //6 - Gaseous Fuel Pressure , PGN 65163 , 1 SPN
-  (char*)"Intake Manifold Info 1",           //7 - Intake manifold Information 1 , PGN 65190 , 2 SPNs
-  (char*)"Fan Drive #1",                      //18 - Fan Drive #1, PGN 65213,3 SPN
-  (char*)"Direct Lamp Ctrl Cmd 1",           //19 - Direct Lamp Control Command 1, PGN 64775, 2 SPN
-  (char*)"Fuel Consumption(Gaseous)",        //5 - Fuel Consumption(Gaseous), PGN 65199, 2 SPN's
-  (char*)"Exhaust Port Temp 1",              //DISP_EPT1_PGN_65187,
-  (char*)"Exhaust Port Temp 2",              //DISP_EPT2_PGN_65186,
-  (char*)"Exhaust Port Temp 3",              //DISP_EPT3_PGN_65185,
-  (char*)"Exhaust Port Temp 4",              //DISP_EPT4_PGN_65184,
-  (char*)"Exhaust Port Temp 5",              //DISP_EPT5_PGN_65183,
-  (char*)"Engine Temperature 4",             //DISP_ET4_PGN_64870,
-  (char*)"Turbocharger Info 4",              //DISP_TCI4_PGN_65176,
-  (char*)"Eng Fluid Level/Pressure 12",      //DISP_EFL_P12_PGN_64735,
-  (char*)"Cruise Ctrl Vehicle Speed 1",      //14 - Cruise Ctrl Vehicle Speed 1, PGN 65265 , 3 SPNs
-  }
- };
+// const char* arrPGNAbbreviations[1][NUMBER_OF_PGN_SCREENS]=
+// {
+//  {
+//  (char*)"Ash Accumulation Time",
+//  (char*)"KBT Message for HMI3",             //  PGN 65367 PROPB_57
+//  (char*)"EMR EDC4 CAN STATUS",              //1 - If Engine type is EMR , PGN 65284, 1 SPN
+//  (char*)"IVECO Engine Status 2",            //1 - If Engine type is IVECO ,PGN 65282, 3 SPNs
+//  (char*)"Fuel Economy(Liquid)",             //2 - Fuel Economy(Liquid), PGN 65266, 1 SPN
+//  (char*)"Electronic Eng Controller 2",      //3 - Electronic Engine Controller 2, PGN 61443, 2 SPN's
+//  (char*)"Ambient Conditions",               //4 - Ambient Conditions, PGN 65269, 3 SPN's
+//  (char*)"Engine Hours, Revolutions",        //5 - Engine Hours, Revolutions, PGN 65253, 1 SPN
+//  (char*)"Vehicle Electrical Power 1",       //6 - Vehicle Electrical Power 1, PGN 65271, 2 SPN's
+//  (char*)"Dash Display 1",                   //7 - Dash Display 1, PGN 65276, 2 SPN's
+//  (char*)"Operator Indicators",              //8 - Operator Indicators, PGN 65279, 1 SPN
+//  (char*)"Fuel Consumption(Liquid) 1",       //9 - Fuel Consumption(Liquid) 1, PGN 65257, 2 SPN's
+//  (char*)"Elect Eng Controller 4",           //10 - Electronic Engine Controller 4, PGN 65214, 2 SPN's
+//  (char*)"Fuel Information 1 (Liquid)",      //11 - Fuel Information 1 (Liquid), PGN 65203, 1 SPN
+//  (char*)"Inlet/Exhaust Condition 2",        //12 - Inlet/Exhaust Conditions 2, PGN 64976, 2 SPN's
+//  (char*)"Engine Operating Info",            //13 - Engine Operating Information, PGN 64914, 2 SPN's
+//  (char*)"Engine Temperature 2",             //14 - Engine Temperature 2, PGN 65188, 1 SPN
+//  (char*)"Electronic Eng Controller 3",      // Electronic engine controller 3.
+//  (char*)"Electronic Eng Controller 3",      // Electronic engine controller 3.
+//  (char*)"Service 2",                        // S2_65166
+//  (char*)"Eng Fluid Level/Pressure 2",       // EFL_P2_65243
+//  (char*)"Shutdown",                         // PGN_SHUTDOWN_65252
+//  (char*)"Engine Gas Flow Rate",             // PGN_EGF1_61450
+//  (char*)"DPF 1 Soot",                       // PGN_DPF1S_64796
+//  (char*)"Engine Temperature 1",             //15 - Engine Temperature 1, PGN 65262, 3 SPN's
+//  (char*)"Engine Temperature 1",             //16 - Engine Temperature 1, PGN 65262, 2 SPN's
+//  (char*)"Electronic Eng Controller 1",      //17 - Electronic Engine Controller 1 (Screen 1), PGN 61444, 3 SPN's
+//  (char*)"Electronic Eng Controller 1",      //18 - Electronic Engine Controller 1 (Screen 2), PGN 61444, 3 SPN's
+//  (char*)"Eng Fluid Level/Pressure 1",       //19 - Engine Fluid Level/Pressure 1 (Screen 1), PGN 65263, 3 SPN's
+//  (char*)"Eng Fluid Level/Pressure 1",       //20 - Engine Fluid Level/Pressure 1 (Screen 2), PGN 65263, 3 SPN's
+//  (char*)"Inlet/Exhaust Condition 1",        //21 - Inlet/Exhaust Conditions 1 (Screen 1), PGN 65270, 4 SPN's
+//  (char*)"Inlet/Exhaust Condition 1",        //22 - Inlet/Exhaust Conditions 1 (Screen 2), PGN 65270, 3 SPN's
+//  (char*)"After Treatment 1",                //AT1IG1 - 23 - Aftertreatment 1 Intake Gas 1, PGN 61454, 2 SPN's
+//  (char*)"After Treatment 1",                // PGN_A1DOC_64800
+//  (char*)"After Treatment 1",                // PGN_AT1IG2_64948
+//  (char*)"After Treatment 1",                // PGN_AT1IMG_64946
+//  (char*)"After Treatment 1",                //AT1OG1 - 24 - Aftertreatment 1 Outlet Gas 1, PGN 61455, 2 SPN's
+//  (char*)"After Treatment 1",                //A1SCRDSI1 - 25 - Aftertreatment 1 SCR Dosing System Information 1, PGN 61475,
+//  (char*)"After Treatment 1",                //A1SCRDSI2 - 26 - Aftertreatment 1 SCR Dosing System Information 2, PGN 64833
+//  (char*)"After Treatment 1",                //A1SCRDSR1 - 27 - Aftertreatment 1 SCR Dosing System Requests 1, PGN 61476
+//  (char*)"After Treatment 1",                //A1SCREGT1 - 28 - Aftertreatment 1 SCR Exhaust Gas Temperature 1, PGN 64830
+//  (char*)"After Treatment 2",                //AT2IG1 - 29 - Aftertreatment 2 Intake Gas 1, PGN 61456
+//  (char*)"After Treatment 2",                //AT2OG1 - 30 - Aftertreatment 2 Outlet Gas 1, PGN 61457
+//  (char*)"After Treatment 2",                //A2SCRDSI2 - 31 - Aftertreatment 2 SCR Dosing System Information 2, PGN 61478
+//  (char*)"After Treatment 2",                //A2SCRDSI1 32 - Aftertreatment 2 SCR Dosing System Information 1, PGN 64827
+//  (char*)"After Treatment 2",                //A2SCRDSR1 - 33 - Aftertreatment 2 SCR Dosing System Requests 1, PGN 61479
+//  (char*)"After Treatment 2",                //A2SCREGTI - 34 - Aftertreatment 2 SCR Exhaust Gas Temperature 1, PGN 64824
+//  (char*)"After Treatment 1",                //AT1OG2 - 35 - Aftertreatment 1 Outlet Gas 2, PGN 64947
+//  (char*)"After Treatment 1",                //AT1S2 - 36 - Aftertreatment 1 Service 2, PGN 64697
+//  (char*)"After Treatment 1",                //AT1S - 37 - Aftertreatment 1 Service, PGN 64891
+//  (char*)"After Treatment 1",                //AT1T1I - 38 - Aftertreatment 1 Diesel Exhaust Fluid Tank 1 Information.
+//  (char*)"NCD Inducement Strategy",
+//  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_1
+//  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_2
+//  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_3
+//  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_4
+//  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_5
+//  (char*)"KBT Message for PCD",              // PGN 65374 PropB_5E_6
+//  (char*)"Hatz ProStOut",                    //8 - Hatz ProStout Screen 1 , PGN 65364 , 4 SPNs
+//  (char*)"Hatz ProStOut",                    //9 - Hatz ProStout Screen 2 , PGN 65364, 4 SPNs
+//  (char*)"Hatz Proprietary Phys",            //10 - Hatz Proprietary Phys , PGN 65280, 2 SPNs
+//  (char*)"Alternator Information",           //11 - Alternator information , PGN 65237, 1 SPN
+//  (char*)"Elect Transmission Cntrl. 5",      //12 - Electronic Transmission Controller 5 , PGN 65219, 1 SPN
+//  (char*)"Operator Inducement Info",         //13 - Operator Inducement Information , PGN 64554 , 2 SPNs
+//  (char*)"Ignition Timing 1",                //5 - Ignition Timing 1 , PGN 65154 , 1 SPN
+//  (char*)"Gaseous Fuel Pressure",            //6 - Gaseous Fuel Pressure , PGN 65163 , 1 SPN
+//  (char*)"Intake Manifold Info 1",           //7 - Intake manifold Information 1 , PGN 65190 , 2 SPNs
+//  (char*)"Fan Drive #1",                      //18 - Fan Drive #1, PGN 65213,3 SPN
+//  (char*)"Direct Lamp Ctrl Cmd 1",           //19 - Direct Lamp Control Command 1, PGN 64775, 2 SPN
+//  (char*)"Fuel Consumption(Gaseous)",        //5 - Fuel Consumption(Gaseous), PGN 65199, 2 SPN's
+//  (char*)"Exhaust Port Temp 1",              //DISP_EPT1_PGN_65187,
+//  (char*)"Exhaust Port Temp 2",              //DISP_EPT2_PGN_65186,
+//  (char*)"Exhaust Port Temp 3",              //DISP_EPT3_PGN_65185,
+//  (char*)"Exhaust Port Temp 4",              //DISP_EPT4_PGN_65184,
+//  (char*)"Exhaust Port Temp 5",              //DISP_EPT5_PGN_65183,
+//  (char*)"Engine Temperature 4",             //DISP_ET4_PGN_64870,
+//  (char*)"Turbocharger Info 4",              //DISP_TCI4_PGN_65176,
+//  (char*)"Eng Fluid Level/Pressure 12",      //DISP_EFL_P12_PGN_64735,
+//  (char*)"Cruise Ctrl Vehicle Speed 1",      //14 - Cruise Ctrl Vehicle Speed 1, PGN 65265 , 3 SPNs
+//  }
+// };
 
  const char * const array_units[] =
  {
@@ -1355,88 +1357,134 @@ uint8_t gau8Icon7[6][27]
  const char *StrForWriteMode[2]={"For Write Mode","Modo Escribir"};
  const char *StrPressStart[2]  ={"Press START","Presionar Arranque"};
 
+ const char *StrNotAvailable={"NA"};
+ const char *StrCANErr={"CAN err"};
+ const char *StrErr={"Error"};
 
+//
+// const uint8_t u8ArrMatrixDispAndRXPGN[]=
+// {
+//     RX_PGN_PROPB62_65378           ,
+//     RX_PGN_PROPB57_65367           ,
+//     RX_PGN_EMR_PREHEAT_65284       ,
+//     RX_PGN_IVECO_ENG_STATUS_65282  ,
+//     RX_PGN_LFE_65266               ,
+//     RX_PGN_EEC2_61443              ,
+//     RX_PGN_AMB_65269               ,
+//     RX_PGN_HOURS_65253             ,
+//     RX_PGN_VEP1_65271              ,
+//     RX_PGN_DD_65276                ,
+//     RX_PGN_WFI_65279               ,
+//     RX_PGN_LFC_65257               ,
+//     RX_PGN_EEC4_65214              ,
+//     RX_PGN_LFI_65203               ,
+//     RX_PGN_IC2_64976               ,
+//     RX_PGN_EOI_64914               ,
+//     RX_PGN_ET2_65188               ,
+//     RX_PGN_EEC3_65247              ,
+//     RX_PGN_EEC3_65247              ,
+//     RX_PGN_S2_65166                ,
+//     RX_PGN_EFL_P2_65243            ,
+//     RX_PGN_SHUTDOWN_65252          ,
+//     RX_PGN_EFG1_61450              ,
+//     RX_PGN_DPF1S_64796             ,
+//     RX_PGN_ET1_65262               ,
+//     RX_PGN_ET1_65262               ,
+//     RX_PGN_EEC1_61444              ,
+//     RX_PGN_EEC1_61444              ,
+//     RX_PGN_EFL_P1_65263            ,
+//     RX_PGN_EFL_P1_65263            ,
+//     RX_PGN_IC1_65270               ,
+//     RX_PGN_IC1_65270               ,
+//     RX_PGN_AT1IG1_61454            ,
+//     RX_PGN_A1DOC_64800             ,
+//     RX_PGN_AT1IG2_64948            ,
+//     RX_PGN_AT1IMG_64946            ,
+//     RX_PGN_AT1OG1_61455            ,
+//     RX_PGN_A1SCRDSI1_61475         ,
+//     RX_PGN_A1SCRDSI2_64833         ,
+//     RX_PGN_A1SCRDSR1_61476         ,
+//     RX_PGN_A1SCREGT1_64830         ,
+//     RX_PGN_AT2IG1_61456            ,
+//     RX_PGN_AT2OG1_61457            ,
+//     RX_PGN_A2SCRDSI2_64827         ,
+//     RX_PGN_A2SCRDSI1_61478         ,
+//     RX_PGN_A2SCRDSR1_61479         ,
+//     RX_PGN_A2SCREGT1_64824         ,
+//     RX_PGN_AT1OG2_64947            ,
+//     RX_PGN_AT1S2_64697             ,
+//     RX_PGN_AT1S_64891              ,
+//     RX_PGN_AT1T1I_65110            ,
+//     RX_PGN_PROPB_32_KUBOTA_65330   ,
+//     RX_PGN_PROPB5E_65374           ,
+//     RX_PGN_PROPB5E_65374           ,
+//     RX_PGN_PROPB5E_65374           ,
+//     RX_PGN_PROPB5E_65374           ,
+//     RX_PGN_PROPB5E_65374           ,
+//     RX_PGN_PROPB5E_65374           ,
+//     RX_PGN_PROSTOUT_65364          ,
+//     RX_PGN_PROSTOUT_65364          ,
+//     RX_PGN_HATZ_PROPB_PHYS_65280   ,
+//     RX_PGN_AI_65237                ,
+//     RX_PGN_ETC5_65219              ,
+//     RX_PGN_OII_64554               ,
+//     RX_PGN_IT1_65154               ,
+//     RX_PGN_GFP_65163               ,
+//     RX_PGN_IMI1_65190              ,
+//     RX_PGN_FD1_65213               ,
+//     RX_PGN_DLCC1_64775             ,
+//     RX_PGN_GFC_65199               ,
+//     RX_PGN_EPT1_65187              ,
+//     RX_PGN_EPT2_65186              ,
+//     RX_PGN_EPT3_65185              ,
+//     RX_PGN_EPT4_65184              ,
+//     RX_PGN_EPT5_65183              ,
+//     RX_PGN_ET4_64870               ,
+//     RX_PGN_TCI4_65176              ,
+//     RX_PGN_EFL_P12_64735           ,
+//     RX_PGN_HATZ_CCVS_65265         ,
+//};
 
+ const char *EngType[]={"CONVENTIONAL", "ECU162", "CNG15KVA", "CRDIECU1", "ECU898", "MHEL898ECU","CNG125KVA"};
 
- const uint8_t u8ArrMatrixDispAndRXPGN[]=
+ const stCNG_15KVA_DTC J1939AlarmArrayStringsCNG_15KVA[PCODE_LAST_CNG_15KVA] =
  {
-     RX_PGN_PROPB62_65378           ,
-     RX_PGN_PROPB57_65367           ,
-     RX_PGN_EMR_PREHEAT_65284       ,
-     RX_PGN_IVECO_ENG_STATUS_65282  ,
-     RX_PGN_LFE_65266               ,
-     RX_PGN_EEC2_61443              ,
-     RX_PGN_AMB_65269               ,
-     RX_PGN_HOURS_65253             ,
-     RX_PGN_VEP1_65271              ,
-     RX_PGN_DD_65276                ,
-     RX_PGN_WFI_65279               ,
-     RX_PGN_LFC_65257               ,
-     RX_PGN_EEC4_65214              ,
-     RX_PGN_LFI_65203               ,
-     RX_PGN_IC2_64976               ,
-     RX_PGN_EOI_64914               ,
-     RX_PGN_ET2_65188               ,
-     RX_PGN_EEC3_65247              ,
-     RX_PGN_EEC3_65247              ,
-     RX_PGN_S2_65166                ,
-     RX_PGN_EFL_P2_65243            ,
-     RX_PGN_SHUTDOWN_65252          ,
-     RX_PGN_EFG1_61450              ,
-     RX_PGN_DPF1S_64796             ,
-     RX_PGN_ET1_65262               ,
-     RX_PGN_ET1_65262               ,
-     RX_PGN_EEC1_61444              ,
-     RX_PGN_EEC1_61444              ,
-     RX_PGN_EFL_P1_65263            ,
-     RX_PGN_EFL_P1_65263            ,
-     RX_PGN_IC1_65270               ,
-     RX_PGN_IC1_65270               ,
-     RX_PGN_AT1IG1_61454            ,
-     RX_PGN_A1DOC_64800             ,
-     RX_PGN_AT1IG2_64948            ,
-     RX_PGN_AT1IMG_64946            ,
-     RX_PGN_AT1OG1_61455            ,
-     RX_PGN_A1SCRDSI1_61475         ,
-     RX_PGN_A1SCRDSI2_64833         ,
-     RX_PGN_A1SCRDSR1_61476         ,
-     RX_PGN_A1SCREGT1_64830         ,
-     RX_PGN_AT2IG1_61456            ,
-     RX_PGN_AT2OG1_61457            ,
-     RX_PGN_A2SCRDSI2_64827         ,
-     RX_PGN_A2SCRDSI1_61478         ,
-     RX_PGN_A2SCRDSR1_61479         ,
-     RX_PGN_A2SCREGT1_64824         ,
-     RX_PGN_AT1OG2_64947            ,
-     RX_PGN_AT1S2_64697             ,
-     RX_PGN_AT1S_64891              ,
-     RX_PGN_AT1T1I_65110            ,
-     RX_PGN_PROPB_32_KUBOTA_65330   ,
-     RX_PGN_PROPB5E_65374           ,
-     RX_PGN_PROPB5E_65374           ,
-     RX_PGN_PROPB5E_65374           ,
-     RX_PGN_PROPB5E_65374           ,
-     RX_PGN_PROPB5E_65374           ,
-     RX_PGN_PROPB5E_65374           ,
-     RX_PGN_PROSTOUT_65364          ,
-     RX_PGN_PROSTOUT_65364          ,
-     RX_PGN_HATZ_PROPB_PHYS_65280   ,
-     RX_PGN_AI_65237                ,
-     RX_PGN_ETC5_65219              ,
-     RX_PGN_OII_64554               ,
-     RX_PGN_IT1_65154               ,
-     RX_PGN_GFP_65163               ,
-     RX_PGN_IMI1_65190              ,
-     RX_PGN_FD1_65213               ,
-     RX_PGN_DLCC1_64775             ,
-     RX_PGN_GFC_65199               ,
-     RX_PGN_EPT1_65187              ,
-     RX_PGN_EPT2_65186              ,
-     RX_PGN_EPT3_65185              ,
-     RX_PGN_EPT4_65184              ,
-     RX_PGN_EPT5_65183              ,
-     RX_PGN_ET4_64870               ,
-     RX_PGN_TCI4_65176              ,
-     RX_PGN_EFL_P12_64735           ,
-     RX_PGN_HATZ_CCVS_65265         ,
-};
+   { 3563 ,  4 , (char*)"P0107" , (char*)"Manifold abs press ckt Lo I/P" },
+   { 3563 ,  3 , (char*)"P0108" , (char*)"Manifold abs press ckt Hi I/P" },
+   { 105  ,  4 , (char*)"P0112" , (char*)"Intake air temp ckt low I/P" },
+   { 105  ,  3 , (char*)"P0113" , (char*)"Intake air temp ckt Hi I/P" },
+   { 110  ,  4 , (char*)"P0117" , (char*)"Eng coolant Temp ckt Lo I/P" },
+   { 110  ,  3 , (char*)"P0118" , (char*)"Eng coolant Temp ckt Hi I/P" },
+   { 110  ,  0 , (char*)"P0217" , (char*)"Eng coolant Over Temp Condition" },
+   { 51   ,  4 , (char*)"P0122" , (char*)"Pedal pos s/w A ckt low" },
+   { 51   ,  3 , (char*)"P0123" , (char*)"Pedal pos s/w A ckt High" },
+   { 3673 ,  4 , (char*)"P0222" , (char*)"Throt Position sens/sw B ckt Lo" },
+   { 3673 ,  3 , (char*)"P0223" , (char*)"Throt Position sens/sw B ckt Hi" },
+   { 5419 ,  4 , (char*)"P2100" , (char*)"Throt Act A Cntrl Motor ckt/Open" },
+   { 5419 ,  5 , (char*)"P2102" , (char*)"Throt Act Cntrl Motor ckt Lo" },
+   { 5419 ,  6 , (char*)"P2103" , (char*)"Throt Act A Cntrl motor ckt Hi" },
+   { 3223 ,  4 , (char*)"P0031" , (char*)"HO2S heater ctrl unit Lo B1S1" },
+   { 3223 ,  3 , (char*)"P0032" , (char*)"HO2S heater ctrl unit HI B1S1" },
+   { 3217 ,  4 , (char*)"P0131" , (char*)"O2 sens ckt low voltage(B1S1)" },
+   { 3217 ,  3 , (char*)"P0132" , (char*)"O2 sens ckt high Vtg(B1S1)" },
+   { 3223 ,  2 , (char*)"P2231" , (char*)"O2 sens ckt Hi Volt (B1S1)" },
+   { 1268 ,  5 , (char*)"P2300" , (char*)"Ign coil A prim ctrl ckt Lo" },
+   { 1268 ,  6 , (char*)"P2301" , (char*)"Ign coil A prim ctrl ckt Hi" },
+   { 1393 , 31 , (char*)"P2302" , (char*)"Ign coil A second ctrl ckt" },
+   { 1269 ,  5 , (char*)"P2303" , (char*)"Ign coil B prim ctrl ckt Lo" },
+   { 1269 ,  6 , (char*)"P2304" , (char*)"Ign coil B prim ctrl ckt Hi" },
+   { 1394 , 31 , (char*)"P2305" , (char*)"Ign coil B secondary ckt" },
+   { 1270 ,  5 , (char*)"P2306" , (char*)"Ign coil C prim ctrl ckt Lo" },
+   { 1270 ,  6 , (char*)"P2307" , (char*)"Ign coil C prim ctrl ckt Hi" },
+   { 1395 , 31 , (char*)"P2308" , (char*)"Ign coil C secondary ckt" },
+   { 636  , 31 , (char*)"P0335" , (char*)"Crankshft pos sens A ckt" },
+   { 167  ,  4 , (char*)"P0562" , (char*)"System voltage low" },
+   { 167  ,  3 , (char*)"P0563" , (char*)"System voltage high" },
+   { 650  ,  5 , (char*)"P0657" , (char*)"ACT supply vtg A ckt open" },
+   { 650  ,  4 , (char*)"P0658" , (char*)"ACT supply vtg A ckt low" },
+   { 650  ,  3 , (char*)"P0659" , (char*)"ACT supply vtg A ckt high" },
+   { 637  , 14 , (char*)"P0340" , (char*)"Camshaft Position Sens A ckt" },
+   { 100  ,  4 , (char*)"P0522" , (char*)"Eng oil press s/w low vtg" },
+   { 100  ,  3 , (char*)"P0523" , (char*)"Eng oil press s/w high vtg" },
+   { 100  , 18 , (char*)"P0524" , (char*)"Eng oil press too low" }
+ };

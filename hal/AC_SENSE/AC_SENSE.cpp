@@ -1441,3 +1441,94 @@ double AC_SENSE::GetGensetTotalApparentEnergy()
             (_aPowers[Y_PHASE].GetGensetApparentEnergy())
             +(_aPowers[B_PHASE].GetGensetApparentEnergy())));
 }
+
+float AC_SENSE::GENSET_GetRawRYVolts()
+{
+    if(_eGenSystemType !=PHASE_3_SYSTEM)
+    {
+        return 0;
+    }
+    return _ryGensetPhaseVoltage.GetRawRMS();
+}
+
+float AC_SENSE::GENSET_GetRawYBVolts()
+{
+    if(_eGenSystemType !=PHASE_3_SYSTEM)
+    {
+        return 0;
+    }
+    return _ybGensetPhaseVoltage.GetRawRMS();
+}
+
+float AC_SENSE::GENSET_GetRawRBVolts()
+{
+    if(_eGenSystemType !=PHASE_3_SYSTEM)
+    {
+        return 0;
+    }
+    return _rbGensetPhaseVoltage.GetRawRMS();
+}
+
+float AC_SENSE::GENSET_GetRawAverageL_L()
+{
+    if(_eGenSystemType !=PHASE_3_SYSTEM)
+    {
+       return 0;
+    }
+    else
+    {
+       return ( (GENSET_GetRawRYVolts() + GENSET_GetRawYBVolts()
+                   + GENSET_GetRawRBVolts())
+                  /3);
+    }
+}
+float AC_SENSE::GENSET_GetRawAverageL_N()
+{
+    if(_eGenSystemType !=PHASE_3_SYSTEM)
+    {
+       return GENSET_GetVoltageVoltsRaw(R_PHASE);
+    }
+    else
+    {
+       return ( (GENSET_GetVoltageVoltsRaw(R_PHASE) + GENSET_GetVoltageVoltsRaw(Y_PHASE)
+                   + GENSET_GetVoltageVoltsRaw(B_PHASE))
+                  /3);
+    }
+}
+
+float AC_SENSE::GENSET_GetAvgFreq()
+{
+    if(_eGenSystemType !=PHASE_3_SYSTEM)
+    {
+        return GENSET_GetApproxFreq(R_PHASE);
+    }
+    else
+    {
+        return ( (GENSET_GetApproxFreq(R_PHASE) + GENSET_GetApproxFreq(Y_PHASE)
+                    + GENSET_GetApproxFreq(B_PHASE))
+                   /3);
+    }
+}
+
+float AC_SENSE::GENSET_GetRawCurrentAmps(PHASE_t Phase)
+{
+    if((_eGenSystemType !=PHASE_3_SYSTEM) && (Phase != R_PHASE) )
+    {
+        return 0;
+    }
+    return _fCTMultiplier*_aPowers[Phase].GetGensetRawCurrent();
+}
+
+float AC_SENSE::GENSET_GetRawAvgCurrent()
+{
+    if(_eGenSystemType !=PHASE_3_SYSTEM)
+    {
+        return GENSET_GetRawCurrentAmps(R_PHASE);
+    }
+    else
+    {
+        return ( (GENSET_GetRawCurrentAmps(R_PHASE) + GENSET_GetRawCurrentAmps(Y_PHASE)
+                    + GENSET_GetRawCurrentAmps(B_PHASE))
+                   /3);
+    }
+}

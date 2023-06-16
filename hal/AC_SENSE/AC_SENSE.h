@@ -566,6 +566,76 @@ public:
     double GetGensetTotalReactiveEnergy();
     double GetGensetTotalActiveEnergy();
     double GetGensetTotalApparentEnergy();
+
+    /**
+     *
+    * Returns the raw R-Y genset phase to phase voltage
+    * @param - None
+    * @return
+    * raw RY phase to phase voltage
+    */
+    float GENSET_GetRawRYVolts();
+
+    /**
+     *
+    * Returns the raw Y-B genset phase to phase voltage
+    * @param - None
+    * @return
+    * raw YB phase to phase voltage
+    */
+    float GENSET_GetRawYBVolts();
+
+    /**
+     *
+    * Returns the raw R-B genset phase to phase voltage
+    * @param - None
+    * @return
+    * raw RB phase to phase voltage
+    */
+    float GENSET_GetRawRBVolts();
+
+    /**
+     *
+    * Returns the  average of raw genset phase to phase voltages
+    * @param - None
+    * @return
+    * average of raw phase to phase voltage
+    */
+    float GENSET_GetRawAverageL_L();
+
+    /**
+     *
+    * Returns the  average of genset phase to neutral voltages
+    * @param - None
+    * @return
+    * average of raw phase to neutral voltages
+    */
+    float GENSET_GetRawAverageL_N();
+    /**
+     *
+    * Returns the  average of filtered genset frequencies .
+    * @param - None
+    * @return
+    * average of filtered frequencies of each phase
+    */
+    float GENSET_GetAvgFreq();
+    /**
+     *
+    * Returns the  raw genset current of the desired phase
+    * @param - PHASE_t Phase
+    * @return
+    * raw current of desired phase
+    */
+    float GENSET_GetRawCurrentAmps(PHASE_t Phase);
+
+    /**
+     *
+    * Returns the  average of raw genset current values
+    * @param
+    * @return
+    * average of raw current values
+    */
+    float GENSET_GetRawAvgCurrent();
 private:
 
     typedef struct{

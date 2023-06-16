@@ -821,9 +821,7 @@ void CFGZ::EnableDisableMainsParam()
 
 CFGZ::ENGINE_TYPES_t CFGZ::GetEngType(void)
 {
-    ENGINE_TYPES_t geEngType =(ENGINE_TYPES_t) 0;
-
-    return geEngType;
+    return((CFGZ::ENGINE_TYPES_t)_All_Param.u8ArrParam[ID_ENGINE_TYPE]);
 }
 
 void CFGZ::GetEngSrNo(char EngSrNo[])
@@ -843,3 +841,4 @@ uint8_t CFGZ::GetCustomerCodefromCFGC()
 {
     return _cfgc.GetCustomerCode();
 }
+

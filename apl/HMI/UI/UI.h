@@ -111,5 +111,9 @@ private:
     void prvFetchProfileNames();
     uint16_t prvMaxDaysInMonth(uint8_t u8Month ,uint16_t u16Year);
     static uint16_t GetEditableItemIndex();
+    void prvInitialiseECUParam(void);
+    void prvUpdateEngineParam(void);
+    void prvUpdateEngineTypeDependency(void);
+    void prvSetPasswordAccessLevel(uint16_t u16Index, uint8_t u8PasswordLevel);
 };
 #endif /* _UI_H_ */

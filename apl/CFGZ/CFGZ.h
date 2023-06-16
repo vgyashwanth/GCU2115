@@ -206,6 +206,8 @@ class CFGZ
         ID_BATTERY_MONITOR_HIGH_VOLT_THRESHOLD,
         ID_CHARGE_ALT_MON_FAIL_THRESHOLD,
 
+        ID_LOP_FROM_ECU_THRESH,
+
         ID_FLOAT_LAST
     }FLOAT_PARAMS_t;
 
@@ -279,6 +281,8 @@ class CFGZ
         ID_CHARGE_ALT_MON_FAIL_DELAY,
         ID_PREHEAT_PREHEAT_TIMER,
         ID_PREHEAT_ENG_TEMP_THRESHOLD,
+        ID_SGC_SOURCE_ADDRESS,
+        ID_ECU_SOURCE_ADDRESS,
         ID_MAINT_ALARM_DUE_AT_ENGINE_HOURS,
         ID_ALARM_DUE_DATE_SERVICE_DATE_3,
 
@@ -480,12 +484,39 @@ class CFGZ
         ID_CHARGE_ALT_MON_CHARGE_ALT_MON_BY_J1939,
         ID_PREHEAT_ENG_TEMPERATURE,
         ID_PREHEAT_AMB_TEMPERATURE,
+
+        ID_ENGINE_TYPE,
+        ID_ENGINE_SPEED_FROM_ENG,
+        ID_LOP_FROM_ENG,
+        ID_CLNT_TEMP_FROM_ENG,
+        ID_RUNNING_HOURS_FROM_ECU,
+        ID_BAT_VTG_FROM_ECU,
+        ID_ECU_COMM_FAILURE_ACTION,
+        ID_ECU_COMM_FAILURE_ACTIVATION,
+        ID_ECU_COMM_FAILURE_ACT_DELAY,
+        ID_ECU_AMBER_ACTION,
+        ID_ECU_AMBER_ACTIVATION,
+        ID_ECU_AMBER_ACT_DELAY,
+        ID_ECU_RED_ACTION,
+        ID_ECU_RED_ACTIVATION,
+        ID_ECU_RED_ACT_DELAY,
+        ID_ECU_MALFUNCTION_ACTION,
+        ID_ECU_MALFUNCTION_ACTIVATION,
+        ID_ECU_MALFUNCTION_ACT_DELAY,
+        ID_ECU_PROTECT_ACTION,
+        ID_ECU_PROTECT_ACTIVATION,
+        ID_ECU_PROTECT_ACT_DELAY,
+        ID_TEMP_FROM_ECU_ACTION,
+        ID_TEMP_FROM_ECU_THRESH,
+        ID_LOP_FROM_ECU_ACTION,
+
         ID_MAINT_ALARM_ACTION,
         ID_ALARM_DUE_DATE_SERVICE_DATE_1,
         ID_ALARM_DUE_DATE_SERVICE_DATE_2,
 
         ID_UINT8_LAST
     }UINT8_PARAMS_t;
+
 
     /**
      * Enum values for String type variable.
@@ -787,28 +818,35 @@ class CFGZ
 
     typedef enum
     {
-        ENG_CONVENTIONAL,
-        ENG_DEFAULT,   // Generic J1939
-        ENG_SCANIA,
-        ENG_VOLVO,
-        ENG_IVECO,
-        ENG_DEUTZ_EMR,
-        ENG_MTU,
-        ENG_KUBOTA,
-        ENG_WECHAI,
-        ENG_HATZ,
-        ENG_PERKINS_ADAM4,
-        ENG_YUCHAI_YCGCU,
-        ENG_CUMMINS,
-        ENG_CUMMINS_500,
-        ENG_CUMMINS_558,
-        ENG_CUMMINS_570,
-        ENG_CUMMINS_850,
-        ENG_CUMMINS_2150,
-        ENG_CUMMINS_2250,
-        ENG_DCEC_CUMMINS,
-        ENG_YUCHAI_BOSCH,
-        TOTAL_ENG_TYPES
+//        ENG_CONVENTIONAL,
+//        ENG_DEFAULT,   // Generic J1939
+//        ENG_SCANIA,
+//        ENG_VOLVO,
+//        ENG_IVECO,
+//        ENG_DEUTZ_EMR,
+//        ENG_MTU,
+//        ENG_KUBOTA,
+//        ENG_WECHAI,
+//        ENG_HATZ,
+//        ENG_PERKINS_ADAM4,
+//        ENG_YUCHAI_YCGCU,
+//        ENG_CUMMINS,
+//        ENG_CUMMINS_500,
+//        ENG_CUMMINS_558,
+//        ENG_CUMMINS_570,
+//        ENG_CUMMINS_850,
+//        ENG_CUMMINS_2150,
+//        ENG_CUMMINS_2250,
+//        ENG_DCEC_CUMMINS,
+//        ENG_YUCHAI_BOSCH,
+//        TOTAL_ENG_TYPES
+        CFGZ_CONVENTIONAL,
+        ECU_162,
+        CNG_15KVA,
+        CRDIECU1,
+        ECU_898,
+        MHEL898ECU,
+        CNG_125KVA
     }ENGINE_TYPES_t;
 
     /**

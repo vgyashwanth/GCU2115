@@ -72,6 +72,9 @@ uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] =
  LEAFNODES_IN_BATTERY_MONITOR,
  LEAFNODES_IN_CHARGE_ALT_MON,
  LEAFNODES_IN_PREHEAT,
+ LEAFNODES_IN_ECU,
+ LEAFNODES_IN_TEMP_FROM_ECU,
+ LEAFNODES_IN_LOP_FROM_ECU,
  LEAFNODES_IN_MAINT_ALARM,
  LEAFNODES_IN_ALARM_DUE_DATE,
  LEAFNODES_IN_ENG_SR_NO,
@@ -137,6 +140,10 @@ enum
     ID_SPEED_SENSE_SOURCE_ALT_F,
     ID_CT_LOCATION,
     ID_THRESHOLD_TYPE,
+
+    ID_ENGINE_TYPE,
+    ID_ECU_ALARM_ACTION,
+
     ID_LAST
 };
 enum
@@ -318,6 +325,18 @@ static const char* strOptions[1][ID_LAST][8]=
   {"Alt Freq","Speed Mon By J1939"},
   {"On Alt Output Cable", "On Load Cable"},
   {"Less Than Threshold", "Greater Than Threshold"},
+  {     "Conventional",
+        "ECU 162",
+        "CNG 15KVA",
+        "CRDIECU1",
+        "ECU 898",
+        "MHEL 898 ECU",
+        "CNG 125KVA"},
+  {"None",
+   "Warning",
+   "Electrical Trip",
+   "Shutdown",
+   "Notification"}
  }
 };
 
@@ -395,6 +414,11 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "BATTERY MONITOR",
         "CHARGE ALT MON",
         "PREHEAT",
+
+        "ENG CONTROL UNIT",
+        "TEMP SENS ECU",
+        "LOP SENS ECU",
+
         //Maintenance
         "MAINT ALARM",
         "ALARM DUE DATE",
@@ -864,6 +888,35 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "ENG TEMPERATURE",
         "ENG TEMP THRESHOLD",
         "AMB TEMPERATURE",
+
+        "ENGINE TYPE",
+        "GCU SOURCE ADDR",
+        "ECU SOURCE ADDR",
+        "ENG SPEED FROM ECU",
+        "LOP FROM ECU",
+        "CLNT TEMP FROM ECU",
+        "ENG RUN HRS FROM ECU",
+        "BAT VTG FROM ECU",
+        "COMM FAIL ACTION",
+        "COMM FAIL ACTIVATION",
+        "COMM FAIL ACT DELAY",
+        "AMBER ACTION",
+        "AMBER ACTIVATION",
+        "AMBER ACT DELAY",
+        "RED ACTION",
+        "RED ACTIVATION",
+        "RED ACT DELAY",
+        "MIL ACTION",
+        "MIL ACTIVATION",
+        "MIL ACT DELAY",
+        "PROTECT ACTION",
+        "PROTECT ACTIVATION",
+        "PROTECT ACT DELAY",
+        "TEMP ECU ACTION",
+        "TEMP ECU THRESHLD",
+        "LOP ECU ACTION",
+        "LOP ECU THRESHLD",
+
         //"MAINT ALARM",
         "ACTION",
         "DUE AT ENGINE HOURS",
@@ -1410,6 +1463,37 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_PREHEAT_ENG_TEMP_THRESHOLD] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_ENG_TEMP_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_PREHEAT_ENG_TEMP_THRESHOLD], arrUnit[ID_DEG_C], "%u", (uint16_t)10, (uint16_t)300,CEditableItem::PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_PREHEAT_AMB_TEMPERATURE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_AMB_TEMPERATURE),strLeafNode[_u8LanguageArrayIndex][SID_PREHEAT_AMB_TEMPERATURE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN2_ALLOWED );
 
+
+    ArrEditableItem[INDEX_OF_ENGINE_TYPE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE),strLeafNode[_u8LanguageArrayIndex][SID_ENGINE_TYPE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENGINE_TYPE],7, CEditableItem::PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_SGC_SOURCE_ADDRESS] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ:: ID_SGC_SOURCE_ADDRESS), strLeafNode[_u8LanguageArrayIndex][SID_SGC_SOURCE_ADDR], "", "%u", (uint16_t)0, (uint16_t)247, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_ECU_SOURCE_ADDRESS] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ:: ID_ECU_SOURCE_ADDRESS), strLeafNode[_u8LanguageArrayIndex][SID_ECU_SOURCE_ADDR], "", "%u", (uint16_t)0, (uint16_t)247, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_LOP_FROM_ECU] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG),strLeafNode[_u8LanguageArrayIndex][SID_LOP_FROM_ECU], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_COOLANT_TEMP_FROM_ECU] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG),strLeafNode[_u8LanguageArrayIndex][SID_CLNT_TEMP_FROM_ECU], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_ENG_SPEED_FROM_ECU] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG),strLeafNode[_u8LanguageArrayIndex][SID_ENG_SPEED_FROM_ECU], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_ENG_RUN_HOURS_FROM_ECU] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ECU),strLeafNode[_u8LanguageArrayIndex][SID_ENG_RUN_HOURS_FROM_ECU], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_BAT_VTG_FROM_ECU] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BAT_VTG_FROM_ECU),strLeafNode[_u8LanguageArrayIndex][SID_BAT_VTG_FROM_ECU], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_COMM_FAIL_ALARM_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_COMM_FAILURE_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_COMM_FAIL_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION], 5, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_COMM_FAIL_ALARM_ACT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_COMM_FAILURE_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_COMM_FAIL_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_COMM_FAIL_ALARM_ACT_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_COMM_FAILURE_ACT_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_COMM_FAIL_ACT_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)0, (uint8_t)60, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_AMBER_LAMP_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_AMBER_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_AMBER_FAIL_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION], 5, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_AMBER_LAMP_ACT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_AMBER_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_AMBER_FAIL_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_AMBER_LAMP_ACT_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_AMBER_ACT_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_AMBER_FAIL_ACT_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)0, (uint8_t)60, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_RED_LAMP_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_RED_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_RED_FAIL_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION], 5, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_RED_LAMP_ACT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_RED_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_RED_FAIL_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_RED_LAMP_ACT_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_RED_ACT_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_RED_FAIL_ACT_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)0, (uint8_t)60, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_MALFUNCTION_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_MALFUNC_FAIL_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION], 5, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_MALFUNCTION_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_MALFUNC_FAIL_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACT_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_MALFUNCTION_ACT_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_MALFUNC_FAIL_ACT_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)0, (uint8_t)60, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_PROTECT_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_PROTECT_FAIL_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION], 5, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_PROTECT_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_PROTECT_FAIL_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACT_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_PROTECT_ACT_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_PROTECT_FAIL_ACT_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)0, (uint8_t)60, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_TEMP_FROM_ECU_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_TEMP_SENS_ECU_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION], 5, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_TEMP_FROM_ECU_THRESH] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_TEMP_SENS_ECU_THRESH], arrUnit[ID_DEG_C], "%u", (uint8_t)10, (uint8_t)250, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_LOP_FROM_ECU_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION], 5, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_LOP_FROM_ECU_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_THRESH], "Bar", "%f", (float)0, (float)5.0 , CEditableItem::PIN1_ALLOWED );
+
+
+
     ArrEditableItem[INDEX_OF_MAINT_ALARM_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MAINT_ALARM_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_MAINT_ALARM_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NW], 2, CEditableItem::PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_MAINT_ALARM_DUE_AT_ENGINE_HOURS] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MAINT_ALARM_DUE_AT_ENGINE_HOURS),strLeafNode[_u8LanguageArrayIndex][SID_MAINT_ALARM_DUE_AT_ENGINE_HOURS], arrUnit[ID_HRS], "%u", (uint16_t)10, (uint16_t)65000, CEditableItem::PIN2_ALLOWED );
 
@@ -1526,6 +1610,7 @@ void UI::Initialize()
     InitMenuItemsAndMenus();
     InitialiseCustomSensor();
     HandleMenuVisibility();
+    prvInitialiseECUParam();
 }
 
 UI_STATES_t uiState = UI_STATE_INITIALIZING;
@@ -2374,6 +2459,7 @@ void UI::Handler(int keyCode)
             }
             HandleMenuVisibility();
             UpdateMaxNumberOfItem();
+            prvUpdateEngineTypeDependency();
             InitialiseCustomSensor();
             pCurMenu->show();
             break;
@@ -2413,6 +2499,7 @@ void UI::Handler(int keyCode)
         switch (keyCode)
         {
         case    CKeyCodes::ENTER:
+                prvUpdateEngineTypeDependency();
                 if(_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].dataType > CEditableItem::DT_TIME_HRS_MINS)
                 {
                     _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex++;
@@ -2588,4 +2675,165 @@ uint16_t UI::prvMaxDaysInMonth(uint8_t u8Month ,uint16_t u16Year)
 uint16_t UI::GetEditableItemIndex()
 {
     return u16IndexOfEditableItems;
+}
+
+void UI::prvInitialiseECUParam()
+{
+    static uint8_t u8EngineType;
+
+     if(u8EngineType!=ArrEditableItem[INDEX_OF_ENGINE_TYPE].value.u8Val)
+    {
+        if(ArrEditableItem[INDEX_OF_ENGINE_TYPE].value.u8Val == CFGZ::CFGZ_CONVENTIONAL)
+        {
+
+            for(uint16_t u16Index = INDEX_OF_ENG_SPEED_FROM_ECU; u16Index <= INDEX_OF_PROTECT_LAMP_ACT_DELAY; u16Index++)
+            {
+                prvSetPasswordAccessLevel(u16Index ,  (uint8_t)CEditableItem::NOT_ALLOWED);
+            }
+
+            ArrEditableItem[INDEX_OF_ENG_SPEED_FROM_ECU].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_LOP_FROM_ECU             ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_COOLANT_TEMP_FROM_ECU    ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_ENG_RUN_HOURS_FROM_ECU   ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_BAT_VTG_FROM_ECU        ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_COMM_FAIL_ALARM_ACTION   ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_COMM_FAIL_ALARM_ACT      ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_COMM_FAIL_ALARM_ACT_DELAY].value.u8Val = 1U;
+            ArrEditableItem[INDEX_OF_AMBER_LAMP_ACTION        ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_AMBER_LAMP_ACT           ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_AMBER_LAMP_ACT_DELAY     ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_RED_LAMP_ACTION          ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_RED_LAMP_ACT             ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_RED_LAMP_ACT_DELAY       ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACTION  ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACT     ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACT_DELAY].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACTION      ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACT         ].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACT_DELAY   ].value.u8Val = CFGZ::CFGZ_DISABLE;
+        }
+        else
+        {
+            prvUpdateEngineParam();
+        }
+    }
+    else
+    {
+         if(ArrEditableItem[INDEX_OF_ENGINE_TYPE].value.u8Val != CFGZ:: CFGZ_CONVENTIONAL)
+         {
+             prvUpdateEngineParam();
+         }
+    }
+    u8EngineType=ArrEditableItem[INDEX_OF_ENGINE_TYPE].value.u8Val;
+
+}
+
+
+void UI::prvUpdateEngineParam(void)
+{
+    for(uint16_t u16Index = INDEX_OF_ENG_SPEED_FROM_ECU; u16Index <= INDEX_OF_PROTECT_LAMP_ACT_DELAY; u16Index++)
+    {
+        prvSetPasswordAccessLevel(u16Index ,  (uint8_t)CEditableItem::PIN1_ALLOWED);
+    }
+
+//    ArrEditableItem[INDEX_OF_ECU_SOURCE_ADDRESS].value.u16Val = 0;
+//    ArrEditableItem[INDEX_OF_ECU_SOURCE_ADDRESS].tempValue.u16Val = 0;
+
+
+        if(ArrEditableItem[INDEX_OF_AMBER_LAMP_ACTION].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        for(uint16_t u16Index = INDEX_OF_AMBER_LAMP_ACT; u16Index <= INDEX_OF_AMBER_LAMP_ACT_DELAY; u16Index++)
+        {
+            prvSetPasswordAccessLevel(u16Index ,  (uint8_t)CEditableItem::NOT_ALLOWED);
+        }
+        ArrEditableItem[INDEX_OF_AMBER_LAMP_ACT     ].value.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_AMBER_LAMP_ACT     ].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_AMBER_LAMP_ACT_DELAY ].value.u8Val = 0;
+        ArrEditableItem[INDEX_OF_AMBER_LAMP_ACT_DELAY ].tempValue.u8Val = 0;
+    }
+
+    if(ArrEditableItem[INDEX_OF_RED_LAMP_ACTION].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        for(uint16_t u16Index = INDEX_OF_RED_LAMP_ACT; u16Index <= INDEX_OF_RED_LAMP_ACT_DELAY; u16Index++)
+        {
+            prvSetPasswordAccessLevel(u16Index ,  (uint8_t)CEditableItem::NOT_ALLOWED);
+        }
+        ArrEditableItem[INDEX_OF_RED_LAMP_ACT].value.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_RED_LAMP_ACT].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_RED_LAMP_ACT_DELAY ].value.u8Val = 0;
+        ArrEditableItem[INDEX_OF_RED_LAMP_ACT_DELAY ].tempValue.u8Val = 0;
+    }
+
+    if(ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACTION].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        for(uint16_t u16Index = INDEX_OF_MALFUNCTION_LAMP_ACT; u16Index <= INDEX_OF_MALFUNCTION_LAMP_ACT_DELAY; u16Index++)
+        {
+            prvSetPasswordAccessLevel(u16Index ,  (uint8_t)CEditableItem::NOT_ALLOWED);
+        }
+        ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACT].value.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACT].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACT_DELAY ].value.u8Val = 0;
+        ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACT_DELAY ].tempValue.u8Val = 0;
+    }
+
+
+    if(ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACTION].value.u8Val == CFGZ::CFGZ_DISABLE)
+    {
+        for(uint16_t u16Index = INDEX_OF_PROTECT_LAMP_ACT; u16Index <= INDEX_OF_PROTECT_LAMP_ACT_DELAY; u16Index++)
+        {
+            prvSetPasswordAccessLevel(u16Index ,  (uint8_t)CEditableItem::NOT_ALLOWED);
+        }
+        ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACT].value.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACT].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACT_DELAY ].value.u8Val = 0;
+        ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACT_DELAY ].tempValue.u8Val = 0;
+    }
+
+
+}
+
+
+void UI::prvUpdateEngineTypeDependency(void)
+{
+    if(ArrEditableItem[INDEX_OF_ENGINE_TYPE].tempValue.u8Val == CFGZ::CFGZ_CONVENTIONAL)
+    {
+
+        for(uint16_t u16LocalIndex = INDEX_OF_SGC_SOURCE_ADDRESS ; u16LocalIndex <= INDEX_OF_LOP_FROM_ECU_THRESH; u16LocalIndex++)
+        {
+            prvSetPasswordAccessLevel(u16LocalIndex , (uint8_t)CEditableItem::NOT_ALLOWED);
+        }
+
+        ArrEditableItem[INDEX_OF_ENG_SPEED_FROM_ECU].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_LOP_FROM_ECU].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_COOLANT_TEMP_FROM_ECU].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_ENG_RUN_HOURS_FROM_ECU].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_BAT_VTG_FROM_ECU].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+
+        ArrEditableItem[INDEX_OF_ENG_SPEED_FROM_ECU].value.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_LOP_FROM_ECU].value.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_COOLANT_TEMP_FROM_ECU].value.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_ENG_RUN_HOURS_FROM_ECU].value.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_BAT_VTG_FROM_ECU].value.u8Val = CFGZ::CFGZ_DISABLE;
+
+        ArrEditableItem[INDEX_OF_COMM_FAIL_ALARM_ACTION].tempValue.u8Val = CFGZ::CFGZ_ACTION_NONE;
+        ArrEditableItem[INDEX_OF_AMBER_LAMP_ACTION].tempValue.u8Val = CFGZ::CFGZ_ACTION_NONE;
+        ArrEditableItem[INDEX_OF_RED_LAMP_ACTION].tempValue.u8Val = CFGZ::CFGZ_ACTION_NONE;
+        ArrEditableItem[INDEX_OF_MALFUNCTION_LAMP_ACTION].tempValue.u8Val = CFGZ::CFGZ_ACTION_NONE;
+        ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACTION].tempValue.u8Val = CFGZ::CFGZ_ACTION_NONE;
+    }
+    else
+    {
+        for(uint16_t u16LocalIndex = INDEX_OF_SGC_SOURCE_ADDRESS ; u16LocalIndex <= INDEX_OF_LOP_FROM_ECU_THRESH; u16LocalIndex++)
+        {
+            prvSetPasswordAccessLevel(u16LocalIndex , (uint8_t)CEditableItem::PIN1_ALLOWED);
+        }
+    }
+}
+
+void UI::prvSetPasswordAccessLevel(uint16_t u16Index,uint8_t u8PasswordLevel)
+{
+    if((u8PasswordLevel >= CEditableItem::NOT_ALLOWED)&&(u8PasswordLevel <=CEditableItem::PIN1_PIN2_PIN3_ALLOWED ))
+    {
+        ArrEditableItem[u16Index].u8PasswordLevel = u8PasswordLevel;
+    }
 }

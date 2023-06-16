@@ -474,6 +474,19 @@ float POWER::GetGensetCurrent()
     }
 }
 
+float POWER::GetGensetRawCurrent()
+{
+    if(_eICfg == GENSET_CURRENT_MEASUREMENT)
+    {
+        return _currentCalc.GetRawRMS();
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
 float POWER::GetMainsCurrent()
 {
     if(_eICfg == MAINS_CURRENT_MEASUREMENT)

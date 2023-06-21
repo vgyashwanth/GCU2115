@@ -7,6 +7,7 @@
 
 #include "CONST_UI.h"
 
+
 const uint8_t u8BmpLogoInfo[3][20]=           /// info
 {
     {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
@@ -97,9 +98,11 @@ const char *strHystogram[]=
 
 };
 char Mains_status[32] = "MAINS READING";
-const char *strMonScreens[1][32]=
+const char *strMonScreens[1][49]=
 {
     {
+        "EXHAUST AFT TREAT",
+        "LAMP ICONS",
         //Status & Info
         "STATUS",
         "PRODUCT INFO",
@@ -137,7 +140,22 @@ const char *strMonScreens[1][32]=
         (char *)&strAuxS2String,
         "ENG SPEED",
         "ENG RUN TIME",
-        "EEC1", // used for testing
+        "EEC1",
+        "EEC2",
+        "EOI",
+        "AT1T1I1",
+        "HOURS",
+        "LFC1",
+        "ET1",
+        "EFL / P1",
+        "AMBIENT CONDITIONS",
+        "VEP1",
+        "WFI",
+        "DEFA",
+        "IC1",
+        "SHUTDN",
+        "CSA",
+        "LFE1",
     }
 };
 
@@ -1360,6 +1378,67 @@ uint8_t gau8Icon7[6][27]
  const char *StrNotAvailable={"NA"};
  const char *StrCANErr={"CAN err"};
  const char *StrErr={"Error"};
+
+
+ const char *StrEngOperatingState[MAX_NUM_OF_ENG_OPER_STATES]=
+ {
+
+     "Engine stopped",
+     "Pre start",
+     "Starting",
+     "Warm-up",
+     "Running",
+     "Cool down",
+     "Engine stopping",
+     "Post run",
+     "NA"
+ };
+
+ const char *StrPGN_65252_states[PGN_65252_STRING_OPTIONS]=
+ {
+     "OFF",
+     "ON",
+     "ERROR",
+     "NOT AVAILABLE"
+
+ };
+
+ const char *StrPGN_64966_states[PGN_64966_STRING_OPTIONS]=
+ {
+     "Start Enable OFF",
+     "Start Enable ON",
+     "Reserved",
+     "Not Available"
+
+ };
+
+ const char *StrWFIState[MAX_NUM_OF_WFI_STATES]=
+ {
+     "No",
+     "Yes",
+     "Error",
+     "NA"
+ };
+
+ const char *StrDrvWarnState[MAX_NUM_OF_DRV_WARN]=
+ {
+     "off",
+     "on-solid",
+     "res SAE",
+     "res SAE",
+     "on-fast",
+     "res SAE",
+     "res SAE",
+     "NA"
+ };
+
+ const char *StrDEFAStatus[MAX_NUM_OF_DEFA_STATE]=
+ {
+     "NO W/L",
+     "W/L ON",
+     "W/L blink",
+     "W/L blink"
+ };
 
 //
 // const uint8_t u8ArrMatrixDispAndRXPGN[]=

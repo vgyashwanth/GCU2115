@@ -27,9 +27,9 @@ public:
     {
         ALARM,
         DM1,
-        DM2,
-        PCD,
-        NCD
+        DM2
+//        PCD,
+//        NCD
     }ALARM_st;
 
     /**

@@ -13,6 +13,14 @@
 #include "CFGZ.h"
 #include "J1939_APP/J1939_Database.h"
 
+
+#define MAX_NUM_OF_ENG_OPER_STATES  (9)
+#define MAX_NUM_OF_WFI_STATES       (4)
+#define MAX_NUM_OF_DRV_WARN         (8)
+#define MAX_NUM_OF_DEFA_STATE       (4)
+#define PGN_65252_STRING_OPTIONS    (4)
+#define PGN_64966_STRING_OPTIONS    (4)
+
 extern const uint8_t u8BmpLogoInfo[3][20];
 extern const uint8_t u8BmpLogoGen[3][20];
 extern const uint8_t u8BmpLogoMains[3][20];
@@ -21,7 +29,7 @@ extern const uint8_t u8BmpLogoLoad[3][20];
 extern const uint8_t u8BmpLogoshelterTemp[3][20];
 extern const char *strTimerStatus[1][14];
 extern const char *strGCUStatus[1][10];
-extern const char *strMonScreens[1][32]; /*todo : MON_UI::DISP_MON_LAST should be used here for indexing */
+extern const char *strMonScreens[1][49]; /*todo : MON_UI::DISP_MON_LAST should be used here for indexing */
 extern const char *strGCUMode[1][5];
 extern const char *strIDLMode[];
 extern const uint8_t u8ArrContactor1[6][16];
@@ -178,6 +186,13 @@ extern const char *StrCANErr;
 extern const char *StrErr;
 
 extern const char *EngType[];
+
+extern const char *StrWFIState[MAX_NUM_OF_WFI_STATES];
+extern const char *StrDrvWarnState[MAX_NUM_OF_DRV_WARN];
+extern const char *StrDEFAStatus[MAX_NUM_OF_DEFA_STATE];
+extern const char *StrEngOperatingState[MAX_NUM_OF_ENG_OPER_STATES];
+extern const char *StrPGN_65252_states[PGN_65252_STRING_OPTIONS];
+extern const char *StrPGN_64966_states[PGN_64966_STRING_OPTIONS];
 /* To store DTC data */
 
 typedef struct

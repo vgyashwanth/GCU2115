@@ -297,23 +297,54 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                 _GCUAlarms.TurnOffSounderAlarm();
             }
 
-            if(_stScreenNo == _u8ScreenMin)
-            {
-                eDisplayMode = DISP_ALARM_MODE;
-                ALARM_UI::ClearAlarmScreenNum();
 
-                if(eMonScreenType == MON_SCREEN_NORMAL)
+            if((_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL) && (CFGZ::CRDIECU1 != _cfgz.GetEngType()))
+            {
+                if((_stScreenNo == DISP_LAMP_ICONS) && ((_cfgz.GetEngType() == CFGZ::ECU_162) || (_cfgz.GetEngType() == CFGZ::CNG_125KVA)))
                 {
-                    MON_UI::_stScreenNo = _u8ScreenMax;
+                    MON_UI::_stScreenNo = DISP_MON_LAST;
                     eDisplayMode = DISP_ALARM_MODE;
                     ALARM_UI::ClearAlarmScreenNum();
-                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM1);
+                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
                 }
-                else if(eMonScreenType == MON_SCREEN_J1939)
+                else if(_stScreenNo == DISP_EXAFTERTREAT_ICONS)
                 {
-                    MON_UI::_stScreenNo = DISP_MON_HOME;
+                    MON_UI::_stScreenNo = DISP_MON_LAST;
+                    eDisplayMode = DISP_ALARM_MODE;
+                    ALARM_UI::ClearAlarmScreenNum();
+                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
                 }
             }
+            else
+            {
+                if(_stScreenNo == DISP_MON_HOME)
+                  {
+                      MON_UI::_stScreenNo = DISP_MON_LAST;
+                      eDisplayMode = DISP_ALARM_MODE;
+                      ALARM_UI::ClearAlarmScreenNum();
+                      ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
+                  }
+            }
+
+
+
+//            if(_stScreenNo == _u8ScreenMin)
+//            {
+//                eDisplayMode = DISP_ALARM_MODE;
+//                ALARM_UI::ClearAlarmScreenNum();
+//
+//                if(eMonScreenType == MON_SCREEN_NORMAL)
+//                {
+//                    MON_UI::_stScreenNo = _u8ScreenMax;
+//                    eDisplayMode = DISP_ALARM_MODE;
+//                    ALARM_UI::ClearAlarmScreenNum();
+//                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM1);
+//                }
+//                else if(eMonScreenType == MON_SCREEN_J1939)
+//                {
+//                    MON_UI::_stScreenNo = DISP_MON_HOME;
+//                }
+//            }
             _stScreenNo--;
             while(_ArrScreenEnDs[_stScreenNo] == false)
             {
@@ -339,33 +370,83 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                 _stScreenNo++;
                 if(_stScreenNo >= _u8ScreenMax)
                 {
-                    _stScreenNo = _u8ScreenMin;
 
-                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
+                    if((_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL) && (CFGZ::CRDIECU1 != _cfgz.GetEngType()))
+                    {
+                        if(_cfgz.GetEngType() != CFGZ::ECU_162)
+                        {
+                            MON_UI::_stScreenNo = DISP_EXAFTERTREAT_ICONS;
+                        }
+                        else
+                        {
+                            MON_UI::_stScreenNo = DISP_LAMP_ICONS;
+                        }
+                    }
+                    else
+                    {
+                         MON_UI::_stScreenNo = DISP_MON_HOME;
+                    }
+//                    _stScreenNo = _u8ScreenMin;
+
+//                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
+
+                    if(_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL)
+                     {
+                         ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM1);
+                     }
+                     else
+                     {
+                         ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
+                     }
                     eDisplayMode = DISP_ALARM_MODE;
                     ALARM_UI::ClearAlarmScreenNum();
 
-                    if(eMonScreenType == MON_SCREEN_J1939)
-                    {
-                        MON_UI::_stScreenNo = DISP_MON_HOME;
-                        ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
-                        _j1939.RequestDM2Messages();
-                    }
+//                    if(eMonScreenType == MON_SCREEN_J1939)
+//                    {
+//                        MON_UI::_stScreenNo = DISP_MON_HOME;
+//                        ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
+//                        _j1939.RequestDM2Messages();
+//                    }
                 }
             }
 
             if(MON_UI::_stScreenNo >= _u8ScreenMax)
             {
-                MON_UI::_stScreenNo = _u8ScreenMin;
-                ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
+//                MON_UI::_stScreenNo = _u8ScreenMin;
+
+                if((_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL) && (CFGZ::CRDIECU1 != _cfgz.GetEngType()))
+                {
+                    if(_cfgz.GetEngType() != CFGZ::ECU_162)
+                    {
+                        MON_UI::_stScreenNo = DISP_EXAFTERTREAT_ICONS;
+                    }
+                    else
+                    {
+                        MON_UI::_stScreenNo = DISP_LAMP_ICONS;
+                    }
+                 }
+                 else
+                 {
+                      MON_UI::_stScreenNo = DISP_MON_HOME;
+                 }
+
+//                ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
+                if(_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL)
+                {
+                   ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM1);
+                }
+                else
+                {
+                     ALARM_UI::ChangeAlarmScreenType(ALARM_UI::ALARM);
+                }
                 eDisplayMode = DISP_ALARM_MODE;
                 ALARM_UI::ClearAlarmScreenNum();
-                if(eMonScreenType == MON_SCREEN_J1939)
-                {
-                    MON_UI::_stScreenNo = DISP_MON_HOME;
-                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
-                    _j1939.RequestDM2Messages();
-                }
+//                if(eMonScreenType == MON_SCREEN_J1939)
+//                {
+//                    MON_UI::_stScreenNo = DISP_MON_HOME;
+//                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
+//                    _j1939.RequestDM2Messages();
+//                }
             }
         }
         break;
@@ -397,13 +478,13 @@ void MON_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
         {
             if(!_manualMode.IsGenRunTimersInProcess())
             {
-                if(eMonScreenType == MON_SCREEN_NORMAL)
-                {
-                    eDisplayMode = DISP_ALARM_MODE;
-                    ALARM_UI::ClearAlarmScreenNum();
-                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
-                    _j1939.RequestDM2Messages();
-                }
+//                if(eMonScreenType == MON_SCREEN_NORMAL)
+//                {
+//                    eDisplayMode = DISP_ALARM_MODE;
+//                    ALARM_UI::ClearAlarmScreenNum();
+//                    ALARM_UI::ChangeAlarmScreenType(ALARM_UI::DM2);
+//                    _j1939.RequestDM2Messages();
+//                }
                 eMonScreenType = MON_SCREEN_NORMAL;
                 _stScreenNo = DISP_MON_HOME;
 
@@ -430,18 +511,25 @@ void MON_UI::prvConfigureScreenEnable()
 {
     /*TODO :All the Screens of CAN are hard coded as disabled */
     static uint8_t u8Screen;
-    for(u8Screen = DISP_MON_HOME ; u8Screen<DISP_MON_LAST; u8Screen++)
+    if(CFGZ::CFGZ_CONVENTIONAL != _cfgz.GetEngType())
+    {
+      u8Screen = DISP_EXAFTERTREAT_ICONS;
+    }
+    else
+    {
+      u8Screen = DISP_MON_HOME;
+    }
+    for(u8Screen  ; u8Screen<DISP_MON_LAST; u8Screen++)
     {
         _ArrScreenEnDs[u8Screen] = false;
         switch(u8Screen)
         {
-            case DISP_MON_HOME :
-            case DISP_MON_PRODUCT_ID :
-                _ArrScreenEnDs[u8Screen] = true;
-                break;
+
+
             case DISP_ENGINE_TYPE :
                     _ArrScreenEnDs[u8Screen] = true;
                  break;
+
             case DISP_MON_ENG_LINK_INFO :
                 if (CFGZ::CFGZ_CONVENTIONAL != _cfgz.GetEngType())
                 {
@@ -453,6 +541,165 @@ void MON_UI::prvConfigureScreenEnable()
                 {
                     _ArrScreenEnDs[u8Screen] = true;
                 }
+                break;
+            case DISP_LAMP_ICONS :
+                if ((CFGZ::CFGZ_CONVENTIONAL != _cfgz.GetEngType()) && (CFGZ::CRDIECU1 != _cfgz.GetEngType()))
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                break;
+            case DISP_EXAFTERTREAT_ICONS :
+                if ((CFGZ::CFGZ_CONVENTIONAL != _cfgz.GetEngType()) && (CFGZ::CRDIECU1 != _cfgz.GetEngType())
+                    && (CFGZ::ECU_162 != _cfgz.GetEngType()) && (CFGZ::CNG_125KVA != _cfgz.GetEngType()))
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                break;
+
+            case DISP_EEEC1 :
+                if (((CFGZ::ECU_162 == _cfgz.GetEngType()) ||
+                    (CFGZ::CNG_15KVA == _cfgz.GetEngType()) ||
+                    (CFGZ::CRDIECU1 == _cfgz.GetEngType()) ||
+                    (CFGZ::ECU_898 == _cfgz.GetEngType())  ||
+                    (CFGZ::MHEL898ECU == _cfgz.GetEngType()) ||
+                    (CFGZ::CNG_125KVA == _cfgz.GetEngType())) &&
+                    (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG) == CFGZ::CFGZ_ENABLE))
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+            break;
+            /* Previously below screen was developed for ECU162 and ECU_898, customer wants this to disable now.
+               Later on customer may ask to enable this for some another engine types. */
+            case DISP_EEEC2 :
+            break;
+            case DISP_EOI :
+            if ((CFGZ::ECU_162 == _cfgz.GetEngType()) ||
+               (CFGZ::ECU_898 == _cfgz.GetEngType()))
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+            case DISP_AT1T1I1 :
+            if (CFGZ::ECU_898 == _cfgz.GetEngType() || CFGZ::MHEL898ECU == _cfgz.GetEngType())
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+            case DISP_HRS :
+            if (((CFGZ::ECU_162 == _cfgz.GetEngType())||
+                (CFGZ::CNG_15KVA == _cfgz.GetEngType()) ||
+                (CFGZ::CRDIECU1 == _cfgz.GetEngType()) ||
+                (CFGZ::ECU_898 == _cfgz.GetEngType()) ||
+                (CFGZ::MHEL898ECU == _cfgz.GetEngType()) ||
+                (CFGZ::CNG_125KVA == _cfgz.GetEngType())) &&
+                (_cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ECU) == CFGZ::CFGZ_ENABLE))
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+
+            /* Previously below screen was developed for ECU162 and ECU_898, customer wants this to disable now.
+               Later on customer may ask to enable this for some another engine types. */
+            case DISP_LFC1 :
+
+            if(CFGZ::MHEL898ECU == _cfgz.GetEngType())
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+
+            break;
+
+            case DISP_ET1 :
+            if (((CFGZ::ECU_162 == _cfgz.GetEngType()) ||
+               (CFGZ::CNG_15KVA == _cfgz.GetEngType()) ||
+               (CFGZ::CRDIECU1 == _cfgz.GetEngType()) ||
+               (CFGZ::ECU_898 == _cfgz.GetEngType())  ||
+               (CFGZ::CNG_125KVA == _cfgz.GetEngType())) &&
+               (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+            case DISP_EFL :
+            if (((CFGZ::ECU_162 == _cfgz.GetEngType()) ||
+                (CFGZ::CNG_15KVA == _cfgz.GetEngType()) ||
+                (CFGZ::CRDIECU1 == _cfgz.GetEngType()) ||
+                (CFGZ::ECU_898 == _cfgz.GetEngType())  ||
+                (CFGZ::MHEL898ECU == _cfgz.GetEngType()) ||
+                (CFGZ::CNG_125KVA == _cfgz.GetEngType())) &&
+                (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+            case DISP_AMB :
+            if ((CFGZ::CNG_15KVA == _cfgz.GetEngType()) ||
+                (CFGZ::ECU_898 == _cfgz.GetEngType())   ||
+                (CFGZ::CRDIECU1 == _cfgz.GetEngType())  ||
+                (CFGZ::MHEL898ECU == _cfgz.GetEngType()) ||
+                (CFGZ::CNG_125KVA == _cfgz.GetEngType()))
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+            case DISP_VEP1 :
+            if (((CFGZ::ECU_162 == _cfgz.GetEngType()) ||
+                (CFGZ::CNG_15KVA == _cfgz.GetEngType()) ||
+                (CFGZ::CRDIECU1 == _cfgz.GetEngType()) ||
+                (CFGZ::ECU_898 == _cfgz.GetEngType()) ||
+                (CFGZ::CNG_125KVA == _cfgz.GetEngType())) &&
+                (_cfgz.GetCFGZ_Param(CFGZ::ID_BAT_VTG_FROM_ECU) == CFGZ::CFGZ_ENABLE))
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+            case DISP_WFI :
+            if ((CFGZ::ECU_162 == _cfgz.GetEngType()) ||
+                (CFGZ::ECU_898 == _cfgz.GetEngType()) ||
+                (CFGZ::MHEL898ECU == _cfgz.GetEngType()))
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+            case DISP_DEFA :
+            if (CFGZ::ECU_898 == _cfgz.GetEngType())
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+            case DISP_IC1 :
+            if((CFGZ::CNG_15KVA == _cfgz.GetEngType()) ||
+               (CFGZ::CRDIECU1 == _cfgz.GetEngType()) ||
+               (CFGZ::CNG_125KVA == _cfgz.GetEngType()))
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+            case DISP_SHUTDN:
+            if (CFGZ::ECU_898 == _cfgz.GetEngType() ||
+                (CFGZ::ECU_162 == _cfgz.GetEngType()))
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+            case DISP_CSA:
+            if (CFGZ::ECU_898 == _cfgz.GetEngType() ||
+                 (CFGZ::ECU_162 == _cfgz.GetEngType()))
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+            case DISP_LFE1:
+            if ((CFGZ::ECU_898 == _cfgz.GetEngType()) ||
+                (CFGZ::MHEL898ECU == _cfgz.GetEngType()))
+            {
+                _ArrScreenEnDs[u8Screen] = true;
+            }
+            break;
+
+            case DISP_MON_HOME :
+            case DISP_MON_PRODUCT_ID :
+                _ArrScreenEnDs[u8Screen] = true;
                 break;
 
             case DISP_MON_GEN_VOLTAGE :
@@ -555,14 +802,6 @@ void MON_UI::prvConfigureScreenEnable()
             case DISP_MON_ENG_SPEED :
             case DISP_MON_ENG_RUN_TIME :
                 _ArrScreenEnDs[u8Screen] = true;
-                break;
-
-            case DISP_EEEC1:
-                if (CFGZ::CFGZ_CONVENTIONAL != _cfgz.GetEngType()
-                && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG) == CFGZ::CFGZ_ENABLE))
-                {
-                    _ArrScreenEnDs[u8Screen] = true;
-                }
                 break;
 
             default: break;
@@ -1949,32 +2188,754 @@ void MON_UI::prvNormalMonScreens()
         }
         break;
 
+        case DISP_EXAFTERTREAT_ICONS :
+            prvBuildExhaustIconScreen();
+            break;
+
+        case DISP_LAMP_ICONS:
+             prvBuildLampIconScreen();
+             break;
+
+
         case DISP_EEEC1:
         {
             _Disp.gotoxy(GLCD_X(2),GLCD_Y(33));
             _Disp.printStringLeftAligned((char *)"Engine speed:",FONT_VERDANA);
             _Disp.gotoxy(GLCD_X(120),GLCD_Y(33));
-//            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_EEC1_61444,0) == J1939APP::VALID_DATA))
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_EEC1_61444,0) == J1939APP::VALID_DATA))
             {
             sprintf(arrTemp, "%.2f RPM",(_j1939.GetReadData(RX_PGN_EEC1_61444,0)));
             }
-//            else
-//            {
-//                if(_j1939.GetSPNErrorStatus(RX_PGN_EEC1_61444,0) ==  J1939APP::NOT_AVAILABLE)
-//                {
-//                    sprintf(arrTemp,StrNotAvailable);
-//                }
-//                else if(_j1939.GetSPNErrorStatus(RX_PGN_EEC1_61444,0) == J1939APP::ERROR)
-//                {
-//                    sprintf(arrTemp,StrErr);
-//                }
-//                else
-//                {
-//                    sprintf(arrTemp,StrCANErr);
-//                }
-//            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_EEC1_61444,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_EEC1_61444,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp,StrCANErr);
+                }
+            }
             _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
         } break;
+        case DISP_EEEC2:
+        {
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(33));
+            _Disp.printStringLeftAligned((char *)"ACC PEDAL POS:",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(125),GLCD_Y(33));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_EEC2_61443,0) == J1939APP::VALID_DATA))
+            {
+            sprintf(arrTemp, "%.2f %%", (_j1939.GetReadData(RX_PGN_EEC2_61443, 0)));
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_EEC2_61443,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_EEC2_61443,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp,StrCANErr);
+                }
+            }
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+        }
+        break;
+
+        case DISP_EOI:
+        {
+            _Disp.gotoxy(GLCD_X(64),GLCD_Y(25));
+            _Disp.printStringCenterAligned((char *)"ENG STATE:",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_EOI_64914,0) == J1939APP::VALID_DATA))
+            {
+                if (int((_j1939.GetReadData(RX_PGN_EOI_64914,0)) < MAX_NUM_OF_ENG_OPER_STATES - 1))
+                {
+                    sprintf(arrTemp,StrEngOperatingState[int((_j1939.GetReadData(RX_PGN_EOI_64914,0)))]); /* yet implement states */
+                }
+                else
+                {
+                    sprintf(arrTemp,StrEngOperatingState[MAX_NUM_OF_ENG_OPER_STATES - 1]);
+                }
+
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_EOI_64914,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_EOI_64914,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp,StrCANErr);
+                }
+            }
+            _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
+        }
+        break;
+        case DISP_AT1T1I1:
+        {
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(33));
+            _Disp.printStringLeftAligned((char *)"DEF TNK VOL:",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(110),GLCD_Y(33));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_AT1T1I_65110,0) == J1939APP::VALID_DATA))
+            {
+            sprintf(arrTemp, "%.2f %%", (_j1939.GetReadData(RX_PGN_AT1T1I_65110,0)));
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_AT1T1I_65110,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_AT1T1I_65110,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp,StrCANErr);
+                }
+            }
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+
+        }
+        break;
+        case DISP_HRS:
+        {
+            _Disp.gotoxy(GLCD_X(64),GLCD_Y(25));
+            _Disp.printStringCenterAligned((char *)"ENG TOTAL HRS:",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_HOURS_65253,0) == J1939APP::VALID_DATA))
+            {
+              _u32EngineRunHrs = (uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0));
+              sprintf(arrTemp, "%ld hr %d min",_u32EngineRunHrs,
+                ((uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0) * 60) % 60));
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_HOURS_65253,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_HOURS_65253,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp,StrCANErr);
+                }
+            }
+            _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
+
+        }
+        break;
+        case DISP_LFC1:
+        {
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(20));
+            _Disp.printStringLeftAligned((char *)"ENG FUEL USED:",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(125),GLCD_Y(20));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_LFC1_65257,0) == J1939APP::VALID_DATA))
+            {
+            sprintf(arrTemp, "%.2fL",(_j1939.GetReadData(RX_PGN_LFC1_65257,0)));
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_LFC1_65257,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_LFC1_65257,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp,StrCANErr);
+                }
+            }
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+
+
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(40));
+            _Disp.printStringLeftAligned((char *)"ENG TRIP FUEL:",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(125),GLCD_Y(40));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_LFC1_65257,1) == J1939APP::VALID_DATA))
+            {
+            sprintf(arrTemp, "%.2fL",(_j1939.GetReadData(RX_PGN_LFC1_65257,1)));
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_LFC1_65257,1) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_LFC1_65257,1) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp,StrCANErr);
+                }
+            }
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+        }
+        break;
+        case DISP_ET1:
+        {
+
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(25));
+            _Disp.printStringLeftAligned((char *)"ENG CLNT TEMP :",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(125),GLCD_Y(25));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_ET1_65262,0) == J1939APP::VALID_DATA))
+            {
+            sprintf(arrTemp, "%.2f`C",(_j1939.GetReadData(RX_PGN_ET1_65262,0)));
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_ET1_65262,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_ET1_65262,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp,StrCANErr);
+                }
+            }
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+
+            if(CFGZ::CNG_15KVA == _cfgz.GetEngType() || CFGZ::CRDIECU1 == _cfgz.GetEngType() || (CFGZ::CNG_125KVA== _cfgz.GetEngType()))
+            {
+              _Disp.gotoxy(GLCD_X(2),GLCD_Y(40));
+              _Disp.printStringLeftAligned((char *)"ENG Oil TEMP :",FONT_VERDANA);
+              _Disp.gotoxy(GLCD_X(125),GLCD_Y(40));
+
+              if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_ET1_65262,1) == J1939APP::VALID_DATA))
+              {
+               sprintf(arrTemp, "%.2f `C", (_j1939.GetReadData(RX_PGN_ET1_65262,1)));
+              }
+              else
+              {
+                  if(_j1939.GetSPNErrorStatus(RX_PGN_ET1_65262,1) ==  J1939APP::NOT_AVAILABLE)
+                  {
+                      sprintf(arrTemp,StrNotAvailable);
+                  }
+                  else if(_j1939.GetSPNErrorStatus(RX_PGN_ET1_65262,1) == J1939APP::ERROR)
+                  {
+                      sprintf(arrTemp,StrErr);
+                  }
+                  else
+                  {
+                      sprintf(arrTemp, StrCANErr);
+                  }
+              }
+              _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+            }
+        }
+        break;
+        case DISP_EFL:
+        {
+            _Disp.gotoxy(GLCD_X(64),GLCD_Y(25));
+            _Disp.printStringCenterAligned((char *)"ENG OIL PRESS:",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_EFL_P1_65263,0) == J1939APP::VALID_DATA))
+            {
+            sprintf(arrTemp, "%.2f kPa", (_j1939.GetReadData(RX_PGN_EFL_P1_65263,0)));
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_EFL_P1_65263,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_EFL_P1_65263,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp,StrCANErr);
+                }
+            }
+            _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
+        }
+        break;
+        case DISP_AMB:
+        {
+             if(CFGZ::CRDIECU1 == _cfgz.GetEngType() || (CFGZ::CNG_125KVA== _cfgz.GetEngType()))
+            {
+                _Disp.gotoxy(GLCD_X(2),GLCD_Y(20));
+                _Disp.printStringLeftAligned((char *)"BAR PRESS :",FONT_VERDANA);
+                _Disp.gotoxy(GLCD_X(115),GLCD_Y(20));
+                if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_AMB_65269,0) == J1939APP::VALID_DATA))
+                {
+                    sprintf(arrTemp, "%.2f kPa", (_j1939.GetReadData(RX_PGN_AMB_65269,0)));
+                }
+                else
+                {
+                    if(_j1939.GetSPNErrorStatus(RX_PGN_AMB_65269,0) ==  J1939APP::NOT_AVAILABLE)
+                    {
+                        sprintf(arrTemp,StrNotAvailable);
+                    }
+                    else if(_j1939.GetSPNErrorStatus(RX_PGN_AMB_65269,0) == J1939APP::ERROR)
+                    {
+                        sprintf(arrTemp,StrErr);
+                    }
+                    else
+                    {
+                        sprintf(arrTemp, StrCANErr);
+                    }
+                }
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+            }
+
+            if(CFGZ::ECU_898 == _cfgz.GetEngType() || CFGZ::MHEL898ECU == _cfgz.GetEngType())
+            {
+                _Disp.gotoxy(GLCD_X(2),GLCD_Y(35));
+                _Disp.printStringLeftAligned((char *)"AIR TEMP :",FONT_VERDANA);
+                _Disp.gotoxy(GLCD_X(110),GLCD_Y(35));
+
+                if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_AMB_65269,1) == J1939APP::VALID_DATA))
+                {
+                 sprintf(arrTemp, "%.2f `C", (_j1939.GetReadData(RX_PGN_AMB_65269,1)));
+                }
+                else
+                {
+                    if(_j1939.GetSPNErrorStatus(RX_PGN_AMB_65269,1) ==  J1939APP::NOT_AVAILABLE)
+                    {
+                        sprintf(arrTemp,StrNotAvailable);
+                    }
+                    else if(_j1939.GetSPNErrorStatus(RX_PGN_AMB_65269,1) == J1939APP::ERROR)
+                    {
+                        sprintf(arrTemp,StrErr);
+                    }
+                    else
+                    {
+                        sprintf(arrTemp, StrCANErr);
+                    }
+                }
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+            }
+
+            if((CFGZ::CNG_15KVA == _cfgz.GetEngType()) || CFGZ::CRDIECU1 == _cfgz.GetEngType()|| (CFGZ::CNG_125KVA== _cfgz.GetEngType()))
+            {
+              _Disp.gotoxy(GLCD_X(2),GLCD_Y(35));
+              _Disp.printStringLeftAligned((char *)"ENG IN AIR TEM :",FONT_VERDANA);
+              _Disp.gotoxy(GLCD_X(126),GLCD_Y(35));
+
+              if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_AMB_65269,2) == J1939APP::VALID_DATA))
+              {
+               sprintf(arrTemp, "%.2f `C", (_j1939.GetReadData(RX_PGN_AMB_65269,2)));
+              }
+              else
+              {
+                  if(_j1939.GetSPNErrorStatus(RX_PGN_AMB_65269,2) ==  J1939APP::NOT_AVAILABLE)
+                  {
+                      sprintf(arrTemp,StrNotAvailable);
+                  }
+                  else if(_j1939.GetSPNErrorStatus(RX_PGN_AMB_65269,2) == J1939APP::ERROR)
+                  {
+                      sprintf(arrTemp,StrErr);
+                  }
+                  else
+                  {
+                      sprintf(arrTemp, StrCANErr);
+                  }
+              }
+              _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+            }
+
+        }
+        break;
+        case DISP_VEP1:
+        {
+            _Disp.gotoxy(GLCD_X(64),GLCD_Y(25));
+            _Disp.printStringCenterAligned((char *)"BAT POTENTIAL",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_VEP1_65271,0) == J1939APP::VALID_DATA))
+            {
+                 sprintf(arrTemp, "%.2f V", (_j1939.GetReadData(RX_PGN_VEP1_65271,0)));
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_VEP1_65271,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_VEP1_65271,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp,StrCANErr);
+                }
+            }
+             _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
+
+        }
+        break;
+        case DISP_WFI:
+        {
+
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(25));
+            _Disp.printStringLeftAligned((char *)"WATER IN FUEL:",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(80),GLCD_Y(25));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_WFI_OI_65279,0) == J1939APP::VALID_DATA))
+            {
+                if((uint16_t)(_j1939.GetReadData(RX_PGN_WFI_OI_65279,0)) < MAX_NUM_OF_WFI_STATES)
+                {
+                    sprintf(arrTemp, StrWFIState[(uint16_t)(_j1939.GetReadData(RX_PGN_WFI_OI_65279,0))]);
+                }
+                else
+                {
+                    sprintf(arrTemp,"INVLD");
+                }
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_WFI_OI_65279,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_WFI_OI_65279,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp, StrCANErr);
+                }
+            }
+            _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+
+
+/* Driver warning status is not required for ECU_898 and ECU_162. It is kept under if because,
+   in future this information may need to display for other Engine type.*/
+            if((CFGZ::CNG_15KVA == _cfgz.GetEngType()) || (CFGZ::CRDIECU1 == _cfgz.GetEngType()))
+            {
+                _Disp.gotoxy(GLCD_X(2),GLCD_Y(40));
+                _Disp.printStringLeftAligned((char *)"DRIVER WARN : ",FONT_VERDANA);
+                _Disp.gotoxy(GLCD_X(75),GLCD_Y(40));
+
+                 if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_WFI_OI_65279,1) == J1939APP::VALID_DATA))
+                {
+                    if((uint16_t)(_j1939.GetReadData(RX_PGN_WFI_OI_65279,1)) < MAX_NUM_OF_DRV_WARN)
+                    {
+                        sprintf(arrTemp, StrDrvWarnState[(uint16_t)(_j1939.GetReadData(RX_PGN_WFI_OI_65279,1))]);
+                    }
+                    else
+                    {
+                        sprintf(arrTemp,"INVLD");
+                    }
+                }
+                else
+                {
+                    if(_j1939.GetSPNErrorStatus(RX_PGN_WFI_OI_65279,1) ==  J1939APP::NOT_AVAILABLE)
+                    {
+                        sprintf(arrTemp,StrNotAvailable);
+                    }
+                    else if(_j1939.GetSPNErrorStatus(RX_PGN_WFI_OI_65279,1) == J1939APP::ERROR)
+                    {
+                        sprintf(arrTemp,StrErr);
+                    }
+                    else
+                    {
+                        sprintf(arrTemp, StrCANErr);
+                    }
+                }
+                _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+            }
+            else
+            {
+                /* do nothing */
+            }
+
+        }
+        break;
+        case DISP_DEFA:
+        {
+
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(25));
+            _Disp.printStringLeftAligned((char *)"DEF QUA IND  :",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(75),GLCD_Y(25));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_DEFA_65383,0) == J1939APP::VALID_DATA))
+            {
+                if((uint16_t)(_j1939.GetReadData(RX_PGN_DEFA_65383,0)) < MAX_NUM_OF_DEFA_STATE)
+                {
+                    sprintf(arrTemp, StrDEFAStatus[(uint16_t)(_j1939.GetReadData(RX_PGN_DEFA_65383,0))]);
+                }
+                else
+                {
+                    sprintf(arrTemp,"INVLD");
+                }
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_DEFA_65383,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_DEFA_65383,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp, StrCANErr);
+                }
+            }
+            _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+
+
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(40));
+            _Disp.printStringLeftAligned((char *)"SCR TAMP IND:",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(75),GLCD_Y(40));
+
+             if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_DEFA_65383,1) == J1939APP::VALID_DATA))
+            {
+                if((uint16_t)(_j1939.GetReadData(RX_PGN_DEFA_65383,1)) < MAX_NUM_OF_DRV_WARN)
+                {
+                    sprintf(arrTemp, StrDEFAStatus[(uint16_t)(_j1939.GetReadData(RX_PGN_DEFA_65383,1))]);
+                }
+                else
+                {
+                    sprintf(arrTemp,"INVLD");
+                }
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_DEFA_65383,1) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_DEFA_65383,1) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp, StrCANErr);
+                }
+            }
+            _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+
+        }
+        break;
+        case DISP_IC1:
+        {
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(25));
+            _Disp.printStringLeftAligned((char *)"ENG MF PRESS :",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(125),GLCD_Y(25));
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_IC1_65270,0) == J1939APP::VALID_DATA))
+            {
+                sprintf(arrTemp, "%.2f kPa", (_j1939.GetReadData(RX_PGN_IC1_65270,0)));
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_IC1_65270,0) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_IC1_65270,0) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp, StrCANErr);
+                }
+            }
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+
+            _Disp.gotoxy(GLCD_X(2),GLCD_Y(40));
+            _Disp.printStringLeftAligned((char *)"ENG EXST TEMP:",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(127),GLCD_Y(40));
+
+            if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_IC1_65270,1) == J1939APP::VALID_DATA))
+            {
+             sprintf(arrTemp, "%.2f `C", (_j1939.GetReadData(RX_PGN_IC1_65270,1)));
+            }
+            else
+            {
+                if(_j1939.GetSPNErrorStatus(RX_PGN_IC1_65270,1) ==  J1939APP::NOT_AVAILABLE)
+                {
+                    sprintf(arrTemp,StrNotAvailable);
+                }
+                else if(_j1939.GetSPNErrorStatus(RX_PGN_IC1_65270,1) == J1939APP::ERROR)
+                {
+                    sprintf(arrTemp,StrErr);
+                }
+                else
+                {
+                    sprintf(arrTemp, StrCANErr);
+                }
+            }
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+
+        }
+        break;
+        case DISP_SHUTDN:
+         {
+             _Disp.gotoxy(GLCD_X(64),GLCD_Y(25));
+             _Disp.printStringCenterAligned((char *)"GLOW LAMP STATUS",FONT_VERDANA);
+             _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
+             if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_SHUTDN_65252,0) == J1939APP::VALID_DATA))
+             {
+                     sprintf(arrTemp,StrPGN_65252_states[int((_j1939.GetReadData(RX_PGN_SHUTDN_65252,0)))]);
+             }
+             else
+             {
+                 if(_j1939.GetSPNErrorStatus(RX_PGN_SHUTDN_65252,0) ==  J1939APP::NOT_AVAILABLE)
+                 {
+                     sprintf(arrTemp,StrNotAvailable);
+                 }
+                 else if(_j1939.GetSPNErrorStatus(RX_PGN_SHUTDN_65252,0) == J1939APP::ERROR)
+                 {
+                     sprintf(arrTemp,StrErr);
+                 }
+                 else
+                 {
+                     sprintf(arrTemp,StrCANErr);
+                 }
+             }
+             _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
+         }
+         break;
+         case DISP_CSA:
+         {
+             _Disp.gotoxy(GLCD_X(64),GLCD_Y(25));
+             _Disp.printStringCenterAligned((char *)"Cold Start Aids",FONT_VERDANA);
+             _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
+             if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_CSA_64966,0) == J1939APP::VALID_DATA))
+             {
+                     sprintf(arrTemp,StrPGN_64966_states[int((_j1939.GetReadData(RX_PGN_CSA_64966,0)))]);
+             }
+             else
+             {
+                 if(_j1939.GetSPNErrorStatus(RX_PGN_CSA_64966,0) ==  J1939APP::NOT_AVAILABLE)
+                 {
+                     sprintf(arrTemp,StrNotAvailable);
+                 }
+                 else if(_j1939.GetSPNErrorStatus(RX_PGN_CSA_64966,0) == J1939APP::ERROR)
+                 {
+                     sprintf(arrTemp,StrErr);
+                 }
+                 else
+                 {
+                     sprintf(arrTemp,StrCANErr);
+                 }
+             }
+             _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
+         }
+         break;
+
+         case DISP_LFE1:
+         {
+              if(CFGZ::ECU_898 == _cfgz.GetEngType() || CFGZ::MHEL898ECU == _cfgz.GetEngType())
+             {
+                 _Disp.gotoxy(GLCD_X(2),GLCD_Y(20));
+                 _Disp.printStringLeftAligned((char *)"ENG FUEL RTE:",FONT_VERDANA);
+                 _Disp.gotoxy(GLCD_X(120),GLCD_Y(20));
+                 if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_LFE1_65266,0) == J1939APP::VALID_DATA))
+                 {
+                     sprintf(arrTemp, "%.2f L/H", (_j1939.GetReadData(RX_PGN_LFE1_65266,0)));
+                 }
+                 else
+                 {
+                     if(_j1939.GetSPNErrorStatus(RX_PGN_LFE1_65266,0) ==  J1939APP::NOT_AVAILABLE)
+                     {
+                         sprintf(arrTemp,StrNotAvailable);
+                     }
+                     else if(_j1939.GetSPNErrorStatus(RX_PGN_LFE1_65266,0) == J1939APP::ERROR)
+                     {
+                         sprintf(arrTemp,StrErr);
+                     }
+                     else
+                     {
+                         sprintf(arrTemp, StrCANErr);
+                     }
+                 }
+                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+             }
+
+             if(CFGZ::ECU_898 == _cfgz.GetEngType() || CFGZ::MHEL898ECU == _cfgz.GetEngType())
+             {
+                 _Disp.gotoxy(GLCD_X(2),GLCD_Y(35));
+                 _Disp.printStringLeftAligned((char *)"ENG INST FUEL:",FONT_VERDANA);
+                 _Disp.gotoxy(GLCD_X(127),GLCD_Y(35));
+
+                 if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_LFE1_65266,1) == J1939APP::VALID_DATA))
+                 {
+                  sprintf(arrTemp, "%.2f Km/L", (_j1939.GetReadData(RX_PGN_LFE1_65266,1)));
+                 }
+                 else
+                 {
+                     if(_j1939.GetSPNErrorStatus(RX_PGN_LFE1_65266,1) ==  J1939APP::NOT_AVAILABLE)
+                     {
+                         sprintf(arrTemp,StrNotAvailable);
+                     }
+                     else if(_j1939.GetSPNErrorStatus(RX_PGN_LFE1_65266,1) == J1939APP::ERROR)
+                     {
+                         sprintf(arrTemp,StrErr);
+                     }
+                     else
+                     {
+                         sprintf(arrTemp, StrCANErr);
+                     }
+                 }
+                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+             }
+
+             if(CFGZ::ECU_898 == _cfgz.GetEngType() || CFGZ::MHEL898ECU == _cfgz.GetEngType())
+             {
+               _Disp.gotoxy(GLCD_X(2),GLCD_Y(50));
+               _Disp.printStringLeftAligned((char *)"ENG AVG FUEL:",FONT_VERDANA);
+               _Disp.gotoxy(GLCD_X(125),GLCD_Y(50));
+
+               if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_LFE1_65266,2) == J1939APP::VALID_DATA))
+               {
+                sprintf(arrTemp, "%.2f Km/L", (_j1939.GetReadData(RX_PGN_LFE1_65266,2)));
+               }
+               else
+               {
+                   if(_j1939.GetSPNErrorStatus(RX_PGN_LFE1_65266,2) ==  J1939APP::NOT_AVAILABLE)
+                   {
+                       sprintf(arrTemp,StrNotAvailable);
+                   }
+                   else if(_j1939.GetSPNErrorStatus(RX_PGN_LFE1_65266,2) == J1939APP::ERROR)
+                   {
+                       sprintf(arrTemp,StrErr);
+                   }
+                   else
+                   {
+                       sprintf(arrTemp, StrCANErr);
+                   }
+               }
+               _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+             }
+
+         }
+         break;
 
         case DISP_MON_GEN_VOLTAGE:
         {
@@ -2233,19 +3194,45 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.printStringLeftAligned((char *)"ENG BATT",FONT_VERDANA);
             }
             _Disp.gotoxy(GLCD_X(112),GLCD_Y(26));
-
-            if(_j1939.IsCommunicationFail()&& _cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_BATTERY_MON_BY_J1939))
-            {
-                _Disp.printStringRightAligned((char *)"NA",FONT_ARIAL);
-            }
-            else
-            {
-                sprintf(arrTemp,"%0.1f",
-                        _GCUAlarms.GetSelectedBatteryVtg());
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(116),GLCD_Y(26));
-                _Disp.printStringLeftAligned((char*)"V",FONT_VERDANA);
-            }
+            if(CFGZ::CFGZ_ENABLE == _cfgz.GetCFGZ_Param(CFGZ::ID_BAT_VTG_FROM_ECU))
+             {
+                 if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_VEP1_65271,0) == J1939APP::VALID_DATA))
+                 {
+                      sprintf(arrTemp, "%.2f V", (_j1939.GetReadData(RX_PGN_VEP1_65271,0)));
+                 }
+                 else
+                 {
+                     if(_j1939.GetSPNErrorStatus(RX_PGN_VEP1_65271,0) ==  J1939APP::NOT_AVAILABLE)
+                     {
+                         sprintf(arrTemp,StrNotAvailable);
+                     }
+                     else if(_j1939.GetSPNErrorStatus(RX_PGN_VEP1_65271,0) == J1939APP::ERROR)
+                     {
+                         sprintf(arrTemp,StrErr);
+                     }
+                     else
+                     {
+                         sprintf(arrTemp,StrCANErr);
+                     }
+                 }
+             }
+             else
+             {
+                 sprintf(arrTemp,"%0.1fV",_hal.AnalogSensors.GetFilteredVbattVolts());
+             }
+             _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
+//            if(_j1939.IsCommunicationFail()&& _cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_BATTERY_MON_BY_J1939))
+//            {
+//                _Disp.printStringRightAligned((char *)"NA",FONT_ARIAL);
+//            }
+//            else
+//            {
+//                sprintf(arrTemp,"%0.1f",
+//                        _GCUAlarms.GetSelectedBatteryVtg());
+//                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+//                _Disp.gotoxy(GLCD_X(116),GLCD_Y(26));
+//                _Disp.printStringLeftAligned((char*)"V",FONT_VERDANA);
+//            }
 
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
             {
@@ -2332,7 +3319,7 @@ void MON_UI::prvNormalMonScreens()
 
         case DISP_MON_ENG_TEMP:
         {
-            stTemp =_GCUAlarms.GetSelectedTempSensVal();
+
             _Disp.printImage((uint8_t *)u8ArrEngineTemp, 4, 32, 26, 7);
 
             if(CFGZ::CFGZ_ENABLE == (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG)))
@@ -2361,6 +3348,7 @@ void MON_UI::prvNormalMonScreens()
             }
             else
             {
+                stTemp =_GCUAlarms.GetSelectedTempSensVal();
                 _Disp.gotoxy(GLCD_X(115),GLCD_Y(33));
                 prvPrintSensorStatus(stTemp,(char*)"`C", INTEGER_TYPE);
                 if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
@@ -2378,7 +3366,6 @@ void MON_UI::prvNormalMonScreens()
         case DISP_MON_LUBE_OIL_PRESSURE:
         {
             _Disp.printImage((uint8_t *)u8ArrOilPressure, 4, 32, 26, 3);
-            stTemp = _GCUAlarms.GetLOPSensorVal();
 
             if(CFGZ::CFGZ_ENABLE == (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG)))
             {
@@ -2407,6 +3394,7 @@ void MON_UI::prvNormalMonScreens()
             }
             else
             {
+                stTemp = _GCUAlarms.GetLOPSensorVal();
                 _Disp.gotoxy(GLCD_X(115),GLCD_Y(33));
 
                 if(stTemp.eStatus == A_SENSE::SENSOR_NOT_CONFIGRUED)
@@ -2557,11 +3545,42 @@ void MON_UI::prvNormalMonScreens()
             _Disp.printImage((uint8_t *)u8ArrEngineSpeed, 4, 32, 26, 7);
 
             _Disp.gotoxy(GLCD_X(84),GLCD_Y(37));
-            sprintf(arrTemp,"%d ",(uint16_t) _GCUAlarms.GetSpeedValue());
+
+            if(CFGZ::CFGZ_ENABLE == (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG)))
+            {
+                    if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_EEC1_61444,0) == J1939APP::VALID_DATA))
+                {
+                sprintf(arrTemp, "%.2f RPM",(float)(_j1939.GetReadData(RX_PGN_EEC1_61444,0)));
+                }
+                else
+                {
+                    if(_j1939.GetSPNErrorStatus(RX_PGN_EEC1_61444,0) ==  J1939APP::NOT_AVAILABLE)
+                    {
+                        sprintf(arrTemp,StrNotAvailable);
+                    }
+                    else if(_j1939.GetSPNErrorStatus(RX_PGN_EEC1_61444,0) == J1939APP::ERROR)
+                    {
+                        sprintf(arrTemp,StrErr);
+                    }
+                    else
+                    {
+                        sprintf(arrTemp,StrCANErr);
+                    }
+                }
+
+            }
+            else
+            {
+                sprintf(arrTemp,"%dRPM ",(uint16_t)
+                                  round(_EngineMon.GetFilteredEngSpeed()));
+            }
+
+
+//            sprintf(arrTemp,"%d ",(uint16_t) _GCUAlarms.GetSpeedValue());
             _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
 
-            _Disp.gotoxy(GLCD_X(85),GLCD_Y(37));
-            _Disp.printStringLeftAligned((char*)"RPM",FONT_VERDANA);
+//            _Disp.gotoxy(GLCD_X(85),GLCD_Y(37));
+//            _Disp.printStringLeftAligned((char*)"RPM",FONT_VERDANA);
 
         }
         break;
@@ -3537,6 +4556,217 @@ void MON_UI:: prvDisplayError()
        _Disp.gotoxy(GLCD_X(64),GLCD_Y(32));
        _Disp.printStringCenterAligned((char*)"Error: C02", FONT_ARIAL);
    }
+}
+
+void MON_UI::prvBuildExhaustIconScreen(void)
+{
+    static stTimer tmr;
+    static bool _blink;
+    if(!tmr.bEnabled)
+    {
+        UTILS_ResetTimer(&tmr);
+    }
+
+    if(UTILS_GetElapsedTimeInSec(&tmr) >= 1)
+    {
+        UTILS_ResetTimer(&tmr);
+        if (_blink)
+        {
+            _blink= false;
+        }
+        else
+        {
+            _blink= true;
+        }
+    }
+
+    _Disp.ClearScreen();
+    _Disp.drawRectangle();
+    _Disp.gotoxy(GLCD_X(64),GLCD_Y(1));
+    _Disp.printStringCenterAligned((char *)"EXHAUST AFT TREAT",FONT_ARIAL);
+    _Disp.drawHorizontalLine(0, 11, 127);
+
+    /* If communication failure alarm occurs then display "Not available" on screen
+     * 1. ArrPgnReadData[RX_PGN_DPFC1_64892][0] = SPN 3698
+     *     display the icon only when on solid = 1 received else don not display the icon.
+     * 2. ArrPgnReadData[RX_PGN_DPFC1_64892][1] = SPN 3697
+     *      000     OFF
+     *      001     Solid On
+     *      100     Blink with 1Hz
+     * 3. ArrPgnReadData[RX_PGN_DPFC1_64892][2] = SPN 3703
+     *     display the icon only when on solid = 1 received else don not display the icon
+     */
+    if( _j1939.IsCommunicationFail() )
+    {
+        _Disp.gotoxy(32,64);
+        _Disp.printStringCenterAligned((char*)StrCANErr,FONT_ARIAL);
+    }
+    else
+    {
+        if((uint8_t)_j1939.GetReadData(RX_PGN_DPFC1_64892,0) == 1)
+        {
+            _Disp.printImage((uint8_t *)&gau8Icon0, 4, 24, 13, 6);
+        }
+
+        if((uint8_t)_j1939.GetReadData(RX_PGN_DPFC1_64892,1) == 1)
+        {
+            _Disp.printImage((uint8_t *)&gau8Icon1, 5, 22, 13, 45);
+        }
+        else if((uint8_t)_j1939.GetReadData(RX_PGN_DPFC1_64892,1)== 4)
+        {
+            if(_blink)
+            {
+                _Disp.printImage((uint8_t *)&gau8Icon1, 5, 22, 13, 47);
+            }
+            else
+            {
+                // do nothing.
+            }
+        }
+        if((uint8_t)_j1939.GetReadData(RX_PGN_DPFC1_64892,2) == 1)
+        {
+            _Disp.printImage((uint8_t *)&gau8Icon2, 5, 24, 13, 87);
+        }
+
+        /* AT1T1I */
+        /* Displayed the  image for SPN 5245 of PGN AT1T1I depending on the received value.
+             *          000             OFF
+             *          001             ON-Solid
+             *          100             ON-Fast blink (1 HZ)*/
+        if((uint8_t)_j1939.GetReadData(RX_PGN_AT1T1I_65110,2)  == 1)
+        {
+            _Disp.printImage((uint8_t *)&gau8Icon3, 4, 27, 35, 30);
+        }
+        else if((uint8_t)_j1939.GetReadData(RX_PGN_AT1T1I_65110,2) == 4)
+        {
+            if(_blink)
+            {
+                _Disp.printImage((uint8_t *)&gau8Icon3, 4, 27, 35, 30);
+            }
+            else
+            {
+                // do nothing.
+            }
+        }
+        /* Displayed the icon for SPN 5246 when malfunction lamp is active or the value received from
+         * SPN 5246 is more than or equal to 3.
+         * 30/4/20 : Mal-function Lamp value compared with Lamp ON status.*/
+        if((_j1939.GetLampStatus(J1939APP::MIL_LAMP)== 1) || ((2 < _j1939.GetReadData(RX_PGN_AT1T1I_65110,3)) && (_j1939.GetReadData(RX_PGN_AT1T1I_65110,3) < 7)))
+        {
+            _Disp.printImage((uint8_t *)&gau8Icon4, 4, 20, 40, 74);
+        }
+    }
+}
+
+void MON_UI::prvBuildLampIconScreen(void)
+{
+    // _Disp.ClearScreen();
+    // _Disp.drawRectangle();
+    // _Disp.gotoxy(GLCD_X(64),GLCD_Y(5));
+    // _Disp.printStringCenterAligned((char *)"LAMP ICONS",FONT_ARIAL);
+    // _Disp.drawHorizontalLine(0, 19, 127);
+
+    static bool _bBlinkAt1Hz = false;
+    static bool _bBlinkAt2Hz = false;
+    static stTimer LampFlashTimer_1_Hz;
+    static stTimer LampFlashTimer_2_Hz;
+
+    if (!LampFlashTimer_1_Hz.bEnabled)
+    {
+        UTILS_ResetTimer(&LampFlashTimer_1_Hz);
+    }
+    if(!LampFlashTimer_2_Hz.bEnabled)
+    {
+        UTILS_ResetTimer(&LampFlashTimer_2_Hz);
+    }
+
+    if (UTILS_GetElapsedTimeInMs(&LampFlashTimer_1_Hz) >= 1000)
+    {
+        UTILS_ResetTimer(&LampFlashTimer_1_Hz);
+        if (_bBlinkAt1Hz)
+        {
+            _bBlinkAt1Hz = false;
+        }
+        else
+        {
+            _bBlinkAt1Hz = true;
+        }
+    }
+
+    if (UTILS_GetElapsedTimeInMs(&LampFlashTimer_2_Hz) >= 500)
+    {
+        UTILS_ResetTimer(&LampFlashTimer_2_Hz);
+        if (_bBlinkAt2Hz)
+        {
+            _bBlinkAt2Hz = false;
+        }
+        else
+        {
+            _bBlinkAt2Hz = true;
+        }
+    }
+
+    _Disp.ClearScreen();
+    _Disp.drawRectangle();
+    _Disp.gotoxy(GLCD_X(64),GLCD_Y(5));
+    _Disp.printStringCenterAligned((char *)"LAMP ICONS",FONT_ARIAL);
+    _Disp.drawHorizontalLine(0, 19, 127);
+
+    /* to solve SGC-225 */
+    if( _j1939.IsCommunicationFail() || (!_j1939.IsDM1PGNRecieved()) )
+    {
+        _Disp.gotoxy(32,64);
+        _Disp.printStringCenterAligned((char *)StrCANErr,FONT_ARIAL);
+    }
+    else
+    {
+      if (_bBlinkAt1Hz)
+      {
+          if(_j1939.GetLampStatus(J1939APP::RED_LAMP) && (_j1939.GetLampFlashingSequence(J1939APP::RED_LAMP) == J1939APP::FLASH_AT_1_HZ))
+          {
+              _Disp.printImage((uint8_t *)&gau8Icon6, 6, 27, 25, 1);
+          }
+          if (_j1939.GetLampStatus(J1939APP::AMBER_LAMP) && (_j1939.GetLampFlashingSequence(J1939APP::AMBER_LAMP) == J1939APP::FLASH_AT_1_HZ))
+          {
+              _Disp.printImage((uint8_t *)&gau8Icon7, 6, 27, 25, 43);
+          }
+          if(_j1939.GetLampStatus(J1939APP::MIL_LAMP) && (_j1939.GetLampFlashingSequence(J1939APP::MIL_LAMP) == J1939APP::FLASH_AT_1_HZ))
+          {
+              _Disp.printImage((uint8_t *)&gau8Icon8, 6, 27, 25,85);
+          }
+      }
+      if(_bBlinkAt2Hz)
+      {
+          if(_j1939.GetLampStatus(J1939APP::RED_LAMP) && (_j1939.GetLampFlashingSequence(J1939APP::RED_LAMP) == J1939APP::FLASH_AT_2_HZ))
+          {
+              _Disp.printImage((uint8_t *)&gau8Icon6, 6, 27, 25, 1);
+          }
+          if(_j1939.GetLampStatus(J1939APP::AMBER_LAMP) && (_j1939.GetLampFlashingSequence(J1939APP::AMBER_LAMP) == J1939APP::FLASH_AT_2_HZ))
+          {
+              _Disp.printImage((uint8_t *)&gau8Icon7, 6, 27, 25, 43);
+          }
+          if(_j1939.GetLampStatus(J1939APP::MIL_LAMP) && (_j1939.GetLampFlashingSequence(J1939APP::MIL_LAMP) == J1939APP::FLASH_AT_2_HZ))
+          {
+              _Disp.printImage((uint8_t *)&gau8Icon8, 6, 27, 25,85);
+          }
+      }
+
+      // if(_j1939.GetLampStatus(J1939APP::RED_LAMP) == 1)
+      // {
+      //     _Disp.printImage((uint8_t *)&gau8Icon6, 6, 27, 25, 1);
+      // }
+
+      // if(_j1939.GetLampStatus(J1939APP::AMBER_LAMP)  == 1)
+      // {
+      //     _Disp.printImage((uint8_t *)&gau8Icon7, 6, 27, 25, 43);
+      // }
+
+      // if(_j1939.GetLampStatus(J1939APP::MIL_LAMP) == 1)
+      // {
+      //     _Disp.printImage((uint8_t *)&gau8Icon8, 6, 27, 25,85);
+      // }
+
+    }
 }
 
 #if ENABLE_MON_J1939

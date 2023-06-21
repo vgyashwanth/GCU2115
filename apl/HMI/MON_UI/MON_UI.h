@@ -55,7 +55,9 @@ public:
     typedef enum
     {
         //Status & Info
-        DISP_MON_HOME = 0,
+        DISP_EXAFTERTREAT_ICONS = 0 ,
+        DISP_LAMP_ICONS,
+        DISP_MON_HOME,
         DISP_MON_PRODUCT_ID, /* Product ID*/
 
         DISP_ENGINE_TYPE,
@@ -93,7 +95,22 @@ public:
         DISP_MON_ENG_SPEED,
         DISP_MON_ENG_RUN_TIME,
 
-        DISP_EEEC1, // used for testing
+        DISP_EEEC1,
+        DISP_EEEC2,
+        DISP_EOI,
+        DISP_AT1T1I1,
+        DISP_HRS,
+        DISP_LFC1,
+        DISP_ET1,
+        DISP_EFL,
+        DISP_AMB,
+        DISP_VEP1,
+        DISP_WFI,
+        DISP_DEFA,
+        DISP_IC1,
+        DISP_SHUTDN,
+        DISP_CSA,
+        DISP_LFE1,
 
         DISP_MON_LAST
 
@@ -1103,6 +1120,10 @@ private:
      * @return bool
      */
     bool prvIsValDigitsGreaterThan3(uint16_t u16VoltageVal);
+
+    void prvBuildLampIconScreen(void);
+    void prvBuildExhaustIconScreen(void);
+
 
 };
 

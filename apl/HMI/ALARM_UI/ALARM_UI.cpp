@@ -48,12 +48,12 @@ void ALARM_UI::Update(bool bRefresh)
             _u8NumberOfAlarms = _J1939.GetDm2MsgCount();
             break;
 
-        case NCD:
+//        case NCD:
 //            _u8NumberOfAlarms = _J1939.GetNCDAlarmCount();
-            break;
-        case PCD:
+//            break;
+//        case PCD:
 //            _u8NumberOfAlarms = _J1939.GetPCDAlarmCount();
-            break;
+//            break;
 
     }
 
@@ -75,10 +75,10 @@ void ALARM_UI::Update(bool bRefresh)
             case DM2:
                 prvDisplayDMScreen();
                 break;
-            case NCD:
-            case PCD:
-                prvDisplayPCDNCDScreen();
-                break;
+//            case NCD:
+//            case PCD:
+//                prvDisplayPCDNCDScreen();
+//                break;
 
         }
     }
@@ -102,34 +102,66 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
            if(u8AlarmScreenNum == 0)
            {
               u8AlarmScreenNum = _u8NumberOfAlarms;
-              if((_eAlarmType == DM1)&& (_cfgz.GetEngType()!=CFGZ::CFGZ_CONVENTIONAL))
+
+              if(_eAlarmType == ALARM)
               {
-                  _eAlarmType = ALARM;
+                  if((_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
+                  {
+                      if(_cfgz.GetEngType() == CFGZ::CRDIECU1)
+                      {
+                          _eAlarmType = DM2;
+                          _J1939.RequestDM2Messages();
+                      }
+                      else
+                      {
+                        _eAlarmType = DM1;
+                      }
+                  }
+                  else
+                  {
+                      MON_UI::eDisplayMode = DISP_MON_MODE;
+                      _eOldAlarmType = ALARM;
+                  }
               }
-              else if(_eAlarmType == DM2)
+              else if((_eAlarmType == DM2) && (_cfgz.GetEngType() == CFGZ::CRDIECU1))
               {
-                  MON_UI::eDisplayMode = DISP_MON_MODE;
-#if ENABLE_MON_J1939
-                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_J1939;
-                  MON_UI::_stScreenNo = MON_UI::DISP_J1939_RX_LAST-1;
-#endif
-                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
-                  MON_UI::_stScreenNo = MON_UI::DISP_MON_LAST-1;
-                  _eOldAlarmType = ALARM;
+                  _eAlarmType = DM1;
               }
-              else if(_eAlarmType == PCD)
+              else if((_eAlarmType == DM1) && (_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
               {
-                  _eAlarmType = DM2;
-                  _J1939.RequestDM2Messages();
+                 MON_UI::eDisplayMode = DISP_MON_MODE;
+                 _eOldAlarmType = DM1;
               }
-              else if(_eAlarmType == NCD)
-              {
-                  _eAlarmType = PCD;
-              }
-              else
-              {
-                  MON_UI::eDisplayMode = DISP_MON_MODE;
-              }
+
+
+//              if((_eAlarmType == DM1)&& (_cfgz.GetEngType()!=CFGZ::CFGZ_CONVENTIONAL))
+//              {
+//                  _eAlarmType = ALARM;
+//              }
+//              else if(_eAlarmType == DM2)
+//              {
+//                  MON_UI::eDisplayMode = DISP_MON_MODE;
+//#if ENABLE_MON_J1939
+//                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_J1939;
+//                  MON_UI::_stScreenNo = MON_UI::DISP_J1939_RX_LAST-1;
+//#endif
+//                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
+//                  MON_UI::_stScreenNo = MON_UI::DISP_MON_LAST-1;
+//                  _eOldAlarmType = ALARM;
+//              }
+//              else if(_eAlarmType == PCD)
+//              {
+//                  _eAlarmType = DM2;
+//                  _J1939.RequestDM2Messages();
+//              }
+//              else if(_eAlarmType == NCD)
+//              {
+//                  _eAlarmType = PCD;
+//              }
+//              else
+//              {
+//                  MON_UI::eDisplayMode = DISP_MON_MODE;
+//              }
            }
            if(_u8NumberOfAlarms)
            {
@@ -145,51 +177,91 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
           if(u8AlarmScreenNum >= _u8NumberOfAlarms)
           {
               u8AlarmScreenNum = 0;
-              if((_eAlarmType == ALARM)&& (_cfgz.GetEngType()!=CFGZ::CFGZ_CONVENTIONAL))
-              {
-                  _eAlarmType = DM1;
-              }
-              else if(_eAlarmType == DM2)
-              {
-//                  if( _cfgz.GetEngType()==CFGZ::ENG_KUBOTA)
-//                  {
-//                      _eAlarmType = PCD;
-//                  }
-//                  else
-                  {
-                      MON_UI::eDisplayMode = DISP_MON_MODE;
-#if ENABLE_MON_J1939
-                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_J1939;
-                  MON_UI::_stScreenNo = MON_UI::DISP_PROPB62_PGN_65378;
-#endif
-                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
-                  MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
 
-                      _eOldAlarmType = ALARM;
+              if(_eAlarmType == ALARM)
+              {
+                MON_UI::eDisplayMode = DISP_MON_MODE;
+                if((_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL) && (CFGZ::CRDIECU1 != _cfgz.GetEngType()))
+                {
+                  if(CFGZ::ECU_162 == _cfgz.GetEngType() || CFGZ::CNG_125KVA == _cfgz.GetEngType())
+                  {
+                      MON_UI::_stScreenNo = MON_UI::DISP_LAMP_ICONS;
+                  }
+                  else
+                  {
+                      MON_UI::_stScreenNo = MON_UI::DISP_EXAFTERTREAT_ICONS;
+                  }
+                }
+                else
+                {
+                  MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
+                }
+                _eOldAlarmType = ALARM;
+              }
+              else if((_eAlarmType == DM1) && (_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
+              {
+                  if((_cfgz.GetEngType() == CFGZ::CRDIECU1))
+                  {
+                      _eAlarmType = DM2;
+                      _J1939.RequestDM2Messages();
+                  }
+                  else
+                  {
+                      _eAlarmType = ALARM;
                   }
               }
-              else if(_eAlarmType == PCD)
+              else if (_eAlarmType == DM2)
               {
-                  _eAlarmType = NCD;
+                _eAlarmType = ALARM;
               }
-              else if(_eAlarmType == NCD)
-              {
-                  MON_UI::eDisplayMode = DISP_MON_MODE;
-#if ENABLE_MON_J1939
-                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_J1939;
-                  MON_UI::_stScreenNo = MON_UI::DISP_PROPB62_PGN_65378;
-#endif
-                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
-                  MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
 
-                  _eOldAlarmType = ALARM;
-              }
-              else
-              {
-                  MON_UI::eDisplayMode = DISP_MON_MODE;
-                  MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
-                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
-              }
+
+
+//              if((_eAlarmType == ALARM)&& (_cfgz.GetEngType()!=CFGZ::CFGZ_CONVENTIONAL))
+//              {
+//                  _eAlarmType = DM1;
+//              }
+//              else if(_eAlarmType == DM2)
+//              {
+////                  if( _cfgz.GetEngType()==CFGZ::ENG_KUBOTA)
+////                  {
+////                      _eAlarmType = PCD;
+////                  }
+////                  else
+//                  {
+//                      MON_UI::eDisplayMode = DISP_MON_MODE;
+//#if ENABLE_MON_J1939
+//                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_J1939;
+//                  MON_UI::_stScreenNo = MON_UI::DISP_PROPB62_PGN_65378;
+//#endif
+//                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
+//                  MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
+//
+//                      _eOldAlarmType = ALARM;
+//                  }
+//              }
+//              else if(_eAlarmType == PCD)
+//              {
+//                  _eAlarmType = NCD;
+//              }
+//              else if(_eAlarmType == NCD)
+//              {
+//                  MON_UI::eDisplayMode = DISP_MON_MODE;
+//#if ENABLE_MON_J1939
+//                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_J1939;
+//                  MON_UI::_stScreenNo = MON_UI::DISP_PROPB62_PGN_65378;
+//#endif
+//                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
+//                  MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
+//
+//                  _eOldAlarmType = ALARM;
+//              }
+//              else
+//              {
+//                  MON_UI::eDisplayMode = DISP_MON_MODE;
+//                  MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;
+//                  MON_UI::eMonScreenType =MON_UI::MON_SCREEN_NORMAL;
+//              }
 
           }
            break;
@@ -216,7 +288,7 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
        {
 //           if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE))
            {
-               if(((_eAlarmType == DM2)||(_eAlarmType == PCD)||(_eAlarmType == NCD)))
+               if(_eAlarmType == DM2)
                {
                    MON_UI::eDisplayMode = DISP_MON_MODE;
                    MON_UI::_stScreenNo = MON_UI::DISP_MON_HOME;

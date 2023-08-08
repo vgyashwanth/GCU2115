@@ -494,33 +494,30 @@ void ALARM_UI::prvDisplayDMScreen()
             _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
 
             /* FMI string */
-//            if(CFGZ::CRDIECU1 != _cfgz.GetEngType())
-            {
-                _Disp.gotoxy(60 ,14 );
-                sprintf(arrTemp,"FMI: %d", stDmMsg.u8FMI);
-                _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-            }
+            _Disp.gotoxy(60 ,14 );
+            sprintf(arrTemp,"FMI: %d", stDmMsg.u8FMI);
+            _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
 
             static uint16_t uiLoopIndex = 0;
-            if(CFGZ::CNG_15KVA == _cfgz.GetEngType())
-            {
-                for(uiLoopIndex = 0; uiLoopIndex < PCODE_LAST_CNG_15KVA; uiLoopIndex++)
-                {
-                    if((J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].u32spn_no == stDmMsg.u32SpnNo)  && (J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].u8fmi == stDmMsg.u8FMI))
-                    {
-                        break;
-                    }
-                }
-
-                if(uiLoopIndex < PCODE_LAST_CNG_15KVA)
-                {
-                    _Disp.gotoxy(2 ,25 );
-                    sprintf(arrTemp,"PCODE: %s",((char*)J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].FaultCode));
-                    _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-                    _Disp.gotoxy(2, 36);
-                    _Disp.printStringLeftAligned((char *)J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].Description, FONT_VERDANA);
-                }
-            }
+//            if(CFGZ::CNG_15KVA == _cfgz.GetEngType())
+//            {
+//                for(uiLoopIndex = 0; uiLoopIndex < PCODE_LAST_CNG_15KVA; uiLoopIndex++)
+//                {
+//                    if((J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].u32spn_no == stDmMsg.u32SpnNo)  && (J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].u8fmi == stDmMsg.u8FMI))
+//                    {
+//                        break;
+//                    }
+//                }
+//
+//                if(uiLoopIndex < PCODE_LAST_CNG_15KVA)
+//                {
+//                    _Disp.gotoxy(2 ,25 );
+//                    sprintf(arrTemp,"PCODE: %s",((char*)J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].FaultCode));
+//                    _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
+//                    _Disp.gotoxy(2, 36);
+//                    _Disp.printStringLeftAligned((char *)J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].Description, FONT_VERDANA);
+//                }
+//            }
 //            else if(CFGZ::CRDIECU1 == _pcfgz.Get_EngineType())
 //            {
 //                for(uiLoopIndex = 0; uiLoopIndex < PCODE_LAST_CRDIECU1; uiLoopIndex++)
@@ -597,24 +594,24 @@ void ALARM_UI::prvDisplayDMScreen()
 //                    _Disp.printStringLeftAligned((char *)J1939AlarmArrayStringsCNG_125KVA[uiLoopIndex].Description, FONT_VERDANA);
 //                }
 //            }
-//            else if(CFGZ::ECU_162 == _pcfgz.Get_EngineType()){
-//                for(uiLoopIndex = 0; uiLoopIndex < PCODE_LAST_ECU162; uiLoopIndex++)
-//                {
-//                    if(J1939AlarmArrayStringsECU162[uiLoopIndex].u32spn_no == stDmMsg.u32SpnNo  && (J1939AlarmArrayStringsECU162[uiLoopIndex].u8fmi == stDmMsg.u8FMI))
-//                    {
-//                        break;
-//                    }
-//                }
-//
-//                if(uiLoopIndex < PCODE_LAST_ECU162)
-//                {
-//                    _Disp.gotoxy(2 ,25 );
-//                    sprintf(arrTemp,"PCODE: %s",((char*)J1939AlarmArrayStringsECU162[uiLoopIndex].FaultCode));
-//                    _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//                    _Disp.gotoxy(2, 36);
-//                    _Disp.printStringLeftAligned((char *)J1939AlarmArrayStringsECU162[uiLoopIndex].Description, FONT_VERDANA);
-//                }
-//            }
+            if(CFGZ::ECU_162 == _cfgz.GetEngType()){
+                for(uiLoopIndex = 0; uiLoopIndex < PCODE_LAST_ECU162; uiLoopIndex++)
+                {
+                    if(J1939AlarmArrayStringsECU162[uiLoopIndex].u32spn_no == stDmMsg.u32SpnNo  && (J1939AlarmArrayStringsECU162[uiLoopIndex].u8fmi == stDmMsg.u8FMI))
+                    {
+                        break;
+                    }
+                }
+
+                if(uiLoopIndex < PCODE_LAST_ECU162)
+                {
+                    _Disp.gotoxy(2 ,25 );
+                    sprintf(arrTemp,"PCODE: %s",((char*)J1939AlarmArrayStringsECU162[uiLoopIndex].FaultCode));
+                    _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
+                    _Disp.gotoxy(2, 36);
+                    _Disp.printStringLeftAligned((char *)J1939AlarmArrayStringsECU162[uiLoopIndex].Description, FONT_VERDANA);
+                }
+            }
             else{
                 /*Do Nothing*/
             }

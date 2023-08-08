@@ -193,6 +193,7 @@ extern const char *StrDEFAStatus[MAX_NUM_OF_DEFA_STATE];
 extern const char *StrEngOperatingState[MAX_NUM_OF_ENG_OPER_STATES];
 extern const char *StrPGN_65252_states[PGN_65252_STRING_OPTIONS];
 extern const char *StrPGN_64966_states[PGN_64966_STRING_OPTIONS];
+
 /* To store DTC data */
 
 typedef struct
@@ -201,11 +202,11 @@ typedef struct
     uint8_t  u8fmi;
     char*    FaultCode;
     char*    Description;
-} stCNG_15KVA_DTC;
+} st_DTC;
 
 
-#define PCODE_LAST_CNG_15KVA 38 //added for testing need to remove after getting exact requirement
+#define PCODE_LAST_ECU162    (164U)
 
+extern const st_DTC J1939AlarmArrayStringsECU162[PCODE_LAST_ECU162];
 
-extern const stCNG_15KVA_DTC J1939AlarmArrayStringsCNG_15KVA[PCODE_LAST_CNG_15KVA];
 #endif /* APL_HMI_UI_CONST_UI_H_ */

@@ -3221,8 +3221,22 @@ uint8_t GCU_ALARMS::prvGetUnbalancedLoadVal()
 {
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
     {
-        float f32GenLoadDiff = (prvGetMaxGensetCurent() - prvGetMinGensetCurent())/prvGetMaxGensetCurent();
-        return (uint8_t) (f32GenLoadDiff*100);
+        uint16_t u16RatedCurrentPerPhase_amp = _cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_FULL_LOAD_CURRENT);
+        if(u16RatedCurrentPerPhase_amp > 0)
+        {
+            /** Shibu Kumar, 08-08-2023
+             *
+             * As discussed with Mihir B. , the formula to detect an unbalanced load condition has been changed (will same as GC1114).
+             *
+             * Old formula: ((MaxCurrent - MinCurrent) / MaxCurrent) * 100
+             * New formula: ((MaxCurrent - MinCurrent) / Rated Current per phase) * 100 */
+            float f32GenLoadDiff = ((prvGetMaxGensetCurent() - prvGetMinGensetCurent()) / u16RatedCurrentPerPhase_amp) * 100;
+            return (uint8_t)round(f32GenLoadDiff);
+        }
+        else
+        {
+            return 0;
+        }
     }
     else
     {

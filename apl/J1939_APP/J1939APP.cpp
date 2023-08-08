@@ -827,14 +827,9 @@ void J1939APP::prvUpdatePGN65291Data(void)
 {
     memset((void*)&f32PGN_65291Data, 0x00, sizeof(f32PGN_65291Data));
 
-    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN))
-    {
-        UpdateEngSensorAlarms( GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN, GCU_ALARMS::LLOP_SWITCH, ALARM_BYTE_0 , (float*)&f32PGN_65291Data[0]);
-    }
-    else
-    {
-        UpdateEngSensorAlarms( GCU_ALARMS::LOW_OIL_PRESS_WARNING, GCU_ALARMS::LLOP_SWITCH, ALARM_BYTE_0 , (float*)&f32PGN_65291Data[0]);
-    }
+    UpdateDGVoltAlarms( GCU_ALARMS::LOW_OIL_PRESS_WARNING  ,
+                   GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN, ALARM_BYTE_0,(float*)&f32PGN_65291Data[0]);
+
     UpdateEngSensorAlarms( GCU_ALARMS::HIGH_WATER_TEMP, GCU_ALARMS::HWT_SWITCH, ALARM_BYTE_1 , (float*)&f32PGN_65291Data[0]);
     if(_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN) ||
             _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION)
@@ -884,8 +879,49 @@ void J1939APP::prvUpdatePGN65291Data(void)
     UpdateAlarmRegValue(GCU_ALARMS::FAIL_TO_START, ALARM_BYTE_6 , (float*)&f32PGN_65291Data[0]);
     UpdateAlarmRegValue(GCU_ALARMS::FAIL_TO_STOP, ALARM_BYTE_7 , (float*)&f32PGN_65291Data[0]);
 
-    f32PGN_65291Data[ALARM_BYTE_8] = F32_Null;
-    f32PGN_65291Data[ALARM_BYTE_9] = F32_Null;
+    if((_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_R_UV_WARNING)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_Y_UV_WARNING)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_B_UV_WARNING))
+            || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_R_UV_SHUTDOWN)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_Y_UV_SHUTDOWN))|| (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_B_UV_SHUTDOWN)))
+    {
+        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_UV_WARNING) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_UV_WARNING) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_UV_WARNING) )
+        {
+            f32PGN_65291Data[ALARM_BYTE_8] =  (uint16_t)(ALARM_WARNING);
+        }
+        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_UV_SHUTDOWN) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_UV_SHUTDOWN) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_UV_SHUTDOWN) )
+        {
+            f32PGN_65291Data[ALARM_BYTE_8] =  (uint16_t)(ALARM_SHUTDOWN);
+        }
+        else
+        {
+            f32PGN_65291Data[ALARM_BYTE_8] =  (uint16_t)(ALARM_INACTIVE );
+        }
+    }
+    else
+    {
+        f32PGN_65291Data[ALARM_BYTE_8] =  (uint16_t)(ALARM_DISABLED );
+    }
+
+    if((_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_R_OV_WARNING)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_Y_OV_WARNING)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_B_OV_WARNING))
+            || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_R_OV_SHUTDOWN)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_Y_OV_SHUTDOWN))|| (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_B_OV_SHUTDOWN)))
+    {
+        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_OV_WARNING) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_OV_WARNING) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_OV_WARNING) )
+        {
+            f32PGN_65291Data[ALARM_BYTE_9] =  (uint16_t)(ALARM_WARNING);
+        }
+        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_OV_SHUTDOWN) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_OV_SHUTDOWN) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_OV_SHUTDOWN) )
+        {
+            f32PGN_65291Data[ALARM_BYTE_9] =  (uint16_t)(ALARM_SHUTDOWN);
+        }
+        else
+        {
+            f32PGN_65291Data[ALARM_BYTE_9] =  (uint16_t)(ALARM_INACTIVE );
+        }
+    }
+    else
+    {
+        f32PGN_65291Data[ALARM_BYTE_9] =  (uint16_t)(ALARM_DISABLED );
+    }
+
+
     UpdateDGVoltAlarms( GCU_ALARMS::UNDERFREQ_WARNING  ,
                GCU_ALARMS::UNDERFREQ_SHUTDOWN, ALARM_BYTE_10,(float*)&f32PGN_65291Data[0]);
     UpdateDGVoltAlarms( GCU_ALARMS::OVERFREQ_WARNING  ,
@@ -902,6 +938,7 @@ void J1939APP::prvUpdatePGN65292Data(void)
     memset((void*)&f32PGN_65292Data, 0x00, sizeof(f32PGN_65292Data));
 
     f32PGN_65292Data[ALARM_BYTE_0] = F32_Null;
+    UpdateAlarmRegValue(GCU_ALARMS::FILT_MAINTENANCE, ALARM_BYTE_1 , (float*)&f32PGN_65292Data[0]);
     UpdateAlarmRegValue(GCU_ALARMS::FILT_MAINTENANCE, ALARM_BYTE_1 , (float*)&f32PGN_65292Data[0]);
     UpdateAlarmRegValue(GCU_ALARMS::CA_FAIL, ALARM_BYTE_2 , (float*)&f32PGN_65292Data[0]);
     f32PGN_65292Data[ALARM_BYTE_3] = F32_Null;
@@ -929,10 +966,6 @@ void J1939APP::prvUpdatePGN65292Data(void)
         {
             UpdateAlarmRegValue(GCU_ALARMS::OPEN_LOP_CURR_SENS_CKT, ALARM_BYTE_10 , (float*)&f32PGN_65292Data[0]);
         }
-//        else if(_cfgz.GetCFGZ_Param(CFGZ::ID_PIN23_SENS_FAULT_EN))
-//        {
-//            f32PGN_65292Data[ALARM_BYTE_10]= (uint16_t)(1U);
-//        }
         else
         {
             f32PGN_65292Data[ALARM_BYTE_10]= (uint16_t)(0);
@@ -959,17 +992,15 @@ void J1939APP::prvUpdatePGN65293Data(void)
     UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_G, ALARM_BYTE_2, (float*)&f32PGN_65293Data[0]);
     UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_H, ALARM_BYTE_3, (float*)&f32PGN_65293Data[0]);
 
-    prvUpdateDGVoltAlarmsInAnyPhase(GCU_ALARMS::DG_R_UV_WARNING,
-    GCU_ALARMS::DG_R_UV_SHUTDOWN, ALARM_BYTE_4 ,(float*)&f32PGN_65293Data[0]);
-    prvUpdateDGVoltAlarmsInAnyPhase(GCU_ALARMS::DG_R_OV_WARNING ,
-            GCU_ALARMS::DG_R_OV_SHUTDOWN, ALARM_BYTE_5 ,(float*)&f32PGN_65293Data[0]);
+    f32PGN_65293Data[ALARM_BYTE_4] = F32_Null;
+    f32PGN_65293Data[ALARM_BYTE_5] = F32_Null;
     f32PGN_65293Data[ALARM_BYTE_6] = F32_Null;
     f32PGN_65293Data[ALARM_BYTE_7] = F32_Null;
 
     f32PGN_65293Data[ALARM_BYTE_8] = F32_Null;
     f32PGN_65293Data[ALARM_BYTE_9] = F32_Null;
     f32PGN_65293Data[ALARM_BYTE_10] = F32_Null;
-    UpdateAlarmRegValue(GCU_ALARMS::EB_PHASE_ROTATION, ALARM_BYTE_11, (float*)&f32PGN_65293Data[0]);
+    f32PGN_65293Data[ALARM_BYTE_11] = F32_Null;
 
     f32PGN_65293Data[ALARM_BYTE_12] = F32_Null;
     f32PGN_65293Data[ALARM_BYTE_13] = F32_Null;
@@ -1039,33 +1070,15 @@ void J1939APP::prvUpdatePGN65296Data(void)
 {
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
     {
-         f32PGN_65296Data[0] =(float) _hal.AcSensors.GENSET_GetTotalActiveEnergySinceInitWH();
-         f32PGN_65296Data[1] =(float) _hal.AcSensors.GENSET_GetTotalApparentEnergySinceInitVAH();
-         f32PGN_65297Data[0] =(float) _hal.AcSensors.GENSET_GetTotalReactiveEnergySinceInitVARH();
+         f32PGN_65296Data[0] =(float)( _hal.AcSensors.GENSET_GetTotalActiveEnergySinceInitWH()/1000);
+         f32PGN_65296Data[1] =(float) (_hal.AcSensors.GENSET_GetTotalApparentEnergySinceInitVAH()/1000);
     }
 }
 void J1939APP::prvUpdatePGN65297Data(void)
 {
-    A_SENSE::SENSOR_RET_t stval;
-    stval= _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_ENG_TEMPERATURE);
-    //Engine coolent temperature as scaling in MODBUS was 0.1 so divide by 10
-    if((stval.eStatus!=A_SENSE::SENSOR_NOT_CONFIGRUED)
-               && (stval.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT ))
-    {
-         f32PGN_65297Data[1]= stval.stValAndStatus.f32InstSensorVal;
-    }
-    else if(stval.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT)    /* If sensor is open circuit send Invalid data*/
-    {
-        f32PGN_65297Data[1] = F32_Null;
-    }
-    else
-    {
-        ;
-    }
-
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
     {
-        f32PGN_65297Data[0] = (float)(_hal.AcSensors.GENSET_GetTotalReactiveEnergySinceInitVARH());
+        f32PGN_65297Data[0] = (float)(_hal.AcSensors.GENSET_GetTotalReactiveEnergySinceInitVARH()/1000);
     }
 
 }

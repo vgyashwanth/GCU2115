@@ -3274,7 +3274,7 @@ void MON_UI::prvNormalMonScreens()
             {
                     if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_EEC1_61444,0) == J1939APP::VALID_DATA))
                 {
-                sprintf(arrTemp, "%.2f RPM",(float)(_j1939.GetReadData(RX_PGN_EEC1_61444,0)));
+                sprintf(arrTemp, "%.0fRPM",(float)(_j1939.GetReadData(RX_PGN_EEC1_61444,0)));
                 }
                 else
                 {

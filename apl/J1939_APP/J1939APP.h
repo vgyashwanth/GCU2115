@@ -79,6 +79,7 @@ public:
     {
         FLASH_AT_1_HZ,
         FLASH_AT_2_HZ,
+        FLASH_ALWAYS,
         NO_FLASH,
     }LAMP_FLASHING_SEQ_t;
 

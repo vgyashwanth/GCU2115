@@ -135,6 +135,37 @@ offset 14.
         MB_GEN_L3_PF,
         MB_GEN_AVERAGE_PF,
         MD_FUEL_PERCENTAGE,
+        MB_FUEL_RATE_PGN_65266,
+        MB_SPN1  ,
+        MB_FMI1  = MB_SPN1 + 2,
+        MB_SPN2  ,
+        MB_FMI2  = MB_SPN2 + 2,
+        MB_SPN3  ,
+        MB_FMI3  = MB_SPN3 + 2,
+        MB_SPN4  ,
+        MB_FMI4  = MB_SPN4 + 2,
+        MB_SPN5  ,
+        MB_FMI5  = MB_SPN5 + 2,
+        MB_SPN6  ,
+        MB_FMI6  = MB_SPN6 + 2,
+        MB_SPN7  ,
+        MB_FMI7  = MB_SPN7 + 2,
+        MB_SPN8  ,
+        MB_FMI8  = MB_SPN8 + 2,
+        MB_SPN9  ,
+        MB_FMI9  = MB_SPN9 + 2,
+        MB_SPN10 ,
+        MB_FMI10  = MB_SPN10 + 2,
+        MB_SPN11 ,
+        MB_FMI11  = MB_SPN11 + 2,
+        MB_SPN12 ,
+        MB_FMI12  = MB_SPN12 + 2,
+        MB_SPN13 ,
+        MB_FMI13  = MB_SPN13 + 2,
+        MB_SPN14 ,
+        MB_FMI14  = MB_SPN14 + 2,
+        MB_SPN15 ,
+        MB_FMI15  = MB_SPN15 + 2,
 
 #if AUTOMATION
 
@@ -380,6 +411,9 @@ private:
     void prvUpdateGCUAlarms();
 
     void prvGetMiscParams();
+
+    void prvUpdateLatestDM1Messages(void);
+    void prvUpdateCPCB4dataOnModbus();
 
 };
 

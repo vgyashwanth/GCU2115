@@ -189,7 +189,7 @@ static const char* arrUnit[ID_UNIT_LST]=
    " mm"
 };
 
-static const char* strOutputSources[1][67] =
+static const char* strOutputSources[1][68] =
 {
  {
   "Disable",
@@ -258,11 +258,12 @@ static const char* strOutputSources[1][67] =
   "BTS Mode",
   "Preheat Output",
   "ECU Start",
-  "Malfunction Indicator Lamp"
+  "Malfunction Indicator Lamp",
+  "EGR Output"
  }
 };
 
-static const char* strInputSources[1][21]=
+static const char* strInputSources[1][22]=
 {
  {
   "Not Used",
@@ -286,6 +287,7 @@ static const char* strInputSources[1][21]=
   "Smoke Fire",
   "Mode Select Switch",
   "Ambient Temp Switch",
+  "EGR Digital In",
  }
 };
 

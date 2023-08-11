@@ -101,7 +101,7 @@ void MAIN_UI::prvExitFromConfigMode()
     _GCUAlarms.ResetMainsMonParams();
     _EngineStartValidity.InitEngineStartValidityConfig();
     _StartStop.Init();
-
+    
     _MonUI.Init(); /* MON UI need to be updated at the end */
 
     if(CEditableItem::IsAnyConfigValueEdited())

@@ -62,6 +62,7 @@ public:
          DI_SMOKE_FIRE,
          DI_MODE_SELECT,
          DI_AMB_TEMP_SELECT,
+         DI_EGR_ECU_DIGITAL_IN,
          DI_SENSOR_END
     } D_SENSOR_TYPS_t;
 

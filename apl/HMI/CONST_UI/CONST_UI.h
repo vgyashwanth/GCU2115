@@ -29,7 +29,7 @@ extern const uint8_t u8BmpLogoLoad[3][20];
 extern const uint8_t u8BmpLogoshelterTemp[3][20];
 extern const char *strTimerStatus[1][14];
 extern const char *strGCUStatus[1][10];
-extern const char *strMonScreens[1][49]; /*todo : MON_UI::DISP_MON_LAST should be used here for indexing */
+extern const char *strMonScreens[1][50]; /*todo : MON_UI::DISP_MON_LAST should be used here for indexing */
 extern const char *strGCUMode[1][5];
 extern const char *strIDLMode[];
 extern const uint8_t u8ArrContactor1[6][16];
@@ -147,6 +147,7 @@ extern uint8_t gau8Icon4[4][20] ;
 extern uint8_t gau8Icon6[6][27] ;
 extern uint8_t gau8Icon7[6][27] ;
 extern uint8_t gau8Icon8[6][27] ;
+extern const uint8_t u8RLSImage[6][28];
 
 typedef struct
 {
@@ -208,5 +209,6 @@ typedef struct
 #define PCODE_LAST_ECU162    (164U)
 
 extern const st_DTC J1939AlarmArrayStringsECU162[PCODE_LAST_ECU162];
+extern char *strEgrFault[];
 
 #endif /* APL_HMI_UI_CONST_UI_H_ */

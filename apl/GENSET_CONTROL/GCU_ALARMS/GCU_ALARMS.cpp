@@ -111,9 +111,20 @@ _ArrAlarmForDisplay{0},
 _u32EventNumber(0),
 _u32RolledOverByte(0),
 prvPreviousDTC_OC{0,0,0},
-_stEventLog{0}
+_stEventLog{0},
+_StartEgrDetection(0),
+_stNvEgrTimeLog{0,0,0xFFFF, 0xFFFF},
+_eEgrMonState(EGR_MON_IDLE_STATE),
+_u32EgrFault72HrsMonitoring_min(0),
+_u32EgrFaultReset40HrsMonitoring_min(0),
+_stGeneralTimer1Minute{0, false},
+eEgrFault(EGR_NO_FAULT),
+egrInState(EGR_DETECTION_HOLD),
+_ecuFaultTimer{0, false},
+u16PulseDetectionCount(0U)
 {
     InitGCUAlarms();
+    prvInitNV_EGR_TimeLog();
     ClearAllAlarms();
     UTILS_ResetTimer(&_AlarmUpdate);
     UTILS_ResetTimer(&_FuelTheftOneHourTimer);
@@ -189,7 +200,7 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
             UTILS_ResetTimer(&_Modbus10minTimer);
             _bUpdateModbusCountCalc = true;
         }
-
+        UpdateEgrDetections();
         if((UTILS_GetElapsedTimeInMs(&_UpdateAlarmMonTimer) >= FIFTY_MSEC) && (bAlarmUpdate))
         {
             if(_EventQueue.Peek(&_stLog) && bEventWrittenSuccessfully)
@@ -585,6 +596,12 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
 
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[AMB_TEMP_SELECT_STATUS];
             ArrAlarmMonitoring[u8InputIndex].LocalEnable = &_u8DummyOne;
+            break;
+        case CFGZ::CFGZ_EGR_ECU_DIGITAL_IN:
+            /* monitoring enable for all related alarm */
+            ArrAlarmMonitoring[EGR_FAULT].bEnableMonitoring = true;
+            prvSetAlarmAction_NoWESN(EGR_FAULT, u8AlarmAction);
+            ArrAlarmMonitoring[EGR_FAULT].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
             break;
     }
 }
@@ -1875,6 +1892,16 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[AUTOMATIC_MODE_SWITCH_STATUS];
         break;
+        case EGR_FAULT:
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_StartEgrDetection;
+            ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[EGR_ECU_FAULT_STATUS];
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Egr_Fault;
+            ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0 ;
+            ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
+        }
+        break;
         case ALARM_COM_FAIL:
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE))
             {
@@ -2287,6 +2314,8 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
 
     _ArrAlarmValue[AUTOMATIC_MODE_SWITCH_STATUS].u8Value = _bAutomaticModeSwitchStatus;
 
+    _ArrAlarmValue[EGR_ECU_FAULT_STATUS].u8Value = (uint8_t)prvIsEgrFaultPresent();
+
     _ArrAlarmValue[J1939_COM_FAIL_STATUS].u8Value =  gpJ1939->IsCommunicationFail();
     _ArrAlarmValue[J1939_PROTECT_LAMP_STATUS].u8Value = gpJ1939->IsProtectLampON();
     _ArrAlarmValue[J1939_AMBER_LAMP_STATUS].u8Value = gpJ1939->IsAmberLampON();
@@ -2503,6 +2532,10 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
         case Automatic_md_switch_id:
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[AUTOMATIC_MD_SWITCH].bAlarmActive;
             break;
+        /* EGR alarm */
+        case Egr_Fault:
+            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[EGR_FAULT].bAlarmActive;
+        break;
         case J1939_com_fail_id:
           _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[ALARM_COM_FAIL].bAlarmActive;
         break;
@@ -2948,6 +2981,7 @@ void GCU_ALARMS::ClearAllAlarms()
     gpJ1939->SetDm2MsgCount(0);
     gpJ1939->ClearDM2Messages();
 //    gpJ1939->ClearNCDandPCDAlarms();
+    clearEgrFaults();
 }
 
 
@@ -3323,7 +3357,9 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(ArrAlarmMonitoring[OPEN_ENG_TEMP_CKT].bResultLatched, ACTUATOR::ACT_TEMP_CKT_OPEN);
     prvActDeactOutput(ArrAlarmMonitoring[UNDERFREQ_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_UF_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[UNDERSPEED].bShutdownLatched, ACTUATOR::ACT_US_SHUTDOWN);
+#if (!EGR_TEST)
     prvActDeactOutput(ArrAlarmMonitoring[FILT_MAINTENANCE].bAlarmActive || ArrAlarmMonitoring[FILT_MAINTENANCE_BY_DATE].bAlarmActive, ACTUATOR::ACT_FILT_MAINT);
+#endif
     //Activate and Deactivate of ACT_MODE_STOP is done in BASE_MODES
     //Activate and Deactivate of ACT_MODE_AUTO is done in BASE_MODES
     //Activate and Deactivate of ACT_MODE_MANUAL is done in BASE_MODES
@@ -3991,6 +4027,431 @@ bool GCU_ALARMS::prvIsNewDTC(uint32_t u32Spn, uint8_t u8FMI, uint8_t u8Occurance
     prvPreviousDTC_OC[u8DTCIndex].u8OC = u8Occurances;
     return true;
 
+}
+
+/*--------------------------------------------< EGR Fault Monitoring >----------------------------------------------------*/
+
+void GCU_ALARMS::StartEgrFaultDetection()
+{
+    UTILS_ResetTimer(&_ecuFaultTimer);
+    egrInState  = EGR_DETECTION_INIT;
+    ArrAlarmMonitoring[EGR_FAULT].bEnableShutdown = false;
+
+    _StartEgrDetection = 1U;
+}
+void GCU_ALARMS::DisableEGRDetection()
+{
+    _StartEgrDetection = 0U;
+    egrInState = EGR_DETECTION_HOLD;
+}
+
+void GCU_ALARMS::UpdateEgrDetections()
+{
+    EgrFaultDetection();
+
+    if(_StartEgrDetection)
+    {
+        prvMonitorEgrFaultStatus();
+    }
+}
+
+#define IS_EGR_INPUT_ACTIVE()   (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN)\
+                                    == DigitalSensor::SENSOR_LATCHED)
+#define IS_EGR_INPUT_INACTIVE()  (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN)\
+                                    == DigitalSensor::SENSOR_UNLATCHED)
+
+/* EGR monitoring config */
+#define EGR_TIME_LOG_NV_MEMORY_ADDR           (0x1200U) /* temporary EEEPROM address */
+#define FAULT_PRESENT_MONITORING_TIME_MINUTES (4)   //72 hrs
+#define FAULT_RESET_MONITORING_TIME_MINUTES   (2)   //40 hrs
+#define EGR_LOG_NV_WRITE_CYCLE_IN_MINUTES     (1)
+#define IS_ONE_MINUTE_TIME_ELAPSED()          (UTILS_GetElapsedTimeInSec(&_stGeneralTimer1Minute) > 60U)
+#define KICK_ONE_MINUTE_TIMER()               (UTILS_ResetTimer(&_stGeneralTimer1Minute))
+
+void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
+{
+
+    static uint8_t u8CntInMinute = 0U;
+
+    switch(_eEgrMonState)
+    {
+        case EGR_MON_IDLE_STATE :
+        {
+            if(_u8EngineOn)
+            {
+                if(prvIsEgrFaultPresent())
+                {
+                    KICK_ONE_MINUTE_TIMER();
+                    _eEgrMonState = EGR_MON_72_HRS_FAULT_CONFIRM_OPERATION;
+                }
+                else if(_u32EgrFault72HrsMonitoring_min > 0U)
+                {
+                    KICK_ONE_MINUTE_TIMER();
+                    _eEgrMonState = EGR_MON_40_HRS_FAULT_RESET_OPERATION;
+                }
+                else
+                {
+                    /* wait */
+                }
+            }
+            else
+            {
+                 /* wait in same state for engine on. */
+            }
+        }
+        break;
+
+        case EGR_MON_72_HRS_FAULT_CONFIRM_OPERATION :
+        {
+            if((IS_ONE_MINUTE_TIME_ELAPSED())  && (_u8EngineOn))
+            {
+                _u32EgrFault72HrsMonitoring_min++;
+            }
+            else
+            {
+                /* wait */
+            }
+
+            if(!prvIsEgrFaultPresent())
+            {
+                _eEgrMonState = EGR_MON_40_HRS_FAULT_RESET_OPERATION;
+            }
+            else if(_u32EgrFault72HrsMonitoring_min >= FAULT_PRESENT_MONITORING_TIME_MINUTES) /* 72 Hrs */
+            {
+                /* change the action of EGR alarms to shutdown &&
+                   shutdown engine at any cost */
+                ArrAlarmMonitoring[EGR_FAULT].bEnableShutdown = true;
+            }
+            else
+            {
+                /* wait */
+            }
+
+        }
+        break;
+
+        case EGR_MON_40_HRS_FAULT_RESET_OPERATION :
+        {
+            if((IS_ONE_MINUTE_TIME_ELAPSED())  && (_u8EngineOn))
+            {
+                _u32EgrFaultReset40HrsMonitoring_min++;
+            }
+            else
+            {
+                /* wait */
+            }
+
+            if(prvIsEgrFaultPresent())
+            {
+                _u32EgrFaultReset40HrsMonitoring_min = 0U; /* reset 40 Hrs counter */
+                _eEgrMonState = EGR_MON_72_HRS_FAULT_CONFIRM_OPERATION;
+            }
+            else if(_u32EgrFaultReset40HrsMonitoring_min >= FAULT_RESET_MONITORING_TIME_MINUTES) /* 40 Hrs */
+            {
+                _eEgrMonState = EGR_MON_RESET_ALL_COUNTERS;
+            }
+            else
+            {
+                /* wait */
+            }
+        }
+        break;
+
+        case EGR_MON_RESET_ALL_COUNTERS :
+        {
+            _u32EgrFault72HrsMonitoring_min = 0U;
+            _u32EgrFaultReset40HrsMonitoring_min = 0U;
+
+            ArrAlarmMonitoring[EGR_FAULT].bEnableShutdown = false;
+
+            prvEGR_TimeLog_WriteToNV();
+            _eEgrMonState = EGR_MON_IDLE_STATE;
+        }
+        break;
+
+        default:
+            /* Invalid */
+        break;
+    }
+
+    if(IS_ONE_MINUTE_TIME_ELAPSED())
+    {
+        u8CntInMinute++;
+        KICK_ONE_MINUTE_TIMER();
+    }
+
+    if(u8CntInMinute > EGR_LOG_NV_WRITE_CYCLE_IN_MINUTES)
+    {
+        u8CntInMinute = 0U;
+        prvEGR_TimeLog_WriteToNV();
+    }
+
+}
+
+
+bool GCU_ALARMS::prvIsEgrFaultPresent()
+{
+    if(eEgrFault > EGR_NO_FAULT)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+void GCU_ALARMS::prvInitNV_EGR_TimeLog(void)
+{
+
+    _hal.Objeeprom.BlockingRead(EGR_TIME_LOG_NV_MEMORY_ADDR, (uint8_t*) &_stNvEgrTimeLog, sizeof(EGR_MON_TIME_LOG_t));
+
+    if(_stNvEgrTimeLog.u16CRC ==  CRC16::ComputeCRCGeneric((uint8_t *)&_stNvEgrTimeLog, (sizeof(EGR_MON_TIME_LOG_t) - sizeof(uint16_t))
+                                            , CRC_MEMORY_SEED))
+    {
+        _u32EgrFault72HrsMonitoring_min = _stNvEgrTimeLog.u32Time72HrsEgrFault_min;
+        _u32EgrFaultReset40HrsMonitoring_min = _stNvEgrTimeLog.u32Time40HrsEgrFault_min;
+    }
+    else
+    {
+        _u32EgrFault72HrsMonitoring_min = 0U;
+        _u32EgrFaultReset40HrsMonitoring_min = 0U;
+    }
+}
+
+void GCU_ALARMS::prvEGR_TimeLog_WriteToNV(void)
+{
+    _stNvEgrTimeLog.u32Time72HrsEgrFault_min = _u32EgrFault72HrsMonitoring_min;
+    _stNvEgrTimeLog.u32Time40HrsEgrFault_min = _u32EgrFaultReset40HrsMonitoring_min;
+
+    _stNvEgrTimeLog.u16Dummy = 0xFFFFU;
+
+    _stNvEgrTimeLog.u16CRC = CRC16::ComputeCRCGeneric((uint8_t *)&_stNvEgrTimeLog, (sizeof(EGR_MON_TIME_LOG_t) - sizeof(uint16_t))
+                                            , CRC_MEMORY_SEED);
+
+    _hal.Objeeprom.RequestWrite(EGR_TIME_LOG_NV_MEMORY_ADDR, (uint8_t*) &_stNvEgrTimeLog, sizeof(EGR_MON_TIME_LOG_t), NULL);
+
+}
+
+uint32_t GCU_ALARMS::GetFaultPreset72HrsTimeInMin()
+{
+    return _u32EgrFault72HrsMonitoring_min;
+}
+
+uint32_t GCU_ALARMS::GetFaultReset40HrsTimeInMin()
+{
+    return  _u32EgrFaultReset40HrsMonitoring_min;
+}
+
+#define ALLOWED_BUFFER_TIME    (150)
+#define ALLOWED_MIN_TIME(x)    (x - ALLOWED_BUFFER_TIME)
+#define ALLOWED_MAX_TIME(x)    (x + ALLOWED_BUFFER_TIME)
+
+void GCU_ALARMS::clearEgrFaults()
+{
+    eEgrFault = EGR_NO_FAULT;
+    ArrAlarmMonitoring[EGR_FAULT].bEnableShutdown = false;
+}
+
+GCU_ALARMS::EGR_FAULT_LIST_t GCU_ALARMS::GetEgrEcuFaultStatus()
+{
+    return eEgrFault;
+}
+
+uint16_t GCU_ALARMS::GetPulseCount()
+{
+    /* Debug purpose */
+    return u16PulseDetectionCount;
+}
+
+void GCU_ALARMS::EgrFaultDetection()
+{
+    static stTimer _activeSignalTimer = {0U, false};
+    static stTimer _500msActiveSignalTimer = {0U, false};
+    static stTimer _500msInActiveSignalTimer = {0U, false};
+
+    switch (egrInState)
+    {
+        case EGR_DETECTION_HOLD:
+        {
+            /* no functioning. */
+        }
+        break;
+        case EGR_DETECTION_INIT:
+        {
+            if(IS_EGR_INPUT_ACTIVE())
+            {
+                UTILS_ResetTimer(&_activeSignalTimer);
+                UTILS_ResetTimer(&_ecuFaultTimer);
+                eEgrFault = EGR_NO_FAULT;
+
+                egrInState = EGR_MON_START;
+
+                /* >> reset activeSignalTimer monitoring timer
+                   >>  reset ecuFault Timer
+                   >> clear ecu fault alarm */
+            }
+            else if(UTILS_GetElapsedTimeInMs(&_ecuFaultTimer) > 15000) /* 15 Sec */
+            {
+                eEgrFault = EGR_ECU_FAULT;
+                /* inactive for more than 15 sec, means ecu is unlhealthy
+                >> trigger ECU Unhealthy status
+                >> clear all detected faults */
+            }
+        }
+        break;
+
+        case EGR_MON_START:
+        {
+            if(IS_EGR_INPUT_INACTIVE())
+            {
+                if(UTILS_GetElapsedTimeInMs(&_activeSignalTimer) > 1000) /* was active for more than 1 sec */
+                {
+
+                    UTILS_ResetTimer(&_500msInActiveSignalTimer);
+                    UTILS_DisableTimer(&_500msActiveSignalTimer);
+                    u16PulseDetectionCount = 0U;
+
+                    /* means, 3.5 sec of active signal is completed
+                        now, we can start the small pulses(0.5 sec) detection.
+                    >> reset 500msInActiveSignalTimer
+                    >> disable 500msActiveSignalTimer
+                    >> clear the pulse count detection variable
+                    */
+                    egrInState = EGR_500MS_ACTIVE_DETECT;
+                }
+                else
+                {
+                    /* means, signal was active for small pulse of 0.5 sec */
+                    egrInState = EGR_DETECTION_INIT;
+                }
+            }
+            else if(UTILS_GetElapsedTimeInMs(&_activeSignalTimer) > 4000) /* active for more than 1 sec */
+            {
+                /* Egr healthy
+                  >> no fault present */
+                egrInState = EGR_DETECTION_INIT;
+            }
+        }
+        break;
+
+
+        case EGR_500MS_ACTIVE_DETECT:
+        {
+            if(IS_EGR_INPUT_ACTIVE())
+            {
+                if(  (UTILS_GetElapsedTimeInMs(&_500msInActiveSignalTimer)  > ALLOWED_MIN_TIME(500))  &&
+                     (UTILS_GetElapsedTimeInMs(&_500msInActiveSignalTimer)  < ALLOWED_MAX_TIME(500))      )
+                {
+
+                    UTILS_ResetTimer(&_500msActiveSignalTimer);
+                    UTILS_DisableTimer(&_500msInActiveSignalTimer);
+                    u16PulseDetectionCount++;
+                    /*
+                    >> disable 500msInActiveSignalTimer
+                    >> reset 500msActiveSignalTimer
+                    >> increase pulse detection count
+                    */
+                    egrInState = EGR_500MS_INACTIVE_DETECT;
+                }
+                else if(UTILS_GetElapsedTimeInMs(&_500msInActiveSignalTimer) > 1000)
+                {
+                    egrInState = EGR_DETECTION_INIT;
+                }
+            }
+            else if(UTILS_GetElapsedTimeInMs(&_500msInActiveSignalTimer) > 1000)
+            {
+                egrInState = EGR_DETECTION_INIT;
+            }
+        }
+        break;
+
+
+        case EGR_500MS_INACTIVE_DETECT:
+        {
+            if(IS_EGR_INPUT_INACTIVE())
+            {
+                if(  (UTILS_GetElapsedTimeInMs(&_500msActiveSignalTimer)  > ALLOWED_MIN_TIME(500))  &&
+                     (UTILS_GetElapsedTimeInMs(&_500msActiveSignalTimer)  < ALLOWED_MAX_TIME(500))      )
+                {
+
+                    UTILS_ResetTimer(&_500msInActiveSignalTimer);
+                    UTILS_DisableTimer(&_500msActiveSignalTimer);
+
+                    /*
+                    >> disable 500msActiveSignalTimer
+                    >> reset 500msInActiveSignalTimer
+                    */
+                    egrInState = EGR_500MS_ACTIVE_DETECT;
+                }
+                else if( (  (UTILS_GetElapsedTimeInMs(&_500msActiveSignalTimer)  > ALLOWED_MIN_TIME(3500))  &&
+                            (UTILS_GetElapsedTimeInMs(&_500msActiveSignalTimer)  < ALLOWED_MAX_TIME(3500))     ) ||
+
+                         (  (UTILS_GetElapsedTimeInMs(&_500msActiveSignalTimer)  > ALLOWED_MIN_TIME(3000))  &&
+                            (UTILS_GetElapsedTimeInMs(&_500msActiveSignalTimer)  < ALLOWED_MAX_TIME(3000))     )  )
+                {
+                    if(u16PulseDetectionCount == 7)
+                    {
+                        eEgrFault = EGR_VALVE_NOT_CLOSING;
+                        egrInState = EGR_500MS_ACTIVE_DETECT;
+                        /* Fault : Valve Not Closing */
+                    }
+                    else if(u16PulseDetectionCount == 6)
+                    {
+                        eEgrFault = EGR_ECU_VALVE_SHORT;
+                        egrInState = EGR_500MS_ACTIVE_DETECT;
+                        /* Fault : Valve Not Lifting /  EGR valve is short. */
+                    }
+                    else if(u16PulseDetectionCount == 5)
+                    {
+                        eEgrFault = EGR_SENSOR_FAULTY;
+                        egrInState = EGR_500MS_ACTIVE_DETECT;
+                        /* Fault : Valve Sensor not connected of faulty. */
+                    }
+                    else if(u16PulseDetectionCount == 4)
+                    {
+                        eEgrFault = EGR_VALVE_WIRE_OPEN;
+                        egrInState = EGR_500MS_ACTIVE_DETECT;
+                        /* Fault : Valve Wire Open */
+                    }
+                    else if(u16PulseDetectionCount == 3)
+                    {
+                        eEgrFault = EGR_TEMP_SENSOR_OUT_OF_EX_PIPE;
+                        egrInState = EGR_500MS_ACTIVE_DETECT;
+                        /* Fault : Temperature Sensor Keep it Outside from the Exhaust Pipe ( 20 to 70 Deg c)-
+                                    more than 4 min ECU trigger Error  */
+
+                        ArrAlarmMonitoring[EGR_FAULT].bEnableShutdown = true;
+                    }
+                    else if(u16PulseDetectionCount == 2)
+                    {
+                        eEgrFault = EGR_TEMP_SENSOR_FAULTY;
+                        egrInState = EGR_500MS_ACTIVE_DETECT;
+                        /* Fault : Temperature Sensor is open or faulty. */
+                    }
+                    else
+                    {
+                        egrInState = EGR_DETECTION_INIT;
+                        /* something went wrong, mostly wont come here */
+                    }
+
+                    UTILS_ResetTimer(&_500msInActiveSignalTimer);
+                    u16PulseDetectionCount = 0;
+                }
+                else
+                {
+                    /* something went wrong , no fault signal detected */
+                    egrInState = EGR_DETECTION_INIT;
+                }
+            }
+            else if(UTILS_GetElapsedTimeInMs(&_500msActiveSignalTimer)  > 4000)
+            {
+                egrInState = EGR_DETECTION_INIT;
+            }
+        }
+        break;
+
+        default:
+        break;
+    }
 }
 
 

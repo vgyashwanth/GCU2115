@@ -22,8 +22,6 @@ _cfgz(cfgz),
 _J1939(J1939),
 _hal(hal),
 _u8NumberOfAlarms(0),
-//_u8ArrPCDAlarmForDisp{0},
-//_u8ArrNCDAlarmForDisp{0},
 _eOldAlarmType(ALARM)
 {
 
@@ -47,14 +45,8 @@ void ALARM_UI::Update(bool bRefresh)
         case DM2:
             _u8NumberOfAlarms = _J1939.GetDm2MsgCount();
             break;
-
-//        case NCD:
-//            _u8NumberOfAlarms = _J1939.GetNCDAlarmCount();
-//            break;
-//        case PCD:
-//            _u8NumberOfAlarms = _J1939.GetPCDAlarmCount();
-//            break;
-
+        default:
+            break;
     }
 
     if(_eOldAlarmType != _eAlarmType)
@@ -75,11 +67,8 @@ void ALARM_UI::Update(bool bRefresh)
             case DM2:
                 prvDisplayDMScreen();
                 break;
-//            case NCD:
-//            case PCD:
-//                prvDisplayPCDNCDScreen();
-//                break;
-
+            default:
+                break;
         }
     }
 }
@@ -107,15 +96,15 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
               {
                   if((_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
                   {
-                      if(_cfgz.GetEngType() == CFGZ::CRDIECU1)
-                      {
-                          _eAlarmType = DM2;
-                          _J1939.RequestDM2Messages();
-                      }
-                      else
-                      {
+//                      if(_cfgz.GetEngType() == CFGZ::CRDIECU1)
+//                      {
+//                          _eAlarmType = DM2;
+//                          _J1939.RequestDM2Messages();
+//                      }
+//                      else
+//                      {
                         _eAlarmType = DM1;
-                      }
+//                      }
                   }
                   else
                   {
@@ -123,10 +112,10 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
                       _eOldAlarmType = ALARM;
                   }
               }
-              else if((_eAlarmType == DM2) && (_cfgz.GetEngType() == CFGZ::CRDIECU1))
-              {
-                  _eAlarmType = DM1;
-              }
+//              else if((_eAlarmType == DM2) && (_cfgz.GetEngType() == CFGZ::CRDIECU1))
+//              {
+//                  _eAlarmType = DM1;
+//              }
               else if((_eAlarmType == DM1) && (_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
               {
                  MON_UI::eDisplayMode = DISP_MON_MODE;
@@ -181,9 +170,9 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
               if(_eAlarmType == ALARM)
               {
                 MON_UI::eDisplayMode = DISP_MON_MODE;
-                if((_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL) && (CFGZ::CRDIECU1 != _cfgz.GetEngType()))
+                if((_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
                 {
-                  if(CFGZ::ECU_162 == _cfgz.GetEngType() || CFGZ::CNG_125KVA == _cfgz.GetEngType())
+                  if(CFGZ::ECU_162 == _cfgz.GetEngType())
                   {
                       MON_UI::_stScreenNo = MON_UI::DISP_LAMP_ICONS;
                   }
@@ -200,15 +189,15 @@ void ALARM_UI::CheckKeyPress(KEYPAD::KEYPAD_EVENTS_t _sKeyEvent)
               }
               else if((_eAlarmType == DM1) && (_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
               {
-                  if((_cfgz.GetEngType() == CFGZ::CRDIECU1))
-                  {
-                      _eAlarmType = DM2;
-                      _J1939.RequestDM2Messages();
-                  }
-                  else
-                  {
+//                  if((_cfgz.GetEngType() == CFGZ::CRDIECU1))
+//                  {
+//                      _eAlarmType = DM2;
+//                      _J1939.RequestDM2Messages();
+//                  }
+//                  else
+//                  {
                       _eAlarmType = ALARM;
-                  }
+//                  }
               }
               else if (_eAlarmType == DM2)
               {
@@ -499,101 +488,6 @@ void ALARM_UI::prvDisplayDMScreen()
             _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
 
             static uint16_t uiLoopIndex = 0;
-//            if(CFGZ::CNG_15KVA == _cfgz.GetEngType())
-//            {
-//                for(uiLoopIndex = 0; uiLoopIndex < PCODE_LAST_CNG_15KVA; uiLoopIndex++)
-//                {
-//                    if((J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].u32spn_no == stDmMsg.u32SpnNo)  && (J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].u8fmi == stDmMsg.u8FMI))
-//                    {
-//                        break;
-//                    }
-//                }
-//
-//                if(uiLoopIndex < PCODE_LAST_CNG_15KVA)
-//                {
-//                    _Disp.gotoxy(2 ,25 );
-//                    sprintf(arrTemp,"PCODE: %s",((char*)J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].FaultCode));
-//                    _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//                    _Disp.gotoxy(2, 36);
-//                    _Disp.printStringLeftAligned((char *)J1939AlarmArrayStringsCNG_15KVA[uiLoopIndex].Description, FONT_VERDANA);
-//                }
-//            }
-//            else if(CFGZ::CRDIECU1 == _pcfgz.Get_EngineType())
-//            {
-//                for(uiLoopIndex = 0; uiLoopIndex < PCODE_LAST_CRDIECU1; uiLoopIndex++)
-//                {
-//                    if(J1939AlarmArrayStringsCRDIECU1[uiLoopIndex].u32spn_no == stDmMsg.u32SpnNo)
-//                    {
-//                        break;
-//                    }
-//                }
-//
-//                if(uiLoopIndex < PCODE_LAST_CRDIECU1)
-//                {
-//                    _Disp.gotoxy(2 ,25 );
-//                    sprintf(arrTemp,"PCODE: %s",((char*)J1939AlarmArrayStringsCRDIECU1[uiLoopIndex].FaultCode));
-//                    _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//                    _Disp.gotoxy(2, 36);
-//                    _Disp.printStringLeftAligned((char *)J1939AlarmArrayStringsCRDIECU1[uiLoopIndex].Description, FONT_VERDANA);
-//                }
-//            }
-//            else if(CFGZ::ECU_898 == _pcfgz.Get_EngineType())
-//            {
-//                for(uiLoopIndex = 0; uiLoopIndex < PCODE_LAST_ECU898; uiLoopIndex++)
-//                {
-//                    if(J1939AlarmArrayStringsECU898[uiLoopIndex].u32spn_no == stDmMsg.u32SpnNo  && (J1939AlarmArrayStringsECU898[uiLoopIndex].u8fmi == stDmMsg.u8FMI))
-//                    {
-//                        break;
-//                    }
-//                }
-//
-//                if(uiLoopIndex < PCODE_LAST_ECU898)
-//                {
-//                    _Disp.gotoxy(2 ,25 );
-//                    sprintf(arrTemp,"PCODE: %s",((char*)J1939AlarmArrayStringsECU898[uiLoopIndex].FaultCode));
-//                    _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//                    _Disp.gotoxy(2, 36);
-//                    _Disp.printStringLeftAligned((char *)J1939AlarmArrayStringsECU898[uiLoopIndex].Description, FONT_VERDANA);
-//                }
-//            }
-//            else if(CFGZ::MHEL898ECU == _pcfgz.Get_EngineType())
-//            {
-//                for(uiLoopIndex = 0; uiLoopIndex < PCODE_LAST_MHEL898ECU; uiLoopIndex++)
-//                {
-//                    if(J1939AlarmArrayStringsMHEL898ECU[uiLoopIndex].u32spn_no == stDmMsg.u32SpnNo  && (J1939AlarmArrayStringsMHEL898ECU[uiLoopIndex].u8fmi == stDmMsg.u8FMI))
-//                    {
-//                        break;
-//                    }
-//                }
-//
-//                if(uiLoopIndex < PCODE_LAST_MHEL898ECU)
-//                {
-//                    _Disp.gotoxy(2 ,25 );
-//                    sprintf(arrTemp,"PCODE: %s",((char*)J1939AlarmArrayStringsMHEL898ECU[uiLoopIndex].FaultCode));
-//                    _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//                    _Disp.gotoxy(2, 36);
-//                    _Disp.printStringLeftAligned((char *)J1939AlarmArrayStringsMHEL898ECU[uiLoopIndex].Description, FONT_VERDANA);
-//                }
-//            }
-//            else if(CFGZ::CNG_125KVA == _pcfgz.Get_EngineType())
-//            {
-//                for(uiLoopIndex = 0; uiLoopIndex < PCODE_LAST_CNG_125KVA; uiLoopIndex++)
-//                {
-//                    if(J1939AlarmArrayStringsCNG_125KVA[uiLoopIndex].u32spn_no == stDmMsg.u32SpnNo  && (J1939AlarmArrayStringsCNG_125KVA[uiLoopIndex].u8fmi == stDmMsg.u8FMI))
-//                    {
-//                        break;
-//                    }
-//                }
-//
-//                if(uiLoopIndex < PCODE_LAST_CNG_125KVA)
-//                {
-//                    _Disp.gotoxy(2 ,25 );
-//                    sprintf(arrTemp,"PCODE: %s",((char*)J1939AlarmArrayStringsCNG_125KVA[uiLoopIndex].FaultCode));
-//                    _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//                    _Disp.gotoxy(2, 36);
-//                    _Disp.printStringLeftAligned((char *)J1939AlarmArrayStringsCNG_125KVA[uiLoopIndex].Description, FONT_VERDANA);
-//                }
-//            }
             if(CFGZ::ECU_162 == _cfgz.GetEngType()){
                 for(uiLoopIndex = 0; uiLoopIndex < PCODE_LAST_ECU162; uiLoopIndex++)
                 {
@@ -638,223 +532,4 @@ void ALARM_UI::prvDisplayDMScreen()
             }
         }
     }
-
-
-//    unsigned int uiLoopIndex;
-//    char arrTemp[32];
-//    J1939APP::J1939_DM_MSG_DECODE stDmMsg = {0};
-//
-//    _Disp.ClearScreen();
-//    _Disp.drawRectangle();
-//    _Disp.drawHorizontalLine(0, 11, 127);
-//    _Disp.gotoxy(64, 1);
-//
-//    if( _eAlarmType == DM1)
-//    {
-//        _Disp.printStringCenterAligned((char *)"DM1",FONT_ARIAL);
-//        stDmMsg = _J1939.GetDM1Message(u8AlarmScreenNum) ;
-//    }
-//    else if(_eAlarmType == DM2)
-//    {
-//        _Disp.printStringCenterAligned((char *)"DM2",FONT_ARIAL);
-//        stDmMsg = _J1939.GetDM2Message(u8AlarmScreenNum);
-//    }
-//
-//    if(!_u8NumberOfAlarms || _J1939.IsCommunicationFail())
-//    {
-//         sprintf(arrTemp," %d/%d", u8AlarmScreenNum, _u8NumberOfAlarms);
-//        _Disp.gotoxy(106, 1 );
-//        _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//
-//        if(DM1 == _eAlarmType)
-//        {
-//            _Disp.gotoxy(64, 32);
-//            _Disp.printStringCenterAligned((char*)strNoActiveDTC[_cfgz.GetArrLanguageIndex()], FONT_VERDANA);
-//        }
-//        else if(DM2 == _eAlarmType)
-//        {
-//            _Disp.gotoxy(64,32);
-//            _Disp.printStringCenterAligned((char*)strNoHistoricDTC[_cfgz.GetArrLanguageIndex()], FONT_VERDANA);
-//        }
-//    }
-//    else
-//    {
-//        if( (stDmMsg.u32SpnNo > 0) && (stDmMsg.u32SpnNo < 0x7FFFF) )
-//        {
-//
-//            sprintf(arrTemp," %d/%d", u8AlarmScreenNum + 1, _u8NumberOfAlarms);
-//            _Disp.gotoxy(126, 1 );
-//            _Disp.printStringRightAligned(arrTemp, FONT_VERDANA);
-//
-//            if(u8AlarmScreenNum > _u8NumberOfAlarms)
-//            {
-//                _u8NumberOfAlarms = u8AlarmScreenNum;
-//            }
-//
-//            /* SPN string */
-//            _Disp.gotoxy(2 ,14 );
-//            sprintf(arrTemp,"SPN: %ld", stDmMsg.u32SpnNo);
-//            _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//
-//            /* FMI string */
-//            _Disp.gotoxy(58 ,14 );
-//            sprintf(arrTemp,"FMI: %d", stDmMsg.u8FMI);
-//            _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//
-//            /* OC string */
-//            _Disp.gotoxy(92 ,14 );
-//            sprintf(arrTemp,"OC: %d", stDmMsg.u8OC);
-//            _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//
-//            for(uiLoopIndex = 0; uiLoopIndex < NO_OF_SPNS_IN_DM; uiLoopIndex++)
-//            {
-//                if(gstDmNoString[uiLoopIndex].u32SpnNo == stDmMsg.u32SpnNo)
-//                {
-//                    break;
-//                }
-//            }
-//
-//            if(uiLoopIndex < NO_OF_SPNS_IN_DM)
-//            {
-//                _Disp.gotoxy(2 ,25 );
-////                if(_cfgz.GetArrLanguageIndex() == CFGZ::LANGUAGE_SPANISH)
-////                {
-////                    _Disp.printStringLeftAligned(gstDmNoString[uiLoopIndex].pSpanishSpnName, FONT_VERDANA);
-////                }
-////                else
-//                {
-//                    _Disp.printStringLeftAligned(gstDmNoString[uiLoopIndex].pSpnName, FONT_VERDANA);
-//                }
-//
-//            }
-//            if(stDmMsg.u8FMI < NO_OF_FMIS)
-//            {
-//
-//                _Disp.gotoxy(2 ,50 );
-//                _Disp.printStringLeftAligned((char*)gstDM1FmiData[_cfgz.GetArrLanguageIndex()][stDmMsg.u8FMI].FmiStrings, FONT_VERDANA);
-//            }
-//            else if(stDmMsg.u8FMI == NO_TEXT_FMI)
-//            {
-//                _Disp.gotoxy(2 ,50 );
-//                _Disp.printStringLeftAligned((char*)" ", FONT_VERDANA);
-//            }
-//        }
-//        else
-//        {
-//
-//            sprintf(arrTemp," %d/%d", 0, 0);
-//            _Disp.gotoxy(106, 1 );
-//            _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//            _Disp.gotoxy(32, 64);
-//            if(DM1 == _eAlarmType)
-//            {
-//                _Disp.printStringCenterAligned((char*)strNoActiveDTC[_cfgz.GetArrLanguageIndex()], FONT_VERDANA);
-//            }
-//            else if(DM2 == _eAlarmType)
-//            {
-//
-//                _Disp.printStringCenterAligned((char*)strNoHistoricDTC[_cfgz.GetArrLanguageIndex()], FONT_VERDANA);
-//            }
-//        }
-//    }
-}
-
-void ALARM_UI::prvDisplayPCDNCDScreen()
-{
-//    char arrTemp[32];
-//    _Disp.ClearScreen();
-//    _Disp.drawRectangle();
-//    _Disp.gotoxy(64, 1);
-//    if(_eAlarmType == PCD)
-//    {
-//        _Disp.printStringCenterAligned((char*)"PCD-DTC", FONT_ARIAL);
-//    }
-//    else if(_eAlarmType == NCD)
-//    {
-//        _Disp.printStringCenterAligned((char*)"NCD-DTC", FONT_ARIAL);
-//    }
-//    _Disp.drawHorizontalLine(0, 11, 127);
-//
-//    if(!_u8NumberOfAlarms || _J1939.IsCommunicationFail())
-//    {
-//       sprintf(arrTemp," %d/%d", 0, 0);
-//       _Disp.gotoxy(106, 1);
-//       _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
-//
-//       _Disp.gotoxy(64, 32);
-//        if(_eAlarmType == PCD)
-//        {
-//            _Disp.printStringCenterAligned((char*)strNoActivePCDDTC[_cfgz.GetArrLanguageIndex()], FONT_VERDANA);
-//        }
-//        else if(_eAlarmType == NCD)
-//        {
-//            _Disp.printStringCenterAligned((char*)strNoActiveNCDDTC[_cfgz.GetArrLanguageIndex()], FONT_VERDANA);
-//        }
-//    }
-//    else
-//    {
-//
-//        sprintf(arrTemp," %d/%d", u8AlarmScreenNum+1, _u8NumberOfAlarms);
-//        _Disp.gotoxy(126, 1);
-//        _Disp.printStringRightAligned(arrTemp, FONT_VERDANA);
-//
-//        if(u8AlarmScreenNum > _u8NumberOfAlarms)
-//        {
-//            u8AlarmScreenNum = _u8NumberOfAlarms;
-//        }
-//
-//        _Disp.gotoxy(2,25);
-//
-//        if(_eAlarmType == PCD)
-//        {
-//            prvFillPCDAlarmArray();
-//            if(_u8ArrPCDAlarmForDisp[u8AlarmScreenNum] <  MAX_NUM_OF_PCD_NCD_ALARMS)
-//            {
-//                _Disp.printStringLeftAligned((char*)gstPcdNcdData[_cfgz.GetArrLanguageIndex()][_u8ArrPCDAlarmForDisp[u8AlarmScreenNum]].PcdNcdAlarms, FONT_VERDANA);
-//            }
-//        }
-//        else if(_eAlarmType == NCD)
-//        {
-//            prvFillNCDAlarmArray();
-//            if(TOTAL_PCD_ALARMS +_u8ArrNCDAlarmForDisp[u8AlarmScreenNum] <  MAX_NUM_OF_PCD_NCD_ALARMS)
-//            {
-//                _Disp.printStringLeftAligned((char*)gstPcdNcdData[_cfgz.GetArrLanguageIndex()][TOTAL_PCD_ALARMS +_u8ArrNCDAlarmForDisp[u8AlarmScreenNum]].PcdNcdAlarms, FONT_VERDANA);
-//            }
-//        }
-//    }
-}
-
-
-uint8_t ALARM_UI::prvFillPCDAlarmArray(void)
-{
-//    uint8_t u8LoopIndex = 0;
-//    uint8_t v_array_index = 0;
-//    for(u8LoopIndex = 0; u8LoopIndex < TOTAL_PCD_ALARMS; u8LoopIndex++)
-//    {
-//        if((uint8_t)_J1939.GetReadData(RX_PGN_PROPB51_65361,u8LoopIndex) == 1)
-//        {
-//            _u8ArrPCDAlarmForDisp[v_array_index] = u8LoopIndex;
-//            v_array_index++;
-//        }
-//    }
-//
-//    return(v_array_index);
-}
-
-/************************************************************************************************/
-
-uint8_t ALARM_UI::prvFillNCDAlarmArray(void)
-{
-//    uint8_t u8LoopIndex = 0;
-//    uint8_t v_array_index = 0;
-//    for(u8LoopIndex = 0; u8LoopIndex < TOTAL_NCD_ALARMS; u8LoopIndex++)
-//    {
-//        if((uint8_t)_J1939.GetReadData(RX_PGN_PROPB51_65361,(TOTAL_PCD_ALARMS + u8LoopIndex)) == 1)
-//        {
-//            _u8ArrNCDAlarmForDisp[v_array_index] = u8LoopIndex;
-//            v_array_index++;
-//        }
-//    }
-//
-//    return(v_array_index);
 }

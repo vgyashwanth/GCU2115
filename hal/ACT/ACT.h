@@ -99,6 +99,8 @@ public:
         ACT_PREHEAT,
         ACT_ECU_START,
         ACT_MIL,
+        ACT_EGR,
+        ACT_INDUCEMENT_BUZZER,
 
     } ACTUATOR_TYPS_t;
 

@@ -17,6 +17,7 @@
 #include "productSelection.h"
 
 #define MAX_DTC_ALLOWED             (106U)
+#define EGR_TEST (0U)
 
 class GCU_ALARMS{
 public:
@@ -162,6 +163,9 @@ public:
         INVALID_DG_START,
         AMB_TEMP_SWITCH,
         AUTOMATIC_MD_SWITCH,
+        /* EGR alarms */
+        EGR_FAULT,
+
         ALARM_COM_FAIL,
         ALARM_AMBER_LAMP,
         ALARM_RED_LAMP,
@@ -302,6 +306,8 @@ public:
         Invalid_gen_start_id,
         Lop_Short_To_Battery_id,
         Automatic_md_switch_id,
+        /* EGR alarms */
+        Egr_Fault,
         J1939_com_fail_id,
         Alarm_Amber_Lamp_id,
         Alarm_Red_Lamp_id,
@@ -623,6 +629,58 @@ public:
      */
     bool IsNotificationAlarmEnabled(ALARM_LIST_t AlarmID);
 
+    /* EGR monitoring */
+    typedef struct
+    {
+        uint32_t u32Time72HrsEgrFault_min;
+        uint32_t u32Time40HrsEgrFault_min;
+        uint16_t u16Dummy;
+        uint16_t u16CRC;
+    }EGR_MON_TIME_LOG_t;
+
+    typedef enum
+    {
+        EGR_MON_IDLE_STATE,
+        EGR_MON_72_HRS_FAULT_CONFIRM_OPERATION,
+        EGR_MON_40_HRS_FAULT_RESET_OPERATION,
+        EGR_MON_RESET_ALL_COUNTERS,
+
+        EGR_MON_STATE_LAST
+
+    }EGR_MON_STATE_t;
+
+    typedef enum
+    {
+        EGR_DETECTION_HOLD,
+        EGR_DETECTION_INIT,
+        EGR_MON_START,
+        EGR_500MS_ACTIVE_DETECT,
+        EGR_500MS_INACTIVE_DETECT
+    }EGR_FAULT_DETECT_STATE_t;
+
+    typedef enum
+    {
+        EGR_NO_FAULT,
+        EGR_ECU_FAULT,
+        EGR_VALVE_NOT_CLOSING,
+        EGR_ECU_VALVE_SHORT,
+        EGR_SENSOR_FAULTY,
+        EGR_VALVE_WIRE_OPEN,
+        EGR_TEMP_SENSOR_OUT_OF_EX_PIPE,
+        EGR_TEMP_SENSOR_FAULTY,
+        EGR_FAULT_LAST
+
+    }EGR_FAULT_LIST_t;
+
+    void StartEgrFaultDetection();
+    void DisableEGRDetection();
+    void clearEgrFaults();
+    void EgrFaultDetection();
+    EGR_FAULT_LIST_t GetEgrEcuFaultStatus();
+    uint16_t GetPulseCount();
+    uint32_t GetFaultPreset72HrsTimeInMin();
+    uint32_t GetFaultReset40HrsTimeInMin();
+
 private:
     #define FUEL_THEFT_WAKEUP_TIMER         (4U)
     typedef enum{
@@ -704,6 +762,8 @@ private:
         FUEL_OPEN_CKT_VAL,
         LOP_CURR_STB,
         AUTOMATIC_MODE_SWITCH_STATUS,
+        /* EGR alarm */
+        EGR_ECU_FAULT_STATUS,
         J1939_COM_FAIL_STATUS,
         J1939_AMBER_LAMP_STATUS,
         J1939_RED_LAMP_STATUS,
@@ -826,6 +886,19 @@ private:
    static CircularQueue<EVENT_LOG_Q_t> _EventQueue;
    static EVENT_LOG_Q_t  _EventQArr[EVENT_LOG_Q_SIZE];
 
+
+   uint8_t       _StartEgrDetection;
+
+   EGR_MON_TIME_LOG_t  _stNvEgrTimeLog;
+   EGR_MON_STATE_t     _eEgrMonState;
+   uint32_t            _u32EgrFault72HrsMonitoring_min;
+   uint32_t            _u32EgrFaultReset40HrsMonitoring_min;
+   stTimer             _stGeneralTimer1Minute;
+   EGR_FAULT_LIST_t    eEgrFault;
+   EGR_FAULT_DETECT_STATE_t egrInState;
+   stTimer             _ecuFaultTimer;
+   uint16_t            u16PulseDetectionCount;
+
     void prvAssignAlarmLatchedAction(uint8_t u8Index);
     void prvLogAlarmEvent(uint8_t u8Index);
     void prvGensetRelatedAlarms();
@@ -895,6 +968,20 @@ private:
                 float f32Threshold, uint16_t u16CounterMax);
     void prvUpdateDTCEventLog();
     bool prvIsNewDTC(uint32_t u32Spn, uint8_t u8FMI, uint8_t u8Occurances);
+
+    void UpdateEgrDetections();
+    void Update_EGR_ECU_Fault_Detection();
+    void Update_EGR_Valve_Short_Detection();
+    void Update_EGR_Valve_Open_Detection();
+
+    void prvMonitorEgrFaultStatus(void);
+    void prvInitNV_EGR_TimeLog(void);
+    void prvEGR_TimeLog_WriteToNV(void);
+    bool prvIsEgrFaultPresent();
+
+#if(EGR_TEST)
+    void GenerateEgrTestSignal();
+#endif
 
 };
 #endif

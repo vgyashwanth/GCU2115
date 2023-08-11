@@ -66,6 +66,7 @@ public:
 
 
         //Generator
+        DISP_EGR_MON,
         DISP_MON_GEN_VOLTAGE,
         DISP_MON_GEN_LOAD_KW,
         DISP_MON_GEN_LOAD_KVA,

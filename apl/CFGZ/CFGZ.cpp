@@ -330,6 +330,7 @@ DigitalSensor::D_SENSOR_TYPS_t CFGZ::prvGetDigitalSensor(uint8_t u8CfgSensorIdx,
      { CFGZ_SMOKE_FIRE                               , DigitalSensor:: DI_SMOKE_FIRE                  },
      { CFGZ_MODE_SELECT                              , DigitalSensor:: DI_MODE_SELECT                 },
      { CFGZ_AMB_TEMP_SELECT                          , DigitalSensor:: DI_AMB_TEMP_SELECT             },
+     {CFGZ_EGR_ECU_DIGITAL_IN                        , DigitalSensor::DI_EGR_ECU_DIGITAL_IN           },
     };
 
     /*Configurable input types*/
@@ -657,7 +658,9 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
      { CFGZ_BTS_BATTERY_HYBRID_MODE           , ACTUATOR::ACT_BTS_BATTERY_HYBRID_MODE    },
      { CFGZ_PREHEAT                           , ACTUATOR::ACT_PREHEAT                    },
      { CFGZ_ECU_START                         , ACTUATOR::ACT_ECU_START                  },
-     { CFGZ_MIL                               , ACTUATOR::ACT_MIL                        }
+     { CFGZ_MIL                               , ACTUATOR::ACT_MIL                        },
+     { CFGZ_EGR                               , ACTUATOR::ACT_EGR                        },
+     {CFGZ_INDUCEMENT_BUZZER                  , ACTUATOR::ACT_INDUCEMENT_BUZZER          },
     };
 
     for(uint8_t i=0;i<(sizeof(dsenseMap)/sizeof(ACTUATOR_MAP_ROW_t));i++)

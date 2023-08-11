@@ -586,6 +586,7 @@ class CFGZ
         CFGZ_SMOKE_FIRE,
         CFGZ_MODE_SELECT,
         CFGZ_AMB_TEMP_SELECT,
+        CFGZ_EGR_ECU_DIGITAL_IN
 
 } CFGZ_DIGITAL_SENSORS_t;
 
@@ -726,6 +727,8 @@ class CFGZ
         CFGZ_PREHEAT,
         CFGZ_ECU_START,
         CFGZ_MIL,
+        CFGZ_EGR,
+        CFGZ_INDUCEMENT_BUZZER,
 
     } CFGZ_ACT_TYPS_t;
 
@@ -818,35 +821,8 @@ class CFGZ
 
     typedef enum
     {
-//        ENG_CONVENTIONAL,
-//        ENG_DEFAULT,   // Generic J1939
-//        ENG_SCANIA,
-//        ENG_VOLVO,
-//        ENG_IVECO,
-//        ENG_DEUTZ_EMR,
-//        ENG_MTU,
-//        ENG_KUBOTA,
-//        ENG_WECHAI,
-//        ENG_HATZ,
-//        ENG_PERKINS_ADAM4,
-//        ENG_YUCHAI_YCGCU,
-//        ENG_CUMMINS,
-//        ENG_CUMMINS_500,
-//        ENG_CUMMINS_558,
-//        ENG_CUMMINS_570,
-//        ENG_CUMMINS_850,
-//        ENG_CUMMINS_2150,
-//        ENG_CUMMINS_2250,
-//        ENG_DCEC_CUMMINS,
-//        ENG_YUCHAI_BOSCH,
-//        TOTAL_ENG_TYPES
         CFGZ_CONVENTIONAL,
         ECU_162,
-        CNG_15KVA,
-        CRDIECU1,
-        ECU_898,
-        MHEL898ECU,
-        CNG_125KVA
     }ENGINE_TYPES_t;
 
     /**

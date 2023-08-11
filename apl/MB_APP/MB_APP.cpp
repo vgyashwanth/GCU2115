@@ -1276,3 +1276,81 @@ uint16_t MB_APP::GetGenStatusRegister()
 
     return u16GenStatus;
 }
+
+void MB_APP::prvUpdateLatestDM1Messages(void)
+{
+    uint8_t u8NoOfSPNToBeSent;
+    uint16_t u16Local = MB_SPN1;
+    J1939APP::J1939_DM_MSG_DECODE stDmMsg = {0};
+
+    if(gpJ1939->GetDm1MsgCount() < 15)
+    {
+        u8NoOfSPNToBeSent = gpJ1939->GetDm1MsgCount();
+
+    }
+    else
+    {
+        u8NoOfSPNToBeSent = 15;
+    }
+
+    if(u8NoOfSPNToBeSent==0)
+    {
+        u8NoOfSPNToBeSent =15;
+
+    }
+    _u16TempAlarmVal = 0;
+    for(u16Local = MB_SPN1 ; u16Local <= MB_FMI15; u16Local++ )
+    {
+        SetReadRegisterValue((MODBUS_READ_REGISTERS_t)u16Local, _u16TempAlarmVal);
+    }
+
+    for(u16Local = MB_SPN1 ; u16Local <= MB_FMI15; u16Local++ )
+    {
+        /* Here the FMI_index = SPN_index+2, where SPN will be using
+         * two registers and FMI uses one register */
+        u8NoOfSPNToBeSent--;
+
+        _u16TempAlarmVal = 0;
+        stDmMsg = gpJ1939->GetDM1Message(u8NoOfSPNToBeSent);
+        _u16TempAlarmVal= (uint16_t) (stDmMsg.u32SpnNo >> 16U);
+        SetReadRegisterValue((MODBUS_READ_REGISTERS_t)u16Local, _u16TempAlarmVal);
+
+        _u16TempAlarmVal= 0;
+        u16Local++;
+        _u16TempAlarmVal = (uint16_t)( stDmMsg.u32SpnNo & 0xFFFF);
+        SetReadRegisterValue((MODBUS_READ_REGISTERS_t)u16Local, _u16TempAlarmVal);
+
+        u16Local++;
+        _u16TempAlarmVal=0;
+        _u16TempAlarmVal = (uint16_t)stDmMsg.u8FMI;
+        SetReadRegisterValue((MODBUS_READ_REGISTERS_t)u16Local, _u16TempAlarmVal);
+
+        if(!u8NoOfSPNToBeSent)
+        {
+            break;
+        }
+    }
+
+}
+
+void MB_APP::prvUpdateCPCB4dataOnModbus()
+{
+    uint16_t u16Temp = 0;
+    bool bIsCommunicationFailed = gpJ1939->IsCommunicationFail();
+    switch(_cfgz.GetEngType())
+    {
+        case CFGZ::ECU_162:
+        {
+            if(!bIsCommunicationFailed)
+            {
+                u16Temp = (uint16_t)gpJ1939->GetReadData(RX_PGN_LFE1_65266,0); /* Fuel Rate */
+            }
+            SetReadRegisterValue(MB_FUEL_RATE_PGN_65266, u16Temp);
+        }
+        break;
+
+        default :
+        break;
+    }
+}
+

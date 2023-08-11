@@ -27,9 +27,8 @@ public:
     {
         ALARM,
         DM1,
-        DM2
-//        PCD,
-//        NCD
+        DM2,
+        ALARM_SCREEN_TYPE_LAST
     }ALARM_st;
 
     /**
@@ -73,8 +72,6 @@ private:
     HAL_Manager         &_hal;
     uint8_t     _u8NumberOfAlarms;
     static ALARM_st    _eAlarmType;
-//    uint8_t     _u8ArrPCDAlarmForDisp[TOTAL_PCD_ALARMS];
-//    uint8_t     _u8ArrNCDAlarmForDisp[TOTAL_NCD_ALARMS];
     ALARM_st    _eOldAlarmType ;
     /**
      * Used to display alarm
@@ -83,9 +80,6 @@ private:
      */
     void prvDisplayAlarmScreen();
     void prvDisplayDMScreen();
-    void prvDisplayPCDNCDScreen();
-    uint8_t prvFillPCDAlarmArray(void);
-    uint8_t prvFillNCDAlarmArray(void);
 
 };
 

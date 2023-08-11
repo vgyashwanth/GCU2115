@@ -143,6 +143,10 @@ ubypReadRxPgns{
     _bRequestDM2PGN(false),
     _bRequestDM11PGN(false),
     _ArrPgnReadData{0},
+    _bIsDEFLevelLow(false),
+    _bIsDEFLevelSevere(false),
+    _BeepOnTimer{0 , false},
+    _BeepOffTimer{0,false},
     _stDm1Decode{0,0,0},
     _stDm2Decode{0,0,0}
 {
@@ -2034,4 +2038,153 @@ void J1939APP::ClearDM2Messages()
 {
     _u8NumOfDM2SPN = 0;
     memset((void *)&_stDm2Decode,0, sizeof(_stDm2Decode));
+}
+
+void J1939APP::CommonAlarmBeeping()
+{
+
+    if(UTILS_IsTimerEnabled(&_BeepOnTimer))
+    {
+        _hal.actuators.Activate(ACTUATOR::ACT_INDUCEMENT_BUZZER);
+        if(IsBeepOnTimerExpired())
+        {
+            UTILS_DisableTimer(&_BeepOnTimer);
+            UTILS_ResetTimer(&_BeepOffTimer);
+        }
+
+    }
+    else if(UTILS_IsTimerEnabled(&_BeepOffTimer))
+    {
+        _hal.actuators.Deactivate(ACTUATOR::ACT_INDUCEMENT_BUZZER);
+        if(IsBeepOffTimerExpired())
+        {
+            UTILS_DisableTimer(&_BeepOffTimer);
+            UTILS_ResetTimer(&_BeepOnTimer);
+        }
+
+    }
+}
+
+bool J1939APP::IsBeepOnTimerExpired()
+{
+    if(_bIsDEFLevelLow)
+    {
+        return (UTILS_GetElapsedTimeInSec(&_BeepOnTimer)>2);
+    }
+    else if(_bIsDEFLevelSevere)
+    {
+        return (UTILS_GetElapsedTimeInSec(&_BeepOnTimer)>2);
+    }
+
+    return false;
+}
+
+
+bool J1939APP::IsBeepOffTimerExpired()
+{
+    if(_bIsDEFLevelLow)
+    {
+        return (UTILS_GetElapsedTimeInSec(&_BeepOffTimer)>5);
+    }
+    else if(_bIsDEFLevelSevere)
+    {
+        return (UTILS_GetElapsedTimeInSec(&_BeepOffTimer)>2);
+    }
+
+    return false;
+}
+
+void J1939APP::UpdateDEFInducementStrategy()
+{
+    if((_bIsDEFLevelLow || _bIsDEFLevelSevere))
+     {
+         CommonAlarmBeeping();
+     }
+     else
+     {
+        _hal.actuators.Deactivate(ACTUATOR::ACT_INDUCEMENT_BUZZER);
+         UTILS_DisableTimer(&_BeepOnTimer);
+         UTILS_DisableTimer(&_BeepOffTimer);
+     }
+}
+
+void J1939APP::ResetDEFInducementStatus()
+{
+    _bIsDEFLevelLow = false;
+    _bIsDEFLevelSevere = false;
+}
+
+bool J1939APP::IsFaultCodeReceived(uint32_t u32SPNNo , uint8_t u8FMI)
+{
+    /* We will chaeck the Fault code in received list of DTC's only */
+    for(uint8_t i=0; i< (_u8NumOfDM1SPN - _u8NoOfInvalidSpnInDm1Msg) ; i++)
+    {
+        if((_stDm1Decode[i].u32SpnNo == u32SPNNo) && (_stDm1Decode[i].u8FMI == u8FMI))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void J1939APP::UpdateInducementFlags(void)
+{
+    /* Shubham  18.05.2023
+     added dependencies of DTC
+     on customer request. [SYSE: Devendra D] */
+
+    switch(_cfgz.GetEngType())
+    {
+        case CFGZ::CFGZ_CONVENTIONAL:
+            /* Not applicable */
+            break;
+        case CFGZ::ECU_162:
+        {
+            if(
+                IsFaultCodeReceived(1761 , 31)  ||
+                IsFaultCodeReceived(5838 , 3)
+                )
+            {
+                _bIsDEFLevelLow = false;
+                _bIsDEFLevelSevere = true;
+            }
+            else if( IsFaultCodeReceived(1761 , 18)  ||
+                     IsFaultCodeReceived(5838 , 2)       )
+            {
+                _bIsDEFLevelLow = true;
+                _bIsDEFLevelSevere = false;
+            }
+            else
+            {
+                _bIsDEFLevelLow = false;
+                _bIsDEFLevelSevere = false;
+            }
+        }
+        break;
+
+        default:
+            _bIsDEFLevelLow = false;
+            _bIsDEFLevelSevere = false;
+        break;
+    }
+
+
+    if(_bIsDEFLevelLow || _bIsDEFLevelSevere)
+    {
+        if((!_BeepOnTimer.bEnabled) &&  (!_BeepOffTimer.bEnabled))
+        {
+            UTILS_ResetTimer(&_BeepOnTimer);
+            UTILS_DisableTimer(&_BeepOffTimer);
+        }
+        else
+        {
+            /* Timers are already in use */
+        }
+    }
+    else
+    {
+        /* Timers will be in default state that is in OFF state */
+    }
+
 }

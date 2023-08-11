@@ -147,6 +147,14 @@ public:
     uint8_t IsAmberLampON()   ;
     uint8_t IsMilLampON()     ;
     uint8_t IsProtectLampON() ;
+    void ResetDEFInducementStatus();
+    void UpdateDEFInducementStrategy();
+    void CommonAlarmBeeping();
+
+    bool IsBeepOffTimerExpired();
+    bool IsBeepOnTimerExpired();
+    bool IsFaultCodeReceived(uint32_t u32SPNNo , uint8_t u8FMI);
+    void UpdateInducementFlags(void);
 
 
 private:
@@ -309,6 +317,20 @@ private:
     bool    _bClearActiveDTCs;
     bool    _bRequestDM2PGN;
     bool    _bRequestDM11PGN;
+    /*
+     * _bIsDEFLevelLow will be true when we receive following SPN and FMI
+     * combination i.e DTC , SPN = 1761 , FMI = 18 (PCode :P202F).
+     * This DTC indicates that DEF level is low (2.92 % remaining).
+     * These will be cleared when DTC are cleared*/
+    bool    _bIsDEFLevelLow;
+    /*
+     * _bIsDEFLevelSevere will be true when we receive following SPN and FMI
+     * combination i.e DTC , SPN = 1761 , FMI = 31 (PCode :P2BA7).
+     * This DTC indicates that DEF level is severe (0.15 % remaining)
+     *  These will be cleared when DTC are cleared**/
+    bool    _bIsDEFLevelSevere;
+    stTimer _BeepOnTimer;
+    stTimer _BeepOffTimer;
     J1939_DM_MSG_DECODE _stDm1Decode[TOTAL_NO_OF_SPNS];
     J1939_DM_MSG_DECODE _stDm2Decode[TOTAL_NO_OF_SPNS];
 

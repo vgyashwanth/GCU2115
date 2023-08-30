@@ -605,6 +605,32 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
             ArrAlarmMonitoring[EGR_FAULT_SHUTDOWN].bEnableMonitoring = true;
             ArrAlarmMonitoring[EGR_FAULT_SHUTDOWN].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
+        case CFGZ:: CFGZ_EB_MCCB_ON_FEEDBACK:
+
+            ArrAlarmMonitoring[EB_MCCB_ON_FEEDBACK_ALARM].bEnableMonitoring = true;
+            prvSetAlarmAction_NoWESN(EB_MCCB_ON_FEEDBACK_ALARM, u8AlarmAction);
+            prvSetAlarmActivation(EB_MCCB_ON_FEEDBACK_ALARM, u8Activation);
+            ArrAlarmMonitoring[EB_MCCB_ON_FEEDBACK_ALARM].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
+
+            ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[EB_MCCB_ON_FEEDBACK_STATUS];
+            prvSetAlarmActivation(u8InputIndex, u8Activation);
+
+            ArrAlarmMonitoring[EB_MCCB_ON_FEEDBACK_ALARM].u8LoggingID = EB_Mccb_On_Feedback_id;
+            ArrAlarmMonitoring[EB_MCCB_ON_FEEDBACK_ALARM].pValue = &_ArrAlarmValue[EB_MCCB_ON_FEEDBACK_STATUS];
+
+            break;
+        case CFGZ:: CFGZ_DG_MCCB_ON_FEEDBACK:
+
+            ArrAlarmMonitoring[DG_MCCB_ON_FEEDBACK_ALARM].bEnableMonitoring = true;
+            prvSetAlarmAction_NoWESN(DG_MCCB_ON_FEEDBACK_ALARM, u8AlarmAction);
+            prvSetAlarmActivation(DG_MCCB_ON_FEEDBACK_ALARM, u8Activation);
+            ArrAlarmMonitoring[DG_MCCB_ON_FEEDBACK_ALARM].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
+
+            ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[DG_MCCB_ON_FEEDBACK_STATUS];
+            prvSetAlarmActivation(u8InputIndex, u8Activation);
+
+            ArrAlarmMonitoring[DG_MCCB_ON_FEEDBACK_ALARM].u8LoggingID = DG_Mccb_On_Feedback_id;
+            ArrAlarmMonitoring[DG_MCCB_ON_FEEDBACK_ALARM].pValue = &_ArrAlarmValue[DG_MCCB_ON_FEEDBACK_STATUS];
             break;
     }
 }
@@ -2013,7 +2039,6 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = 0;
             ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20;
             ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-
         }
         break;
 
@@ -2287,6 +2312,11 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[EGR_ECU_FAULT_SHUTDOWN_STATUS].u8Value = (uint8_t)_bEgrShutdownLatched;
 
     _ArrAlarmValue[J1939_COM_FAIL_STATUS].u8Value =  gpJ1939->IsCommunicationFail();
+
+    _ArrAlarmValue[EB_MCCB_ON_FEEDBACK_STATUS].u8Value = (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EB_MCCB_ON_FEEDBACK) == DigitalSensor::SENSOR_LATCHED);
+    _ArrAlarmValue[DG_MCCB_ON_FEEDBACK_STATUS].u8Value = (uint8_t)(_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_DG_MCCB_ON_FEEDBACK) == DigitalSensor::SENSOR_LATCHED);
+
+
     _ArrAlarmValue[J1939_PROTECT_LAMP_STATUS].u8Value = gpJ1939->IsProtectLampON();
     _ArrAlarmValue[J1939_AMBER_LAMP_STATUS].u8Value = gpJ1939->IsAmberLampON();
     _ArrAlarmValue[J1939_RED_LAMP_STATUS].u8Value = gpJ1939->IsRedLampON();
@@ -2588,6 +2618,13 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
         case Alarm_P2316_id:
         case Alarm_P2317_id:
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[(u8LoggingID-Alarm_P0031_id+ALARM_P0031)].bAlarmActive;
+            break;
+
+        case EB_Mccb_On_Feedback_id:
+            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[EB_MCCB_ON_FEEDBACK_ALARM].bAlarmActive;
+            break;
+        case DG_Mccb_On_Feedback_id:
+            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DG_MCCB_ON_FEEDBACK_ALARM].bAlarmActive;
             break;
         default:
             _ArrAlarmStatus[u8LoggingID] = &_u8DummyZero;

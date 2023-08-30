@@ -50,6 +50,7 @@ extern const uint8_t gau8GeneratorVoltLogo[4][32];
 extern const uint8_t gau8GenPFLogo[4][30];
 
 extern const char *StrMonth[1][12];
+extern const char *strPhNPhase;
 extern const char *strPhase[];
 extern const char *strPh_Ph[];
 extern const char *strPower[];

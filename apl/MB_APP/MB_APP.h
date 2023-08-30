@@ -103,6 +103,11 @@ public:
         MB_TMP_RUN_MINUTES,
         MB_GEN_TMP_ACTIVE_ENERGY_1,
         MB_GEN_TMP_ACTIVE_ENERGY_2,
+        /*
+         * Addition of 0x4023 register in Modbus.
+         * The reserved space is used for new addition as per the requirement from customer
+         */
+        MB_MCCB_FEEDBACK_ALARM,
         MB_EGR_FAULT_NOTIFICATION_INFO = 0X4024,
         MB_EGR_FAULT_NOTIFICATION_TIME,
         MB_EGR_HEAL_TIME,

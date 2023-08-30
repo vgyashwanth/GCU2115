@@ -309,6 +309,7 @@ const uint8_t gau8GenPFLogo[4][30]=
 {0,0,0,0,0,0,0,0,0,0,0,0,128,128,128,128,128,128,128,0,0,0,0,0,0,0,0,0,0,0,}
 };
 
+const char *strPhNPhase = {"Ph-N"};
 const char *strPhase[] = {"R","Y","B"};
 const char *strPh_Ph[] = {"R-Y","Y-B","R-B"};
 const char *strPower[] = {"kW", "kVA","kVAr"};
@@ -540,7 +541,9 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"Ign coil E secondary ckt",
       (char*)"Ign coil F prim ctrl ckt Lo",
       (char*)"Ign coil F prim ctrl ckt Hi",
-      (char*)"Ign coil F secondary ckt"
+      (char*)"Ign coil F secondary ckt",
+      (char*)"EB MCCB Feedback ON",
+      (char*)"DG MCCB Feedback ON",
  }
 };
 

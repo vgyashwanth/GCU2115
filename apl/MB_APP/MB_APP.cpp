@@ -1077,6 +1077,12 @@ void MB_APP::prvUpdateGCUAlarms()
   SetReadRegisterValue(MB_GEN_STATUS ,(uint16_t)_u16TempAlarmVal);
 #endif
 
+
+  _u16TempAlarmVal =0;
+
+  _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::EB_MCCB_ON_FEEDBACK_ALARM].bAlarmActive << 0);
+  _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_MCCB_ON_FEEDBACK_ALARM].bAlarmActive << 1);
+  SetReadRegisterValue(MB_MCCB_FEEDBACK_ALARM, _u16TempAlarmVal);
 }
 
 void MB_APP::prvUpadateDIGInOut()

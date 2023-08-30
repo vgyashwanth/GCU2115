@@ -168,6 +168,8 @@ public:
         EGR_FAULT_SHUTDOWN,
 
         ALARM_COM_FAIL,
+        EB_MCCB_ON_FEEDBACK_ALARM,
+        DG_MCCB_ON_FEEDBACK_ALARM,
         ALARM_AMBER_LAMP,
         ALARM_RED_LAMP,
         ALARM_MIL_LAMP,
@@ -379,6 +381,8 @@ public:
         Alarm_P2316_id,
         Alarm_P2317_id,
         J1939DTC_id,
+        EB_Mccb_On_Feedback_id,
+        DG_Mccb_On_Feedback_id,
         ID_ALL_ALARMS_LAST
     }ALARM_LOGGING_ID_t;
 
@@ -771,6 +775,8 @@ private:
         EGR_ECU_FAULT_NOTIFICATION_STATUS,
         EGR_ECU_FAULT_SHUTDOWN_STATUS,
         J1939_COM_FAIL_STATUS,
+        EB_MCCB_ON_FEEDBACK_STATUS,
+        DG_MCCB_ON_FEEDBACK_STATUS,
         J1939_AMBER_LAMP_STATUS,
         J1939_RED_LAMP_STATUS,
         J1939_MIL_LAMP_STATUS,

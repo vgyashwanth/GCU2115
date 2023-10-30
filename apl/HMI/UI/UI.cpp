@@ -414,8 +414,8 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "PREHEAT",
 
         "ENG CONTROL UNIT",
-        "TEMP SENS ECU",
-        "LOP SENS ECU",
+        "ENG TEMPERATURE",
+        "LUBE OIL PRESSURE",
 
         //Maintenance
         "MAINT ALARM",
@@ -523,10 +523,6 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "(DIG) ACTION",
         "(DIG) ACTIVATION",
         "(DIG) ACTIVATION DELAY",
-//        "SHUTDOWN",
-//        "SHUTDOWN THRESHOLD",
-//        "WARNING",
-//        "WARNING THRESHOLD",
         "CIRCUIT FAULT ACTION",
         "R1",
         "V1",
@@ -591,8 +587,6 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "(DIG) ACTION",
         "(DIG) ACTIVATION",
         "(DIG) ACTIVATION DELAY",
-//        "ACTION",
-//        "THRESHOLD",
         "OPEN CKT WARNING",
         "R1",
         "T1",
@@ -684,10 +678,6 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "(DIG) ACTION",
         "(DIG) ACTIVATION",
         "(DIG) ACTIVATION DELAY",
-//        "SHUTDOWN",
-//        "SHUTDOWN THRESHOLD",
-//        "WARNING",
-//        "WARNING THRESHOLD",
         "CIRCUIT FAULT ACTION",
         " I1/V1",
         " P1",
@@ -875,12 +865,10 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "HIGH VOLT ACTION",
         "HIGH VOLT THRESHOLD",
         "HIGH VOLT DELAY",
-//        "BATTERY MON BY J1939",
         //"CHARGE ALT MON",
         "FAIL ACTION",
         "FAIL THRESHOLD",
         "FAIL DELAY",
-//        "CHARGE ALT MON BY J1939",
         //"PREHEAT",
         "PREHEAT TIMER",
         "ENG TEMPERATURE",
@@ -910,12 +898,12 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "PROTECT ACTION",
         "PROTECT ACTIVATION",
         "PROTECT ACT DELAY",
-        "TEMP ECU ACTION",
-        "TEMP ECU THRESHLD",
-        "LOP ECU SHUTDOWN",
-        "LOP ECU SHUTDOWN THRESHOLD",
-        "LOP ECU WARNING",
-        "LOP ECU WARNING THRESHOLD",
+        "ACTION",
+        "THRESHLD",
+        "SHUTDOWN",
+        "SHUTDOWN THRESHOLD",
+        "WARNING",
+        "WARNING THRESHOLD",
 
         //"MAINT ALARM",
         "ACTION",
@@ -1100,10 +1088,6 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_ACTION), strLeafNode[_u8LanguageArrayIndex][SID_LOP_RES_DIG_J_DIG_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_ACTIVATION), strLeafNode[_u8LanguageArrayIndex][SID_LOP_RES_DIG_J_DIG_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)1, (uint8_t)180, CEditableItem::NOT_ALLOWED );
-//    ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SHUTDOWN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN), strLeafNode[_u8LanguageArrayIndex][SID_LOP_RES_DIG_J_SHUTDOWN], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN2_ALLOWED );
-//    ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SHUTDOWN_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SHUTDOWN_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_LOP_RES_DIG_J_SHUTDOWN_THRESHOLD], "Bar", "%f", (float)0.0, (float)9.8, (float)0.1, CEditableItem::NOT_ALLOWED );
-//    ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_WARNING] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_WARNING), strLeafNode[_u8LanguageArrayIndex][SID_LOP_RES_DIG_J_WARNING], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::NOT_ALLOWED );
-//    ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_WARNING_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_WARNING_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_LOP_RES_DIG_J_WARNING_THRESHOLD], "Bar", "%f", (float)0.2, (float)10.0, (float)0.1, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION), strLeafNode[_u8LanguageArrayIndex][SID_LOP_RES_DIG_J_CIRCUIT_FAULT_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWS], 3, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_R1] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_R1), strLeafNode[_u8LanguageArrayIndex][SID_LOP_RES_DIG_J_R1], arrUnit[ID_OHM], "%.0f", (float)0, (float)1000.0,(float)1, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_V1] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_V1), strLeafNode[_u8LanguageArrayIndex][SID_LOP_RES_DIG_J_V1], arrUnit[ID_BAR], "%f", (float)0, (float)10.0, (float)0.1, CEditableItem::NOT_ALLOWED );
@@ -1168,8 +1152,6 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_DIG_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_DIG_ACTION), strLeafNode[_u8LanguageArrayIndex][SID_ENG_TEMP_DIG_L_DIG_ACTION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_DIG_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_DIG_ACTIVATION), strLeafNode[_u8LanguageArrayIndex][SID_ENG_TEMP_DIG_L_DIG_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_DIG_ACTIVATION_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_DIG_ACTIVATION_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_ENG_TEMP_DIG_L_DIG_ACTIVATION_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)1, (uint8_t)180, CEditableItem::NOT_ALLOWED );
-//    ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_ACTION), strLeafNode[_u8LanguageArrayIndex][SID_ENG_TEMP_DIG_L_ACTION],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWS], 3, CEditableItem::NOT_ALLOWED );
-//    ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_ENG_TEMP_DIG_L_THRESHOLD], arrUnit[ID_DEG_C], "%.0f", (float)25.0, (float)300.0,(float)1, CEditableItem::NOT_ALLOWED );//16
     ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_OPEN_CKT_WARNING] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_OPEN_CKT_WARNING), strLeafNode[_u8LanguageArrayIndex][SID_ENG_TEMP_DIG_L_OPEN_CKT_WARNING],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_R1] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_R1), strLeafNode[_u8LanguageArrayIndex][SID_ENG_TEMP_DIG_L_R1], arrUnit[ID_OHM],  "%.0f", (float)0, (float)5000.0,(float)1, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_T1] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_T1), strLeafNode[_u8LanguageArrayIndex][SID_ENG_TEMP_DIG_L_T1],arrUnit[ID_DEG_C],  "%.0f",(float)-5.0, (float)300.0,(float)1, CEditableItem::NOT_ALLOWED );
@@ -1261,10 +1243,6 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_DIG_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_DIG_ACTION), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S3_DIG_O_DIG_ACTION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_DIG_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_DIG_ACTIVATION), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S3_DIG_O_DIG_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_DIG_ACTIVATION_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_DIG_ACTIVATION_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S3_DIG_O_DIG_ACTIVATION_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)1, (uint8_t)180, CEditableItem::NOT_ALLOWED );
-//    ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SHUTDOWN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SHUTDOWN), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S3_DIG_O_SHUTDOWN], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
-//    ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SHUTDOWN_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SHUTDOWN_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S3_DIG_O_SHUTDOWN_THRESHOLD], arrUnit[ID_BAR], "%f", (float)0, (float)9.8,(float)0.1, CEditableItem::PIN1_PIN2_ALLOWED );
-//    ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_WARNING] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_WARNING), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S3_DIG_O_WARNING], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
-//    ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_WARNING_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_WARNING_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S3_DIG_O_WARNING_THRESHOLD], arrUnit[ID_BAR], "%f",(float)0, (float)10.0,(float)0.1, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S3_DIG_O_CIRCUIT_FAULT_ACTION],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWS], 3, CEditableItem::PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_I1_V1] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_I1_V1), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S3_DIG_O_I1_V1], arrUnit[ID_MILLI_AMPERE],  "%f", (float)4.0, (float)20.0,(float)0.1, CEditableItem::PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_P1] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_P1), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S3_DIG_O_P1],arrUnit[ID_BAR],  "%f", (float)0.0, (float)10.0,(float)0.1, CEditableItem::PIN2_ALLOWED );
@@ -1456,12 +1434,10 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_HIGH_VOLT_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_BATTERY_MONITOR_HIGH_VOLT_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_HIGH_VOLT_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_BATTERY_MONITOR_HIGH_VOLT_THRESHOLD], arrUnit[ID_V], "%f", (float)12.0, (float)16.0, (float)0.1,CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_DELAY] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_HIGH_VOLT_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_BATTERY_MONITOR_HIGH_VOLT_DELAY], arrUnit[ID_SEC], "%u",(uint16_t)5, (uint16_t)1800,CEditableItem::NOT_ALLOWED );
-//    ArrEditableItem[INDEX_OF_BATTERY_MONITOR_BATTERY_MON_BY_J1939] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_BATTERY_MON_BY_J1939),strLeafNode[_u8LanguageArrayIndex][SID_BATTERY_MONITOR_BATTERY_MON_BY_J1939], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::NOT_ALLOWED );
 
     ArrEditableItem[INDEX_OF_CHARGE_ALT_MON_FAIL_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CHARGE_ALT_MON_FAIL_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_CHARGE_ALT_MON_FAIL_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_CHARGE_ALT_MON_FAIL_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_CHARGE_ALT_MON_FAIL_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_CHARGE_ALT_MON_FAIL_THRESHOLD], arrUnit[ID_V], "%f", (float)0.0, (float)35.0, (float)0.1,CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_CHARGE_ALT_MON_FAIL_DELAY] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CHARGE_ALT_MON_FAIL_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_CHARGE_ALT_MON_FAIL_DELAY], arrUnit[ID_SEC], "%u", (uint16_t)5, (uint16_t)60,CEditableItem::NOT_ALLOWED );
-//    ArrEditableItem[INDEX_OF_CHARGE_ALT_MON_CHARGE_ALT_MON_BY_J1939] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CHARGE_ALT_MON_CHARGE_ALT_MON_BY_J1939),strLeafNode[_u8LanguageArrayIndex][SID_CHARGE_ALT_MON_CHARGE_ALT_MON_BY_J1939], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::NOT_ALLOWED );
 
     ArrEditableItem[INDEX_OF_PREHEAT_PREHEAT_TIMER] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_PREHEAT_TIMER),strLeafNode[_u8LanguageArrayIndex][SID_PREHEAT_PREHEAT_TIMER], arrUnit[ID_SEC], "%u", (uint16_t)1, (uint16_t)900, CEditableItem::PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_PREHEAT_ENG_TEMPERATURE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_ENG_TEMPERATURE),strLeafNode[_u8LanguageArrayIndex][SID_PREHEAT_ENG_TEMPERATURE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN2_ALLOWED );
@@ -1494,7 +1470,6 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACT_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_PROTECT_ACT_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_PROTECT_FAIL_ACT_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)0, (uint8_t)60, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_TEMP_FROM_ECU_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_TEMP_SENS_ECU_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION], 5, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_TEMP_FROM_ECU_THRESH] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_TEMP_SENS_ECU_THRESH], arrUnit[ID_DEG_C], "%u", (uint8_t)10, (uint8_t)250, CEditableItem::PIN1_ALLOWED );
-//    ArrEditableItem[INDEX_OF_LOP_FROM_ECU_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION], 5, CEditableItem::PIN1_ALLOWED );
 
     ArrEditableItem[INDEX_OF_LOP_FROM_ECU_SHUTDOWN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUTDOWN), strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_SHUTDOWN], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_FROM_ECU_SHUTDOWN_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUT_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_SHUTDOWN_THRESH], "Bar", "%f", (float)0, (float)5.0 , CEditableItem::PIN1_ALLOWED );
@@ -1939,10 +1914,6 @@ void UI::HandleMenuVisibility(void)
     }
     if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
         LowestLevelMenuEnDis(INDEX_OF_LOP_RES_DIG_J_DIG_SOURCE,INDEX_OF_LOP_RES_DIG_J_DIG_ACTIVATION_DELAY,false);
-//    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 && ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
-//        menuItemsLowestLevel[INDEX_OF_LOP_RES_DIG_J_SHUTDOWN_THRESHOLD].isEnabled = false;
-//    if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 && ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_WARNING].value.u8Val == CFGZ::CFGZ_DISABLE)
-//        menuItemsLowestLevel[INDEX_OF_LOP_RES_DIG_J_WARNING_THRESHOLD].isEnabled = false;
 
     //Sensor K
     if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
@@ -1975,8 +1946,6 @@ void UI::HandleMenuVisibility(void)
     }
     if(ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
         LowestLevelMenuEnDis(INDEX_OF_ENG_TEMP_DIG_L_DIG_SOURCE,INDEX_OF_ENG_TEMP_DIG_L_DIG_ACTIVATION_DELAY,false);
-//    if(ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 && ArrEditableItem[INDEX_OF_ENG_TEMP_DIG_L_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
-//        menuItemsLowestLevel[INDEX_OF_ENG_TEMP_DIG_L_THRESHOLD].isEnabled = false;
 
     //Sensor M
     if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
@@ -2017,10 +1986,6 @@ void UI::HandleMenuVisibility(void)
     }
     if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1 || ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
         LowestLevelMenuEnDis(INDEX_OF_AUX_S3_DIG_O_DIG_SOURCE,INDEX_OF_AUX_S3_DIG_O_DIG_ACTIVATION_DELAY,false);
-//    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SHUTDOWN].value.u8Val == CFGZ::CFGZ_DISABLE)
-//        menuItemsLowestLevel[INDEX_OF_AUX_S3_DIG_O_SHUTDOWN_THRESHOLD].isEnabled = false;
-//    if(ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_WARNING].value.u8Val == CFGZ::CFGZ_DISABLE)
-//        menuItemsLowestLevel[INDEX_OF_AUX_S3_DIG_O_WARNING_THRESHOLD].isEnabled = false;
 
     //Sensor P
     if(ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
@@ -2185,15 +2150,12 @@ void UI::HandleMenuVisibility(void)
         LowestLevelMenuEnDis(INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_THRESHOLD,INDEX_OF_BATTERY_MONITOR_HIGH_VOLT_DELAY,false);
     }
 
-    menuItemsLowestLevel[INDEX_OF_BATTERY_MONITOR_BATTERY_MON_BY_J1939].isEnabled = false;
 
     //Charging Alternator
     if(ArrEditableItem[INDEX_OF_CHARGE_ALT_MON_FAIL_ACTION].value.u8Val == CFGZ::CFGZ_ACTION_NONE)
     {
         LowestLevelMenuEnDis(INDEX_OF_CHARGE_ALT_MON_FAIL_THRESHOLD,INDEX_OF_CHARGE_ALT_MON_FAIL_DELAY,false);
     }
-
-    menuItemsLowestLevel[INDEX_OF_CHARGE_ALT_MON_CHARGE_ALT_MON_BY_J1939].isEnabled = false;
 
     //Preheat
 

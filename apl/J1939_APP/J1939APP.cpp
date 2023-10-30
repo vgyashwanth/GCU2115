@@ -2069,11 +2069,11 @@ bool J1939APP::IsBeepOnTimerExpired()
 {
     if(_bIsDEFLevelLow)
     {
-        return (UTILS_GetElapsedTimeInSec(&_BeepOnTimer)>2);
+        return (UTILS_GetElapsedTimeInSec(&_BeepOnTimer)>=2);
     }
     else if(_bIsDEFLevelSevere)
     {
-        return (UTILS_GetElapsedTimeInSec(&_BeepOnTimer)>2);
+        return (UTILS_GetElapsedTimeInSec(&_BeepOnTimer)>=2);
     }
 
     return false;
@@ -2084,11 +2084,11 @@ bool J1939APP::IsBeepOffTimerExpired()
 {
     if(_bIsDEFLevelLow)
     {
-        return (UTILS_GetElapsedTimeInSec(&_BeepOffTimer)>5);
+        return (UTILS_GetElapsedTimeInSec(&_BeepOffTimer)>=5);
     }
     else if(_bIsDEFLevelSevere)
     {
-        return (UTILS_GetElapsedTimeInSec(&_BeepOffTimer)>2);
+        return (UTILS_GetElapsedTimeInSec(&_BeepOffTimer)>=2);
     }
 
     return false;

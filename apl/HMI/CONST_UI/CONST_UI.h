@@ -95,9 +95,7 @@ typedef enum
 }MAINS_STATUS_t;
 
 extern const char *StrMainsStatus[1][STR_MAINS_STATUS_LAST];
-extern const char *StrEICViewMessage[2];
 extern const char *StrOpnGndckt[2];
-extern const char *StrEngineType[1][21];
 extern const char *strCANMsgRcvError[2];
 extern const char *strAlaram[][GCU_ALARMS::ID_ALL_ALARMS_LAST];
 extern const char *strHystogram[];

@@ -3801,13 +3801,13 @@ void MON_UI::prvPrintSensorStatus(A_SENSE::SENSOR_RET_t stTemp,char *str,
             }
         }
     }
-
-
 }
 
 void MON_UI::prvStopKeyPressAction()
 {
-    if(eDisplayMode == DISP_MON_MODE)
+
+    if((eDisplayMode == DISP_MON_MODE)
+            || (eDisplayMode == DISP_ALARM_MODE))
     {
         _bMBModeChnageCMDRcvd = false;
         _startStop.ClearSimAutoPulse();

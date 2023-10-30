@@ -12,11 +12,6 @@
 #include "HAL_Manager.h"
 
 
-#define SGC110  110
-#define SGC120  120
-#define SGC421  421
-#define SGC420  420
-
 
 
 class CFGC{

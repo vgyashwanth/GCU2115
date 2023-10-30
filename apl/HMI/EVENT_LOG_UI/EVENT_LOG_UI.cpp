@@ -184,7 +184,7 @@ void EVENT_LOG_UI::prvDisplayEventScreen()
                                           FONT_VERDANA);
 
           _Disp.gotoxy(GLCD_X(64),GLCD_Y(53));
-          sprintf(arrTemp,"FMI: %lu",_stEventLog.u16FMI);
+          sprintf(arrTemp,"FMI: %d",_stEventLog.u16FMI);
           _Disp.printStringCenterAligned( arrTemp,
                                           FONT_VERDANA);
         }

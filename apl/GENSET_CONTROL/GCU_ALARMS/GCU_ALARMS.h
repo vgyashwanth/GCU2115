@@ -164,7 +164,8 @@ public:
         AMB_TEMP_SWITCH,
         AUTOMATIC_MD_SWITCH,
         /* EGR alarms */
-        EGR_FAULT,
+        EGR_FAULT_NOTIFICATION,
+        EGR_FAULT_SHUTDOWN,
 
         ALARM_COM_FAIL,
         ALARM_AMBER_LAMP,
@@ -307,7 +308,8 @@ public:
         Lop_Short_To_Battery_id,
         Automatic_md_switch_id,
         /* EGR alarms */
-        Egr_Fault,
+        Egr_Fault_Notification,
+        Egr_Fault_Shutdown,
         J1939_com_fail_id,
         Alarm_Amber_Lamp_id,
         Alarm_Red_Lamp_id,
@@ -383,6 +385,8 @@ public:
     typedef struct
     {
         uint32_t u32EngineHrs;
+        uint32_t u32SPN;
+        uint16_t u16FMI;
         uint16_t u16Lop;
         uint16_t u16Speed;
         uint16_t u16GensetTotlKW;
@@ -394,8 +398,6 @@ public:
         uint8_t u8Month;
         uint8_t u8EventId;
         uint8_t u8EventType;
-        uint32_t u32SPN;
-        uint16_t u16FMI;
         uint8_t u8Dummy;
     }EVENT_LOG_t ;
 
@@ -668,7 +670,7 @@ public:
         EGR_VALVE_WIRE_OPEN,
         EGR_TEMP_SENSOR_OUT_OF_EX_PIPE,
         EGR_TEMP_SENSOR_FAULTY,
-        EGR_FAULT_LAST
+        EGR_FAULT_NOTIFICATION_LAST
 
     }EGR_FAULT_LIST_t;
 
@@ -680,6 +682,9 @@ public:
     uint16_t GetPulseCount();
     uint32_t GetFaultPreset72HrsTimeInMin();
     uint32_t GetFaultReset40HrsTimeInMin();
+    void ClearEgrFaultTimingInfo(void);
+    bool IsEgrInputConfigured(void);
+    bool ShutdownFromEGR(void);
 
 private:
     #define FUEL_THEFT_WAKEUP_TIMER         (4U)
@@ -763,7 +768,8 @@ private:
         LOP_CURR_STB,
         AUTOMATIC_MODE_SWITCH_STATUS,
         /* EGR alarm */
-        EGR_ECU_FAULT_STATUS,
+        EGR_ECU_FAULT_NOTIFICATION_STATUS,
+        EGR_ECU_FAULT_SHUTDOWN_STATUS,
         J1939_COM_FAIL_STATUS,
         J1939_AMBER_LAMP_STATUS,
         J1939_RED_LAMP_STATUS,
@@ -804,6 +810,7 @@ private:
     bool          _bHighShelterTemp;
     bool          _bLowShelterTemp;
     bool          _bUpdateFuelTheftCalc;
+    bool          _bEgrShutdownLatched;
     uint8_t       _u8UnderFreqAlarm;
     uint8_t       _u8OverFreqAlarm;
     uint8_t       _u8RPhaseOverVoltAlarm;

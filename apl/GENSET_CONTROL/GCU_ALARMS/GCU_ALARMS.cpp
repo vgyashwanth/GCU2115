@@ -599,9 +599,12 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             break;
         case CFGZ::CFGZ_EGR_ECU_DIGITAL_IN:
             /* monitoring enable for all related alarm */
-            ArrAlarmMonitoring[EGR_FAULT].bEnableMonitoring = true;
-            prvSetAlarmAction_NoWESN(EGR_FAULT, u8AlarmAction);
-            ArrAlarmMonitoring[EGR_FAULT].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
+            /* EGR notification and shutdown alarms will be operated according to the hard coded actions
+               and will not perform the actions and monitoting trigger according the configuration. */
+            ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bEnableMonitoring = true;
+            ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
+            ArrAlarmMonitoring[EGR_FAULT_SHUTDOWN].bEnableMonitoring = true;
+            ArrAlarmMonitoring[EGR_FAULT_SHUTDOWN].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
             break;
     }
 }
@@ -1846,12 +1849,24 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[AUTOMATIC_MODE_SWITCH_STATUS];
         break;
-        case EGR_FAULT:
+        case EGR_FAULT_NOTIFICATION:
         {
             ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_StartEgrDetection;
             ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[EGR_ECU_FAULT_STATUS];
-            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Egr_Fault;
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableNotification = true;
+            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[EGR_ECU_FAULT_NOTIFICATION_STATUS];
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Egr_Fault_Notification;
+            ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0 ;
+            ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
+       }
+       break;
+       case EGR_FAULT_SHUTDOWN:
+       {
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_StartEgrDetection;
+            ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = true;
+            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[EGR_ECU_FAULT_SHUTDOWN_STATUS];
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Egr_Fault_Shutdown;
             ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0 ;
             ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
         }
@@ -2268,7 +2283,8 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
 
     _ArrAlarmValue[AUTOMATIC_MODE_SWITCH_STATUS].u8Value = _bAutomaticModeSwitchStatus;
 
-    _ArrAlarmValue[EGR_ECU_FAULT_STATUS].u8Value = (uint8_t)prvIsEgrFaultPresent();
+    _ArrAlarmValue[EGR_ECU_FAULT_NOTIFICATION_STATUS].u8Value = (uint8_t)prvIsEgrFaultPresent();
+    _ArrAlarmValue[EGR_ECU_FAULT_SHUTDOWN_STATUS].u8Value = (uint8_t)_bEgrShutdownLatched;
 
     _ArrAlarmValue[J1939_COM_FAIL_STATUS].u8Value =  gpJ1939->IsCommunicationFail();
     _ArrAlarmValue[J1939_PROTECT_LAMP_STATUS].u8Value = gpJ1939->IsProtectLampON();
@@ -2487,8 +2503,11 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[AUTOMATIC_MD_SWITCH].bAlarmActive;
             break;
         /* EGR alarm */
-        case Egr_Fault:
-            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[EGR_FAULT].bAlarmActive;
+        case Egr_Fault_Notification:
+            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bAlarmActive;
+        break;
+        case Egr_Fault_Shutdown:
+            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[EGR_FAULT_SHUTDOWN].bAlarmActive;
         break;
         case J1939_com_fail_id:
           _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[ALARM_COM_FAIL].bAlarmActive;
@@ -3659,6 +3678,15 @@ void GCU_ALARMS::InitGCUAlarms()
     }
     UTILS_ResetTimer(&_FuelSettlingTimer);
 
+    if(!IsEgrInputConfigured())
+    {
+        ClearEgrFaultTimingInfo();
+    }
+    else
+    {
+        /* Maintain the EGR previous timing information */
+    }
+
 /* Shubham Wader 16.09.2022 '
 //   shifting below snippet of code here which was initially in MAIN_UI.  Keeping MAIN UI abstract.*/
 //    for(uint8_t u8AlarmIndex = 0; u8AlarmIndex < GCU_ALARMS::ALARM_LIST_LAST; u8AlarmIndex++)
@@ -3989,7 +4017,8 @@ void GCU_ALARMS::StartEgrFaultDetection()
 {
     UTILS_ResetTimer(&_ecuFaultTimer);
     egrInState  = EGR_DETECTION_INIT;
-    ArrAlarmMonitoring[EGR_FAULT].bEnableShutdown = false;
+    _bEgrShutdownLatched = false;
+    ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bEnableNotification = true; /* Initially, the alarm action will be Notification  */
 
     _StartEgrDetection = 1U;
 }
@@ -4016,7 +4045,7 @@ void GCU_ALARMS::UpdateEgrDetections()
 
 /* EGR monitoring config */
 #define EGR_TIME_LOG_NV_MEMORY_ADDR           (0x1200U) /* temporary EEEPROM address */
-#define FAULT_PRESENT_MONITORING_TIME_MINUTES (4)   //72 hrs
+#define FAULT_PRESENT_MONITORING_TIME_MINUTES (4320)   //72 hrs = 72 * 60 = 4320 minutes
 #define FAULT_RESET_MONITORING_TIME_MINUTES   (2)   //40 hrs
 #define EGR_LOG_NV_WRITE_CYCLE_IN_MINUTES     (1)
 #define IS_ONE_MINUTE_TIME_ELAPSED()          (UTILS_GetElapsedTimeInSec(&_stGeneralTimer1Minute) > 60U)
@@ -4074,7 +4103,7 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
             {
                 /* change the action of EGR alarms to shutdown &&
                    shutdown engine at any cost */
-                ArrAlarmMonitoring[EGR_FAULT].bEnableShutdown = true;
+                _bEgrShutdownLatched = true;
             }
             else
             {
@@ -4116,7 +4145,8 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
             _u32EgrFault72HrsMonitoring_min = 0U;
             _u32EgrFaultReset40HrsMonitoring_min = 0U;
 
-            ArrAlarmMonitoring[EGR_FAULT].bEnableShutdown = false;
+            _bEgrShutdownLatched = false;
+            ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bEnableNotification = true;
 
             prvEGR_TimeLog_WriteToNV();
             _eEgrMonState = EGR_MON_IDLE_STATE;
@@ -4195,6 +4225,16 @@ uint32_t GCU_ALARMS::GetFaultReset40HrsTimeInMin()
     return  _u32EgrFaultReset40HrsMonitoring_min;
 }
 
+void GCU_ALARMS::ClearEgrFaultTimingInfo(void)
+{
+    _u32EgrFault72HrsMonitoring_min = 0U;
+    _u32EgrFaultReset40HrsMonitoring_min = 0U;
+}
+bool GCU_ALARMS::IsEgrInputConfigured(void)
+{
+    return (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN) != DigitalSensor::SENSOR_NOT_CONFIGRUED);
+}
+
 #define ALLOWED_BUFFER_TIME    (150)
 #define ALLOWED_MIN_TIME(x)    (x - ALLOWED_BUFFER_TIME)
 #define ALLOWED_MAX_TIME(x)    (x + ALLOWED_BUFFER_TIME)
@@ -4202,7 +4242,8 @@ uint32_t GCU_ALARMS::GetFaultReset40HrsTimeInMin()
 void GCU_ALARMS::clearEgrFaults()
 {
     eEgrFault = EGR_NO_FAULT;
-    ArrAlarmMonitoring[EGR_FAULT].bEnableShutdown = false;
+    _bEgrShutdownLatched = false;
+    ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bEnableNotification = true;
 }
 
 GCU_ALARMS::EGR_FAULT_LIST_t GCU_ALARMS::GetEgrEcuFaultStatus()
@@ -4373,7 +4414,7 @@ void GCU_ALARMS::EgrFaultDetection()
                         /* Fault : Temperature Sensor Keep it Outside from the Exhaust Pipe ( 20 to 70 Deg c)-
                                     more than 4 min ECU trigger Error  */
 
-                        ArrAlarmMonitoring[EGR_FAULT].bEnableShutdown = true;
+                        _bEgrShutdownLatched = true;
                     }
                     else if(u16PulseDetectionCount == 2)
                     {
@@ -4408,4 +4449,11 @@ void GCU_ALARMS::EgrFaultDetection()
     }
 }
 
+bool GCU_ALARMS::ShutdownFromEGR(void)
+{
+    /* EGR fault alarm will be of Notification type until it reaches at
+       its severe stage(72 Hours). The alarm type will be changed to Shutdown
+       beyond the level of severity.*/
+    return ((_bEgrShutdownLatched)  && (prvIsEgrFaultPresent()));
 
+}

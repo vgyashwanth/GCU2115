@@ -472,7 +472,8 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"Invalid DG Run",
       (char*)"LOP Sens - Short to Batt",
       (char*)"Switching to Auto mode",
-      (char*)"EGR Fault",
+      (char*)"EGR Fault",  /* For notification */
+      (char*)"EGR Fault",  /* For Shutdown */
       (char*)"Amber Lamp",
       (char*)"Red Lamp",
       (char*)"MIL Lamp",

@@ -103,6 +103,10 @@ public:
         MB_TMP_RUN_MINUTES,
         MB_GEN_TMP_ACTIVE_ENERGY_1,
         MB_GEN_TMP_ACTIVE_ENERGY_2,
+        MB_EGR_FAULT_NOTIFICATION_INFO = 0X4024,
+        MB_EGR_FAULT_NOTIFICATION_TIME,
+        MB_EGR_HEAL_TIME,
+        MB_EGR_SHUTDOWN_INFO,
 
 /* Expected start address for the first parameter over modbus is 0x4000.
 This start address is subtracted while parsing the modbus packet so the
@@ -135,8 +139,8 @@ offset 14.
         MB_GEN_L3_PF,
         MB_GEN_AVERAGE_PF,
         MD_FUEL_PERCENTAGE,
-        MB_FUEL_RATE_PGN_65266,
-        MB_SPN1  ,
+       // MB_FUEL_RATE_PGN_65266,
+        MB_SPN1  = 0x4045,
         MB_FMI1  = MB_SPN1 + 2,
         MB_SPN2  ,
         MB_FMI2  = MB_SPN2 + 2,
@@ -414,6 +418,8 @@ private:
 
     void prvUpdateLatestDM1Messages(void);
     void prvUpdateCPCB4dataOnModbus();
+    void prvUpdateEGRrelatedRegisters(void);
+    void prvUpdateDm01FaultCodesOnModbus(void);
 
 };
 

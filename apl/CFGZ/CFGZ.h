@@ -574,7 +574,9 @@ class CFGZ
         CFGZ_SMOKE_FIRE,
         CFGZ_MODE_SELECT,
         CFGZ_AMB_TEMP_SELECT,
-        CFGZ_EGR_ECU_DIGITAL_IN
+        CFGZ_EGR_ECU_DIGITAL_IN,
+        CFGZ_EB_MCCB_ON_FEEDBACK,
+        CFGZ_DG_MCCB_ON_FEEDBACK,
 
 } CFGZ_DIGITAL_SENSORS_t;
 
@@ -913,7 +915,6 @@ class CFGZ
 
    uint8_t GetCustomerCodefromCFGC();
 private:
-
     /**
     * Reference object of DFLASH class.
     */

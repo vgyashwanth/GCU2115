@@ -1,11 +1,11 @@
 /**
  * @file        [D_SENSE]
  * @brief       D_SENSE
- *              This module provides a mechanism to map a set of digital inputs 
- *              to various digital sensors. The digital sensors are represented 
+ *              This module provides a mechanism to map a set of digital inputs
+ *              to various digital sensors. The digital sensors are represented
  *              using DigitalSensor class. D_SENSE class has a "has a" relationship
  *              with DigitalSensor objects.
- *              
+ *
  * @version     [Version number]
  * @author      Sudeep Chandrasekaran
  * @date        9th April 2021
@@ -63,6 +63,8 @@ public:
          DI_MODE_SELECT,
          DI_AMB_TEMP_SELECT,
          DI_EGR_ECU_DIGITAL_IN,
+         DI_EB_MCCB_ON_FEEDBACK,
+         DI_DG_MCCB_ON_FEEDBACK,
          DI_SENSOR_END
     } D_SENSOR_TYPS_t;
 
@@ -81,7 +83,7 @@ public:
     /**
      * Constructor for a digital sensor.
      * @param  : None
-     * @return 
+     * @return
      * None
      */
     DigitalSensor();
@@ -95,7 +97,7 @@ public:
      * @param db                   : The debouncer to be used to fetch the sensor
      *                               status.
      * @param typ                  : Type of the sensor.
-     * @return 
+     * @return
      * None
      */
     void CfgDigitalSensor(ACTIV_POLARITY_t eActivationPolarity,
@@ -125,7 +127,7 @@ public:
      * Contains code that needs to be frequently run. This is expected to be called
      * in the super-loop.
      * @param - None
-     * @return 
+     * @return
      * None
      */
     void Update();
@@ -188,7 +190,7 @@ public:
     /**
      * Constructs the digital sensor object.
      * @param  digIp - Reference to the digital input object from BSP.
-     * @return 
+     * @return
      * None
      */
     D_SENSE(DIG_IP &digIp);
@@ -196,8 +198,8 @@ public:
     /**
      * Maps the digital input to the specified sensors.
      * @param  cfg - The configuration structure containing mapping between
-     *               inputs and sensors. 
-     * @return 
+     *               inputs and sensors.
+     * @return
      * None
      */
     void ConfigureSensor(CFG_t &cfg);
@@ -206,7 +208,7 @@ public:
      * Contains code that needs to be frequently run. This is expected to be called
      * in the super-loop.
      * @param - None
-     * @return 
+     * @return
      * None
      */
     void Update();

@@ -81,6 +81,9 @@ void MB_APP::Update()
 
 
     prvUpdateMBCommandStatus();
+//    prvUpdateCPCB4dataOnModbus();
+    prvUpdateEGRrelatedRegisters();
+    prvUpdateDm01FaultCodesOnModbus();
 }
 
 uint16_t MB_APP::GetRegisterValue(MODBUS_WRITE_REGISTERS_t eRegister)
@@ -1074,6 +1077,12 @@ void MB_APP::prvUpdateGCUAlarms()
   SetReadRegisterValue(MB_GEN_STATUS ,(uint16_t)_u16TempAlarmVal);
 #endif
 
+
+  _u16TempAlarmVal =0;
+
+  _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::EB_MCCB_ON_FEEDBACK_ALARM].bAlarmActive << 0);
+  _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_MCCB_ON_FEEDBACK_ALARM].bAlarmActive << 1);
+  SetReadRegisterValue(MB_MCCB_FEEDBACK_ALARM, _u16TempAlarmVal);
 }
 
 void MB_APP::prvUpadateDIGInOut()
@@ -1333,24 +1342,161 @@ void MB_APP::prvUpdateLatestDM1Messages(void)
 
 }
 
-void MB_APP::prvUpdateCPCB4dataOnModbus()
-{
-    uint16_t u16Temp = 0;
-    bool bIsCommunicationFailed = gpJ1939->IsCommunicationFail();
-    switch(_cfgz.GetEngType())
-    {
-        case CFGZ::ECU_162:
-        {
-            if(!bIsCommunicationFailed)
-            {
-                u16Temp = (uint16_t)gpJ1939->GetReadData(RX_PGN_LFE1_65266,0); /* Fuel Rate */
-            }
-            SetReadRegisterValue(MB_FUEL_RATE_PGN_65266, u16Temp);
-        }
-        break;
+//void MB_APP::prvUpdateCPCB4dataOnModbus()
+//{
+//    uint16_t u16Temp = 0;
+//    bool bIsCommunicationFailed = gpJ1939->IsCommunicationFail();
+//    switch(_cfgz.GetEngType())
+//    {
+//        case CFGZ::ECU_162:
+//        {
+//            if(!bIsCommunicationFailed)
+//            {
+//                u16Temp = (uint16_t)gpJ1939->GetReadData(RX_PGN_LFE1_65266,0); /* Fuel Rate */
+//            }
+//            SetReadRegisterValue(MB_FUEL_RATE_PGN_65266, u16Temp);
+//        }
+//        break;
+//
+//        default :
+//        break;
+//    }
+//}
 
-        default :
-        break;
+void MB_APP::prvUpdateEGRrelatedRegisters(void)
+{
+    uint16_t u16Temp = 0U;
+    if(_gcuAlarm.IsEgrInputConfigured())
+    {
+        switch(_gcuAlarm.GetEgrEcuFaultStatus())
+        {
+            case GCU_ALARMS::EGR_NO_FAULT:
+            {
+                u16Temp = 1U; /* bit 0 : ECU Healthy */
+            }
+            break;
+            case GCU_ALARMS::EGR_ECU_FAULT:
+            {
+                u16Temp = (uint16_t)(1 << 1); /* bit 1: ECU Faulty */
+            }
+            break;
+            case GCU_ALARMS::EGR_VALVE_NOT_CLOSING:
+            {
+                u16Temp = (uint16_t)(1 << 7); /* bit 7: Valve Not Closing */
+            }
+            break;
+            case GCU_ALARMS::EGR_ECU_VALVE_SHORT:
+            {
+                u16Temp = (uint16_t)(1 << 6); /* bit 6: Valve Not Lifting / EGR valve is short */
+            }
+            break;
+            case GCU_ALARMS::EGR_SENSOR_FAULTY:
+            {
+                u16Temp = (uint16_t)(1 << 5); /* bit 5: Valve Sensor not connected or faulty */
+            }
+            break;
+            case GCU_ALARMS::EGR_VALVE_WIRE_OPEN:
+            {
+                u16Temp = (uint16_t)(1 << 4); /* bit 4: Valve Wire Open */
+            }
+            break;
+            case GCU_ALARMS::EGR_TEMP_SENSOR_OUT_OF_EX_PIPE:
+            {
+                u16Temp = (uint16_t)(1 << 3); /* bit 3: Temperature Sensor Keep in Ambient Temperature */
+            }
+            break;
+            case GCU_ALARMS::EGR_TEMP_SENSOR_FAULTY:
+            {
+                u16Temp = (uint16_t)(1 << 2); /* bit 2: Temperature Sensor is open or faulty. */
+            }
+            break;
+
+            default:
+            {
+                /* default value(0000H) of u16Temp should be sent */
+            }
+            break;
+        }
+    }
+    else
+    {
+        /* keep 0 in register. as EGR input is not configured, GCU can't identify the fault. */
+    }
+    SetReadRegisterValue(MB_EGR_FAULT_NOTIFICATION_INFO, u16Temp);
+
+    u16Temp = 0U;
+    /* Max value of fault time : 72 * 60 = 4320 */
+    u16Temp = (uint16_t)_gcuAlarm.GetFaultPreset72HrsTimeInMin();
+    SetReadRegisterValue(MB_EGR_FAULT_NOTIFICATION_TIME, u16Temp);
+
+    u16Temp = 0U;
+    /* Max value of heal time : 40 * 60 = 2400 */
+    u16Temp = (uint16_t)_gcuAlarm.GetFaultReset40HrsTimeInMin();
+    SetReadRegisterValue(MB_EGR_HEAL_TIME, u16Temp);
+
+    /* Lowe Nibble is used to indicate shutdown info
+       0000B -> No shutdown form EGR
+       0011B -> Shutdown from EGR
+       Upper 3 nibbles reserved
+    */
+    u16Temp = 0U;
+    if(_gcuAlarm.ShutdownFromEGR())
+    {
+        u16Temp |= 3U; /* 0011B for shutdown from EGR */
+    }
+    else
+    {
+        /* 0000B for no shutdown from EGR*/
+    }
+    SetReadRegisterValue(MB_EGR_SHUTDOWN_INFO, u16Temp);
+
+}
+
+void MB_APP::prvUpdateDm01FaultCodesOnModbus(void)
+{
+    uint8_t u8NoOfSPNToBeSent = 0U;
+     uint16_t u16Local = MB_SPN1;
+    J1939APP::J1939_DM_MSG_DECODE stDmMsg = {0U, 0U, 0U};
+
+    u8NoOfSPNToBeSent = ((gpJ1939->GetDm1MsgCount()) & 0x0FU); /* limited to Max 15 Messages i.e 0 to 14 */
+
+    /* clear DM registers */
+    _u16TempAlarmVal = 0U;
+    for(u16Local = MB_SPN1 ; u16Local <= MB_FMI3; u16Local++ )
+    {
+        SetReadRegisterValue((MODBUS_READ_REGISTERS_t)u16Local, _u16TempAlarmVal);
+    }
+
+    if((!gpJ1939->IsCommunicationFail()) && (u8NoOfSPNToBeSent > 0U))
+    {
+        for(u16Local = MB_SPN1 ; u16Local <= MB_FMI3; u16Local += 3U)
+        {
+            /* Loop will run from first SPN registers to last SPN register */
+
+            u8NoOfSPNToBeSent--; /* decrementing variable to transmit recently received Fault codes */
+
+            _u16TempAlarmVal = 0;
+            stDmMsg = gpJ1939->GetDM1Message(u8NoOfSPNToBeSent);
+            /* 16 MSB's of SPN of one Fault code */
+            _u16TempAlarmVal= (uint16_t) (stDmMsg.u32SpnNo >> 16U);
+            SetReadRegisterValue((MODBUS_READ_REGISTERS_t)u16Local, _u16TempAlarmVal);
+
+            _u16TempAlarmVal= 0;
+            /* 16 LSB's of SPN of one Fault code */
+            _u16TempAlarmVal = (uint16_t)( stDmMsg.u32SpnNo & 0xFFFF);
+            SetReadRegisterValue((MODBUS_READ_REGISTERS_t)(u16Local + 1U), _u16TempAlarmVal);
+
+            _u16TempAlarmVal=0;
+            /* FMI of one Fault code */
+            _u16TempAlarmVal = (uint16_t)stDmMsg.u8FMI;
+            SetReadRegisterValue((MODBUS_READ_REGISTERS_t)(u16Local + 2U), _u16TempAlarmVal);
+
+            if(0U == u8NoOfSPNToBeSent)
+            {
+                /* No more fault codes received to send */
+                break;
+            }
+        }
     }
 }
 

@@ -1726,4 +1726,3 @@ uint8_t gau8Icon7[6][27]
      (char*)"Temp snsr out",
      (char*)"Temp snsr flt"
  };
-

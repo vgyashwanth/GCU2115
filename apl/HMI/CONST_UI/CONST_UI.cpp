@@ -309,7 +309,6 @@ const uint8_t gau8GenPFLogo[4][30]=
 {0,0,0,0,0,0,0,0,0,0,0,0,128,128,128,128,128,128,128,0,0,0,0,0,0,0,0,0,0,0,}
 };
 
-const char *strPhNPhase = {"Ph-N"};
 const char *strPhase[] = {"R","Y","B"};
 const char *strPh_Ph[] = {"R-Y","Y-B","R-B"};
 const char *strPower[] = {"kW", "kVA","kVAr"};

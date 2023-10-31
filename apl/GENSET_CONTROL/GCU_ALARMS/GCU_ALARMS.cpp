@@ -4084,7 +4084,7 @@ void GCU_ALARMS::UpdateEgrDetections()
                                     == DigitalSensor::SENSOR_UNLATCHED)
 
 /* EGR monitoring config */
-#define FAULT_PRESENT_MONITORING_TIME_MINUTES (4320)   //72 hrs = 72 * 60 = 4320 minutes
+#define FAULT_PRESENT_MONITORING_TIME_MINUTES  (4) //(4320)   //72 hrs = 72 * 60 = 4320 minutes
 #define FAULT_RESET_MONITORING_TIME_MINUTES   (2)   //40 hrs
 #define EGR_LOG_NV_WRITE_CYCLE_IN_MINUTES     (1)
 #define IS_ONE_MINUTE_TIME_ELAPSED()          (UTILS_GetElapsedTimeInSec(&_stGeneralTimer1Minute) > 60U)

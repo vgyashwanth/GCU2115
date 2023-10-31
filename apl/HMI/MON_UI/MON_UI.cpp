@@ -2731,7 +2731,7 @@ void MON_UI::prvNormalMonScreens()
             {
                 _Disp.printImage((uint8_t *)gau8GenPFLogo, 4, 30, 26, 7);
                 sprintf(arrTemp,"%s-%s    %0.2f",(char *)StrPF,
-                        (char *)strPhNPhase,
+                        (char *)strPhase[R_PHASE],
                         abs(_hal.AcSensors.GENSET_GetDispPowerFactor((PHASE_t)R_PHASE)));
                 _Disp.gotoxy(GLCD_X(48),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
@@ -2774,7 +2774,7 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 30, 7);
 
                 _Disp.gotoxy(GLCD_X(40),GLCD_Y(35));
-                _Disp.printStringLeftAligned((char *)strPhNPhase,FONT_VERDANA);
+                _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
 
                 _Disp.gotoxy(GLCD_X(68),GLCD_Y(35));
                 sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[GENSET])((PHASE_t)R_PHASE));
@@ -2874,7 +2874,7 @@ void MON_UI::prvNormalMonScreens()
             else
             {
                 _Disp.gotoxy(GLCD_X(10),GLCD_Y(35));
-                _Disp.printStringLeftAligned((char *)strPhNPhase,FONT_VERDANA);
+                _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
 
                 _Disp.gotoxy(GLCD_X(50),GLCD_Y(35));
                 sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[eSysType])((PHASE_t)R_PHASE));
@@ -3580,7 +3580,7 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
         _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 30, 7);
 
         _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));
-        _Disp.printStringLeftAligned((char *)strPhNPhase,FONT_VERDANA);
+        _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
 
         _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
         if(!prvIsValDigitsGreaterThan3((uint16_t)((&_hal.AcSensors)->*ArrGetVtgVal[eSource])(R_PHASE)))
@@ -3666,7 +3666,7 @@ void MON_UI::prvPrintPower(POWER_TYPE_t eType, uint8_t u8AcSystemType, SOURCE_TY
         _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 30, 7);
 
         _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));
-        _Disp.printStringLeftAligned((char *)strPhNPhase,FONT_VERDANA);
+        _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
 
         sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetVal[eSourceType][eType])(R_PHASE)/1000);
         _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));

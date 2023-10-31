@@ -4061,8 +4061,11 @@ void GCU_ALARMS::StartEgrFaultDetection()
 }
 void GCU_ALARMS::DisableEGRDetection()
 {
-    _StartEgrDetection = 0U;
-    egrInState = EGR_DETECTION_HOLD;
+    if(_StartEgrDetection != 0U)
+       {
+           _StartEgrDetection = 0U;
+            egrInState = EGR_DETECTION_HOLD;
+       }
 }
 
 void GCU_ALARMS::UpdateEgrDetections()
@@ -4081,7 +4084,6 @@ void GCU_ALARMS::UpdateEgrDetections()
                                     == DigitalSensor::SENSOR_UNLATCHED)
 
 /* EGR monitoring config */
-#define EGR_TIME_LOG_NV_MEMORY_ADDR           (0x1200U) /* temporary EEEPROM address */
 #define FAULT_PRESENT_MONITORING_TIME_MINUTES (4320)   //72 hrs = 72 * 60 = 4320 minutes
 #define FAULT_RESET_MONITORING_TIME_MINUTES   (2)   //40 hrs
 #define EGR_LOG_NV_WRITE_CYCLE_IN_MINUTES     (1)

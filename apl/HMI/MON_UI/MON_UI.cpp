@@ -2186,7 +2186,8 @@ void MON_UI::prvNormalMonScreens()
                 }
             }
             _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
-        } break;
+        }
+        break;
         case DISP_EEEC2:
         {
             _Disp.gotoxy(GLCD_X(2),GLCD_Y(33));
@@ -3268,7 +3269,7 @@ void MON_UI::prvNormalMonScreens()
         {
             _Disp.printImage((uint8_t *)u8ArrEngineSpeed, 4, 32, 26, 7);
 
-            _Disp.gotoxy(GLCD_X(84),GLCD_Y(37));
+            _Disp.gotoxy(GLCD_X(100),GLCD_Y(37));
 
             if(CFGZ::CFGZ_ENABLE == (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG)))
             {
@@ -3295,7 +3296,7 @@ void MON_UI::prvNormalMonScreens()
             }
             else
             {
-                sprintf(arrTemp,"%dRPM ",(uint16_t)
+                sprintf(arrTemp,"%d RPM ",(uint16_t)
                                   round(_EngineMon.GetFilteredEngSpeed()));
             }
 

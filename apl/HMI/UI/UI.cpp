@@ -915,9 +915,9 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "TEMP ECU ACTION",
         "TEMP ECU THRESHLD",
         "LOP ECU SHUTDOWN",
-        "LOP ECU SHUTDOWN THRESHOLD",
+        "LOP ECU SHUTDN THRESH",
         "LOP ECU WARNING",
-        "LOP ECU WARNING THRESHOLD",
+        "LOP ECU WARN THRESH",
 
         //"MAINT ALARM",
         "ACTION",

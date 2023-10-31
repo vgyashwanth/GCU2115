@@ -62,6 +62,12 @@
 #define EXT_EEPROM_CUMMULATIVE_LENGTH              512
 #define EXT_EEPROM_CUMMULATIVE_START_ADD_SECT1    (EXT_EEPROM_CUMMULATIVE_START_ADD_SECT0 +\
                                                    EXT_EEPROM_CUMMULATIVE_LENGTH)
+
+
+/* EEPROM memory allocation for EGR timelog */
+#define EGR_TIME_LOG_NV_MEMORY_ADDR           (0x1200U) /* EEEPROM address */
+#define EGR_TIME_LOG_NV_MEMORY_SIZE           (sizeof(GCU_ALARMS::EGR_MON_TIME_LOG_t)) //12 bytes
+
 /*
  * SuryaPranayTeja.BVV 09-11-2022
  * The below address locations of EEPROM is used for the miscellaneous parameters

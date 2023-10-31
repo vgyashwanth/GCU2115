@@ -36,7 +36,7 @@
 #define CFGZ_DFLT_MODBUS_SLAVE_ID (2U)
 
 #define PULSE_IP_SENSOR    A_SENSE::MPU_TYPE
-#define DUMMY_ITEMS       2U
+#define DUMMY_ITEMS       1U
 
 class CFGZ
 {
@@ -930,7 +930,6 @@ class CFGZ
 
    uint8_t GetCustomerCodefromCFGC();
 private:
-
     /**
     * Reference object of DFLASH class.
     */

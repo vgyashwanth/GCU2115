@@ -475,6 +475,7 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"Switching to Auto mode",
       (char*)"EGR Fault",  /* For notification */
       (char*)"EGR Fault",  /* For Shutdown */
+      (char*)"Communication Failure",
       (char*)"Amber Lamp",
       (char*)"Red Lamp",
       (char*)"MIL Lamp",
@@ -542,6 +543,7 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"Ign coil F prim ctrl ckt Lo",
       (char*)"Ign coil F prim ctrl ckt Hi",
       (char*)"Ign coil F secondary ckt",
+      (char*)"J1939 DTC",
       (char*)"EB MCCB Feedback ON",
       (char*)"DG MCCB Feedback ON",
  }

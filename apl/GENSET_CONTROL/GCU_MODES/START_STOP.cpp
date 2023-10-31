@@ -112,7 +112,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
         {
             case ID_STATE_SS_ENG_OFF_OK:
                 prvSetOutputVariables(false, false, false, false);
-                _GCUAlarms.DisableEGRDetection();
                 _bMonitorDGIdleRun = false;
                 _bDGIdleRunDelayRunning = false;
                 if(_EngineMon.IsEngineOn() == 1U)
@@ -144,13 +143,11 @@ void START_STOP::Update(bool bDeviceInConfigMode)
 
             case ID_STATE_SS_ENG_OFF_ERR:
                 prvSetOutputVariables(false, false, false, false);
-                _GCUAlarms.DisableEGRDetection();
                 _State = ID_STATE_SS_ENG_OFF_OK;
                 break;
 
             case ID_STATE_SS_PREHEAT:
                 prvSetOutputVariables(false, false, false, true);
-                _GCUAlarms.DisableEGRDetection();
                 _bStartCommand = false;
 
                 if(_EngineMon.IsEngineOn() == 1U)
@@ -176,7 +173,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
 
             case ID_STATE_SS_START_WAIT:
                 prvSetOutputVariables(false, false, false, false);
-                _GCUAlarms.DisableEGRDetection();
                 _bStartCommand = false;
 
                 if(_EngineMon.IsEngineOn() == 1U)
@@ -316,7 +312,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
             case ID_STATE_SS_STOPPING:
                 _bStopCommand = false;
                 prvSetOutputVariables(false, true, false, false);
-                _GCUAlarms.DisableEGRDetection();
                 UTILS_DisableTimer(&_SafetyMonTimer);
                 UTILS_DisableTimer(&_DGIDleRunTimer);
                 _EngineMon.DisableEngWarmUpTimer();
@@ -344,7 +339,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
             case ID_STATE_SS_STOP_HOLD:
                 _bStopCommand = false;
                 prvSetOutputVariables(false, true, false, false);
-                _GCUAlarms.DisableEGRDetection();
                 if(_bEmergencyStop)
                 {
                     _bEmergencyStopLatched = true;
@@ -367,7 +361,6 @@ void START_STOP::Update(bool bDeviceInConfigMode)
 
             case ID_STATE_SS_FAIL_TO_STOP:
                 prvSetOutputVariables(false, false, false, false);
-                _GCUAlarms.DisableEGRDetection();
                 _bStartCommand = false;
                 if(_bStopCommand || (_bEmergencyStop &&
                         (!_bEmergencyStopLatched)))
@@ -396,6 +389,15 @@ void START_STOP::Update(bool bDeviceInConfigMode)
         }
         prvTurnOnOffOutputs();
         _EngineMon.UpdateStartStopState((uint8_t)_State);
+    }
+
+    if(_bOPFuelRelay)
+    {
+        _GCUAlarms.StartEgrFaultDetection();
+    }
+    else
+    {
+        _GCUAlarms.DisableEGRDetection();
     }
 }
 

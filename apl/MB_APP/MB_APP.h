@@ -422,7 +422,7 @@ private:
     void prvGetMiscParams();
 
     void prvUpdateLatestDM1Messages(void);
-    void prvUpdateCPCB4dataOnModbus();
+//    void prvUpdateCPCB4dataOnModbus();
     void prvUpdateEGRrelatedRegisters(void);
     void prvUpdateDm01FaultCodesOnModbus(void);
 

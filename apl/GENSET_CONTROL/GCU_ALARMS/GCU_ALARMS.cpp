@@ -3027,7 +3027,9 @@ void GCU_ALARMS::LogEvent(uint8_t u8EventID, uint8_t u8EventType)
         }
     }
 
-    stLogLocal.stEventLog.u8Dummy = 0;
+    stLogLocal.stEventLog.u8Dummy[0] = 0xFF;
+    stLogLocal.stEventLog.u8Dummy[1] = 0xFF;
+    stLogLocal.stEventLog.u8Dummy[2] = 0xFF;
 
     _hal.ObjRTC.GetTime(&currentTime);
     stLogLocal.stEventLog.u8Hour= currentTime.u8Hour;
@@ -3083,7 +3085,9 @@ void GCU_ALARMS::LogEvent(uint8_t u8EventID, uint8_t u8EventType, uint32_t u32SP
         }
     }
 
-    stLogLocal.stEventLog.u8Dummy = 0;
+    stLogLocal.stEventLog.u8Dummy[0] = 0xFF;
+    stLogLocal.stEventLog.u8Dummy[1] = 0xFF;
+    stLogLocal.stEventLog.u8Dummy[2] = 0xFF;
 
     _hal.ObjRTC.GetTime(&currentTime);
     stLogLocal.stEventLog.u8Hour= currentTime.u8Hour;

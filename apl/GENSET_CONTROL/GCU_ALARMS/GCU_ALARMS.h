@@ -276,7 +276,7 @@ public:
         uint8_t u8Month;
         uint8_t u8EventId;
         uint8_t u8EventType;
-        uint8_t u8Dummy;
+        uint8_t u8Dummy[3];
     }EVENT_LOG_t ;
 
     ALARM_MONITORING_t ArrAlarmMonitoring[ALARM_LIST_LAST];

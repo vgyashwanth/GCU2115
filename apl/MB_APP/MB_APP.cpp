@@ -53,9 +53,16 @@ _u16MODBUSCommand(0),
 _u16MODBUSOperModeCMD(0),
 _au16Grp1Registers{0},
 _au16Grp2Registers{0},
+#if (AUTOMATION==1)
+_au16Grp3Registers{0},
+#endif
 _aAddressGrp{
     {DIG_ALARM_1_REG, MODBUS_GRP1_REG_CNT, _au16Grp1Registers, true , false},
-    {MB_COMMAND, MODBUS_GRP2_REG_CNT, _au16Grp2Registers, false, true}},
+    {MB_COMMAND, MODBUS_GRP2_REG_CNT, _au16Grp2Registers, false, true}
+#if (AUTOMATION==1)
+    ,{MB_AUTOMATION_WRITE_COMMAND, MB_AUTOMATION_WRITE_REG_LAST, _au16Grp3Registers, false, true}
+#endif
+},
 _AddressGrpLst{_aAddressGrp, MODBUS_ADDRESS_GROUPS},
 _u16TempAlarmVal(0)
 {
@@ -67,7 +74,6 @@ void MB_APP::Update()
     prvUpdateElectricalParams();
     prvUpdateAnalogParams();
     prvUpdateStartTripsRunHours();
-    prvUpdateTimeStamp();
     prvUpadateDIGInOut();
     prvUpdateBtsParams();
     prvUpdateGCUAlarms();
@@ -81,9 +87,11 @@ void MB_APP::Update()
 
 
     prvUpdateMBCommandStatus();
-//    prvUpdateCPCB4dataOnModbus();
     prvUpdateEGRrelatedRegisters();
     prvUpdateDm01FaultCodesOnModbus();
+#if (AUTOMATION==1)
+    prvUpdateMBWriteRegisterForAutomation();
+#endif
 }
 
 uint16_t MB_APP::GetRegisterValue(MODBUS_WRITE_REGISTERS_t eRegister)
@@ -157,36 +165,7 @@ uint8_t MB_APP::prvIdentifyRegisterGroup(uint16_t u16RegisterAddress,
     return u8RegGrp;
 }
 
-void MB_APP::prvUpdateTimeStamp()
-{
 
-#if AUTOMATION
-
-    RTC::TIME_t CurrentTime;
-    _hal.ObjRTC.GetTime(&CurrentTime);
-
-    _u16TempAlarmVal = CurrentTime.u8Minute;
-    _u16TempAlarmVal =(uint16_t)((_u16TempAlarmVal <<8) + CurrentTime.u8Second);
-    SetReadRegisterValue(MB_TIME_STAMP0, _u16TempAlarmVal);
-
-    _u16TempAlarmVal = CurrentTime.u8DayOfWeek;
-    _u16TempAlarmVal = (uint16_t)((_u16TempAlarmVal <<8) + CurrentTime.u8Hour);
-    SetReadRegisterValue(MB_TIME_STAMP1, _u16TempAlarmVal);
-
-    _u16TempAlarmVal = CurrentTime.u8Month;
-    _u16TempAlarmVal = (uint16_t)((_u16TempAlarmVal <<8) + CurrentTime.u8Day);
-    SetReadRegisterValue(MB_TIME_STAMP2, _u16TempAlarmVal);
-
-    _u16TempAlarmVal = CurrentTime.u16Year;
-    SetReadRegisterValue(MB_TIME_STAMP3, _u16TempAlarmVal);
-
-#endif
-
-    //Temporary to try out sharing screen number over modbus.
-//    _u16TempAlarmVal = (uint8_t) MON_UI::_stScreenNo;
-//    SetReadRegisterValue(MAIN_MENU_INDEX,_u16TempAlarmVal);
-
-}
 
 void MB_APP::prvUpdateElectricalParams()
 {
@@ -511,23 +490,23 @@ void MB_APP::prvUpdateMBCommandStatus()
        SetWriteRegisterValue(MB_APP::MB_MODE_REG, 0);
    }
 
-#if (AUTOMATION==1)
-    if(GetRegisterValue(MB_APP::MB_DATE_TIME5)== 1U)
-    {
-          RTC::TIME_t currentTime;
-
-          currentTime.u8Second =0;
-          currentTime.u8Minute =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME1) & 0xFF00)>>8);
-          currentTime.u8Hour =(uint8_t)((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME2) & 0xFF);
-          currentTime.u8DayOfWeek =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME2)& 0xFF00)>>8);
-          currentTime.u8Day =(uint8_t)((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME3)& 0xFF);
-          currentTime.u8Month =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME3) & 0xFF00)>>8);
-          currentTime.u16Year = (uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME4) ;
-          _hal.ObjRTC.SetTime(&currentTime);
-
-          SetWriteRegisterValue(MB_APP::MB_DATE_TIME5, 0);
-    }
-#endif
+//#if (AUTOMATION==1)
+//    if(GetRegisterValue(MB_APP::MB_DATE_TIME5)== 1U)
+//    {
+//          RTC::TIME_t currentTime;
+//
+//          currentTime.u8Second =0;
+//          currentTime.u8Minute =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME1) & 0xFF00)>>8);
+//          currentTime.u8Hour =(uint8_t)((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME2) & 0xFF);
+//          currentTime.u8DayOfWeek =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME2)& 0xFF00)>>8);
+//          currentTime.u8Day =(uint8_t)((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME3)& 0xFF);
+//          currentTime.u8Month =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME3) & 0xFF00)>>8);
+//          currentTime.u16Year = (uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME4) ;
+//          _hal.ObjRTC.SetTime(&currentTime);
+//
+//          SetWriteRegisterValue(MB_APP::MB_DATE_TIME5, 0);
+//    }
+//#endif
 
 }
 
@@ -602,7 +581,7 @@ void MB_APP::prvUpdateEngSensorAlarms(uint8_t u8AlarmID1, uint8_t u8Offset)
     {
         if(_gcuAlarm.ArrAlarmMonitoring[u8AlarmID1].bAlarmActive)
         {
-            prvUpdateAlarmRegValue(u8AlarmID1, u8Offset);
+            prvUpdateAlarmRegStatus(u8AlarmID1, u8Offset);
         }
         else
         {
@@ -1342,27 +1321,6 @@ void MB_APP::prvUpdateLatestDM1Messages(void)
 
 }
 
-//void MB_APP::prvUpdateCPCB4dataOnModbus()
-//{
-//    uint16_t u16Temp = 0;
-//    bool bIsCommunicationFailed = gpJ1939->IsCommunicationFail();
-//    switch(_cfgz.GetEngType())
-//    {
-//        case CFGZ::ECU_162:
-//        {
-//            if(!bIsCommunicationFailed)
-//            {
-//                u16Temp = (uint16_t)gpJ1939->GetReadData(RX_PGN_LFE1_65266,0); /* Fuel Rate */
-//            }
-//            SetReadRegisterValue(MB_FUEL_RATE_PGN_65266, u16Temp);
-//        }
-//        break;
-//
-//        default :
-//        break;
-//    }
-//}
-
 void MB_APP::prvUpdateEGRrelatedRegisters(void)
 {
     uint16_t u16Temp = 0U;
@@ -1499,4 +1457,256 @@ void MB_APP::prvUpdateDm01FaultCodesOnModbus(void)
         }
     }
 }
+
+
+#if (AUTOMATION==1)
+//void MB_APP::prvUpdateMBReadRegisterForAutomation(bool bDeviceInConfigMode)
+//{
+//    _u16TempAlarmVal = 0U;
+//    _u16TempAlarmVal |= (uint16_t)(bDeviceInConfigMode <<15U);
+//    _u16TempAlarmVal |= (uint16_t)((BASE_MODES::GetMainsStatus()==BASE_MODES::MAINS_HELATHY) << 14U);
+//
+//    /*
+//        5 - Auto
+//        2 - GCU In Manual mode
+//        1 - Engine start in manual mode
+//
+//        As discussed with automation testing team, Default response of operation mode will be 2.
+//        This is done as the 3 bits representing operating mode does not have any free states to
+//        represent N/A. cyclic mode, BTS, etc. are not present in AL products.
+//    */
+//
+//    uint8_t tempMode=0x2;
+//    switch(_Automode.GetGCUOperatingMode())
+//    {
+//        case BASE_MODES::MANUAL_MODE:
+//            if(ENGINE_MONITORING::IsEngineOn())
+//            {
+//                tempMode=1;
+//            }
+//            else
+//            {
+//                tempMode=2;
+//            }
+//            break;
+//        case BASE_MODES::AUTO_MODE:
+//            tempMode=5;
+//            break;
+//        default:
+//            break;
+//    }
+//
+//    _u16TempAlarmVal |= (uint16_t)(tempMode<<11U);
+//    _u16TempAlarmVal |=  (uint16_t)(((BASE_MODES::IsGenContactorClosed()) && ((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR)
+//            != ACT_Manager:: ACT_NOT_CONFIGURED) || (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_OUT)
+//                    != ACT_Manager:: ACT_NOT_CONFIGURED)))<<10U);
+//    _u16TempAlarmVal |= (uint16_t)(((_Automode.IsMainsContactorClosed()) && ((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)
+//            != ACT_Manager:: ACT_NOT_CONFIGURED) || (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_OUT)
+//                    != ACT_Manager:: ACT_NOT_CONFIGURED)))<<9U);
+//    _u16TempAlarmVal |= (uint16_t)(ENGINE_MONITORING::IsEngineOn()<<8U);
+//
+//    static bool bEngineOnLatched=false;
+//    if(ENGINE_MONITORING::IsEngineOn() && !bEngineOnLatched)
+//    {
+//        bEngineOnLatched= true;
+//        /**
+//         * It is intended that if control reaches here, the 7th and 6th bits be set as zero. Since
+//         * _u16TempAlarmVal variable is initialized to zero, it is not explicitly reset here again.
+//         */
+//    }
+//    else if(bEngineOnLatched)
+//    {
+//        _u16TempAlarmVal |= (uint16_t)((!ENGINE_MONITORING::IsEngineOn() && !(_gcuAlarm.IsCommonElectricTrip() || _gcuAlarm.IsCommonShutdown()))<<7U);
+//        _u16TempAlarmVal |= (uint16_t)((!ENGINE_MONITORING::IsEngineOn() && (_gcuAlarm.IsCommonElectricTrip() || _gcuAlarm.IsCommonShutdown()))<<6U);
+//
+//        if(ENGINE_MONITORING::IsEngineOn())
+//        {
+//            bEngineOnLatched=false;
+//        }
+//    }
+//
+//    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.IsFailToStart() << 5U);
+//    _u16TempAlarmVal |= (uint16_t)(_engineMonitoring.IsGenAvailable() << 4U);
+//    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.IsCommonShutdown() << 3U);
+//    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.IsCommonElectricTrip() << 2U);
+//    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.IsCommonWarning() << 1U);
+//    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.IsCommonNotification()<<0U);
+//    SetReadRegisterValue(MB_AUTOMATION_DG_STATUS ,_u16TempAlarmVal);
+//
+//    _u16TempAlarmVal=0;
+//
+//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+//    {
+//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_A, FIRST_NIBBLE);
+//    }
+//
+//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_B_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+//    {
+//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_B, SECOND_NIBBLE);
+//    }
+//
+//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_C_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+//    {
+//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_C, THIRD_NIBBLE);
+//    }
+//
+//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_D_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+//    {
+//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_D, FOURTH_NIBBLE);
+//    }
+//
+//    SetReadRegisterValue(MB_AUTOMATION_ALARM_1 ,_u16TempAlarmVal);
+//
+//    _u16TempAlarmVal=0;
+//
+//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_E_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
+//    {
+//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_E, FIRST_NIBBLE);
+//    }
+//
+//    if((_cfgz.GetCFGZ_Param(CFGZ::ID_PIN26_SENS_SOURCE) == CFGZ::CFGZ_ANLG_DIG_IN) &&
+//            (_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_F_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR))
+//    {
+//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_F, SECOND_NIBBLE);
+//    }
+//
+//    if((_cfgz.GetCFGZ_Param(CFGZ::ID_PIN24_SENS_SOURCE) == CFGZ::CFGZ_ANLG_DIG_IN) &&
+//            (_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_G_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR))
+//    {
+//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_G, THIRD_NIBBLE);
+//    }
+//
+//    if((_cfgz.GetCFGZ_Param(CFGZ::ID_PIN25_SENS_SOURCE) == CFGZ::CFGZ_ANLG_DIG_IN) &&
+//            (_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_H_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR))
+//    {
+//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_H, FOURTH_NIBBLE);
+//    }
+//
+//    SetReadRegisterValue(MB_AUTOMATION_ALARM_2 ,_u16TempAlarmVal);
+//
+//    _u16TempAlarmVal =0;
+//    _u16TempAlarmVal=_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_ON_STARTED_TIMER)<<0;
+//    _u16TempAlarmVal|=((_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_ON_PAUSED_TIMER))<<1);
+//    _u16TempAlarmVal|=((_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_OFF_STARTED_TIMER))<<2);
+//    _u16TempAlarmVal|=((_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_OFF_PAUSED_TIMER))<<3);
+//    SetReadRegisterValue(MB_AUTOMATION_CYCLIC_MODE ,_u16TempAlarmVal);
+//}
+
+void MB_APP::prvUpdateMBWriteRegisterForAutomation()
+{
+    bool bStoreInEeprom = false;
+    MBWriteCommand command;
+    command.u16CommandSet = GetRegisterValue(MB_APP::MB_AUTOMATION_WRITE_COMMAND);
+
+    if(command.stMBWriteCommandForAutomation.RTC==1U)
+    {
+        RTC::TIME_t currentTime;
+
+        currentTime.u8Second =0U;
+        currentTime.u8Minute =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_AUTOMATION_DATE_TIME1) & 0xFF00U)>>8);
+        currentTime.u8Hour =(uint8_t)((uint16_t)GetRegisterValue(MB_APP::MB_AUTOMATION_DATE_TIME2) & 0xFFU);
+        currentTime.u8DayOfWeek =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_AUTOMATION_DATE_TIME2)& 0xFF00U)>>8);
+        currentTime.u8Day =(uint8_t)((uint16_t)GetRegisterValue(MB_APP::MB_AUTOMATION_DATE_TIME3)& 0xFF);
+        currentTime.u8Month =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_AUTOMATION_DATE_TIME3) & 0xFF00U)>>8);
+        currentTime.u16Year = (uint16_t)GetRegisterValue(MB_APP::MB_AUTOMATION_DATE_TIME4) ;
+        _hal.ObjRTC.SetTime(&currentTime);
+        command.stMBWriteCommandForAutomation.RTC=0;
+    }
+
+    if(command.stMBWriteCommandForAutomation.EngineRunTime==1U)
+    {
+        bStoreInEeprom = true;
+        uint32_t u32EngineRunTimeInMin = (uint32_t)(GetRegisterValue(MB_AUTOMATION_ENGINE_RUN_HOURS_1)*60U) + GetRegisterValue(MB_AUTOMATION_ENGINE_RUN_HOURS_2);
+        _engineMonitoring.SetEngineRunTime(u32EngineRunTimeInMin);
+        command.stMBWriteCommandForAutomation.EngineRunTime=0;
+    }
+
+    if(command.stMBWriteCommandForAutomation.ActiveEnergy==1U)
+    {
+        bStoreInEeprom = true;
+        uint32_t u32GenEnergy = (uint32_t)(GetRegisterValue(MB_AUTOMATION_GEN_ACTIVE_ENERGY_1));
+        u32GenEnergy = (u32GenEnergy<<16U) | GetRegisterValue(MB_AUTOMATION_GEN_ACTIVE_ENERGY_2);
+        _engineMonitoring.SetGenActiveEnergy(u32GenEnergy);
+        command.stMBWriteCommandForAutomation.ActiveEnergy=0;
+    }
+
+    if(command.stMBWriteCommandForAutomation.ApparentEnergy==1U)
+    {
+        bStoreInEeprom = true;
+        uint32_t u32GenEnergy = (uint32_t)(GetRegisterValue(MB_AUTOMATION_GEN_APPARENT_ENERGY_1));
+        u32GenEnergy = (u32GenEnergy<<16U) | GetRegisterValue(MB_AUTOMATION_GEN_APPARENT_ENERGY_2);
+        _engineMonitoring.SetGenApparentEnergy(u32GenEnergy);
+        command.stMBWriteCommandForAutomation.ApparentEnergy=0;
+    }
+
+    if(command.stMBWriteCommandForAutomation.ReactiveEnergy==1U)
+    {
+        bStoreInEeprom = true;
+        uint32_t u32GenEnergy = (uint32_t)(GetRegisterValue(MB_AUTOMATION_GEN_REACTIVE_ENERGY_1));
+        u32GenEnergy = (u32GenEnergy<<16U) | GetRegisterValue(MB_AUTOMATION_GEN_REACTIVE_ENERGY_2);
+        _engineMonitoring.SetGenReactiveEnergy(u32GenEnergy);
+        command.stMBWriteCommandForAutomation.ReactiveEnergy=0;
+    }
+
+    if(command.stMBWriteCommandForAutomation.NumberOfStarts==1U)
+    {
+        bStoreInEeprom = true;
+        uint16_t u16NumberOfstarts = (uint16_t)GetRegisterValue(MB_AUTOMATION_NUMBER_OF_STARTS);
+        _engineMonitoring.SetGenNumberOfStarts(u16NumberOfstarts);
+        command.stMBWriteCommandForAutomation.NumberOfStarts=0;
+    }
+
+    if(command.stMBWriteCommandForAutomation.NumberOfTrips==1U)
+    {
+        bStoreInEeprom = true;
+        uint16_t u16NumberOftrips = (uint16_t)GetRegisterValue(MB_AUTOMATION_NUMBER_OF_TRIPS);
+        _engineMonitoring.SetGenNumberOfTrips(u16NumberOftrips);
+        command.stMBWriteCommandForAutomation.NumberOfTrips=0;
+    }
+
+    if(bStoreInEeprom)
+    {
+        _engineMonitoring.StoreCummulativeCnt();
+        _engineMonitoring.ReadEnergySetEnergyOffset(true);
+        bStoreInEeprom = false;
+    }
+    SetWriteRegisterValue(MB_APP::MB_AUTOMATION_WRITE_COMMAND,command.u16CommandSet);
+}
+
+//uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister)
+//{
+//    /*Determine the group*/
+//    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false);
+//    /*Determine the start address for the group*/
+//    uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
+//    return _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress];
+//}
+
+uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister)
+{
+    /*Determine the group*/
+    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, false, true);
+    /*Determine the start address for the group*/
+    uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
+    return _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress];
+}
+
+//void MB_APP::SetReadRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister, uint16_t u16Value)
+//{
+//    /*Determine the group*/
+//    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false);
+//    /*Determine the start address for the group*/
+//    uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
+//    _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
+//}
+
+void MB_APP::SetWriteRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister, uint16_t u16Value)
+{
+    /*Determine the group*/
+    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, false, true);
+    /*Determine the start address for the group*/
+    uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
+    _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
+}
+#endif
 

@@ -132,6 +132,51 @@ public:
     static LOAD_CONT_STATUS_t GetContactorLoadStatus();
     static bool GetAndClearIsLoadStatusChanged();
 
+#if (AUTOMATION==1)
+    /**
+     * This function overwrites the engine run hours (in mins) with the value received over
+     * MODBUS while automation testing.
+     * @param u32EngineRunTimeInmin - Desired engine run hours counts.
+     */
+    void SetEngineRunTime(uint32_t u32EngineRunTimeInmin);
+
+    /**
+     * This function overwrites the Active Gen Energy (in kWH) with the value received over
+     * MODBUS while automation testing.
+     * @param u32GenActiveEnergy - Desired Gen Active Energy.
+     */
+    void SetGenActiveEnergy(uint32_t u32GenActiveEnergy);
+
+    /**
+     * This function overwrites the Apparent Gen Energy (in kVAH) with the value received over
+     * MODBUS while automation testing.
+     * @param u32GenApparentEnergy - Desired Gen Apparent Energy.
+     */
+    void SetGenApparentEnergy(uint32_t u32GenApparentEnergy);
+
+    /**
+     * This function overwrites the Reactive Gen Energy (in kVARH) with the value received over
+     * MODBUS while automation testing.
+     * @param u32GenReactiveEnergy - Desired Gen Reactive Energy.
+     */
+    void SetGenReactiveEnergy(uint32_t u32GenReactiveEnergy);
+
+    /**
+     * This function overwrites the no. of starts counts with the value received over
+     * MODBUS while automation testing.
+     * @param u32NumberOfStarts - Desired no. of starts counts.
+     */
+    void SetGenNumberOfStarts(uint32_t u32NumberOfStarts);
+
+    /**
+     * This function overwrites the no. of trips counts with the value received over
+     * MODBUS while automation testing.
+     * @param u32NumberOfTrips - Desired no. of trips counts.
+     */
+    void SetGenNumberOfTrips(uint32_t u32NumberOfTrips);
+#endif
+
+
 
 /*____________________________________________________________________________________________________________________*/
 
@@ -229,6 +274,14 @@ private:
     AC_SENSE::ENERGY_REGISTER_t _stTampEnergyRegister,_stEnergyRegister, _stMainsEnergyRegister;
 
     A_SENSE::SENSOR_RET_t       _stLOP;  /* Lop sensor structure */
+
+#if(AUTOMATION==1)
+    /**
+     * This variable is used to flag if request to store power related info
+     * into EEPROM is from automation request or normal operation of GCU.
+     */
+    bool                        _bFromAutomation;
+#endif
     /**
      * Checks if the any trip occurs and set the flag to updated the trip count.
      * @param  : None

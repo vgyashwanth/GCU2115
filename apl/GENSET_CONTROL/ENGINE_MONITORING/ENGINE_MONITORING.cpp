@@ -67,6 +67,9 @@ _u8ActiveSectorForCummulative(0),
 _stTampEnergyRegister{0},
 _stEnergyRegister{0},
 _stMainsEnergyRegister{0}
+#if (AUTOMATION==1)
+,_bFromAutomation(false)
+#endif
 {
     UTILS_ResetTimer(&_Timer50MS);
     prvGetCumulativeCnt();
@@ -484,10 +487,17 @@ void ENGINE_MONITORING::prvUpdateCumulativeTamperedEnergyCounts()
 void ENGINE_MONITORING::StoreCummulativeCnt()
 {
     static CUMULATIVE_t stStoredCummulative0,stStoredCummulative1;
-
-    prvUpdateCumulativeEnergyCounts();
-    prvUpdateCumulativeTamperedEnergyCounts();
-
+#if (AUTOMATION==1)
+    if(_bFromAutomation)
+    {
+        _bFromAutomation = false;
+    }
+    else
+#endif
+    {
+        prvUpdateCumulativeEnergyCounts();
+        prvUpdateCumulativeTamperedEnergyCounts();
+    }
     _stCummulativeCnt.u64Header++;
     _stCummulativeCnt.u32CRC =(uint16_t) CRC16::ComputeCRCGeneric((uint8_t *)&_stCummulativeCnt,
                                               sizeof(CUMULATIVE_t) - sizeof(uint32_t)
@@ -915,3 +925,38 @@ bool ENGINE_MONITORING::IsGenStartValid()
     }
 }
 
+
+#if (AUTOMATION==1)
+void ENGINE_MONITORING::SetEngineRunTime(uint32_t u32EngineRunTimeInmin)
+{
+    _stCummulativeCnt.u32EngineRunTime_min=u32EngineRunTimeInmin;
+}
+
+void ENGINE_MONITORING::SetGenActiveEnergy(uint32_t u32GenActiveEnergy)
+{
+    _stCummulativeCnt.f32GenKWH=u32GenActiveEnergy;
+    _bFromAutomation = true;
+}
+
+void ENGINE_MONITORING::SetGenApparentEnergy(uint32_t u32GenApparentEnergy)
+{
+    _stCummulativeCnt.f32GenKVAH=u32GenApparentEnergy;
+    _bFromAutomation = true;
+}
+
+void ENGINE_MONITORING::SetGenReactiveEnergy(uint32_t u32GenReactiveEnergy)
+{
+    _stCummulativeCnt.f32GenKVARH=u32GenReactiveEnergy;
+    _bFromAutomation = true;
+}
+
+void ENGINE_MONITORING::SetGenNumberOfStarts(uint32_t u32NumberOfStarts)
+{
+    _stCummulativeCnt.u32GenNumberOfStarts=u32NumberOfStarts;
+}
+
+void ENGINE_MONITORING::SetGenNumberOfTrips(uint32_t u32NumberOfTrips)
+{
+    _stCummulativeCnt.u32GenNumberOfTrips=u32NumberOfTrips;
+}
+#endif

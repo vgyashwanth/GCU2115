@@ -43,17 +43,22 @@
 #include "ENGINE_MONITORING.h"
 #include "AUTO_MODE.h"
 
-#define AUTOMATION 0
+
+/*Defines the number of discontinuous address groups*/
+
+#if (AUTOMATION==1)
+/*Defines the number of discontinuous address groups*/
+#define MODBUS_ADDRESS_GROUPS   (4U)
+#define MODBUS_GRP3_REG_CNT     (MB_AUTOMATION_WRITE_REG_LAST - MB_AUTOMATION_WRITE_COMMAND)
+
+#else
 /*Defines the number of discontinuous address groups*/
 #define MODBUS_ADDRESS_GROUPS   (2U)
+#endif
 /*Number of entries in the first address group*/
 #define MODBUS_GRP1_REG_CNT     (MB_READ_REG_LAST)
 /*Number of entries in the second address group*/
-#if (AUTOMATION)
-#define MODBUS_GRP2_REG_CNT     (7U)
-#else
 #define MODBUS_GRP2_REG_CNT     (2U)
-#endif
 #define MODBUS_PROTOCOL_VERSION (1U)
 
 
@@ -68,6 +73,51 @@ public:
        address.
      */
     typedef enum {
+#if AUTOMATION
+
+        MB_AUX_S1=400,
+        MB_AUX_S2,
+        MB_GEN_L1_L2_VOLATGE,
+        MB_GEN_L2_L3_VOLATGE,
+        MB_GEN_L3_L1_VOLATGE,
+        MB_MAINS_L1_L2_VOLTAGE,
+        MB_MAINS_L2_L3_VOLTAGE,
+        MB_MAINS_L3_L1_VOLTAGE,
+        MB_MAINS_R_FREQUENCY,
+        MB_MAINS_Y_FREQUENCY,
+        MB_MAINS_B_FREQUENCY,
+        MB_NO_OF_STARTS,
+        MB_NO_OF_TRIPS,
+        MB_ALARM_1,
+        MB_ALARM_2,
+        MB_ALARM_3,
+        MB_ALARM_4,
+        MB_ALARM_5,
+        MB_ALARM_6,
+        MB_ALARM_7,
+        MB_ALARM_8,
+        MB_ALARM_9,
+        MB_ALARM_10,
+        MB_ALARM_11,
+        MB_ALARM_12,
+        MB_ALARM_13,
+        MB_ALARM_14,
+        MB_ALARM_15,
+        MB_ALARM_16,
+        MB_ALARM_17,
+        MB_DIG_IP_STATUS,
+        MB_DIG_OP_STATUS,
+        MB_GEN_STATUS,
+        MB_TIME_STAMP0,
+        MB_TIME_STAMP1,
+        MB_TIME_STAMP2,
+        MB_TIME_STAMP3,
+        PASSWORD_ACCESS_STATUS, //
+        MAIN_MENU_INDEX, //
+        SUB_MENU_INDEX, //
+        ITEM_INDEX, //
+
+#endif
         DIG_ALARM_1_REG = 16384,
         DIG_ALARM_2_REG,
         SOLID_STATE_OP_REG,
@@ -176,63 +226,69 @@ offset 14.
         MB_SPN15 ,
         MB_FMI15  = MB_SPN15 + 2,
 
-#if AUTOMATION
 
-        MB_AUX_S1,
-        MB_AUX_S2,
-        MB_GEN_L1_L2_VOLATGE,
-        MB_GEN_L2_L3_VOLATGE,
-        MB_GEN_L3_L1_VOLATGE,
-        MB_MAINS_L1_L2_VOLTAGE,
-        MB_MAINS_L2_L3_VOLTAGE,
-        MB_MAINS_L3_L1_VOLTAGE,
-        MB_MAINS_R_FREQUENCY,
-        MB_MAINS_Y_FREQUENCY,
-        MB_MAINS_B_FREQUENCY,
-        MB_NO_OF_STARTS,
-        MB_NO_OF_TRIPS,
-        MB_ALARM_1,
-        MB_ALARM_2,
-        MB_ALARM_3,
-        MB_ALARM_4,
-        MB_ALARM_5,
-        MB_ALARM_6,
-        MB_ALARM_7,
-        MB_ALARM_8,
-        MB_ALARM_9,
-        MB_ALARM_10,
-        MB_ALARM_11,
-        MB_ALARM_12,
-        MB_ALARM_13,
-        MB_ALARM_14,
-        MB_ALARM_15,
-        MB_ALARM_16,
-        MB_ALARM_17,
-        MB_DIG_IP_STATUS,
-        MB_DIG_OP_STATUS,
-        MB_GEN_STATUS,
-        MB_TIME_STAMP0,
-        MB_TIME_STAMP1,
-        MB_TIME_STAMP2,
-        MB_TIME_STAMP3,
-        PASSWORD_ACCESS_STATUS, //
-        MAIN_MENU_INDEX, //
-        SUB_MENU_INDEX, //
-        ITEM_INDEX, //
-
-#endif
         MB_READ_REG_LAST
     } MODBUS_READ_REGISTERS_t;
 
     typedef enum name {
         MB_COMMAND = 0,
         MB_MODE_REG,
-        MB_DATE_TIME1,
-        MB_DATE_TIME2,
-        MB_DATE_TIME3,
-        MB_DATE_TIME4,
-        MB_DATE_TIME5,
+//        MB_DATE_TIME1,
+//        MB_DATE_TIME2,
+//        MB_DATE_TIME3,
+//        MB_DATE_TIME4,
+//        MB_DATE_TIME5,
     }MODBUS_WRITE_REGISTERS_t;
+
+#if (AUTOMATION==1)
+    typedef enum {
+        MB_AUTOMATION_WRITE_COMMAND = 350,
+        MB_AUTOMATION_ENGINE_RUN_HOURS_1,                    /* RUN_HOUR_1 will hold hour value */
+        MB_AUTOMATION_ENGINE_RUN_HOURS_2,                    /* RUN_HOUR_2 will hold minutes value */
+        MB_AUTOMATION_MAINS_RUN_HOURS_1,
+        MB_AUTOMATION_MAINS_RUN_HOURS_2,
+        MB_AUTOMATION_BTS_RUN_HOUR_1,
+        MB_AUTOMATION_BTS_RUN_HOUR_2,
+        MB_AUTOMATION_DATE_TIME1,
+        MB_AUTOMATION_DATE_TIME2,
+        MB_AUTOMATION_DATE_TIME3,
+        MB_AUTOMATION_DATE_TIME4,
+        MB_AUTOMATION_GEN_ACTIVE_ENERGY_1,
+        MB_AUTOMATION_GEN_ACTIVE_ENERGY_2,
+        MB_AUTOMATION_GEN_APPARENT_ENERGY_1,
+        MB_AUTOMATION_GEN_APPARENT_ENERGY_2,
+        MB_AUTOMATION_GEN_REACTIVE_ENERGY_1,
+        MB_AUTOMATION_GEN_REACTIVE_ENERGY_2,
+        MB_AUTOMATION_NUMBER_OF_STARTS,
+        MB_AUTOMATION_NUMBER_OF_TRIPS,
+        MB_AUTOMATION_WRITE_REG_LAST
+    }MODBUS_FOR_AUTOMATION_WRITE;
+
+    typedef struct{
+            uint16_t EngineRunTime:1;
+            uint16_t MainsRunTime:1;
+            uint16_t Reserved0:1;
+            uint16_t RTC:1;
+            uint16_t ActiveEnergy:1;
+            uint16_t ApparentEnergy:1;
+            uint16_t ReactiveEnergy:1;
+            uint16_t NumberOfStarts:1;
+            uint16_t NumberOfTrips:1;
+            uint16_t Reserved1:1;
+            uint16_t Reserved2:1;
+            uint16_t Reserved3:1;
+            uint16_t Reserved4:1;
+            uint16_t Reserved5:1;
+            uint16_t Reserved6:1;
+            uint16_t Reserved7:1;
+    }stMBAutomationSetCommand;
+
+    typedef union
+    {
+        stMBAutomationSetCommand stMBWriteCommandForAutomation;
+        uint16_t u16CommandSet;
+    }MBWriteCommand;
+#endif
 
     typedef struct
     {
@@ -275,6 +331,25 @@ offset 14.
      * None
      */
     void SetReadRegisterValue(MODBUS_READ_REGISTERS_t eRegister, uint16_t u16Value);
+
+
+#if (AUTOMATION==1)
+
+
+    /**
+     * Gets the value of a modbus automation support registers with write access(address group 3).
+     * @param eRegister
+     * @return value in the register
+     */
+    uint16_t GetRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister);
+
+    /**
+     * Sets the value of a modbus automation support registers with write access(address group 3).
+     * @param eRegister - modbus register whose value is to be updated.
+     * @param u16Value - value to be written in register.
+     */
+    void SetWriteRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister, uint16_t u16Value);
+#endif
 
 
     /**
@@ -344,6 +419,11 @@ private:
 
     /*Address group 2 buffer*/
     uint16_t _au16Grp2Registers[MODBUS_GRP2_REG_CNT];
+
+#if (AUTOMATION==1)
+    /*Address group 4 buffer*/
+    uint16_t _au16Grp3Registers[MODBUS_GRP3_REG_CNT];
+#endif
 
     /*List to store address groups*/
     MODBUS::ADDRESS_GROUP_t   _aAddressGrp[MODBUS_ADDRESS_GROUPS];
@@ -422,9 +502,20 @@ private:
     void prvGetMiscParams();
 
     void prvUpdateLatestDM1Messages(void);
-//    void prvUpdateCPCB4dataOnModbus();
     void prvUpdateEGRrelatedRegisters(void);
     void prvUpdateDm01FaultCodesOnModbus(void);
+#if (AUTOMATION==1)
+    /**
+     * This function updates the automation test support related modbus read registers.
+     * @param bDeviceInConfigMode
+     */
+    void prvUpdateMBReadRegisterForAutomation(bool bDeviceInConfigMode);
+
+    /**
+     * This function updates the automation test support related modbus write registers.
+     */
+    void prvUpdateMBWriteRegisterForAutomation();
+#endif
 
 };
 

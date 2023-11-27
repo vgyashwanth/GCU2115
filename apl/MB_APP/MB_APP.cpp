@@ -55,12 +55,15 @@ _au16Grp1Registers{0},
 _au16Grp2Registers{0},
 #if (AUTOMATION==1)
 _au16Grp3Registers{0},
+_au16Grp4Registers{0},
 #endif
 _aAddressGrp{
+
     {DIG_ALARM_1_REG, MODBUS_GRP1_REG_CNT, _au16Grp1Registers, true , false},
     {MB_COMMAND, MODBUS_GRP2_REG_CNT, _au16Grp2Registers, false, true}
 #if (AUTOMATION==1)
-    ,{MB_AUTOMATION_WRITE_COMMAND, MB_AUTOMATION_WRITE_REG_LAST, _au16Grp3Registers, false, true}
+    ,{MB_AUX_S1, MB_AUTOMATION_READ_REG_LAST, _au16Grp3Registers, true , false},
+    {MB_AUTOMATION_WRITE_COMMAND, MB_AUTOMATION_WRITE_REG_LAST, _au16Grp4Registers, false, true}
 #endif
 },
 _AddressGrpLst{_aAddressGrp, MODBUS_ADDRESS_GROUPS},
@@ -187,7 +190,7 @@ void MB_APP::prvUpdateElectricalParams()
     u16Tmp = (uint16_t)(ac.GENSET_GetVoltageVolts(B_PHASE));
     SetReadRegisterValue(MB_GEN_L3_N_VOLATGE, u16Tmp);
 
-#if AUTOMATION
+#if (AUTOMATION==1)
 
     /*Resolution 0.1*/
     u16Tmp = (uint16_t)(ac.GENSET_GetRYVolts()*10);
@@ -307,7 +310,7 @@ void MB_APP::prvUpdateElectricalParams()
     u16Tmp = (uint16_t)(ac.MAINS_GetVoltageVolts(B_PHASE));
     SetReadRegisterValue(MB_MAINS_L3_N_VOLTAGE, u16Tmp);
 
-#if AUTOMATION
+#if (AUTOMATION==1)
 
     u16Tmp = (uint16_t)(ac.MAINS_GetRYVolts()*10);
     SetReadRegisterValue(MB_MAINS_L1_L2_VOLTAGE, u16Tmp);
@@ -435,7 +438,7 @@ void MB_APP::prvUpdateAnalogParams()
 void MB_APP::prvUpdateStartTripsRunHours()
 {
 
-#if AUTOMATION
+#if (AUTOMATION==1)
 
     SetReadRegisterValue(MB_NO_OF_STARTS, (uint16_t)_engineMonitoring.GetEngineNoOfStarts());
     SetReadRegisterValue(MB_NO_OF_TRIPS, (uint16_t)_engineMonitoring.GetEngineNoOfTrips());
@@ -615,7 +618,7 @@ void MB_APP::prvUpdateTmpParams()
 void MB_APP::prvUpdateAUXSensorVal()
 {
 
-#if AUTOMATION
+#if (AUTOMATION==1)
 
     A_SENSE &sensor = _hal.AnalogSensors;
     A_SENSE::SENSOR_RET_t  stTemp;
@@ -735,7 +738,7 @@ void MB_APP::prvUpdateGCUAlarms()
 
     SetReadRegisterValue(DIG_ALARM_2_REG, _u16TempAlarmVal);
 
-#if AUTOMATION
+#if (AUTOMATION==1)
 
     /* Alarm 1 */
     _u16TempAlarmVal =0;
@@ -1082,7 +1085,7 @@ void MB_APP::prvUpadateDIGInOut()
 
     SetReadRegisterValue(SOLID_STATE_OP_REG, _u16TempAlarmVal);
 
-#if AUTOMATION
+#if (AUTOMATION==1)
 
     uint8_t u8LocalCnt=15,u8Local = 0;
     _u16TempAlarmVal =0;
@@ -1673,14 +1676,6 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation()
     SetWriteRegisterValue(MB_APP::MB_AUTOMATION_WRITE_COMMAND,command.u16CommandSet);
 }
 
-//uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister)
-//{
-//    /*Determine the group*/
-//    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false);
-//    /*Determine the start address for the group*/
-//    uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
-//    return _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress];
-//}
 
 uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister)
 {
@@ -1691,14 +1686,6 @@ uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister)
     return _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress];
 }
 
-//void MB_APP::SetReadRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister, uint16_t u16Value)
-//{
-//    /*Determine the group*/
-//    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false);
-//    /*Determine the start address for the group*/
-//    uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
-//    _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
-//}
 
 void MB_APP::SetWriteRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister, uint16_t u16Value)
 {
@@ -1708,5 +1695,25 @@ void MB_APP::SetWriteRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister, uint16
     uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
     _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
 }
+
+uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister)
+{
+    /*Determine the group*/
+    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false);
+    /*Determine the start address for the group*/
+    uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
+    return _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress];
+}
+
+void MB_APP::SetReadRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister, uint16_t u16Value)
+{
+    /*Determine the group*/
+    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false);
+    /*Determine the start address for the group*/
+    uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
+    _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
+}
+
+
 #endif
 

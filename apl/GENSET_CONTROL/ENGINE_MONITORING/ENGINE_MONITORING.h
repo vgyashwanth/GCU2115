@@ -275,7 +275,7 @@ private:
 
     A_SENSE::SENSOR_RET_t       _stLOP;  /* Lop sensor structure */
 
-#if(AUTOMATION==1)
+#if (AUTOMATION==1)
     /**
      * This variable is used to flag if request to store power related info
      * into EEPROM is from automation request or normal operation of GCU.

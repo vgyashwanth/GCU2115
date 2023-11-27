@@ -3127,7 +3127,8 @@ uint8_t GCU_ALARMS::prvUpdateUnbalancedLoadMon()
 }
 uint8_t GCU_ALARMS::prvGetUnbalancedLoadVal()
 {
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
+            && (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR) == ACT_Manager::ACT_LATCHED))
     {
         uint16_t u16RatedCurrentPerPhase_amp = _cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_FULL_LOAD_CURRENT);
         if(u16RatedCurrentPerPhase_amp > 0)

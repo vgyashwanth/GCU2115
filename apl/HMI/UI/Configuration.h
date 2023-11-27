@@ -90,8 +90,8 @@
  /*Engine*/
 #define LEAFNODES_IN_CRANK_DISCONN          11
 #define LEAFNODES_IN_SPEED_MONITOR          8
-#define LEAFNODES_IN_BATTERY_MONITOR        7
-#define LEAFNODES_IN_CHARGE_ALT_MON         4
+#define LEAFNODES_IN_BATTERY_MONITOR        6
+#define LEAFNODES_IN_CHARGE_ALT_MON         3
 #define LEAFNODES_IN_PREHEAT                4
 
 #define LEAFNODES_IN_ECU                    23

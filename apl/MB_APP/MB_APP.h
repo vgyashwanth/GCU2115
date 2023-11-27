@@ -49,14 +49,14 @@
 #if (AUTOMATION==1)
 /*Defines the number of discontinuous address groups*/
 #define MODBUS_ADDRESS_GROUPS   (4U)
-#define MODBUS_GRP3_REG_CNT     (MB_AUTOMATION_WRITE_REG_LAST - MB_AUTOMATION_WRITE_COMMAND)
-
+#define MODBUS_GRP3_REG_CNT     (MB_AUTOMATION_READ_REG_LAST - MB_AUX_S1)
+#define MODBUS_GRP4_REG_CNT     (MB_AUTOMATION_WRITE_REG_LAST - MB_AUTOMATION_WRITE_COMMAND)
 #else
 /*Defines the number of discontinuous address groups*/
 #define MODBUS_ADDRESS_GROUPS   (2U)
 #endif
 /*Number of entries in the first address group*/
-#define MODBUS_GRP1_REG_CNT     (MB_READ_REG_LAST)
+#define MODBUS_GRP1_REG_CNT     (MB_READ_REG_LAST -DIG_ALARM_1_REG)
 /*Number of entries in the second address group*/
 #define MODBUS_GRP2_REG_CNT     (2U)
 #define MODBUS_PROTOCOL_VERSION (1U)
@@ -72,9 +72,8 @@ public:
     /* Contains the list of registers, the enum values correspond to the register
        address.
      */
+#if (AUTOMATION == 1)
     typedef enum {
-#if AUTOMATION
-
         MB_AUX_S1=400,
         MB_AUX_S2,
         MB_GEN_L1_L2_VOLATGE,
@@ -116,8 +115,10 @@ public:
         MAIN_MENU_INDEX, //
         SUB_MENU_INDEX, //
         ITEM_INDEX, //
-
+        MB_AUTOMATION_READ_REG_LAST
+    }MODBUS_FOR_AUTOMATION_READ;
 #endif
+        typedef enum {
         DIG_ALARM_1_REG = 16384,
         DIG_ALARM_2_REG,
         SOLID_STATE_OP_REG,
@@ -232,7 +233,7 @@ offset 14.
 
     typedef enum name {
         MB_COMMAND = 0,
-        MB_MODE_REG,
+        MB_MODE_REG
 //        MB_DATE_TIME1,
 //        MB_DATE_TIME2,
 //        MB_DATE_TIME3,
@@ -349,6 +350,20 @@ offset 14.
      * @param u16Value - value to be written in register.
      */
     void SetWriteRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister, uint16_t u16Value);
+
+    /**
+     * Gets the value of a modbus automation support registers with write access(address group 4).
+     * @param eRegister
+     * @return value in the register
+     */
+    uint16_t GetRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister);
+
+    /**
+     * Sets the value of a modbus automation support registers with write access(address group 4).
+     * @param eRegister - modbus register whose value is to be updated.
+     * @param u16Value - value to be written in register.
+     */
+    void SetReadRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister, uint16_t u16Value);
 #endif
 
 
@@ -423,6 +438,7 @@ private:
 #if (AUTOMATION==1)
     /*Address group 4 buffer*/
     uint16_t _au16Grp3Registers[MODBUS_GRP3_REG_CNT];
+    uint16_t _au16Grp4Registers[MODBUS_GRP4_REG_CNT];
 #endif
 
     /*List to store address groups*/

@@ -151,17 +151,24 @@ uint8_t PASSWORD_ENTRY_UI::GetEnteredPassword()
 }
 void PASSWORD_ENTRY_UI::prvCheckEnteredPassword()
 {
-#ifdef CONFIG_MASTER_PASSWORD
-    if(_u16EnterdPassword == _cfgz.GetCFGZ_Param(CFGZ::ID_MASTER_PASSWORD))
+#if (AUTOMATION==1)
+    if(_u16EnterdPassword == AUTOMATION_MASTER_PASSWORD)  //Master Password
     {
-        _u8EnteredPassword = PIN1;
+        _u8EnteredPassword = MASTER_PIN;
     }
+    else if(_u16EnterdPassword == _u16PIN[0])
+#elif (CUSTOMER_MASTER_PASSWORD_ENABLE==1)
+    if(_u16EnterdPassword == CUSTOMER_MASTER_PASSWORD)  //Master Password
+    {
+        _u8EnteredPassword = MASTER_PIN;
+    }
+    else if(_u16EnterdPassword == _u16PIN[0])
 #else
     if(_u16EnterdPassword == _u16PIN[0])
+#endif
     {
         _u8EnteredPassword = PIN1;
     }
-#endif
     else if(_u16EnterdPassword == _u16PIN[1])  // Read from Password area in DFlash
     {
         _u8EnteredPassword = PIN2;
@@ -170,12 +177,6 @@ void PASSWORD_ENTRY_UI::prvCheckEnteredPassword()
 //    {
 //        _u8EnteredPassword = PIN3;
 //    }
-#if (MASTER_PASSWORD_ENABLE==1)
-    else if(_u16EnterdPassword == MASTER_PASSWORD)  //Master Password
-    {
-        _u8EnteredPassword = MASTER_PIN;
-    }
-#endif
     /*
      * Removed the Master password for GC2111 as per the requirement.
      */

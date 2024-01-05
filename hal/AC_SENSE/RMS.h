@@ -55,7 +55,11 @@ public:
      * @return
      * true if the window has moved
      */
+#if (SUPPORT_CALIBRATION == YES)
+    bool  AccumulateSampleSet(float f32SampleVal1, float f32SampleVal2);
+#else
     bool  AccumulateSampleSet(int16_t i16SampleVal1, int16_t i16SampleVal2);
+#endif /* SUPPORT_CALIBRATION */
 
 
     /**
@@ -95,6 +99,18 @@ public:
 private:
     #define RMS_MOVING_WINDOW_SIZE        (16U)
 
+#if (SUPPORT_CALIBRATION == YES)
+    
+    CircularQueue<double> _windowBuffer;
+    double _af64WindowArr[RMS_MOVING_WINDOW_SIZE];
+    double _f64SampleSum;
+    /*This is used to accumulate the squared value of samples in SAMPLE_SET*/
+    double _f64AccumulatedVal;
+    /*The accumulated value is latched to this value before it is reset*/
+    double _f64LastAccumulatedVal;
+
+#else
+
     CircularQueue<int32_t> _windowBuffer;
     int32_t _ai32WindowArr[RMS_MOVING_WINDOW_SIZE];
     int64_t _i64SampleSum;
@@ -102,9 +118,11 @@ private:
     int32_t _i32AccumulatedVal;
     /*The accumulated value is latched to this value before it is reset*/
     int32_t _i32LastAccumulatedVal;
+
+#endif /* SUPPORT_CALIBRATION */
+
     /*Stores the filtered RMS value*/
     float   _fFilteredRms;
-
     /*
      * Below variable stores filtered value to be displayed on monitoring screen.
      * It should be only used for user display purpose. */

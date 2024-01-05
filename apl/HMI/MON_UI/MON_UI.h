@@ -1124,7 +1124,7 @@ private:
 
     void prvBuildLampIconScreen(void);
     void prvBuildExhaustIconScreen(void);
-
+    float prvPin23ConvFuelLvlToLit(float f32FuelLvlPct);
 
 };
 

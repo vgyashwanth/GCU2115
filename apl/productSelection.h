@@ -8,6 +8,12 @@
 #ifndef APL_PRODUCTSELECTION_H_
 #define APL_PRODUCTSELECTION_H_
 
+#define YES        (1U)
+#define NO         (0U)
+
+/* Calibration feature */
+#define SUPPORT_CALIBRATION   (YES)
+
 #define AUTOMATION 0
 #define CUSTOMER_MASTER_PASSWORD_ENABLE  1
 

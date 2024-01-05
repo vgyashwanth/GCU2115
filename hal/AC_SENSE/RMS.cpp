@@ -18,11 +18,20 @@ float RMS::_fDispFilterConstant = 0.2f;
 RMS::RMS(uint16_t u16SamplesPerEntry, float fRmsMultiplicationFactor,
                                     bool bisSqrtNeeded, float fValidityThreshold,
                                         float fFilterConstant)
-:_windowBuffer{_ai32WindowArr, (uint16_t)RMS_MOVING_WINDOW_SIZE},
+:
+#if (SUPPORT_CALIBRATION == YES)
+_windowBuffer{_af64WindowArr, (uint16_t)RMS_MOVING_WINDOW_SIZE},
+_af64WindowArr{0.0f},
+_f64SampleSum(0.0f),
+_f64AccumulatedVal(0.0f),
+_f64LastAccumulatedVal(0.0f),
+#else
+_windowBuffer{_ai32WindowArr, (uint16_t)RMS_MOVING_WINDOW_SIZE},
 _ai32WindowArr{0},
 _i64SampleSum(0),
 _i32AccumulatedVal(0),
 _i32LastAccumulatedVal(0),
+#endif /* SUPPORT_CALIBRATION */
 _fFilteredRms(0),
 _fFilteredRmsForDisplay(0),
 _fRawRms(0),
@@ -36,6 +45,36 @@ _fFilterConstant(fFilterConstant)
 {
 }
 
+#if (SUPPORT_CALIBRATION == YES)
+bool RMS::AccumulateSampleSet(float f32SampleVal1, float f32SampleVal2)
+{
+    _u16RMSSampleCnt++;
+
+    _f64AccumulatedVal += (f32SampleVal1 * f32SampleVal2);
+
+    /* Reset count as summing current SAMPLE_SET is over */
+    if(_u16RMSSampleCnt >= _u16SamplesPerEntry)
+    {
+
+        /* The current SAMPLE_SET sum(i.e _i32LastAccumulatedVal) is copied to
+           _i32LastAccumulatedVal and cleared. _i32LastAccumulatedVal values is
+           used within the update loop to derive the RMS for the current window
+         */
+
+        _f64LastAccumulatedVal = _f64AccumulatedVal;
+        _f64AccumulatedVal     = 0;
+
+        _u16RMSSampleCnt = 0;
+        /* The _bWindowMoved flag signals to the update loop that the window
+           has moved
+         */
+        _bWindowMoved = true;
+        return true;
+    }
+    return false;
+}
+
+#else
 bool RMS::AccumulateSampleSet(int16_t i16SampleVal1, int16_t i16SampleVal2)
 {
     _u16RMSSampleCnt++;
@@ -63,6 +102,7 @@ bool RMS::AccumulateSampleSet(int16_t i16SampleVal1, int16_t i16SampleVal2)
     }
     return false;
 }
+#endif /* SUPPORT_CALIBRATION */
 
 void RMS::prvComputeRMS()
 {
@@ -70,6 +110,46 @@ void RMS::prvComputeRMS()
      * to with the same _i32LastAccumulatedVal. This while loop runs for 
      * RMS_MOVING_WINDOW_SIZE times once after initialization.
      */
+#if (SUPPORT_CALIBRATION == YES)
+
+    while(_windowBuffer.GetRemainingQSize() != RMS_MOVING_WINDOW_SIZE)
+    {
+        _f64SampleSum += _f64LastAccumulatedVal;
+        /* Populate the accumulated value for the last SAMPLE_SET to the
+           window buffer */
+        _windowBuffer.EnQueue(&_f64LastAccumulatedVal);
+    }
+    double f64DequedVal;
+    _windowBuffer.DeQueue(&f64DequedVal);
+    /* Remove older sample from the sum*/
+    _f64SampleSum -= f64DequedVal;
+    /* Add newer sample to the sum */
+    _f64SampleSum += _f64LastAccumulatedVal;
+    /* Populate the accumulated value for the last SAMPLE_SET to the
+       window buffer */
+    _windowBuffer.EnQueue(&_f64LastAccumulatedVal);
+
+    /* Compute RMS from the squared samples in the current window */
+    float fInstaneousValue;
+    /* Compute RMS */
+    if(_bisSqrtNeeded)
+    {
+        /* Check to avoid NaN calculation */
+        if(_f64SampleSum < 0.F)
+        {
+            _f64SampleSum = 0.F;
+        }
+        fInstaneousValue = sqrt(float(_f64SampleSum/(RMS_MOVING_WINDOW_SIZE*
+                                  _u16SamplesPerEntry)));
+    }
+    else
+    {
+        fInstaneousValue = (float(_f64SampleSum/(RMS_MOVING_WINDOW_SIZE*
+                                  _u16SamplesPerEntry)));
+    }
+
+#else
+
     while(_windowBuffer.GetRemainingQSize() != RMS_MOVING_WINDOW_SIZE)
     {
         _i64SampleSum += _i32LastAccumulatedVal;
@@ -100,6 +180,9 @@ void RMS::prvComputeRMS()
         fInstaneousValue = (float(_i64SampleSum/(RMS_MOVING_WINDOW_SIZE*
                                   _u16SamplesPerEntry)));
     }
+
+#endif /* SUPPORT_CALIBRATION */
+
     fInstaneousValue *= _fRmsMultiplicationFactor;
 
     _fRawRms = fInstaneousValue;

@@ -2,7 +2,11 @@
 
 
 HAL_Manager::HAL_Manager():
+#if (SUPPORT_CALIBRATION == YES)
+AcSensors(this->AcIp, this->AnlgIp, this->Objeeprom),
+#else
 AcSensors(this->AcIp, this->AnlgIp),
+#endif /* SUPPORT_CALIBRATION */
 DigitalSensors(this->dip), // @suppress("Symbol is not resolved")
 AnalogSensors(this->AnlgIp, this->PulseIp, this->AcIp, this->AcSensors),
 actuators(this->stpr, this->hsdManager),

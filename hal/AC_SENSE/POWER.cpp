@@ -37,12 +37,21 @@
  * @copyright   SEDEMAC Mechatronics Pvt Ltd
  **/
 #include "POWER.h"
+#if (SUPPORT_CALIBRATION == YES)
+#include "ANLG_IP.h"
+#endif /* SUPPORT_CALIBRATION */
 
 POWER::POWER(uint16_t u16SamplesPerEntry):
 _u16SamplesPerEntry(u16SamplesPerEntry),
 _bWindowMoved(false),
+#if (SUPPORT_CALIBRATION == YES)
+_bWindowMovedResultLatched(false),
+_f32LatchedCurrentOffsetValue(0.0f), /* After calibration, we pass DC offset de-referenced values to power class */
+_f64CurrentOffsetAccumulator(0.0f),
+#else
 _u16LatchedCurrentOffsetValue(DC_VOLTAGE_OFFSET*V_TO_ADC_SAMPLE),
 _u32CurrentOffsetAccumulator(0),
+#endif /* SUPPORT_CALIBRATION */
 _u16CurrentDCOffsetSampleCount(0),
 _u16DCOffsetWindowSize(INIT_DC_OFFSET_WINDOW_SIZE),
 _fActivePower(0),
@@ -72,12 +81,20 @@ _MainsFreqParams{
     0,                                         /*fPrevFreq*/
     false                                      /*bIsPrevPositiveHalfCycle*/
 },
+#if (SUPPORT_CALIBRATION == YES)
+/* RMS multiplication factor has been made '1' for the below parameters as scaling is taken care during adjustment of measurements due to calibration. */
+_GensetVoltageCalc(_u16SamplesPerEntry, 1, true, 0, 0.02f),
+_MainsVoltageCalc(_u16SamplesPerEntry, 1, true, 0, 0.5f),
+_currentCalc(_u16SamplesPerEntry, 1, true, CURRENT_COMPUTATION_THRESHOLD_MW , 0.02f),
+_powerCalc(_u16SamplesPerEntry, 1, false, POWER_COMPUTATION_THRESHOLD_MW),
+#else
 _GensetVoltageCalc(_u16SamplesPerEntry, ADC_SAMPLE_TO_V * V_ANLG_FRONTEND_UPSCALER, true, 0, 0.02f),
 _MainsVoltageCalc(_u16SamplesPerEntry, ADC_SAMPLE_TO_V * V_ANLG_FRONTEND_UPSCALER, true, 0, 0.02f),
 _currentCalc(_u16SamplesPerEntry, ADC_SAMPLE_TO_V * I_ANLG_FRONTEND_UPSCALER, true, CURRENT_COMPUTATION_THRESHOLD_MW,0.02f),
 _powerCalc(_u16SamplesPerEntry, 
             ADC_SAMPLE_TO_V * ADC_SAMPLE_TO_V  * I_ANLG_FRONTEND_UPSCALER * V_ANLG_FRONTEND_UPSCALER,
                         false, POWER_COMPUTATION_THRESHOLD_MW),
+#endif /* SUPPORT_CALIBRATION */
 _pfSignParams{
     0,                                         /*i16DetectionCount*/
     1,                                         /*i16PFSign*/
@@ -332,6 +349,23 @@ float POWER::GetDispMainsVoltage()
     return _MainsVoltageCalc.GetFilteredRMSValueForDisplay(RMS::VOLTAGE);
 }
 
+#if (SUPPORT_CALIBRATION == YES)
+void POWER::prvCountFreqSamples(float f32FilteredVoltage, FREQ_VARS_t &FreqParams)
+{
+    FreqParams.u16FreqSampleCtr++;
+    if(FreqParams.bIsPrevPositiveHalfCycle &&
+            (f32FilteredVoltage < ZCD_LOWER_THRESHOLD_VOLTS))
+    {
+        FreqParams.u16LatchedFreqSampleCtr = FreqParams.u16FreqSampleCtr;
+        FreqParams.u16FreqSampleCtr = 0;
+        FreqParams.bIsPrevPositiveHalfCycle = false;
+    }
+    if(f32FilteredVoltage > ZCD_UPPER_THRESHOLD_VOLTS)
+    {
+        FreqParams.bIsPrevPositiveHalfCycle = true;
+    }
+}
+#else
 void POWER::prvCountFreqSamples(int16_t i16FilteredVoltageSample, FREQ_VARS_t &FreqParams)
 {
     FreqParams.u16FreqSampleCtr++;
@@ -347,7 +381,47 @@ void POWER::prvCountFreqSamples(int16_t i16FilteredVoltageSample, FREQ_VARS_t &F
         FreqParams.bIsPrevPositiveHalfCycle = true;
     }
 }
+#endif /* SUPPORT_CALIBRATION */
 
+
+#if (SUPPORT_CALIBRATION == YES)
+void POWER::prvCalculatePowerFactorSign(float f32FilteredVoltage,
+         float f32FilteredCurrent, PFSIGN_VARS_t &PfSignParams)
+{
+    /* Checks if a positive to negative zero cross has occurred*/
+    if(PfSignParams.bIsPrevPositiveHalfCycle &&
+                    (f32FilteredVoltage < ZCD_LOWER_THRESHOLD_VOLTS))
+    {
+        PfSignParams.bIsPrevPositiveHalfCycle = false;
+        /* Increments counter if current sign is leading and we get a lagging
+         * reading and vice versa */
+        if((f32FilteredVoltage < f32FilteredCurrent &&
+                (PfSignParams.i16PFSign < 0)) ||
+            (f32FilteredVoltage > f32FilteredCurrent &&
+                (PfSignParams.i16PFSign > 0)))
+        {
+            PfSignParams.i16DetectionCount++;
+        }
+        /* Resets counter if we do not get a successive reading of the same
+         * type as the previous reading */
+        else
+        {
+            PfSignParams.i16DetectionCount = 0;
+        }
+        /* If the number of successive same readings crosses a threshold
+         * value the Power Factor sign is switched */
+        if(PfSignParams.i16DetectionCount > SUCCESSIVE_SAMPLES_THRESHOLD)
+        {
+            PfSignParams.i16PFSign = -PfSignParams.i16PFSign;
+            PfSignParams.i16DetectionCount = 0;
+        }
+    }
+    if(f32FilteredVoltage > ZCD_UPPER_THRESHOLD_VOLTS)
+    {
+        PfSignParams.bIsPrevPositiveHalfCycle = true;
+    }
+}
+#else
 void POWER::prvCalculatePowerFactorSign(int16_t i16FilteredVoltageSample,
          int16_t i16FilteredCurrentSample, PFSIGN_VARS_t &PfSignParams)
 {
@@ -384,8 +458,64 @@ void POWER::prvCalculatePowerFactorSign(int16_t i16FilteredVoltageSample,
         PfSignParams.bIsPrevPositiveHalfCycle = true;
     }
 }
+#endif /* SUPPORT_CALIBRATION */
 
 volatile int32_t temp;
+#if (SUPPORT_CALIBRATION == YES)
+void  POWER::UpdateSample(float f32GensetPhaseVoltage,
+        float f32MainsPhaseVoltage,
+        float f32GensetNeutralVoltage,
+        float f32MainsNeutralVoltage,
+        float f32PhaseCurrent)
+{
+    _u16CurrentDCOffsetSampleCount++;
+    /* Accumulate DC offset value */
+    _f64CurrentOffsetAccumulator += f32PhaseCurrent;
+
+    /* Check whether current offset fixed window is over*/
+    if(_u16CurrentDCOffsetSampleCount >= _u16DCOffsetWindowSize)
+    {
+        _f32LatchedCurrentOffsetValue = (_f64CurrentOffsetAccumulator / _u16DCOffsetWindowSize);
+        _f64CurrentOffsetAccumulator = 0;
+        _u16CurrentDCOffsetSampleCount = 0;
+        /* Change DC offset window size */
+        _u16DCOffsetWindowSize = DC_OFFSET_WINDOW_SIZE_FOR_CURR;
+    }
+
+    /* Remove DC offset for voltages */
+    float f32GensetPhToNVoltage = f32GensetPhaseVoltage - f32GensetNeutralVoltage;
+    float f32MainsPhToNVoltage = f32MainsPhaseVoltage - f32MainsNeutralVoltage;
+
+    /* Remove DC offset for phase current */
+    float f32AbsolutePhaseCurrent = f32PhaseCurrent - _f32LatchedCurrentOffsetValue;
+
+    prvCountFreqSamples(f32GensetPhToNVoltage, _GensetFreqParams);
+    prvCountFreqSamples(f32MainsPhToNVoltage, _MainsFreqParams);
+
+    _GensetVoltageCalc.AccumulateSampleSet(f32GensetPhToNVoltage, f32GensetPhToNVoltage);
+    _MainsVoltageCalc.AccumulateSampleSet(f32MainsPhToNVoltage, f32MainsPhToNVoltage);
+    _currentCalc.AccumulateSampleSet(f32AbsolutePhaseCurrent, f32AbsolutePhaseCurrent);
+
+    if(_eICfg == GENSET_CURRENT_MEASUREMENT)
+    {
+        _bWindowMoved = _powerCalc.AccumulateSampleSet(f32GensetPhToNVoltage, f32AbsolutePhaseCurrent);
+        prvCalculatePowerFactorSign(f32GensetPhToNVoltage,
+                f32AbsolutePhaseCurrent, _pfSignParams);
+    }
+    else
+    {
+        _bWindowMoved = _powerCalc.AccumulateSampleSet(f32MainsPhToNVoltage, f32AbsolutePhaseCurrent);
+        prvCalculatePowerFactorSign(f32MainsPhToNVoltage,
+                f32AbsolutePhaseCurrent, _pfSignParams);
+    }
+
+    if(!_bWindowMovedResultLatched)
+    {
+        _bWindowMovedResultLatched = _bWindowMoved;
+    }
+}
+
+#else
 void  POWER::UpdateSample(uint16_t u16GensetPhaseVoltageSample,
                     uint16_t u16MainsPhaseVoltageSample,
                                     uint16_t u16GensetNeutralVoltageSample,
@@ -441,6 +571,7 @@ void  POWER::UpdateSample(uint16_t u16GensetPhaseVoltageSample,
     }
 
 }
+#endif /* SUPPORT_CALIBRATION */
 
 void POWER::Update()
 {
@@ -448,16 +579,23 @@ void POWER::Update()
     _MainsVoltageCalc.Update();
     _currentCalc.Update();
     _powerCalc.Update();
-
-    /*Compute RMS if moving average window has been moved*/
+/*Compute RMS if moving average window has been moved*/
+#if (SUPPORT_CALIBRATION == YES)
+    if(_bWindowMovedResultLatched)
+#else
     if(_bWindowMoved)
+#endif /* SUPPORT_CALIBRATION */
     {
         prvComputeActivePower();
         prvComputeApparentPower();
         prvComputeReactivePower();
         prvComputePowerFactor();
         prvComputeEnergies();
+#if (SUPPORT_CALIBRATION == YES)
+        _bWindowMovedResultLatched = false;
+#else
         _bWindowMoved = false;
+#endif /* SUPPORT_CALIBRATION */
     }
     prvComputeFrequency(_GensetFreqParams);
     prvComputeFrequency(_MainsFreqParams);

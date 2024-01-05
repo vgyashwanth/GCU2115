@@ -314,11 +314,19 @@ public:
      * @return
      * None
      */
+#if (SUPPORT_CALIBRATION == YES)
+    void UpdateSample(float f32GensetPhaseVoltage,
+        float f32MainsPhaseVoltage,
+        float f32GensetNeutralVoltage,
+        float f32MainsNeutralVoltage,
+        float f32PhaseCurrent);
+#else
     void UpdateSample(uint16_t u16GensetPhaseVoltageSample,
                             uint16_t u16MainsPhaseVoltageSample,
                                 uint16_t u16GensetNeutralVoltageSample,
 				    uint16_t u16MainsNeutralVoltageSample,
                                         uint16_t u16PhaseCurrentSample);
+#endif /* SUPPORT_CALIBRATION */
 
     void ClearCumulativeEnergy();
 private:
@@ -327,12 +335,18 @@ private:
     #define INIT_DC_OFFSET_WINDOW_SIZE    (5000U)
     /*DC offset averaging window size to be considered post 
       INIT_DC_OFFSET_WINDOW_SIZE samples */ 
-    #define DC_OFFSET_WINDOW_SIZE         (10000U)
+    #define DC_OFFSET_WINDOW_SIZE_FOR_CURR         (10000U)
 
     //For Invalid DG Run the frequency is used from the polling and to match the
     // Hysteresis of +- 25 ADCs used to achieve the required results
     #define ZCD_UPPER_THRESHOLD_SAMPLES   (25)
     #define ZCD_LOWER_THRESHOLD_SAMPLES   (-25)
+
+#if (SUPPORT_CALIBRATION == YES)
+    /* phase voltage Zero crossing thresholds in terms of Volts */
+    #define ZCD_UPPER_THRESHOLD_VOLTS     (ZCD_UPPER_THRESHOLD_SAMPLES * V_ANLG_FRONTEND_UPSCALER * ADC_SAMPLE_TO_V)
+    #define ZCD_LOWER_THRESHOLD_VOLTS     (ZCD_LOWER_THRESHOLD_SAMPLES * V_ANLG_FRONTEND_UPSCALER * ADC_SAMPLE_TO_V)
+#endif /* SUPPORT_CALIBRATION */
 
     #define SAMPLE_UPDATE_TIME_PERIOD_S   (0.0002F)
     #define MILLI_SECONDS_IN_HOUR         (3600000.0F)
@@ -380,12 +394,24 @@ private:
     } PFSIGN_VARS_t;
 
     uint16_t      _u16SamplesPerEntry;
+
     /*This is used to identify whether the window has moved*/
     bool          _bWindowMoved;
+
+#if (SUPPORT_CALIBRATION == YES)
+        /* This stores the identified result till the update function executes, then it resets. */
+    bool          _bWindowMovedResultLatched;
+    /* This is offset value in terms of measured current */
+    float         _f32LatchedCurrentOffsetValue;
+    /* Accumulator of current values, used in deducing DC offset*/
+    double        _f64CurrentOffsetAccumulator;
+#else
     /*This is offset value in terms of ADC samples for current samples*/
     uint16_t      _u16LatchedCurrentOffsetValue;
     /*Accumulator of current sample values, used in deducing DC offset*/
     uint32_t      _u32CurrentOffsetAccumulator;
+#endif /* SUPPORT_CALIBRATION */
+
     /*DC Offset sample count*/
     uint16_t      _u16CurrentDCOffsetSampleCount;
     /* DC offset window size*/
@@ -494,7 +520,11 @@ private:
      * @return
      * None
      */
+#if (SUPPORT_CALIBRATION == YES)
+    void prvCountFreqSamples(float f32FilteredVoltage, FREQ_VARS_t &FreqParams);
+#else
     void prvCountFreqSamples(int16_t i16FilteredVoltageSample, FREQ_VARS_t &FreqParams);
+#endif /* SUPPORT_CALIBRATION */
 
     /**
      * Does a weighted average over the previous and current frequency sample.
@@ -522,7 +552,13 @@ private:
      * @return
      * None
      */
+#if (SUPPORT_CALIBRATION == YES)
+    void prvCalculatePowerFactorSign(float f32FilteredVoltage,
+            float f32FilteredCurrent, PFSIGN_VARS_t &PfSignParams);
+#else
     void prvCalculatePowerFactorSign(int16_t i16FilteredVoltageSample,
                          int16_t i16FilteredCurrentSample, PFSIGN_VARS_t &PfSignParams);
+#endif /* SUPPORT_CALIBRATION */
+
 };
 #endif

@@ -3160,14 +3160,16 @@ void MON_UI::prvNormalMonScreens()
             _Disp.printImage((uint8_t *)u8ArrFuel, 4, 32, 26, 7);
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
             {
+
                 stTemp =_hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
-                prvPrintSensorStatus(stTemp,(char*)"%", INTEGER_TYPE);
+                /*Converting from percentage to liters*/
+                stTemp.stValAndStatus.f32InstSensorVal =
+                            stTemp.stValAndStatus.f32InstSensorVal
+                            * _cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)/100;
+                prvPrintSensorStatus(stTemp,(char*)"Liters", FLOAT_TYPE);
 
                 if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
                 {
-                    stTemp.stValAndStatus.f32InstSensorVal =
-                            stTemp.stValAndStatus.f32InstSensorVal
-                            * _cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)/100;
                     //The sensor value is type casted with uint16_t to avoid rapid fluctuations of display
                     uint32_t u16RunTimeExpect = (uint32_t) (((uint16_t)stTemp.stValAndStatus.f32InstSensorVal * 60)/_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_CONSUMPTION));
 
@@ -3175,22 +3177,27 @@ void MON_UI::prvNormalMonScreens()
                     sprintf(arrTemp,"%ld hrs %d min",(u16RunTimeExpect/60), (uint8_t)(u16RunTimeExpect%60));
                     _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
-                    if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_IN_LITERS) == CFGZ::CFGZ_ENABLE)
+                    if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_IN_PCT) == CFGZ::CFGZ_ENABLE)
                     {
-                        sprintf(arrTemp,"%d",(uint16_t)((round)(stTemp.stValAndStatus.f32InstSensorVal)));
+                        sprintf(arrTemp,"%d",(uint16_t)((round)(((stTemp.stValAndStatus.f32InstSensorVal*100)/_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)))));
                         _Disp.gotoxy(GLCD_X(93),GLCD_Y(50));
                         _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                         _Disp.gotoxy(GLCD_X(94),GLCD_Y(50));
-                        _Disp.printStringLeftAligned((char*)"Liters",FONT_VERDANA);
+                        _Disp.printStringLeftAligned((char*)"%",FONT_VERDANA);
+
                     }
                 }
             }
             else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
             {
                 stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
+                float f32FuelPctValue = stTemp.stValAndStatus.f32InstSensorVal;
+                /*Convert from percentage to liters*/
+                stTemp.stValAndStatus.f32InstSensorVal = prvPin23ConvFuelLvlToLit(f32FuelPctValue);
+
                 if(!((_hal.AnalogSensors.GetS4VoltVal() > FUEL_VOLT_MAX_VAL) && (stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)))
                 {
-                    prvPrintSensorStatus(stTemp,(char*)"%", FLOAT_TYPE);
+                    prvPrintSensorStatus(stTemp,(char*)"Liters", FLOAT_TYPE);
                 }
 
                 if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
@@ -3202,21 +3209,7 @@ void MON_UI::prvNormalMonScreens()
                     }
                     else
                     {
-                        if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WITH_STEP) == CFGZ::CFGZ_ENABLE)
-                        {
-                            stTemp.stValAndStatus.f32InstSensorVal =
-                                    stTemp.stValAndStatus.f32InstSensorVal
-                                    * (float)((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_1))
-                                            + (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_2)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_2)))
-                                            *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000000 * 100);
-                        }
-                        else
-                        {
-                            stTemp.stValAndStatus.f32InstSensorVal =
-                                    stTemp.stValAndStatus.f32InstSensorVal
-                                    * (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_1))
-                                    *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000000 * 100);
-                        }
+                        
                         //The sensor value is type casted with uint16_t to avoid rapid fluctuations of display
                         uint32_t u16RunTimeExpect = (uint32_t) (((uint16_t)stTemp.stValAndStatus.f32InstSensorVal * 60)/_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_CONSUMPTION));
 
@@ -3225,13 +3218,13 @@ void MON_UI::prvNormalMonScreens()
                         _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
 
-                        if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_IN_LITERS) == CFGZ::CFGZ_ENABLE)
+                        if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_IN_PCT) == CFGZ::CFGZ_ENABLE)
                         {
-                            sprintf(arrTemp,"%0.1f",stTemp.stValAndStatus.f32InstSensorVal);
+                            sprintf(arrTemp,"%d",(uint16_t)(f32FuelPctValue));
                             _Disp.gotoxy(GLCD_X(93),GLCD_Y(50));
                             _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                             _Disp.gotoxy(GLCD_X(94),GLCD_Y(50));
-                            _Disp.printStringLeftAligned((char*)"Liters",FONT_VERDANA);
+                            _Disp.printStringLeftAligned((char*)"%",FONT_VERDANA);
                         }
                     }
                 }
@@ -3374,6 +3367,27 @@ if engine run hours goes beyond below mentioned value it is going out of screen 
         default:
             break;
     }
+}
+
+float MON_UI::prvPin23ConvFuelLvlToLit(float f32FuelLvlPct)
+{
+    float f32FuelLvlLit = 0.0F;
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WITH_STEP) == CFGZ::CFGZ_ENABLE)
+    {
+        f32FuelLvlLit =
+                f32FuelLvlPct
+                * (float)((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_1))
+                        + (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_2)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_2)))
+                        *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000000 * 100);
+    }
+    else
+    {
+        f32FuelLvlLit =
+                f32FuelLvlPct
+                * (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_1))
+                *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000000 * 100);
+    }
+    return f32FuelLvlLit;
 }
 
 void MON_UI::prvDisplayBootLogo()

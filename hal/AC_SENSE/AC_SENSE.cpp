@@ -25,8 +25,15 @@
 
 #include "AC_SENSE.h"
 #include "A_SENSE.h"
+#if (SUPPORT_CALIBRATION == YES)
+#include "CRC16.h"
+#endif /* SUPPORT_CALIBRATION */
 /*Number of consecutive samples to determine existence of phase reversal*/
 #define PHASE_REVERSAL_SAMPLE_CNT (10)
+
+#if (SUPPORT_CALIBRATION == YES)
+AC_IP::AC_FLOAT_PARAMS_t fsample;
+#endif /* SUPPORT_CALIBRATION */
 
 static AC_SENSE *pACSense = NULL;
 
@@ -37,7 +44,12 @@ static AC_SENSE *pACSense = NULL;
  */
 static void StaticUpdateACData(AC_IP::AC_PARAMS_t *sample);
 
+#if (SUPPORT_CALIBRATION == YES)
+AC_SENSE::AC_SENSE(AC_IP &AcIp, ANLG_IP &anlgIp, EEPROM &Eeprom):
+#else
 AC_SENSE::AC_SENSE(AC_IP &AcIp,  ANLG_IP &anlgIp):
+#endif /* SUPPORT_CALIBRATION */
+
 _aPowers{(SAMPLES_PER_ENTRY_W_BUFFER), (SAMPLES_PER_ENTRY_W_BUFFER), (SAMPLES_PER_ENTRY_W_BUFFER)},
 _tampGensetEnergyOffset{
     0,
@@ -64,6 +76,16 @@ _mainsPhaseRot{
     false,
     0
 },
+#if (SUPPORT_CALIBRATION == YES)
+_ryMainsPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER, 1, true, 0, 0.02f),
+_ybMainsPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER, 1, true, 0, 0.02f),
+_rbMainsPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER, 1, true, 0, 0.02f),
+
+_ryGensetPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER, 1, true, 0, 0.02f),
+_ybGensetPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER, 1, true, 0, 0.02f),
+_rbGensetPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER, 1, true, 0, 0.02f),
+_EarthCurrent(SAMPLES_PER_ENTRY_W_BUFFER, 1, true, CURRENT_COMPUTATION_THRESHOLD_MW),
+#else
 _ryMainsPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER,  ADC_SAMPLE_TO_V * V_ANLG_FRONTEND_UPSCALER, true, 0, 0.02f),
 _ybMainsPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER,  ADC_SAMPLE_TO_V * V_ANLG_FRONTEND_UPSCALER, true, 0, 0.02f),
 _rbMainsPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER,  ADC_SAMPLE_TO_V * V_ANLG_FRONTEND_UPSCALER, true, 0, 0.02f),
@@ -72,6 +94,7 @@ _ryGensetPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER,  ADC_SAMPLE_TO_V * V_ANLG_FRON
 _ybGensetPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER,  ADC_SAMPLE_TO_V * V_ANLG_FRONTEND_UPSCALER, true, 0, 0.02f),
 _rbGensetPhaseVoltage(SAMPLES_PER_ENTRY_W_BUFFER,  ADC_SAMPLE_TO_V * V_ANLG_FRONTEND_UPSCALER, true, 0, 0.02f),
 _EarthCurrent(SAMPLES_PER_ENTRY_W_BUFFER,  ADC_SAMPLE_TO_V * I_ANLG_FRONTEND_UPSCALER, true, CURRENT_COMPUTATION_THRESHOLD_MW),
+#endif /* SUPPORT_CALIBRATION */
 
 _AcIp(AcIp),
 _Perform3phCalculationEnableFor1Ph(false),
@@ -89,7 +112,14 @@ _u16EarthCurrentDCOffsetSampleCount(0),
 _u16LatchedECurrentOffsetValue(DC_VOLTAGE_OFFSET*V_TO_ADC_SAMPLE),
 _u32ECurrentOffsetAccumulator(0),
 _u16EarthCurrentDCOffsetWindowSize(INIT_DC_OFFSET_WINDOW_SIZE)
+#if (SUPPORT_CALIBRATION == YES)
+,_eeprom(Eeprom),
+_stCalibrationData{0}
+#endif /* SUPPORT_CALIBRATION */
 {
+#if (SUPPORT_CALIBRATION == YES)
+    prvReadCalibFactors();
+#endif /* SUPPORT_CALIBRATION */
     AcIp.RegisterACParamsCB(StaticUpdateACData);
     pACSense = this;
 	UTILS_ResetTimer(&_st200ms);
@@ -113,6 +143,9 @@ void AC_SENSE::Update()
     _rbGensetPhaseVoltage.Update();
 
     _EarthCurrent.Update();
+#if (SUPPORT_CALIBRATION == YES)
+    _f32DCOffserFiltV = _AnlgIp.getFiltDCOffset_V();
+#else    
     if(UTILS_GetElapsedTimeInMs(&_st200ms) > 200U)
     {
         stDC_Offset = _AnlgIp.GetDCOffset_V();
@@ -120,6 +153,7 @@ void AC_SENSE::Update()
                 + (_f32DCOffserFiltV*(1.0F- VBAT_FILTER_CONST) );
         UTILS_ResetTimer(&_st200ms);
     }
+#endif /* SUPPORT_CALIBRATION */
 
 }
 
@@ -1244,7 +1278,60 @@ void AC_SENSE::UpdateACData(AC_IP::AC_PARAMS_t *sample)
     prvClipToLimit(sample->u16MainsNCnt);
     prvClipToLimit(sample->u16EarthCurrentCnt);
 
+#if (SUPPORT_CALIBRATION == YES)
+    /* fGiv : voltage at GCU input pin (corresponds to genset and mains phase voltages)
+     * fGia : current through CT (corresponds to phase currents)
+     * fMcuv : MCU pin voltage = ADC_read * 3.0f/4095.0f
+     * fDcov : actual value of DC Offset voltage (nominally 1.5VDC)
+     * fMultiplier : Multiplier read from eeprom calibrated data (nominal values for CT gain and analog voltage multiplier are 10.0f and 441.044f, respectively)
+     * fOffset : Offset read from eeprom calibrated data (nominal value is 0)
+     *
+     * The phase voltages and currents are hence calculated as:
+     * fGia = -(fMcuv - (fDcov + fOffset)) * fMultiplier
+     * fGiv = (fMcuv - fDcov - fOffset) * fMultiplier + (fDcov + fOffset)
+     *
+     * Refer here for more details:
+     * https://sedemac.atlassian.net/wiki/spaces/~62c3d1a3ce5a604dbfb408e4/pages/4590043465/Calibration+of+Controllers+in+EOL
+     */
+    fsample.f32RInstCurrent_A = ((float(float(sample->u16RCurrentCnt)*3.0f/4095.0f) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_CT1]) * (_stCalibrationData.Multiplier[PARAM_CT1]*(-1.0f)));
+    fsample.f32YInstCurrent_A = ((float(float(sample->u16YCurrentCnt)*3.0f/4095.0f) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_CT2]) * (_stCalibrationData.Multiplier[PARAM_CT2]*(-1.0f)));
+    fsample.f32BInstCurrent_A = ((float(float(sample->u16BCurrentCnt)*3.0f/4095.0f) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_CT3]) * (_stCalibrationData.Multiplier[PARAM_CT3]*(-1.0f)));
 
+    /* Shubham 29.05.23
+           DC offset added in each phase voltage need not be subtracted separately as it is going to be
+           neutralized with respect to the neutral phase or some other phase before being used anywhere.
+
+           Hence, the formula for fGiv can be changed to
+           fGiv = (fMcuv - fDcov - fOffset) * fMultiplier + fOffset
+
+    */
+    fsample.f32MainsRInstVoltage_V = ((float(float(sample->u16MainsRCnt)*3.0f/4095.0f) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_MAINS_R_PHASE]) * _stCalibrationData.Multiplier[PARAM_MAINS_R_PHASE] + _stCalibrationData.Offset[PARAM_MAINS_R_PHASE]);
+    fsample.f32MainsYInstVoltage_V = ((float(float(sample->u16MainsYCnt)*3.0f/4095.0f) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_MAINS_Y_PHASE]) * _stCalibrationData.Multiplier[PARAM_MAINS_Y_PHASE] + _stCalibrationData.Offset[PARAM_MAINS_Y_PHASE]);
+    fsample.f32MainsBInstVoltage_V = ((float(float(sample->u16MainsBCnt)*3.0f/4095.0f) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_MAINS_B_PHASE]) * _stCalibrationData.Multiplier[PARAM_MAINS_B_PHASE] + _stCalibrationData.Offset[PARAM_MAINS_B_PHASE]);
+    fsample.f32MainsNInstVoltage_V = ((float(float(sample->u16MainsNCnt)*3.0f/4095.0f) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_MAINS_N_PHASE]) * _stCalibrationData.Multiplier[PARAM_MAINS_N_PHASE] + _stCalibrationData.Offset[PARAM_MAINS_N_PHASE]);
+    fsample.f32GensetRInstVoltage_V = ((float(float(sample->u16GensetRCnt)*3.0f/4095.0f) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_GEN_R_PHASE]) * _stCalibrationData.Multiplier[PARAM_GEN_R_PHASE] + _stCalibrationData.Offset[PARAM_GEN_R_PHASE]);
+    fsample.f32GensetYInstVoltage_V = ((float(float(sample->u16GensetYCnt)*3.0f/4095.0f) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_GEN_Y_PHASE]) * _stCalibrationData.Multiplier[PARAM_GEN_Y_PHASE] + _stCalibrationData.Offset[PARAM_GEN_Y_PHASE]);
+    fsample.f32GensetBInstVoltage_V = ((float(float(sample->u16GensetBCnt)*3.0f/4095.0f) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_GEN_B_PHASE]) * _stCalibrationData.Multiplier[PARAM_GEN_B_PHASE] + _stCalibrationData.Offset[PARAM_GEN_B_PHASE]);
+    fsample.f32GensetNInstVoltage_V = ((float(float(sample->u16GensetNCnt)*3.0f/4095.0f) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_GEN_N_PHASE]) * _stCalibrationData.Multiplier[PARAM_GEN_N_PHASE] + _stCalibrationData.Offset[PARAM_GEN_N_PHASE]);
+
+    fsample.f32EarthInstCurrent_A = ((float(float(sample->u16EarthCurrentCnt)*BSP_ADC_REF_VTG/BSP_ADC_QUANTIZATION_LEVELS) - _f32DCOffserFiltV - _stCalibrationData.Offset[PARAM_CT4]) * (_stCalibrationData.Multiplier[PARAM_CT4]*(-1.0f)));
+
+    /* Updating the ADC sample values in the POWER class */
+    _aPowers[R_PHASE].UpdateSample(fsample.f32GensetRInstVoltage_V, fsample.f32MainsRInstVoltage_V,
+                                   fsample.f32GensetNInstVoltage_V, fsample.f32MainsNInstVoltage_V,
+                                   fsample.f32RInstCurrent_A);
+    _aPowers[Y_PHASE].UpdateSample(fsample.f32GensetYInstVoltage_V, fsample.f32MainsYInstVoltage_V,
+                                   fsample.f32GensetNInstVoltage_V, fsample.f32MainsNInstVoltage_V,
+                                   fsample.f32YInstCurrent_A);
+    _aPowers[B_PHASE].UpdateSample(fsample.f32GensetBInstVoltage_V, fsample.f32MainsBInstVoltage_V,
+                                   fsample.f32GensetNInstVoltage_V, fsample.f32MainsNInstVoltage_V,
+                                   fsample.f32BInstCurrent_A);
+    prvUpdateEarthCurrentDCOffset(fsample.f32EarthInstCurrent_A);
+
+    float f32AbsoluteECurrentSample = fsample.f32EarthInstCurrent_A - _f32LatchedECurrentOffsetValue;
+    _EarthCurrent.AccumulateSampleSet(f32AbsoluteECurrentSample, f32AbsoluteECurrentSample);
+
+#else
     /*Updating the ADC sample values in the POWER class*/
     _aPowers[R_PHASE].UpdateSample(sample->u16GensetRCnt, sample->u16MainsRCnt,
                                 sample->u16GensetNCnt, sample->u16MainsNCnt,
@@ -1260,6 +1347,7 @@ void AC_SENSE::UpdateACData(AC_IP::AC_PARAMS_t *sample)
                                                  - _u16LatchedECurrentOffsetValue);
     _EarthCurrent.AccumulateSampleSet(i16AbsoluteECurrentSample, i16AbsoluteECurrentSample);
 
+#endif /* SUPPORT_CALIBRATION */
 
     /*Check for phase reversal*/
     prvCheckPhaseReversal(_gensetPhaseRot, sample->u16GensetRCnt,
@@ -1268,6 +1356,25 @@ void AC_SENSE::UpdateACData(AC_IP::AC_PARAMS_t *sample)
     prvCheckPhaseReversal(_mainsPhaseRot, sample->u16MainsRCnt,
                     sample->u16MainsYCnt, sample->u16MainsBCnt,
                                                   sample->u16MainsNCnt, false);
+
+#if (SUPPORT_CALIBRATION == YES)
+
+    /* Compute mains phase to phase voltages */
+    float f32VoltageDiff = fsample.f32MainsRInstVoltage_V - fsample.f32MainsYInstVoltage_V;
+    _ryMainsPhaseVoltage.AccumulateSampleSet(f32VoltageDiff, f32VoltageDiff);
+    f32VoltageDiff = fsample.f32MainsYInstVoltage_V - fsample.f32MainsBInstVoltage_V;
+    _ybMainsPhaseVoltage.AccumulateSampleSet(f32VoltageDiff, f32VoltageDiff);
+    f32VoltageDiff = fsample.f32MainsRInstVoltage_V - fsample.f32MainsBInstVoltage_V;
+    _rbMainsPhaseVoltage.AccumulateSampleSet(f32VoltageDiff, f32VoltageDiff);
+
+    /* Compute genset phase to phase voltages */
+    f32VoltageDiff = fsample.f32GensetRInstVoltage_V - fsample.f32GensetYInstVoltage_V;
+    _ryGensetPhaseVoltage.AccumulateSampleSet(f32VoltageDiff, f32VoltageDiff);
+    f32VoltageDiff = fsample.f32GensetYInstVoltage_V - fsample.f32GensetBInstVoltage_V;
+    _ybGensetPhaseVoltage.AccumulateSampleSet(f32VoltageDiff, f32VoltageDiff);
+    f32VoltageDiff = fsample.f32GensetRInstVoltage_V - fsample.f32GensetBInstVoltage_V;
+    _rbGensetPhaseVoltage.AccumulateSampleSet(f32VoltageDiff, f32VoltageDiff);
+#else
     /*Compute mains phase to phase voltages*/
     uint16_t u16SampleDiff = (uint16_t)abs(sample->u16MainsRCnt - sample->u16MainsYCnt);
     _ryMainsPhaseVoltage.AccumulateSampleSet(u16SampleDiff, u16SampleDiff);
@@ -1283,6 +1390,8 @@ void AC_SENSE::UpdateACData(AC_IP::AC_PARAMS_t *sample)
     _ybGensetPhaseVoltage.AccumulateSampleSet(u16SampleDiff, u16SampleDiff);
     u16SampleDiff =(uint16_t)abs(sample->u16GensetRCnt - sample->u16GensetBCnt);
     _rbGensetPhaseVoltage.AccumulateSampleSet(u16SampleDiff, u16SampleDiff);
+
+#endif /* SUPPORT_CALIBRATION */
 }
 
 static void StaticUpdateACData(AC_IP::AC_PARAMS_t *sample)
@@ -1532,3 +1641,93 @@ float AC_SENSE::GENSET_GetRawAvgCurrent()
                    /3);
     }
 }
+
+#if (SUPPORT_CALIBRATION == YES)
+bool AC_SENSE::prvReadCalibFactors()
+{
+    CALIBRATED_DATA_t stTempCalibrationData;
+    if(_eeprom.BlockingRead(EEPROM_CF_START_ADDR, (uint8_t*)&stTempCalibrationData, sizeof(CALIBRATED_DATA_t)) == BSP_SUCCESS)
+    {
+        uint16_t u32CRC = CRC16::ComputeCRCGeneric((uint8_t*)&stTempCalibrationData, sizeof(CALIBRATED_DATA_t) - sizeof(uint32_t) , CRC_MEMORY_SEED);
+        if(u32CRC == stTempCalibrationData.u32CRC)
+        {
+            for (uint8_t param = 0; param < PARAM_LAST; param++)
+            {
+                if(param <= PARAM_CT4)
+                {
+                    if(isnan(stTempCalibrationData.Multiplier[param]) == true || isinf(stTempCalibrationData.Multiplier[param]) == true)
+                    {
+                        _stCalibrationData.Multiplier[param] = DEFAULT_VALUE_OF_CF_CURR;
+                        _stCalibrationData.Offset[param] = DEFAULT_VALUE_OF_ADC_OS_CURR;
+                    }
+                    else if((stTempCalibrationData.Multiplier[param] < LOWER_VALUE_OF_CF_CURR))
+                    {
+                        _stCalibrationData.Multiplier[param] = LOWER_VALUE_OF_CF_CURR;
+                        _stCalibrationData.Offset[param] = DEFAULT_VALUE_OF_ADC_OS_CURR;
+                    }
+                    else if((stTempCalibrationData.Multiplier[param] > HIGHER_VALUE_OF_CF_CURR))
+                    {
+                        _stCalibrationData.Multiplier[param] = HIGHER_VALUE_OF_CF_CURR;
+                        _stCalibrationData.Offset[param] = DEFAULT_VALUE_OF_ADC_OS_CURR;
+                    }
+                    else
+                    {
+                        _stCalibrationData.Multiplier[param] = stTempCalibrationData.Multiplier[param];
+                        _stCalibrationData.Offset[param] = stTempCalibrationData.Offset[param];
+                    }
+                }
+                else
+                {
+                    if(isnan(stTempCalibrationData.Multiplier[param]) == true || isinf(stTempCalibrationData.Multiplier[param]) == true)
+                    {
+                        _stCalibrationData.Multiplier[param] = DEFAULT_VALUE_OF_CF_VOLT;
+                        _stCalibrationData.Offset[param] = DEFAULT_VALUE_OF_ADC_OS_VOLT;
+                    }
+                    else if((stTempCalibrationData.Multiplier[param] < LOWER_VALUE_OF_CF_VOLT))
+                    {
+                        _stCalibrationData.Multiplier[param] = LOWER_VALUE_OF_CF_VOLT;
+                        _stCalibrationData.Offset[param] = DEFAULT_VALUE_OF_ADC_OS_VOLT;
+                    }
+                    else if((stTempCalibrationData.Multiplier[param] > HIGHER_VALUE_OF_CF_VOLT))
+                    {
+                        _stCalibrationData.Multiplier[param] = HIGHER_VALUE_OF_CF_VOLT;
+                        _stCalibrationData.Offset[param] = DEFAULT_VALUE_OF_ADC_OS_VOLT;
+                    }
+                    else
+                    {
+                        _stCalibrationData.Multiplier[param] = stTempCalibrationData.Multiplier[param];
+                        _stCalibrationData.Offset[param] = stTempCalibrationData.Offset[param];
+                    }
+                }
+            }
+            return true;
+        }
+        else
+        {
+            prvInitCalibFactors();
+            return false;
+        }
+    }
+    else
+    {
+        prvInitCalibFactors();
+        return false;
+    }
+}
+void AC_SENSE::prvInitCalibFactors()
+{
+    for (uint8_t param = 0; param < PARAM_LAST; param++) {
+        if(param <= PARAM_CT4)
+        {
+            _stCalibrationData.Multiplier[param] = DEFAULT_VALUE_OF_CF_CURR;
+            _stCalibrationData.Offset[param] = DEFAULT_VALUE_OF_ADC_OS_CURR;
+        }
+        else
+        {
+            _stCalibrationData.Multiplier[param] = DEFAULT_VALUE_OF_CF_VOLT;
+            _stCalibrationData.Offset[param] = DEFAULT_VALUE_OF_ADC_OS_VOLT;
+        }
+    }
+}
+
+#endif /* SUPPORT_CALIBRATION */

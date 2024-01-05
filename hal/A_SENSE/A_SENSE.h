@@ -107,6 +107,7 @@ public:
      */
     typedef ANLG_IP::ANALOG_VAL_t (ANLG_IP::*pGetVal)(ANLG_IP::SENSOR_REF_t eRef);
 
+
     /**
      * Constructor of the AnalogSensor class
      * @param anlgIp  reference of BSP class ANLG_IP

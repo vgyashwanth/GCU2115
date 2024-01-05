@@ -29,6 +29,9 @@
 #include "stdint.h"
 #include "AC_IP.h"
 #include "AC_SENSE_CONFIG.h"
+#if (SUPPORT_CALIBRATION == YES)
+#include "EEPROM.h"
+#endif /* SUPPORT_CALIBRATION */
 #include "AC_SENSE_DS.h"
 #include "POWER.h"
 #include "RMS.h"
@@ -56,7 +59,11 @@ public:
      * @return
      * None
      */
+#if (SUPPORT_CALIBRATION == YES)
+    AC_SENSE(AC_IP &AcIp, ANLG_IP &anlgIp, EEPROM &Eeprom);
+#else
     AC_SENSE(AC_IP &AcIp, ANLG_IP &anlgIp);
+#endif /* SUPPORT_CALIBRATION*/
 
     /**
      * Calls the update member function of the POWER class instances of each phase
@@ -685,6 +692,9 @@ private:
     AC_SYSTEM_TYP_t   _eMainsSystemType;
     AC_SYSTEM_TYP_t   _ePrvGenSysType;
 
+    float              _f32ECurrentOffsetAccumulator;
+    float              _f32LatchedECurrentOffsetValue;
+
     uint16_t          _u16EarthCurrentDCOffsetSampleCount;
     uint16_t          _u16LatchedECurrentOffsetValue;
     /*Accumulator of current sample values, used in deducing DC offset*/
@@ -713,6 +723,27 @@ private:
                            int16_t i16YCnt, int16_t i16BCnt, int16_t i16NCnt, bool GensetMainsSource);
     void prvUpdateEarthCurrentDCOffset(uint16_t u16Sample );
 
+#if (SUPPORT_CALIBRATION == YES)
+    EEPROM            &_eeprom;
+    /* This variable stores the calibration parameter values obtained from EEPROM. */
+    CALIBRATED_DATA_t _stCalibrationData;
+    /**
+     * This function reads and validates the calibration values loaded from EEPROM.
+     * @param
+     * None
+     * @return
+     * None
+     */
+    bool prvReadCalibFactors();
+    /**
+     * This function initializes calibration values structure with default values.
+     * @param
+     * None
+     * @return
+     * None
+     */
+    void prvInitCalibFactors();
+#endif /* SUPPORT_CALIBRATION*/
 
     bool prvIsPhaseAvilableInSelectedACSys(PHASE_t Phase, AC_SYSTEM_TYP_t etype);
     bool prvIsACSyte1Phaseor1Phase3Wire(AC_SYSTEM_TYP_t etype);

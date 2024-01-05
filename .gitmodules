@@ -1,0 +1,3 @@
+[submodule "gc2k-bsp"]
+	path = gc2k-bsp
+	url = https://bitbucket.org/sedemac/gc2k-bsp

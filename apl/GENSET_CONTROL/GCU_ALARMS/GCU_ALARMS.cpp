@@ -3679,7 +3679,7 @@ A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLOPSensorVal()
     {
         if((!gpJ1939->IsCommunicationFail()) && (gpJ1939->GetSPNErrorStatus(RX_PGN_EFL_P1_65263,0) == J1939APP::VALID_DATA))
         {
-            stLOP.stValAndStatus.f32InstSensorVal =  (float)gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0);
+            stLOP.stValAndStatus.f32InstSensorVal =  (float)(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0)*0.01);
         }
         else
         {

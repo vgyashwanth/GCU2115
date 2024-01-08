@@ -332,7 +332,7 @@ DigitalSensor::D_SENSOR_TYPS_t CFGZ::prvGetDigitalSensor(uint8_t u8CfgSensorIdx,
      { CFGZ_AMB_TEMP_SELECT                          , DigitalSensor:: DI_AMB_TEMP_SELECT             },
      {CFGZ_EGR_ECU_DIGITAL_IN                        , DigitalSensor::DI_EGR_ECU_DIGITAL_IN           },
      { CFGZ_EB_MCCB_ON_FEEDBACK                      , DigitalSensor:: DI_EB_MCCB_ON_FEEDBACK         },
-     { CFGZ_DG_MCCB_ON_FEEDBACK                      , DigitalSensor:: DI_DG_MCCB_ON_FEEDBACK         },
+     { CFGZ_DG_MCCB_ON_FEEDBACK                      , DigitalSensor:: DI_DG_MCCB_ON_FEEDBACK         }
     };
 
     /*Configurable input types*/
@@ -661,7 +661,6 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
      { CFGZ_PREHEAT                           , ACTUATOR::ACT_PREHEAT                    },
      { CFGZ_ECU_START                         , ACTUATOR::ACT_ECU_START                  },
      { CFGZ_MIL                               , ACTUATOR::ACT_MIL                        },
-     { CFGZ_EGR                               , ACTUATOR::ACT_EGR                        },
      {CFGZ_INDUCEMENT_BUZZER                  , ACTUATOR::ACT_INDUCEMENT_BUZZER          },
     };
 

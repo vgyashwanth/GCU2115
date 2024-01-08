@@ -1399,7 +1399,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_LOAD_MONITOR_OVERLOAD_THRESHOLD] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_OVERLOAD_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_LOAD_MONITOR_OVERLOAD_THRESHOLD], arrUnit[ID_PERCENT], "%u", (uint16_t)100, (uint16_t)150, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_LOAD_MONITOR_OVERLOAD_MON_DELAY] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_OVERLOAD_MON_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_LOAD_MONITOR_OVERLOAD_MON_DELAY], arrUnit[ID_SEC], "%u",(uint16_t)1, (uint16_t)60,CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_LOAD_MONITOR_UNBAL_LOAD_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWES], 4, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD),strLeafNode[_u8LanguageArrayIndex][SID_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD], arrUnit[ID_PERCENT], "%u", (uint16_t)5, (uint16_t)100, CEditableItem::NOT_ALLOWED );
+    ArrEditableItem[INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD),strLeafNode[_u8LanguageArrayIndex][SID_LOAD_MONITOR_UNBAL_LOAD_THRESHOLD], arrUnit[ID_PERCENT], "%u", (uint16_t)40, (uint16_t)100, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_LOAD_MONITOR_UNBAL_LOAD_DELAY] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_UNBAL_LOAD_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_LOAD_MONITOR_UNBAL_LOAD_DELAY], arrUnit[ID_SEC], "%u",(uint16_t)1, (uint16_t)60,CEditableItem::NOT_ALLOWED );
     /*
      * Shibu Kumar 08-08-2023
@@ -1496,7 +1496,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_LOP_FROM_ECU_SHUTDOWN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUTDOWN), strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_SHUTDOWN], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_FROM_ECU_SHUTDOWN_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUT_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_SHUTDOWN_THRESH], "Bar", "%f", (float)0, (float)5.0 , CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_FROM_ECU_WARNING] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_WARNING), strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_WARNING], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_LOP_FROM_ECU_WARNING_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUT_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_WARNING_THRESH], "Bar", "%f", (float)0, (float)5.0 , CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_LOP_FROM_ECU_WARNING_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::INDEX_OF_LOP_FROM_ECU_WARNING_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_WARNING_THRESH], "Bar", "%f", (float)0, (float)5.0 , CEditableItem::PIN1_ALLOWED );
 
 
 

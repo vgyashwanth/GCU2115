@@ -740,7 +740,6 @@ class CFGZ
         CFGZ_PREHEAT,
         CFGZ_ECU_START,
         CFGZ_MIL,
-        CFGZ_EGR,
         CFGZ_INDUCEMENT_BUZZER,
 
     } CFGZ_ACT_TYPS_t;

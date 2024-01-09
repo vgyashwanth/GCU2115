@@ -13,6 +13,7 @@
 #ifndef _AC_SENSE_DS_H_
 #define _AC_SENSE_DS_H_
 
+#include "productSelection.h"
 /*Position of CT's in the system*/
 // typedef enum {
 //     CT_ON_ALT_SIDE,

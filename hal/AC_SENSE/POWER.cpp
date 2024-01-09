@@ -534,7 +534,7 @@ void  POWER::UpdateSample(uint16_t u16GensetPhaseVoltageSample,
         _u32CurrentOffsetAccumulator = 0;
         _u16CurrentDCOffsetSampleCount = 0;
         /*Change DC offset window size*/
-        _u16DCOffsetWindowSize = DC_OFFSET_WINDOW_SIZE;
+        _u16DCOffsetWindowSize = DC_OFFSET_WINDOW_SIZE_FOR_CURR;
     }
 
     temp =  u16GensetPhaseVoltageSample;

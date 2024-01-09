@@ -12,7 +12,7 @@
 #define NO         (0U)
 
 /* Calibration feature */
-#define SUPPORT_CALIBRATION   (NO)
+#define SUPPORT_CALIBRATION   (YES)
 
 #define AUTOMATION 0
 #define CUSTOMER_MASTER_PASSWORD_ENABLE  1

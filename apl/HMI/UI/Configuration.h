@@ -24,7 +24,7 @@
 #define MENU_STACK_DEPTH                    4
 #define STRING_PARAM_MAX_LEN               20
 #define MAX_EDITABLE_ITEMS_PER_SCREEN       3
-#define MAX_MENU_ITEMS                     37
+#define MAX_MENU_ITEMS                     55
 
 //#define SUBMENUS_IN_MODULE                  6
 #define SUBMENUS_IN_MODULE                  7
@@ -57,7 +57,7 @@
 #define LEAFNODES_IN_DIG_IN_H               5
 #define LEAFNODES_IN_DIG_IN_I               5
 #define LEAFNODES_IN_LOP_RES_DIG_J         27
-#define LEAFNODES_IN_FUEL_LVL_DIG_K        45
+#define LEAFNODES_IN_FUEL_LVL_DIG_K        55
 #define LEAFNODES_IN_ENG_TEMP_DIG_L        27
 #define LEAFNODES_IN_SHEL_TEMP_DIG_M       31
 #define LEAFNODES_IN_AUX_S2_RES_DIG_N      30

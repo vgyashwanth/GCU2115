@@ -582,6 +582,26 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "L9",
         "R10",
         "L10",
+        "R11",
+        "L11",
+        "R12",
+        "L12",
+        "R13",
+        "L13",
+        "R14",
+        "L14",
+        "R15",
+        "L15",
+        "R16",
+        "L16",
+        "R17",
+        "L17",
+        "R18",
+        "L18",
+        "R19",
+        "L19",
+        "R20",
+        "L20",
         //"ENG TEMP / DIG L",
         "SENSOR SELECTION",
         "(DIG) SOURCE",
@@ -1941,13 +1961,13 @@ void UI::HandleMenuVisibility(void)
 
     //Sensor K
     if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
-        LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE,INDEX_OF_FUEL_LVL_DIG_K_L10,false);
+        LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE,INDEX_OF_FUEL_LVL_DIG_K_L20,false);
     if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE].value.u8Val == CFGZ::CFGZ_SENSOR_NOT_USED)
-        LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_DIG_POLARITY,INDEX_OF_FUEL_LVL_DIG_K_L10,false);
+        LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_DIG_POLARITY,INDEX_OF_FUEL_LVL_DIG_K_L20,false);
     if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_DIG_IN && ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE].value.u8Val != CFGZ::CFGZ_SENSOR_NOT_USED)
     {
         DigitalInputMenuVisiblity(INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE);
-        LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_SHUTDOWN,INDEX_OF_FUEL_LVL_DIG_K_L10,false);
+        LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_SHUTDOWN,INDEX_OF_FUEL_LVL_DIG_K_L20,false);
     }
     if(ArrEditableItem[INDEX_OF_FUEL_LVL_DIG_K_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
         LowestLevelMenuEnDis(INDEX_OF_FUEL_LVL_DIG_K_DIG_SOURCE,INDEX_OF_FUEL_LVL_DIG_K_DIG_ACTIVATION_DELAY,false);

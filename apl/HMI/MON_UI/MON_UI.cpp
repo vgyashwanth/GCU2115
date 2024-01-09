@@ -3688,7 +3688,7 @@ void MON_UI::prvPrintPower(POWER_TYPE_t eType, uint8_t u8AcSystemType, SOURCE_TY
         _Disp.printImage((uint8_t *)gau8GeneratorVoltLogo, 4, 32, 30, 7);
 
         _Disp.gotoxy(GLCD_X(50),GLCD_Y(37));
-        if(eSource == MAINS)
+        if(eSourceType == MAINS)
         {
             _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
         }

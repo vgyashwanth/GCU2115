@@ -31,7 +31,7 @@ bool GCU_ALARMS::_bAutomaticModeSwitchStatus = false;
 bool GCU_ALARMS::_bEventNumberReadDone=false;
 bool GCU_ALARMS::_bRollOverReadDone=false;
 CircularQueue<GCU_ALARMS::EVENT_LOG_Q_t> GCU_ALARMS::_EventQueue = {GCU_ALARMS::_EventQArr,EVENT_LOG_Q_SIZE};
-GCU_ALARMS::EVENT_LOG_Q_t GCU_ALARMS::_EventQArr[EVENT_LOG_Q_SIZE]={0};
+GCU_ALARMS::EVENT_LOG_Q_t GCU_ALARMS::_EventQArr[EVENT_LOG_Q_SIZE]={};
 
 bool GCU_ALARMS:: bEventWrittenSuccessfully = true;
 bool GCU_ALARMS::_bUpdateModbusCountCalc = false;
@@ -110,8 +110,8 @@ _ArrAlarmValue{0.0,0,0},
 _ArrAlarmForDisplay{0},
 _u32EventNumber(0),
 _u32RolledOverByte(0),
+_stEventLog{},
 prvPreviousDTC_OC{0,0,0},
-_stEventLog{0},
 _StartEgrDetection(0),
 _stNvEgrTimeLog{0,0,0xFFFF, 0xFFFF},
 _eEgrMonState(EGR_MON_IDLE_STATE),
@@ -605,6 +605,7 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
             ArrAlarmMonitoring[EGR_FAULT_SHUTDOWN].bEnableMonitoring = true;
             ArrAlarmMonitoring[EGR_FAULT_SHUTDOWN].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
+            [[fallthrough]];
         case CFGZ:: CFGZ_EB_MCCB_ON_FEEDBACK:
 
             ArrAlarmMonitoring[EB_MCCB_ON_FEEDBACK_ALARM].bEnableMonitoring = true;
@@ -3877,7 +3878,7 @@ void GCU_ALARMS::prvUpdateDTCEventLog()
   if((gpJ1939->GetDm1MsgCount() != 0) && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL))
   {
       uint8_t _u8DTCNumber = 0;
-      J1939APP::J1939_DM_MSG_DECODE stDmMsg = {0};
+      J1939APP::J1939_DM_MSG_DECODE stDmMsg = {};
       while (_u8DTCNumber < gpJ1939->GetDm1MsgCount())
       {
           stDmMsg = gpJ1939->GetDM1Message(_u8DTCNumber) ;

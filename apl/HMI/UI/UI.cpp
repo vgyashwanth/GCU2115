@@ -953,7 +953,7 @@ _objDisplay(Disp),
 _engMon(engMon),
 _u16MenuSp(0),
 _menuStack{NULL},
-_MiscParam{0},
+_MiscParam{},
 _arrProfileNames{NULL},
 profilename{0},
 _u8LanguageArrayIndex(0),
@@ -1483,7 +1483,7 @@ void UI::InitEditableItems()
 
     ArrEditableItem[INDEX_OF_PREHEAT_PREHEAT_TIMER] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_PREHEAT_TIMER),strLeafNode[_u8LanguageArrayIndex][SID_PREHEAT_PREHEAT_TIMER], arrUnit[ID_SEC], "%u", (uint16_t)1, (uint16_t)900, CEditableItem::PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_PREHEAT_ENG_TEMPERATURE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_ENG_TEMPERATURE),strLeafNode[_u8LanguageArrayIndex][SID_PREHEAT_ENG_TEMPERATURE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_PREHEAT_ENG_TEMP_THRESHOLD] = CEditableItem((int16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_ENG_TEMP_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_PREHEAT_ENG_TEMP_THRESHOLD], arrUnit[ID_DEG_C], "%u", (int16_t)-5, (int16_t)300,CEditableItem::PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_PREHEAT_ENG_TEMP_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_ENG_TEMP_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_PREHEAT_ENG_TEMP_THRESHOLD], arrUnit[ID_DEG_C], "%.0f", (float)-5, (float)300,CEditableItem::PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_PREHEAT_AMB_TEMPERATURE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_PREHEAT_AMB_TEMPERATURE),strLeafNode[_u8LanguageArrayIndex][SID_PREHEAT_AMB_TEMPERATURE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN2_ALLOWED );
 
 
@@ -2588,6 +2588,24 @@ volatile float table_LOP_Bar[10] = {0.0f, 1.0f,2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0
 
 void UI::InitialiseCustomSensor()
 {
+    if((ArrEditableItem[INDEX_OF_PREHEAT_AMB_TEMPERATURE].value.u8Val != ArrEditableItem[INDEX_OF_PREHEAT_AMB_TEMPERATURE].tempValue.u8Val))
+    {
+        if(ArrEditableItem[INDEX_OF_PREHEAT_AMB_TEMPERATURE].tempValue.u8Val == CFGZ::CFGZ_ENABLE)
+        {
+            ArrEditableItem[INDEX_OF_PREHEAT_ENG_TEMPERATURE].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_PREHEAT_ENG_TEMPERATURE].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+        }
+    }
+
+    if((ArrEditableItem[INDEX_OF_PREHEAT_ENG_TEMPERATURE].value.u8Val != ArrEditableItem[INDEX_OF_PREHEAT_ENG_TEMPERATURE].tempValue.u8Val))
+    {
+        if(ArrEditableItem[INDEX_OF_PREHEAT_ENG_TEMPERATURE].tempValue.u8Val == CFGZ::CFGZ_ENABLE)
+        {
+            ArrEditableItem[INDEX_OF_PREHEAT_AMB_TEMPERATURE].value.u8Val = CFGZ::CFGZ_DISABLE;
+            ArrEditableItem[INDEX_OF_PREHEAT_AMB_TEMPERATURE].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+        }
+    }
+    
     if((ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].value.u8Val != ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].tempValue.u8Val))
     {
         if((ArrEditableItem[INDEX_OF_AUX_S3_DIG_O_SENSOR_SELECTION].tempValue.u8Val==CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))

@@ -36,8 +36,8 @@
 #include "START_STOP.h"
 
 extern J1939APP *gpJ1939;
-MB_APP::KEY_MB_CAN_EVENT_t MB_APP::stMBEvent={0};
-MB_APP::MISC_EEPROM_t MB_APP::stEepromMisc = {0};
+MB_APP::KEY_MB_CAN_EVENT_t MB_APP::stMBEvent={};
+MB_APP::MISC_EEPROM_t MB_APP::stEepromMisc = {};
 uint64_t MB_APP::Curr_MB_Valid_Count = 0;
 
 uint16_t MB_APP::MB_Count = 0;
@@ -53,7 +53,7 @@ _u16MODBUSCommand(0),
 _u16MODBUSOperModeCMD(0),
 _au16Grp1Registers{0},
 _au16Grp2Registers{0},
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
 _au16Grp3Registers{0},
 _au16Grp4Registers{0},
 #endif
@@ -61,7 +61,7 @@ _aAddressGrp{
 
     {DIG_ALARM_1_REG, MODBUS_GRP1_REG_CNT, _au16Grp1Registers, true , false},
     {MB_COMMAND, MODBUS_GRP2_REG_CNT, _au16Grp2Registers, false, true}
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
     ,{MB_AUX_S1, MB_AUTOMATION_READ_REG_LAST, _au16Grp3Registers, true , false},
     {MB_AUTOMATION_WRITE_COMMAND, MB_AUTOMATION_WRITE_REG_LAST, _au16Grp4Registers, false, true}
 #endif
@@ -92,7 +92,7 @@ void MB_APP::Update()
     prvUpdateMBCommandStatus();
     prvUpdateEGRrelatedRegisters();
     prvUpdateDm01FaultCodesOnModbus();
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
     prvUpdateMBWriteRegisterForAutomation();
 #endif
 }
@@ -168,7 +168,32 @@ uint8_t MB_APP::prvIdentifyRegisterGroup(uint16_t u16RegisterAddress,
     return u8RegGrp;
 }
 
+void MB_APP::prvUpdateTimeStamp()
+{
 
+#if (TEST_AUTOMATION == YES)
+
+    RTC::TIME_t CurrentTime;
+    _hal.ObjRTC.GetTime(&CurrentTime);
+
+    _u16TempAlarmVal = CurrentTime.u8Minute;
+    _u16TempAlarmVal =(uint16_t)((_u16TempAlarmVal <<8) + CurrentTime.u8Second);
+    SetReadRegisterValue(MB_TIME_STAMP0, _u16TempAlarmVal);
+
+    _u16TempAlarmVal = CurrentTime.u8DayOfWeek;
+    _u16TempAlarmVal = (uint16_t)((_u16TempAlarmVal <<8) + CurrentTime.u8Hour);
+    SetReadRegisterValue(MB_TIME_STAMP1, _u16TempAlarmVal);
+
+    _u16TempAlarmVal = CurrentTime.u8Month;
+    _u16TempAlarmVal = (uint16_t)((_u16TempAlarmVal <<8) + CurrentTime.u8Day);
+    SetReadRegisterValue(MB_TIME_STAMP2, _u16TempAlarmVal);
+
+    _u16TempAlarmVal = CurrentTime.u16Year;
+    SetReadRegisterValue(MB_TIME_STAMP3, _u16TempAlarmVal);
+
+#endif
+
+}
 
 void MB_APP::prvUpdateElectricalParams()
 {
@@ -190,7 +215,7 @@ void MB_APP::prvUpdateElectricalParams()
     u16Tmp = (uint16_t)(ac.GENSET_GetVoltageVolts(B_PHASE));
     SetReadRegisterValue(MB_GEN_L3_N_VOLATGE, u16Tmp);
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
 
     /*Resolution 0.1*/
     u16Tmp = (uint16_t)(ac.GENSET_GetRYVolts()*10);
@@ -310,7 +335,7 @@ void MB_APP::prvUpdateElectricalParams()
     u16Tmp = (uint16_t)(ac.MAINS_GetVoltageVolts(B_PHASE));
     SetReadRegisterValue(MB_MAINS_L3_N_VOLTAGE, u16Tmp);
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
 
     u16Tmp = (uint16_t)(ac.MAINS_GetRYVolts()*10);
     SetReadRegisterValue(MB_MAINS_L1_L2_VOLTAGE, u16Tmp);
@@ -361,7 +386,7 @@ void MB_APP::prvUpdateAnalogParams()
     }
     else
     {
-        A_SENSE::SENSOR_RET_t sensorVal = _gcuAlarm.GetLOPSensorVal();
+        sensorVal = _gcuAlarm.GetLOPSensorVal();
 
         if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) >= CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                 && (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS)
@@ -438,7 +463,7 @@ void MB_APP::prvUpdateAnalogParams()
 void MB_APP::prvUpdateStartTripsRunHours()
 {
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
 
     SetReadRegisterValue(MB_NO_OF_STARTS, (uint16_t)_engineMonitoring.GetEngineNoOfStarts());
     SetReadRegisterValue(MB_NO_OF_TRIPS, (uint16_t)_engineMonitoring.GetEngineNoOfTrips());
@@ -493,7 +518,7 @@ void MB_APP::prvUpdateMBCommandStatus()
        SetWriteRegisterValue(MB_APP::MB_MODE_REG, 0);
    }
 
-//#if (AUTOMATION==1)
+//#if (TEST_AUTOMATION == YES)
 //    if(GetRegisterValue(MB_APP::MB_DATE_TIME5)== 1U)
 //    {
 //          RTC::TIME_t currentTime;
@@ -618,7 +643,7 @@ void MB_APP::prvUpdateTmpParams()
 void MB_APP::prvUpdateAUXSensorVal()
 {
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
 
     A_SENSE &sensor = _hal.AnalogSensors;
     A_SENSE::SENSOR_RET_t  stTemp;
@@ -738,7 +763,7 @@ void MB_APP::prvUpdateGCUAlarms()
 
     SetReadRegisterValue(DIG_ALARM_2_REG, _u16TempAlarmVal);
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
 
     /* Alarm 1 */
     _u16TempAlarmVal =0;
@@ -1085,7 +1110,7 @@ void MB_APP::prvUpadateDIGInOut()
 
     SetReadRegisterValue(SOLID_STATE_OP_REG, _u16TempAlarmVal);
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
 
     uint8_t u8LocalCnt=15,u8Local = 0;
     _u16TempAlarmVal =0;
@@ -1204,7 +1229,7 @@ uint16_t MB_APP::GetGenStatusRegister()
 
     /*
      * Bit-9 Load on DG*/
-    u16GenStatus |= _Automode.IsGenContactorClosed()<< 9U;
+    u16GenStatus |= (uint16_t)(_Automode.IsGenContactorClosed()<< 9U);
 
     /*Bit-8 Current DG Status*/
     if(_engineMonitoring.IsEngineOn())
@@ -1272,7 +1297,7 @@ void MB_APP::prvUpdateLatestDM1Messages(void)
 {
     uint8_t u8NoOfSPNToBeSent;
     uint16_t u16Local = MB_SPN1;
-    J1939APP::J1939_DM_MSG_DECODE stDmMsg = {0};
+    J1939APP::J1939_DM_MSG_DECODE stDmMsg = {};
 
     if(gpJ1939->GetDm1MsgCount() < 15)
     {
@@ -1462,7 +1487,7 @@ void MB_APP::prvUpdateDm01FaultCodesOnModbus(void)
 }
 
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
 //void MB_APP::prvUpdateMBReadRegisterForAutomation(bool bDeviceInConfigMode)
 //{
 //    _u16TempAlarmVal = 0U;

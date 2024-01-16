@@ -77,5 +77,8 @@ void SLEEP_Handler::KickSleepTimer()
 
 static void KeypadCb(KEYPAD::KEYPAD_EVENTS_t Evt)
 {
-    bKeyEvent = true;
+    if(Evt < KEYPAD::BSP_KEY_EVENT_LAST)
+    {
+        bKeyEvent = true;
+    }
 }

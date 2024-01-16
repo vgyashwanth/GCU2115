@@ -29,6 +29,7 @@ public:
     void ClearScreen();
     void drawHorizontalLine(unsigned int x1, unsigned int y, unsigned int x2);
     void drawVerticalLine(unsigned int x, unsigned int y1, unsigned int y2);
+    void clearRectangularSection(unsigned int x1, unsigned int x2, unsigned int y1, unsigned int y2);
     void drawRectangle(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2);
     void drawRectangle();
 

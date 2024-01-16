@@ -222,7 +222,7 @@ void Display::drawHorizontalLine(unsigned int x1, unsigned int y, unsigned int x
     unsigned int x;
     for(x = x1; x <= x2; x++)
     {
-        _glcd.SetUnsetPixel(x, y, GLCD::BSP_GLCD_SET);
+        _glcd.SetUnsetPixel((uint8_t)x, (uint8_t)y, GLCD::BSP_GLCD_SET);
     }
 }
 
@@ -231,7 +231,19 @@ void Display::drawVerticalLine(unsigned int x, unsigned int y1, unsigned int y2)
     unsigned int y;
     for(y = y1; y <= y2; y++)
     {
-        _glcd.SetUnsetPixel(x, y, GLCD::BSP_GLCD_SET);
+        _glcd.SetUnsetPixel((uint8_t)x, (uint8_t)y, GLCD::BSP_GLCD_SET);
+    }
+}
+
+void Display::clearRectangularSection(unsigned int x1, unsigned int x2, unsigned int y1, unsigned int y2)
+{
+    unsigned int x, y;
+    for(y = y1; y <= y2; y++)
+    {
+        for(x = x1; x <= x2; x++)
+        {
+            _glcd.SetUnsetPixel((uint8_t)x, (uint8_t)y, GLCD::BSP_GLCD_UNSET);
+        }
     }
 }
 
@@ -250,8 +262,8 @@ void Display::drawRectangle()
 
 void Display::gotoxy (unsigned int x, unsigned int y)
 {
-    curX = x;
-    curY = y;
+    curX = (uint8_t)x;
+    curY = (uint8_t)y;
 }
 
 void Display::setFont (FONT_t font)
@@ -263,7 +275,7 @@ static char sanitize (char ch)
 {
     // we expect ch to be in the range 0x20 through 0x7f
     // i.e. one of the "printable" characters.
-    if((ch < 0x20) || (ch > 0x7f))
+    if(ch < 0x20)
     {
         return 0;
     }
@@ -275,7 +287,7 @@ static char sanitize (char ch)
 void Display::printChar(char ch, FONT_t font, bool reverseVideo)
 {
     const uint8_t *fontPtr;
-    uint8_t width, col, row, mask, mask2, u8Height;
+    uint8_t width, col, row, mask, mask2;
     // first sanitize ch:
     ch = sanitize(ch);
     // now ch will be in the range 0 through 0x5f
@@ -397,7 +409,7 @@ void Display::printImage (uint8_t *pImage, uint8_t u8ImageSizeInColumns,
                 {
                     if(u8DataByte & (0x01U << (7 - u8BitLocation)))
                     {
-                        _glcd.SetUnsetPixel((u8Column + u8BitLocation + u8ColumnJump), (u8Row + u8Width)
+                        _glcd.SetUnsetPixel((uint8_t)(u8Column + u8BitLocation + u8ColumnJump), (uint8_t)(u8Row + u8Width)
                                             , GLCD::BSP_GLCD_SET);
                     }
                 }
@@ -445,7 +457,7 @@ uint8_t Display::FindStringWidth(char* str, FONT_t font)
 {
     uint8_t i;
     uint8_t length, width=0;
-    length = strlen(str);
+    length = (uint8_t)strlen(str);
     for(i=0; i<length ;i++)
     {
         width +=(uint8_t)getCharWidth(*str, font);

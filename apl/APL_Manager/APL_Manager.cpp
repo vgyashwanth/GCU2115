@@ -24,7 +24,7 @@ _MainUI(*this,_cfgz, _gcuAlarms,_engineMonitoring, _startStop,
          _ManualMode, _display, _cfgc, _sleep,_J1939,_BTSMode,_CyclicMode, _EngineStartValidity),
 _J1939(*this, _cfgc, _cfgz, _engineMonitoring,_gcuAlarms,_MbApp,_AutoMode ),
 _EngineStartValidity(_cfgz, _gcuAlarms),
-_PowerOnUpdateTimer{0}
+_PowerOnUpdateTimer{0, false}
 {
     AcSensors.ConfigureISensing(NO_CURRENT_MEASUREMENT);
     gpDisplay = &_display;
@@ -61,8 +61,8 @@ void APL_Manager::Update()
         if((!_cfgc.IsC02Error()) && (!_cfgz.IsC03Error()) )
         {
             _EngineStartValidity.EngineStartValiditySM(bDeviceInConfigMode);
-            _engineMonitoring.Update(bDeviceInConfigMode);
-            _startStop.Update(bDeviceInConfigMode);
+            _engineMonitoring.Update();
+            _startStop.Update();
             _gcuAlarms.Update(bDeviceInConfigMode);
             _ManualMode.Update(bDeviceInConfigMode);
             _AutoMode.Update(bDeviceInConfigMode);
@@ -81,7 +81,7 @@ void APL_Manager::Update()
             _cfgz.Update();
             _MbApp.Update();
             _J1939.Update(bDeviceInConfigMode);
-            _chrgAlt.Update(bDeviceInConfigMode);
+            _chrgAlt.Update();
         }
     }
 }

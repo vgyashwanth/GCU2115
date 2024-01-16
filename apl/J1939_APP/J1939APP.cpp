@@ -14,7 +14,7 @@
 
 #include "J1939APP.h"
 #include "START_STOP.h"
-static const float F32_Null = 0xFFFFFFFF;
+static const float F32_Null = (float)0xFFFFFFFF;
 bool J1939APP::bEnableEngineStart      = false;
 bool J1939APP::bExecutePreheat         = false;
 
@@ -111,28 +111,29 @@ ubypReadRxPgns{
     f32PGN_65296Data{0},
     f32PGN_65297Data{0},
     _au8CalcSPNData{0},
-    _astPGNTxDataBuff{0},
+    _astPGNTxDataBuff{},
     _u32RequestedPGN(0),
     _u8PGN_Num(0),
     _u8NumOfDM1SPN(0),
     _u8NumOfDM2SPN(0),
     _u8NoOfInvalidSpnInDm1Msg(0),
     _u8NoOfInvalidSpnInDm2Msg(0),
-    _ConfigParam{0},
+    _ConfigParam{},
     _bDeviceInConfigMode(false),
-    _Timer10ms{0},
-    _Timer20ms{0},
-    _Timer50ms{0},
-    _Timer80ms{0},
-    _Timer100ms{0},
-    _Timer250ms{0},
-    _Timer300ms{0},
-    _Timer500ms{0},
-    _Timer1s{0},
-    _CommFailTimeout{0},
+    _Timer10ms{0, false},
+    _Timer20ms{0, false},
+    _Timer50ms{0, false},
+    _Timer80ms{0, false},
+    _Timer100ms{0, false},
+    _Timer250ms{0, false},
+    _Timer300ms{0, false},
+    _Timer500ms{0, false},
+    _Timer1s{0, false},
+    _CommFailTimeout{0, false},
     _u8ArrDM1SPNData{0},
     _u8ArrDM2SPNData{0},
     _u8SPNIndexInRQSTPGN(0),
+    _ArrPgnReadData{0},
     _u8ActiveDtcAmberLampStatus(0),
     _u8ActiveDtcProtectLampStatus(0),
     _u8ActiveDtcRedLampStatus(0),
@@ -142,7 +143,6 @@ ubypReadRxPgns{
     _bClearActiveDTCs(false),
     _bRequestDM2PGN(false),
     _bRequestDM11PGN(false),
-    _ArrPgnReadData{0},
     _bIsDEFLevelLow(false),
     _bIsDEFLevelSevere(false),
     _BeepOnTimer{0 , false},
@@ -176,7 +176,7 @@ void J1939APP::InitAfterConfigChange()
         for(gu8SPNNumber = 0; gu8SPNNumber < MAX_NO_SPN_IN_PGN; gu8SPNNumber++)
         {
             _ArrSpnErrorNAStatus[gu8PGNNumber][gu8SPNNumber] = NOT_AVAILABLE;
-            (void)memset((void *)(&_ArrPgnReadData[gu8PGNNumber][gu8SPNNumber]), 0xFFFFFFFFF, sizeof(double));
+            (void)memset((void *)(&_ArrPgnReadData[gu8PGNNumber][gu8SPNNumber]), (int)0xFFFFFFFFF, sizeof(double));
         }
     }
 }
@@ -314,7 +314,7 @@ void J1939APP::GetPGN(uint8_t ubyPGN, uint8_t u8RxOrTx, J1939_PGN_DB_t *pstGetPG
     }
             if(u8RxOrTx == CALC_FOR_TRANSMIT)
         {
-            pstGetPGN->ubyPDU_SA = _cfgz.GetCFGZ_Param(CFGZ::ID_SGC_SOURCE_ADDRESS);
+            pstGetPGN->ubyPDU_SA = (uint8_t)_cfgz.GetCFGZ_Param(CFGZ::ID_SGC_SOURCE_ADDRESS);
         }
 }
 
@@ -644,9 +644,9 @@ void J1939APP::prvUpdatePGN65289Data(void)
         if(u8Indx2 == 11U)
         {
             f32PGN_65289Data[u8Index] = 0x0u;
-            f32PGN_65289Data[u8Index]  = ((u16GenStatus & ((uint16_t)0x01 << u8Indx2)) >> u8Indx2)
+            f32PGN_65289Data[u8Index]  = (float)(((u16GenStatus & ((uint16_t)0x01 << u8Indx2)) >> u8Indx2)
                                                      |((u16GenStatus & ((uint16_t)0x01 << (u8Indx2 + 1U))) >> u8Indx2)
-                                                     |((u16GenStatus & ((uint16_t)0x01 << (u8Indx2 + 2U))) >> u8Indx2);
+                                                     |((u16GenStatus & ((uint16_t)0x01 << (u8Indx2 + 2U))) >> u8Indx2));
 
             /*Following explicit handling is to keep bit pattern safe*/
             u8DummyOne = (uint8_t) f32PGN_65289Data[u8Index];
@@ -1160,15 +1160,15 @@ void J1939APP::ExtractReadFrame(void)
         //  identifies a group of nodes on the J1939 bus.
         //  PGN = (DP<<9 + PF<<8 + PS)  PGN-Parameter Group Number
 
-        if((u8PF <=255)&&(u8PF >=240))
+        if(u8PF >=240)
         {
-            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
-                                                   + (((uint16_t)u8PF)<<8U)+ u8PS;
+            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (uint16_t)((((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
+                                                   + (((uint16_t)u8PF)<<8U)+ u8PS);
         }
-        else if((u8PF <=239)&&(u8PF >=0))
+        else if(u8PF <=239)
         {
-            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
-                                               + (((uint16_t)u8PF)<<8U) ;
+            uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (uint16_t)((((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
+                                               + (((uint16_t)u8PF)<<8U)) ;
         }
         if(bECUSourceAddressMatched)
         {
@@ -1177,7 +1177,7 @@ void J1939APP::ExtractReadFrame(void)
             {
 
                 case PGN_TPCM: //TPCM Transfer protocol - connection management ---> BAM-Braudcast Announce message
-                    u16LocalPGN = (((uint16_t)CAN_RxQueueBuffer.data[6]) << 8U) + CAN_RxQueueBuffer.data[5];
+                    u16LocalPGN = (uint16_t)((((uint16_t)CAN_RxQueueBuffer.data[6]) << 8U) + CAN_RxQueueBuffer.data[5]);
                     if((u16LocalPGN == PGN_DM01)|| (u16LocalPGN == PGN_DM02) /*|| (u16LocalPGN == PROPB_5E_PGN*/)
                     {
                         u8ReadData = 1;

@@ -20,8 +20,8 @@ bool START_STOP::_bOPStopSolenoid = false;
 bool START_STOP::_bOPStartRelay = false;
 bool START_STOP::_bMonitorDGIdleRun = false;
 uint16_t START_STOP::_u16ConfiguredSafetyMonDelay = false;
-stTimer START_STOP::_SafetyMonTimer = {0};
-stTimer START_STOP::_EngStoppingTimer = {0};
+stTimer START_STOP::_SafetyMonTimer = {0, false};
+stTimer START_STOP::_EngStoppingTimer = {0, false};
 bool START_STOP::_bOPPreheat = false;
 bool START_STOP::_bOPFuelRelay= false;
 bool START_STOP::_bEngineOnFailToStopAck = false;
@@ -53,14 +53,14 @@ _bSimStartLatched(false),
 _bSimStopLatched(false),
 _bModeSwicthAutoKeyPress(false),
 _bDGIdleRunDelayRunning(false),
-_PreheatTimer{0},
-_EngStartTimer{0},
-_EngCrankingTimer{0},
-_EngCrankRestTimer{0},
-_StartStopSMUpdateTimer{0},
-_StopHoldTimer{0},
-_PowerOnTimer{0},
-_DGIDleRunTimer{0}
+_PreheatTimer{0, false},
+_EngStartTimer{0, false},
+_EngCrankingTimer{0, false},
+_EngCrankRestTimer{0, false},
+_StartStopSMUpdateTimer{0, false},
+_StopHoldTimer{0, false},
+_PowerOnTimer{0, false},
+_DGIDleRunTimer{0, false}
 {
     UTILS_ResetTimer(&_PowerOnTimer);
     _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY);
@@ -73,9 +73,9 @@ void START_STOP::Init()
     _u16ConfiguredSafetyMonDelay = _cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SAFETY_MONITOR_DELAY);
 }
 
-void START_STOP::Update(bool bDeviceInConfigMode)
+void START_STOP::Update()
 {
-    A_SENSE::SENSOR_RET_t   stEngTemp = {0};
+    A_SENSE::SENSOR_RET_t   stEngTemp = {};
     volatile bool           bPreheatTempLimitReached;
     if(UTILS_GetElapsedTimeInSec(&_PowerOnTimer) >= FOUR_SEC)
     {
@@ -477,6 +477,7 @@ void START_STOP::prvStopCommandAction()
             _EngineMon.StoreCummulativeCnt();
             _GCUAlarms.UpdateFuelTheftCalculation();
             /* no break*/
+            [[fallthrough]];
         case ID_STATE_SS_CRANKING:
         case ID_STATE_SS_CRANK_REST:
         case ID_STATE_SS_FAIL_TO_STOP:

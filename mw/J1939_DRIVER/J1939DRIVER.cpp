@@ -10,7 +10,7 @@
 bool J1939DRIVER::bFrameTransmited= true;
 J1939DRIVER::J1939DRIVER(HAL_Manager &hal):
 _ObjHal(hal),
-_CAN_TxFrame{0}
+_CAN_TxFrame{}
 {
 
 }
@@ -38,7 +38,7 @@ void J1939DRIVER::CalculateSPN(double f64Resolution, double f64Offset, double f6
     }
     else if(u8DataDir == CALC_FOR_RECEIVE)
     {
-        tSPN.f64SPNData  = (tSPN.u64SPNData * f64Resolution) + f64Offset;
+        tSPN.f64SPNData  = ((double)tSPN.u64SPNData * f64Resolution) + f64Offset;
     }
     else
     {

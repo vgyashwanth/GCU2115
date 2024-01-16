@@ -72,6 +72,7 @@ _GensetFreqParams{
     0,                                         /*u16LatchedFreqSampleCtr*/
     0,                                         /*fFrequency*/
     0,                                         /*fPrevFreq*/
+    0,
     false                                      /*bIsPrevPositiveHalfCycle*/
 },
 _MainsFreqParams{
@@ -79,6 +80,7 @@ _MainsFreqParams{
     0,                                         /*u16LatchedFreqSampleCtr*/
     0,                                         /*fFrequency*/
     0,                                         /*fPrevFreq*/
+    0,
     false                                      /*bIsPrevPositiveHalfCycle*/
 },
 #if (SUPPORT_CALIBRATION == YES)
@@ -100,7 +102,7 @@ _pfSignParams{
     1,                                         /*i16PFSign*/
     0                                          /*bIsPrevPositiveHalfCycle*/
 },
-_FreeRunningTimer{0}
+_FreeRunningTimer{0, false}
 {
 
 }
@@ -475,7 +477,7 @@ void  POWER::UpdateSample(float f32GensetPhaseVoltage,
     /* Check whether current offset fixed window is over*/
     if(_u16CurrentDCOffsetSampleCount >= _u16DCOffsetWindowSize)
     {
-        _f32LatchedCurrentOffsetValue = (_f64CurrentOffsetAccumulator / _u16DCOffsetWindowSize);
+        _f32LatchedCurrentOffsetValue = (float)(_f64CurrentOffsetAccumulator / _u16DCOffsetWindowSize);
         _f64CurrentOffsetAccumulator = 0;
         _u16CurrentDCOffsetSampleCount = 0;
         /* Change DC offset window size */

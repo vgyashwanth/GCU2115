@@ -104,7 +104,7 @@ _fGenPTMultiplier(1),
 _fMainsPTMultiplier(1),
 _fGenRating(0),
 _AnlgIp(anlgIp),
-_st200ms{0},
+_st200ms{0, false},
 _f32DCOffserFiltV(0.0),
 _eMainsSystemType(PHASE_3_SYSTEM),
 _ePrvGenSysType(PHASE_3_SYSTEM),
@@ -114,7 +114,7 @@ _u32ECurrentOffsetAccumulator(0),
 _u16EarthCurrentDCOffsetWindowSize(INIT_DC_OFFSET_WINDOW_SIZE)
 #if (SUPPORT_CALIBRATION == YES)
 ,_eeprom(Eeprom),
-_stCalibrationData{0}
+_stCalibrationData{}
 #endif /* SUPPORT_CALIBRATION */
 {
 #if (SUPPORT_CALIBRATION == YES)
@@ -127,9 +127,6 @@ _stCalibrationData{0}
 
 void AC_SENSE::Update()
 {
-    ANLG_IP::ANALOG_VAL_t  stDC_Offset;
-
-
     _aPowers[R_PHASE].Update();
     _aPowers[Y_PHASE].Update();
     _aPowers[B_PHASE].Update();
@@ -148,6 +145,7 @@ void AC_SENSE::Update()
 #else    
     if(UTILS_GetElapsedTimeInMs(&_st200ms) > 200U)
     {
+        ANLG_IP::ANALOG_VAL_t  stDC_Offset;
         stDC_Offset = _AnlgIp.GetDCOffset_V();
         _f32DCOffserFiltV = (VBAT_FILTER_CONST * stDC_Offset.f32InstSensorVal)
                 + (_f32DCOffserFiltV*(1.0F- VBAT_FILTER_CONST) );
@@ -1503,6 +1501,24 @@ float AC_SENSE::EARTH_GetCurrentFilt()
     return _fECTMultiplier*_EarthCurrent.GetFilteredRMS(RMS::CURRENT);
 }
 
+#if (SUPPORT_CALIBRATION == YES)
+void AC_SENSE::prvUpdateEarthCurrentDCOffset(float f32EarthCurrent)
+{
+    _u16EarthCurrentDCOffsetSampleCount++;
+    //_u32ECurrentOffsetAccumulator+= u16Sample;
+
+    _f32ECurrentOffsetAccumulator += f32EarthCurrent;
+
+    if(_u16EarthCurrentDCOffsetSampleCount >= _u16EarthCurrentDCOffsetWindowSize)
+    {
+        _f32LatchedECurrentOffsetValue = _f32ECurrentOffsetAccumulator/_u16EarthCurrentDCOffsetWindowSize;
+
+        _f32ECurrentOffsetAccumulator = 0.0F;
+        _u16EarthCurrentDCOffsetSampleCount=0U;
+        _u16EarthCurrentDCOffsetWindowSize = DC_OFFSET_WINDOW_SIZE_FOR_CURR;
+    }
+}
+#else
 void AC_SENSE::prvUpdateEarthCurrentDCOffset(uint16_t u16Sample )
 {
     _u16EarthCurrentDCOffsetSampleCount++;
@@ -1512,9 +1528,10 @@ void AC_SENSE::prvUpdateEarthCurrentDCOffset(uint16_t u16Sample )
         _u16LatchedECurrentOffsetValue = (uint16_t)(_u32ECurrentOffsetAccumulator/_u16EarthCurrentDCOffsetWindowSize);
         _u32ECurrentOffsetAccumulator =0;
         _u16EarthCurrentDCOffsetSampleCount=0;
-        _u16EarthCurrentDCOffsetWindowSize = DC_OFFSET_WINDOW_SIZE;
+        _u16EarthCurrentDCOffsetWindowSize = DC_OFFSET_WINDOW_SIZE_FOR_CURR;
     }
 }
+#endif
 
 double AC_SENSE::GetGensetkVAEnergyOffset()
 {

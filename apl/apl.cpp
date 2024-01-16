@@ -14,6 +14,8 @@
 
 #define UNIT_TESTING 0
 
+void APL_Main();
+
 #if(UNIT_TESTING)
 //#include "DEBUG_PRINT/DEBUG_PRINT.h"
 
@@ -89,7 +91,6 @@ void NV_LOG_Test();
 #endif
 void APL_Main()
 {
-    volatile  uint32_t u32SpVal = __get_MSP();
     __enable_irq();
       APL_Manager AplManager;
 //    BSP_Manager bsp;

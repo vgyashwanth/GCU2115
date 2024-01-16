@@ -323,7 +323,7 @@ void ALARM_UI::prvDisplayDMScreen()
 {
 
     char arrTemp[32];
-    J1939APP::J1939_DM_MSG_DECODE stDmMsg = {0};
+    J1939APP::J1939_DM_MSG_DECODE stDmMsg = {};
 
     _Disp.ClearScreen();
     _Disp.drawRectangle();

@@ -29,7 +29,7 @@ _u16LatestFetchedEventNum(0),
 _u16NumberOfEvents(0),
 _u16DispEventScreenNumber(0),
 _u16DispTotalEventNumber(0),
-_stEventLog{0}
+_stEventLog{}
 {
 
 }

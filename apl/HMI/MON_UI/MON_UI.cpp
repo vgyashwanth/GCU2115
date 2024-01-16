@@ -38,8 +38,8 @@ _j1939(j1939),
 _BTSMode(BTSMode),
 _cyclicMode(cyclicMode),
 _eOpMode (BASE_MODES::MANUAL_MODE),
-ExternalInputUpdateTimer{0},
-AutomaticModeSwitchingTimer{0},
+ExternalInputUpdateTimer{0, false},
+AutomaticModeSwitchingTimer{0, false},
 _ArrScreenEnDs{false,false,false,
     false,false,false,false,false,false,false,
     false,false,false,false,false,false,false,false,false,false,false,
@@ -519,7 +519,7 @@ void MON_UI::prvConfigureScreenEnable()
     {
       u8Screen = DISP_MON_HOME;
     }
-    for(u8Screen  ; u8Screen<DISP_MON_LAST; u8Screen++)
+    for(; u8Screen<DISP_MON_LAST; u8Screen++)
     {
         _ArrScreenEnDs[u8Screen] = false;
         switch(u8Screen)
@@ -832,13 +832,16 @@ void MON_UI::prvDisplayMonScreen()
     else
 #endif
     {
+        prvNormalMonScreens();
         //In GC2111, while in test mode. T will be displayed at the left bottom corner.
         if(_eOpMode == BASE_MODES:: TEST_MODE && _stScreenNo !=DISP_MON_HOME)
         {
+            _Disp.clearRectangularSection(GLCD_X(0)+1, GLCD_X(11)-1, GLCD_Y(52)+1, GLCD_Y(63)-1);
+            _Disp.drawHorizontalLine(GLCD_X(0), GLCD_Y(52), GLCD_X(11));
+            _Disp.drawVerticalLine(GLCD_X(11), GLCD_Y(52), GLCD_Y(63));
             _Disp.gotoxy(GLCD_X(6),GLCD_Y(53));
             _Disp.printStringCenterAligned((char *)"T", FONT_VERDANA);
         }
-         prvNormalMonScreens();
     }
 }
 void MON_UI::prvPrintCANMsgRcvError()
@@ -2287,8 +2290,8 @@ void MON_UI::prvNormalMonScreens()
             if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_HOURS_65253,0) == J1939APP::VALID_DATA))
             {
               _u32EngineRunHrs = (uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0));
-              sprintf(arrTemp, "%ld hr %d min",_u32EngineRunHrs,
-                ((uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0) * 60) % 60));
+              sprintf(arrTemp, "%lu hr %lu min",_u32EngineRunHrs,
+                (uint32_t)((uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0) * 60) % 60));
             }
             else
             {
@@ -2767,6 +2770,12 @@ void MON_UI::prvNormalMonScreens()
 
                     u8Position = u8Position + 15;
                 }
+
+                _Disp.gotoxy(GLCD_X(100),GLCD_Y(35));
+                sprintf(arrTemp,"%0.1f", f32GenMinFreq);
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+                _Disp.gotoxy(GLCD_X(102),GLCD_Y(35));
+                _Disp.printStringLeftAligned((char *)"Hz", FONT_VERDANA);
             }
             else
             {
@@ -2776,19 +2785,21 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.gotoxy(GLCD_X(40),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)"Ph-N",FONT_VERDANA);
 
-                _Disp.gotoxy(GLCD_X(68),GLCD_Y(35));
+                _Disp.gotoxy(GLCD_X(83/*68*/),GLCD_Y(35));
                 sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[GENSET])((PHASE_t)R_PHASE));
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
-                _Disp.gotoxy(GLCD_X(71),GLCD_Y(35));
+                _Disp.gotoxy(GLCD_X(85/*71*/),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
+
+                _Disp.gotoxy(GLCD_X(110),GLCD_Y(35));
+                sprintf(arrTemp,"%0.1f", f32GenMinFreq);
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+                _Disp.gotoxy(GLCD_X(112),GLCD_Y(35));
+                _Disp.printStringLeftAligned((char *)"Hz", FONT_VERDANA);
             }
 
-            _Disp.gotoxy(GLCD_X(100),GLCD_Y(35));
-            sprintf(arrTemp,"%0.1f", f32GenMinFreq);
-            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
-            _Disp.gotoxy(GLCD_X(102),GLCD_Y(35));
-            _Disp.printStringLeftAligned((char *)"Hz", FONT_VERDANA);
+            
         }
 
 
@@ -3319,12 +3330,12 @@ if engine run hours goes beyond below mentioned value it is going out of screen 
 */
                 if(_u32EngineRunHrs > 999999)
                 {
-                    sprintf(arrTemp, "%.0f hr %.0f min",0,0);
+                    sprintf(arrTemp, "%.0f hr %.0f min",(double)0,(double)0);
                 }
                 else
                 {
-                    sprintf(arrTemp, "%ld hr %d min",_u32EngineRunHrs,
-                      ((uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0) * 60) % 60));}
+                    sprintf(arrTemp, "%lu hr %lu min",_u32EngineRunHrs,
+                      (uint32_t)((uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0) * 60) % 60));}
                 }
                 else
                 {

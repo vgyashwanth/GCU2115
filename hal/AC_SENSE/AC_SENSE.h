@@ -721,6 +721,9 @@ private:
     */
     void prvCheckPhaseReversal(PHASE_ROT_VARS_t &_phaseRotData, int16_t i16RCnt,
                            int16_t i16YCnt, int16_t i16BCnt, int16_t i16NCnt, bool GensetMainsSource);
+
+    void prvUpdateEarthCurrentDCOffset(float f32EarthCurrent);
+
     void prvUpdateEarthCurrentDCOffset(uint16_t u16Sample );
 
 #if (SUPPORT_CALIBRATION == YES)

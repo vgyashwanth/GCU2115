@@ -31,7 +31,7 @@ public:
      * @return
      * None
      */
-    void Update(bool bDeviceInConfigMode);
+    void Update();
 
     /**
      * This API provide the information about the charging alternator fail alarm.

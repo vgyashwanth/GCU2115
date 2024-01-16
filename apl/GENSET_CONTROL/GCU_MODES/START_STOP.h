@@ -66,7 +66,7 @@ public:
      * @return
      * None
      */
-	void Update(bool bDeviceInConfigMode);
+	void Update();
 
     /**
      * Provides the current state of the start stop state machine.

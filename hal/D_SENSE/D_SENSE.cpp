@@ -52,8 +52,8 @@ DigitalSensor::DigitalSensor():
 _pDb(NULL),
 _eActivationPolarity(CLOSE_TO_ACTIVATE),
 _u16ActivDelaySeconds(0),
-_ActTimer({0}),
-_DeactTimer({0}),
+_ActTimer{0, false},
+_DeactTimer{0, false},
 _state(STATE_NOT_ACTIVATED),
 _SensorId(DI_NOT_CONFIGURED)
 {

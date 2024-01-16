@@ -139,6 +139,9 @@ CEditableItem::CEditableItem(uint16_t u16Val, const char* PromptMessage,
         const char* UnitOfMeasurement, const char* FormatString,
         uint16_t minU16val, uint16_t maxU16val, bool bflag ,PASS_t  ePassLevel)
 {
+    /*parameter 'bflag' used to distinguish between this constructor
+     *  and the one above (for uint16 type)*/
+    (void)bflag;
     CEditableItem();
     this->value.u16Val = u16Val;
     this->minVal.u16Val = minU16val;
@@ -235,19 +238,19 @@ CEditableItem::CEditableItem(float fVal, const char* PromptMessage,
     initTempValue();
 }
 
-CEditableItem::CEditableItem(float fVal, const char* promptMessage,
-        const char* unitOfMeasurement, const char* formatString,
+CEditableItem::CEditableItem(float FVal, const char* PromptMessage,
+        const char* UnitOfMeasurement, const char* FormatString,
         float minFval, float maxFval, PASS_t  ePassLevel)
 {
     CEditableItem();
-    this->value.fVal = fVal;
+    this->value.fVal = FVal;
     this->minVal.fVal = minFval;
     this->maxVal.fVal = maxFval;
-    this->fValLC = 0.1;
+    this->fValLC = 0.1F;
     this->dataType = DT_FLOAT;
-    this->promptMessage = promptMessage;
-    this->unitOfMeasurement = unitOfMeasurement;
-    this->formatString = formatString;
+    this->promptMessage = PromptMessage;
+    this->unitOfMeasurement = UnitOfMeasurement;
+    this->formatString = FormatString;
     this->u8PasswordLevel = ePassLevel;
     u8MaxOneScreenEditItems =0;
     initTempValue();

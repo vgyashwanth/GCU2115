@@ -46,7 +46,7 @@
 
 /*Defines the number of discontinuous address groups*/
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
 /*Defines the number of discontinuous address groups*/
 #define MODBUS_ADDRESS_GROUPS   (4U)
 #define MODBUS_GRP3_REG_CNT     (MB_AUTOMATION_READ_REG_LAST - MB_AUX_S1)
@@ -72,7 +72,7 @@ public:
     /* Contains the list of registers, the enum values correspond to the register
        address.
      */
-#if (AUTOMATION == 1)
+#if (TEST_AUTOMATION == 1)
     typedef enum {
         MB_AUX_S1=400,
         MB_AUX_S2,
@@ -241,7 +241,7 @@ offset 14.
 //        MB_DATE_TIME5,
     }MODBUS_WRITE_REGISTERS_t;
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
     typedef enum {
         MB_AUTOMATION_WRITE_COMMAND = 350,
         MB_AUTOMATION_ENGINE_RUN_HOURS_1,                    /* RUN_HOUR_1 will hold hour value */
@@ -334,7 +334,7 @@ offset 14.
     void SetReadRegisterValue(MODBUS_READ_REGISTERS_t eRegister, uint16_t u16Value);
 
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
 
 
     /**
@@ -435,7 +435,7 @@ private:
     /*Address group 2 buffer*/
     uint16_t _au16Grp2Registers[MODBUS_GRP2_REG_CNT];
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
     /*Address group 4 buffer*/
     uint16_t _au16Grp3Registers[MODBUS_GRP3_REG_CNT];
     uint16_t _au16Grp4Registers[MODBUS_GRP4_REG_CNT];
@@ -520,7 +520,7 @@ private:
     void prvUpdateLatestDM1Messages(void);
     void prvUpdateEGRrelatedRegisters(void);
     void prvUpdateDm01FaultCodesOnModbus(void);
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
     /**
      * This function updates the automation test support related modbus read registers.
      * @param bDeviceInConfigMode

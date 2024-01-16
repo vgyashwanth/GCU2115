@@ -151,7 +151,7 @@ uint8_t PASSWORD_ENTRY_UI::GetEnteredPassword()
 }
 void PASSWORD_ENTRY_UI::prvCheckEnteredPassword()
 {
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
     if(_u16EnterdPassword == AUTOMATION_MASTER_PASSWORD)  //Master Password
     {
         _u8EnteredPassword = MASTER_PIN;

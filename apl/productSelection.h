@@ -14,7 +14,8 @@
 /* Calibration feature */
 #define SUPPORT_CALIBRATION   (YES)
 
-#define AUTOMATION 0
+#define TEST_AUTOMATION YES
+
 #define CUSTOMER_MASTER_PASSWORD_ENABLE  1
 
 #endif /* APL_PRODUCTSELECTION_H_ */

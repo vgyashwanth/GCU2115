@@ -23,12 +23,12 @@ CFGZ::CFGZ(HAL_Manager &hal, MODBUS &modbus, CFGC &cfgc):
 _hal(hal),
 _modbus(modbus),
 _cfgc(cfgc),
-_All_Param{0},
+_All_Param{},
 _EraseAndWriteInitiated(false),
-strCFGZMetadata{0},
+strCFGZMetadata{},
 _bDflashCallbackRcvd(false),
 _bConfigWritten(true),
-_stMiscParam{0}
+_stMiscParam{}
 {
     pcfgz = this;
     if(prvGetIntegrityStatus() == BSP_SUCCESS)
@@ -716,7 +716,7 @@ RS485::BAUD_t CFGZ::prvGetRS485Baud()
      {CFGZ_MODBUS_BAUD_115200 ,RS485::BAUD_115200}
     };
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
     CFGZ_MODBUS_BAUD_t eBaud = (CFGZ_MODBUS_BAUD_t)3;
 #else
     CFGZ_MODBUS_BAUD_t eBaud = (CFGZ_MODBUS_BAUD_t)_All_Param.u8ArrParam[ID_MODBUS_COMM_MODBUS_BAUDRATE];

@@ -30,10 +30,10 @@ _StateCA (STATE_CHG_ALT_OFF),
 _bChargAltOut(false),
 _bStopChargAltPulse(false),
 _bStartChargAltPulse(false),
-_ChargAltPulseTimer{0},
-_ChargAltWaitTimer{0},
-_ChargAltMonTimer{0},
-_CASMUpdateTimer{0},
+_ChargAltPulseTimer{0, false},
+_ChargAltWaitTimer{0, false},
+_ChargAltMonTimer{0, false},
+_CASMUpdateTimer{0, false},
 _f32FilteredAltCurrent(0),
 _u16TicksInCurrentWindow(0),
 _f32Integral(0)
@@ -43,7 +43,7 @@ _f32Integral(0)
     UTILS_ResetTimer(&_CASMUpdateTimer);
 }
 
-void CHARGING_ALT::Update(bool bDeviceInConfigMode)
+void CHARGING_ALT::Update()
 {
     if((UTILS_GetElapsedTimeInMs(&_CASMUpdateTimer)) >= SM_UPDATE_TIME)
     {

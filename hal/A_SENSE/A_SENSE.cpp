@@ -27,12 +27,12 @@ volatile float     A_SENSE::_f32FilteredPulseIpRPM             = 0.0;
 volatile float     A_SENSE::_f32CompGenRFreq                   = 0.0;
 volatile float     A_SENSE::_f32RPhaseFreq                     = 0.0;
 volatile float     A_SENSE::_f32GenRPhaseRawVtg                = 0.0;
-stTimer A_SENSE::_RPMResetTimerPulseIp ={0};
+stTimer A_SENSE::_RPMResetTimerPulseIp ={0,false};
 uint8_t   A_SENSE::_u8NumberOfPoles                   = 0;
-stTimer   A_SENSE::_RPMResetTimerComparator           ={0};
+stTimer   A_SENSE::_RPMResetTimerComparator           ={0, false};
 A_SENSE::pRPMUpdate_t     A_SENSE::_UpdateCompRPM_cb  = NULL;
-A_SENSE::FUEL_0_5V_t A_SENSE::_Fuel_0_5V_vals ={0};
-stTimer A_SENSE::SpeedSensorTimer={0};
+A_SENSE::FUEL_0_5V_t A_SENSE::_Fuel_0_5V_vals ={};
+stTimer A_SENSE::SpeedSensorTimer={0, false};
 A_SENSE::A_SENSE(ANLG_IP &anlgIp, PULSE_IP &pulseIp, AC_IP &AcIp, AC_SENSE &AcSensors ):
 _AnlgIp(anlgIp),
 _PulseIp(pulseIp),

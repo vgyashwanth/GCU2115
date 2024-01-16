@@ -42,7 +42,7 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::_eLoadStatusCurrent = L
 /*  Shubham Wader 21.09.2022
     todo:  Why we are making _stCummulativeCnt static? If we want to use those outside class then why to keep it
     private ? C++ property misuse . Either need to make it public to access anywhere or restrict access. */
-ENGINE_MONITORING::CUMULATIVE_t ENGINE_MONITORING::_stCummulativeCnt={0};
+ENGINE_MONITORING::CUMULATIVE_t ENGINE_MONITORING::_stCummulativeCnt={};
 
 bool ENGINE_MONITORING::_bEngineCranked = false;
 
@@ -50,24 +50,24 @@ ENGINE_MONITORING::ENGINE_MONITORING(CFGZ &cfgz, GCU_ALARMS &GCUAlarms, HAL_Mana
 _cfgz(cfgz),
 _GCUAlarms(GCUAlarms),
 _hal(hal),
-_LLOPCrankingTimer{0},
-_Timer50MS{0},
-_TimerOneMin{0},
-_MainsRunTimeBaseTimer{0},
-_TimerGenUpdateCumulative{0},
-_TimerMainsUpdateCumulative{0},
-_TimerBTSUpdateCumulative{0},
-_TimerUpdateTamperedCumulative{0},
-_BTSRunTimeBaseTimer{0},
-_EngWarmUpTimer{0},
-_GenWarmUpTimer{0},
-_LOPSensMonTimer{0},
+_LLOPCrankingTimer{0, false},
+_Timer50MS{0, false},
+_TimerOneMin{0, false},
+_MainsRunTimeBaseTimer{0, false},
+_TimerGenUpdateCumulative{0, false},
+_TimerMainsUpdateCumulative{0, false},
+_TimerBTSUpdateCumulative{0, false},
+_TimerUpdateTamperedCumulative{0, false},
+_BTSRunTimeBaseTimer{0, false},
+_EngWarmUpTimer{0, false},
+_GenWarmUpTimer{0, false},
+_LOPSensMonTimer{0, false},
 _u8StartStopSMState(0),
 _u8ActiveSectorForCummulative(0),
-_stTampEnergyRegister{0},
-_stEnergyRegister{0},
-_stMainsEnergyRegister{0}
-#if (AUTOMATION==1)
+_stTampEnergyRegister{},
+_stEnergyRegister{},
+_stMainsEnergyRegister{}
+#if (TEST_AUTOMATION == YES)
 ,_bFromAutomation(false)
 #endif
 {
@@ -76,7 +76,7 @@ _stMainsEnergyRegister{0}
     ReadEnergySetEnergyOffset(true);
 }
 
-void ENGINE_MONITORING::Update(bool bDeviceInConfigMode)
+void ENGINE_MONITORING::Update()
 {
     if(UTILS_GetElapsedTimeInMs(&_Timer50MS) >= FIFTY_MSEC)
     {
@@ -487,7 +487,7 @@ void ENGINE_MONITORING::prvUpdateCumulativeTamperedEnergyCounts()
 void ENGINE_MONITORING::StoreCummulativeCnt()
 {
     static CUMULATIVE_t stStoredCummulative0,stStoredCummulative1;
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
     if(_bFromAutomation)
     {
         _bFromAutomation = false;
@@ -926,7 +926,7 @@ bool ENGINE_MONITORING::IsGenStartValid()
 }
 
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
 void ENGINE_MONITORING::SetEngineRunTime(uint32_t u32EngineRunTimeInmin)
 {
     _stCummulativeCnt.u32EngineRunTime_min=u32EngineRunTimeInmin;
@@ -934,19 +934,19 @@ void ENGINE_MONITORING::SetEngineRunTime(uint32_t u32EngineRunTimeInmin)
 
 void ENGINE_MONITORING::SetGenActiveEnergy(uint32_t u32GenActiveEnergy)
 {
-    _stCummulativeCnt.f32GenKWH=u32GenActiveEnergy;
+    _stCummulativeCnt.f32GenKWH=(float)u32GenActiveEnergy;
     _bFromAutomation = true;
 }
 
 void ENGINE_MONITORING::SetGenApparentEnergy(uint32_t u32GenApparentEnergy)
 {
-    _stCummulativeCnt.f32GenKVAH=u32GenApparentEnergy;
+    _stCummulativeCnt.f32GenKVAH=(float)u32GenApparentEnergy;
     _bFromAutomation = true;
 }
 
 void ENGINE_MONITORING::SetGenReactiveEnergy(uint32_t u32GenReactiveEnergy)
 {
-    _stCummulativeCnt.f32GenKVARH=u32GenReactiveEnergy;
+    _stCummulativeCnt.f32GenKVARH=(float)u32GenReactiveEnergy;
     _bFromAutomation = true;
 }
 

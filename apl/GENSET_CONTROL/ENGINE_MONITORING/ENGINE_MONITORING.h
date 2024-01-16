@@ -64,7 +64,7 @@ public:
      * @return
      * None
      */
-    void Update(bool bDeviceInConfigMode);
+    void Update();
 
 /* Status prototypes */
     bool IsGenStartValid();
@@ -132,7 +132,7 @@ public:
     static LOAD_CONT_STATUS_t GetContactorLoadStatus();
     static bool GetAndClearIsLoadStatusChanged();
 
-#if (AUTOMATION==1)
+#if (TEST_AUTOMATION == YES)
     /**
      * This function overwrites the engine run hours (in mins) with the value received over
      * MODBUS while automation testing.
@@ -275,7 +275,7 @@ private:
 
     A_SENSE::SENSOR_RET_t       _stLOP;  /* Lop sensor structure */
 
-#if (AUTOMATION==1)
+#if(TEST_AUTOMATION == YES)
     /**
      * This variable is used to flag if request to store power related info
      * into EEPROM is from automation request or normal operation of GCU.

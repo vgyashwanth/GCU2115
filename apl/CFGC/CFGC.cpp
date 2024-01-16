@@ -11,7 +11,7 @@
 
 void cb(DFLASH::FLASH_STATUS_t evt);
 volatile static DFLASH::FLASH_STATUS_t eStatus = DFLASH::DFLASH_NO_STATUS;
- CFGC::CFGC_t CFGC::_stCfgc={0};
+ CFGC::CFGC_t CFGC::_stCfgc={};
 CFGC::CFGC(HAL_Manager &Hal):
 _Hal(Hal),
 _bIntegrityCheckFailed(false)

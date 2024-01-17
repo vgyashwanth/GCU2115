@@ -605,7 +605,7 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
             ArrAlarmMonitoring[EGR_FAULT_SHUTDOWN].bEnableMonitoring = true;
             ArrAlarmMonitoring[EGR_FAULT_SHUTDOWN].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
-            [[fallthrough]];
+            break;;
         case CFGZ:: CFGZ_EB_MCCB_ON_FEEDBACK:
 
             ArrAlarmMonitoring[EB_MCCB_ON_FEEDBACK_ALARM].bEnableMonitoring = true;

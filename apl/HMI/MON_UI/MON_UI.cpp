@@ -2785,11 +2785,11 @@ void MON_UI::prvNormalMonScreens()
                 _Disp.gotoxy(GLCD_X(40),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)"Ph-N",FONT_VERDANA);
 
-                _Disp.gotoxy(GLCD_X(83/*68*/),GLCD_Y(35));
+                _Disp.gotoxy(GLCD_X(83),GLCD_Y(35));
                 sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetCurrentVal[GENSET])((PHASE_t)R_PHASE));
                 _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
-                _Disp.gotoxy(GLCD_X(85/*71*/),GLCD_Y(35));
+                _Disp.gotoxy(GLCD_X(85),GLCD_Y(35));
                 _Disp.printStringLeftAligned((char *)StrA, FONT_VERDANA);
 
                 _Disp.gotoxy(GLCD_X(110),GLCD_Y(35));

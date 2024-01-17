@@ -77,6 +77,7 @@ void MB_APP::Update()
     prvUpdateElectricalParams();
     prvUpdateAnalogParams();
     prvUpdateStartTripsRunHours();
+    prvUpdateTimeStamp();
     prvUpadateDIGInOut();
     prvUpdateBtsParams();
     prvUpdateGCUAlarms();

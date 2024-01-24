@@ -735,7 +735,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "FUEL THEFT WARNING",
         "FUEL THEFT THRESHOLD",
         "FUEL CONSUMPTION",
-        "FUEL IN LITERS",
+        "FUEL IN %",
         "SENSOR LOW VTG",
         "SENSOR HIGH VTG",
         "TANK WITH STEP",

@@ -23,7 +23,7 @@
 #include "../../../utils/UTILS_Timer.h"
 
 #define PER_MIN_CNT_IN_SEC         (60U)
-#define MAX_INTERPOLATION_POINTS   (10U)
+#define MAX_INTERPOLATION_POINTS   (20U)
 #define UPDATE_ANGL_VALUE_TIME_MS  (200U)
 #define UPDATE_Vbat_VALUE_TIME_MS  (200U)
 #define CA_FILTER_CONST            (0.95F)

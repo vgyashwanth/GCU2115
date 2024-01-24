@@ -387,8 +387,8 @@ void CFGZ::prvConfigureASENSE()
     u8MapSize = sizeof(aPIN11MAP)/sizeof(ASENSOR_MAP_ROW_t);
     cfg.stAIConfig[A_SENSE::HAL_PIN_11].eSensor = prGetAnalogSensor(ID_LOP_RES_DIG_J_SENSOR_SELECTION, aPIN11MAP, u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_11].eRef    = ANLG_IP::REF_ENGINE_BODY;
-    prvCpyInterpolationTable(ID_LOP_RES_DIG_J_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_11].stTable);
     cfg.stAIConfig[A_SENSE::HAL_PIN_11].stTable.u8InterPolationPoints = 10;
+    prvCpyInterpolationTable(ID_LOP_RES_DIG_J_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_11].stTable);
 
     //PIN 12 Configuration
     /*Map between the sensor names defined in A_SENSE and CFGZ*/
@@ -402,9 +402,9 @@ void CFGZ::prvConfigureASENSE()
     u8MapSize = sizeof(aPIN12MAP)/sizeof(ASENSOR_MAP_ROW_t);
     cfg.stAIConfig[A_SENSE::HAL_PIN_12].eSensor = prGetAnalogSensor(ID_FUEL_LVL_DIG_K_SENSOR_SELECTION, aPIN12MAP,u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_12].eRef    = ANLG_IP::REF_ENGINE_BODY;
-    prvCpyInterpolationTable(ID_FUEL_LVL_DIG_K_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_12].stTable);
     cfg.stAIConfig[A_SENSE::HAL_PIN_12].stTable.u8InterPolationPoints = 20;
-
+    prvCpyInterpolationTable(ID_FUEL_LVL_DIG_K_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_12].stTable);
+    
     //PIN 13 Configuration
     /*Map between the sensor names defined in A_SENSE and CFGZ*/
     const ASENSOR_MAP_ROW_t aPIN13MAP [] =
@@ -417,8 +417,8 @@ void CFGZ::prvConfigureASENSE()
     u8MapSize = sizeof(aPIN13MAP)/sizeof(ASENSOR_MAP_ROW_t);
     cfg.stAIConfig[A_SENSE::HAL_PIN_13].eSensor = prGetAnalogSensor(ID_ENG_TEMP_DIG_L_SENSOR_SELECTION, aPIN13MAP,u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_13].eRef    = ANLG_IP::REF_ENGINE_BODY;
-    prvCpyInterpolationTable(ID_ENG_TEMP_DIG_L_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_13].stTable);
     cfg.stAIConfig[A_SENSE::HAL_PIN_13].stTable.u8InterPolationPoints = 10;
+    prvCpyInterpolationTable(ID_ENG_TEMP_DIG_L_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_13].stTable);
 
     //PIN 14 Configuration
     /*Map between the sensor names defined in A_SENSE and CFGZ*/
@@ -432,8 +432,8 @@ void CFGZ::prvConfigureASENSE()
     u8MapSize = sizeof(aPIN14MAP)/sizeof(ASENSOR_MAP_ROW_t);
     cfg.stAIConfig[A_SENSE::HAL_PIN_14].eSensor = prGetAnalogSensor(ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION, aPIN14MAP,u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_14].eRef    = ANLG_IP::REF_ENGINE_BODY;
-    prvCpyInterpolationTable(ID_SHEL_TEMP_DIG_M_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_14].stTable);
     cfg.stAIConfig[A_SENSE::HAL_PIN_14].stTable.u8InterPolationPoints = 10;
+    prvCpyInterpolationTable(ID_SHEL_TEMP_DIG_M_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_14].stTable);
 
     //PIN 15 Configuration
     /*Map between the sensor names defined in A_SENSE and CFGZ*/
@@ -447,8 +447,8 @@ void CFGZ::prvConfigureASENSE()
     u8MapSize = sizeof(aPIN15MAP)/sizeof(ASENSOR_MAP_ROW_t);
     cfg.stAIConfig[A_SENSE::HAL_PIN_15].eSensor = prGetAnalogSensor(ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION, aPIN15MAP,u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_15].eRef    = ANLG_IP::REF_ENGINE_BODY;
-    prvCpyInterpolationTable(ID_AUX_S2_RES_DIG_N_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_15].stTable);
     cfg.stAIConfig[A_SENSE::HAL_PIN_15].stTable.u8InterPolationPoints = 10;
+    prvCpyInterpolationTable(ID_AUX_S2_RES_DIG_N_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_15].stTable);
 
     //PIN 21 Configuration
     /*Map between the sensor names defined in A_SENSE and CFGZ*/
@@ -463,8 +463,8 @@ void CFGZ::prvConfigureASENSE()
     u8MapSize = sizeof(aPIN21MAP)/sizeof(ASENSOR_MAP_ROW_t);
     cfg.stAIConfig[A_SENSE::HAL_PIN_21].eSensor = prGetAnalogSensor(ID_AUX_S3_DIG_O_SENSOR_SELECTION, aPIN21MAP,u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_21].eRef    = ANLG_IP::REF_ENGINE_BODY;
-    prvCpyInterpolationTable(ID_AUX_S3_DIG_O_I1_V1, cfg.stAIConfig[A_SENSE::HAL_PIN_21].stTable);
     cfg.stAIConfig[A_SENSE::HAL_PIN_21].stTable.u8InterPolationPoints = 10;
+    prvCpyInterpolationTable(ID_AUX_S3_DIG_O_I1_V1, cfg.stAIConfig[A_SENSE::HAL_PIN_21].stTable);
 
 
     //PIN 23 Configuration

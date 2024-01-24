@@ -1190,7 +1190,7 @@ void CEditableItem::print(EditableItemValue_t val)
             sprintf(arrTemp,"%u",val.stDate.u8Date);
             gpDisplay->printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
             gpDisplay->gotoxy(GLCD_X(68),GLCD_Y(37));
-            sprintf(arrTemp,"%s",arrMonth[val.stDate.u8Month -1]);
+            sprintf(arrTemp,"%s",StrMonth[0][val.stDate.u8Month -1]);
             gpDisplay->printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
             gpDisplay->gotoxy(GLCD_X(94),GLCD_Y(37));
             sprintf(arrTemp,"%04d",val.stDate.u16Year);
@@ -1268,7 +1268,7 @@ void CEditableItem::print(EditableItemValue_t val)
             sprintf(arrTemp,"%d",val.stDate.u8Date);
             gpDisplay->printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
             gpDisplay->gotoxy(GLCD_X(68),GLCD_Y(37));
-            sprintf(arrTemp,"%s",arrMonth[val.stDate.u8Month - 1]);
+            sprintf(arrTemp,"%s",StrMonth[0][val.stDate.u8Month - 1]);
             gpDisplay->printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
             gpDisplay->gotoxy(GLCD_X(94),GLCD_Y(37));
             sprintf(arrTemp,"%04d",val.stDate.u16Year);

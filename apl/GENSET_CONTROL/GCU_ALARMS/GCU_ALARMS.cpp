@@ -137,7 +137,7 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
 {
     static bool bAlarmUpdate = false;
     A_SENSE::SENSOR_RET_t stLOP = GetLOPSensorVal();
-    A_SENSE::SENSOR_RET_t stFuel = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
+    A_SENSE::SENSOR_RET_t stFuel = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
     A_SENSE::SENSOR_RET_t stTemp = GetSelectedTempSensVal();
 
     A_SENSE::SENSOR_RET_t stAuxSensS2 = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_S2_SENSOR);

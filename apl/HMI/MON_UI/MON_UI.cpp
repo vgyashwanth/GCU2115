@@ -3190,7 +3190,8 @@ void MON_UI::prvNormalMonScreens()
 
                     if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_IN_PCT) == CFGZ::CFGZ_ENABLE)
                     {
-                        sprintf(arrTemp,"%d",(uint16_t)((round)(((stTemp.stValAndStatus.f32InstSensorVal*100)/_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY)))));
+                        stTemp =_hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
+                        sprintf(arrTemp,"%d",(uint16_t)((round)(stTemp.stValAndStatus.f32InstSensorVal)));
                         _Disp.gotoxy(GLCD_X(93),GLCD_Y(50));
                         _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
                         _Disp.gotoxy(GLCD_X(94),GLCD_Y(50));

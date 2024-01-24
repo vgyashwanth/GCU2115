@@ -403,7 +403,7 @@ void CFGZ::prvConfigureASENSE()
     cfg.stAIConfig[A_SENSE::HAL_PIN_12].eSensor = prGetAnalogSensor(ID_FUEL_LVL_DIG_K_SENSOR_SELECTION, aPIN12MAP,u8MapSize);
     cfg.stAIConfig[A_SENSE::HAL_PIN_12].eRef    = ANLG_IP::REF_ENGINE_BODY;
     prvCpyInterpolationTable(ID_FUEL_LVL_DIG_K_R1, cfg.stAIConfig[A_SENSE::HAL_PIN_12].stTable);
-    cfg.stAIConfig[A_SENSE::HAL_PIN_12].stTable.u8InterPolationPoints = 10;
+    cfg.stAIConfig[A_SENSE::HAL_PIN_12].stTable.u8InterPolationPoints = 20;
 
     //PIN 13 Configuration
     /*Map between the sensor names defined in A_SENSE and CFGZ*/

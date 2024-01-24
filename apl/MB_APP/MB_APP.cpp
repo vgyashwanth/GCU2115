@@ -447,6 +447,42 @@ void MB_APP::prvUpdateAnalogParams()
         u16Tmp = (uint16_t)round((sensorVal.stValAndStatus.f32InstSensorVal/100) *_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_FUEL_TANK_CAPACITY));
         SetReadRegisterValue(MB_FUEL_IN_LIT, u16Tmp);
     }
+    else
+    {
+        sensorVal = sensor.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
+
+        if((sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
+            (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+        {
+            /*Scale factor is 0.1*/
+            u16Tmp = (uint16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal*10));
+            SetReadRegisterValue(MD_FUEL_PERCENTAGE, u16Tmp);
+
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WITH_STEP) == CFGZ::CFGZ_ENABLE)
+            {
+                sensorVal.stValAndStatus.f32InstSensorVal =
+                        sensorVal.stValAndStatus.f32InstSensorVal
+                        * (float)((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_1))
+                                + (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_2)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_2)))
+                                *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000000 * 100);
+            }
+            else
+            {
+                sensorVal.stValAndStatus.f32InstSensorVal =
+                        sensorVal.stValAndStatus.f32InstSensorVal
+                        * (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_1)* _cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_1))
+                        *(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_WIDTH))/(1000000 * 100);
+            }
+
+            u16Tmp = (uint16_t)round(sensorVal.stValAndStatus.f32InstSensorVal);
+            SetReadRegisterValue(MB_FUEL_IN_LIT, u16Tmp);
+        }
+        else
+        {
+            SetReadRegisterValue(MD_FUEL_PERCENTAGE, 0U);
+            SetReadRegisterValue(MB_FUEL_IN_LIT, 0U);
+        }
+    }
 
     /*Scale factor 0.1*/
     u16Tmp = (uint16_t)(_gcuAlarm.GetSelectedBatteryVtg()*10);
@@ -633,10 +669,11 @@ void MB_APP::prvUpdateBtsParams()
 
 void MB_APP::prvUpdateTmpParams()
 {
+    AC_SENSE &ac = _hal.AcSensors;
     SetReadRegisterValue(MB_TMP_RUN_HOURS, (uint16_t)(_engineMonitoring.GetTamperedRunTimeMin()/60));
     SetReadRegisterValue(MB_TMP_RUN_MINUTES, (uint16_t)(_engineMonitoring.GetTamperedRunTimeMin()%60));
 
-    uint32_t u32Tmp = (uint32_t)(_engineMonitoring.GetTamprEEPromCummEnergy()/1000);
+    uint32_t u32Tmp = (uint32_t)(ac.GENSET_GetTotalTamperedActiveEnergySinceInitWH()/1000);
     SetReadRegisterValue(MB_GEN_TMP_ACTIVE_ENERGY_1, (uint16_t)(u32Tmp & 0xFFFFU));
     SetReadRegisterValue(MB_GEN_TMP_ACTIVE_ENERGY_2, (uint16_t)(u32Tmp>>16));
 }

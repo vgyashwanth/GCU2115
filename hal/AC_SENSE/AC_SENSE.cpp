@@ -320,7 +320,7 @@ float AC_SENSE::GENSET_GetVoltageVoltsRaw(PHASE_t Phase)
 {
     if(prvIsPhaseAvilableInSelectedACSys(Phase, _eGenSystemType))
     {
-        return _aPowers[Phase].GetGensetVoltageRaw();
+        return _fGenPTMultiplier*_aPowers[Phase].GetGensetVoltageRaw();
     }
     return 0;
 }

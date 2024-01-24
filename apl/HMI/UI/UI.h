@@ -27,7 +27,7 @@
 #include <HMI/UI_DS.h>
 #include "productSelection.h"
 
-extern char* arrMonth[12];
+/*extern char* arrMonth[12];*/
 
     const uint8_t DaysInMonth[] =
     {

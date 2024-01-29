@@ -955,7 +955,7 @@ void CEditableItem::saveTempValue()
     {
         value = tempValue;
     }
-    else if( strncmp((char *)stringFixedOptions[tempValue.u8Val] , "Reserved", 7) != 0)
+    else
     {
         if(dataType != DT_PASSWORD) // Not password values
         {
@@ -968,10 +968,6 @@ void CEditableItem::saveTempValue()
                 value = tempValue;
             }
         }
-    }
-    else
-    {
-        tempValue = value;
     }
 }
 

@@ -14,7 +14,7 @@
 /* Calibration feature */
 #define SUPPORT_CALIBRATION   (YES)
 
-#define TEST_AUTOMATION YES
+#define TEST_AUTOMATION NO
 
 #define CUSTOMER_MASTER_PASSWORD_ENABLE  1
 

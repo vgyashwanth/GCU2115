@@ -3058,8 +3058,8 @@ void MON_UI::prvNormalMonScreens()
 
             _Disp.printImage((uint8_t *)u8ArrEngineTemp, 4, 32, 26, 7);
 
-            if(CFGZ::CFGZ_ENABLE == (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG))
-                && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
+            if((CFGZ::CFGZ_ENABLE == (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG)))
+                && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) != CFGZ::CFGZ_CONVENTIONAL))
             {
                 _Disp.gotoxy(GLCD_X(64),GLCD_Y(32));
                 if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_ET1_65262,0) == J1939APP::VALID_DATA))

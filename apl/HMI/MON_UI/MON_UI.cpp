@@ -3325,19 +3325,20 @@ void MON_UI::prvNormalMonScreens()
             {
                 if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_HOURS_65253,0) == J1939APP::VALID_DATA))
                 {
-                  _u32EngineRunHrs = (uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0));
+                    _u32EngineRunHrs = (uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0));
 /*
 Abhishek   Date- 14-09-2022
 if engine run hours goes beyond below mentioned value it is going out of screen so I Confirmed with Devendra D that if its value goes beyond that value then display 0.
 */
-                if(_u32EngineRunHrs > 999999)
-                {
-                    sprintf(arrTemp, "%.0f hr %.0f min",(double)0,(double)0);
-                }
-                else
-                {
-                    sprintf(arrTemp, "%lu hr %lu min",_u32EngineRunHrs,
-                      (uint32_t)((uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0) * 60) % 60));}
+                    if(_u32EngineRunHrs > 999999)
+                    {
+                        sprintf(arrTemp, "%.0f hr %.0f min",(double)0,(double)0);
+                    }
+                    else
+                    {
+                        sprintf(arrTemp, "%lu hr %lu min",_u32EngineRunHrs,
+                        (uint32_t)((uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0) * 60) % 60));
+                    }
                 }
                 else
                 {

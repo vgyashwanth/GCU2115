@@ -222,19 +222,27 @@ private:
      */
     const MON_GROUP_t u8ArrGroupArray[DISP_MON_LAST]=
     {
+        /* STatus & Info */
          DISP_GROUP_STATUS,
          DISP_GROUP_STATUS,
          DISP_GROUP_STATUS,
          DISP_GROUP_STATUS,
 
-         DISP_GROUP_GENERATOR,
-         DISP_GROUP_GENERATOR,
-         DISP_GROUP_GENERATOR,
-         DISP_GROUP_GENERATOR,
-         DISP_GROUP_GENERATOR,
-         DISP_GROUP_GENERATOR,
-         DISP_GROUP_GENERATOR,
+         DISP_GROUP_STATUS,
+         DISP_GROUP_STATUS,
+         DISP_GROUP_STATUS,
 
+         /* Generator */
+         DISP_GROUP_GENERATOR,
+         DISP_GROUP_GENERATOR,
+         DISP_GROUP_GENERATOR,
+         DISP_GROUP_GENERATOR,
+         DISP_GROUP_GENERATOR,
+         DISP_GROUP_GENERATOR,
+         DISP_GROUP_GENERATOR,
+         DISP_GROUP_GENERATOR,
+         
+         /* Mains */
          DISP_GROUP_MAINS,
          DISP_GROUP_MAINS,
          DISP_GROUP_MAINS,
@@ -242,6 +250,7 @@ private:
          DISP_GROUP_MAINS,
          DISP_GROUP_MAINS,
 
+         /* Engine */
          DISP_GROUP_ENGINE,
          DISP_GROUP_ENGINE,
          DISP_GROUP_ENGINE,
@@ -252,7 +261,24 @@ private:
          DISP_GROUP_ENGINE,
          DISP_GROUP_ENGINE,
          DISP_SHELTER_TEMP,
-         DISP_SHELTER_TEMP,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
+         DISP_GROUP_ENGINE,
          DISP_GROUP_ENGINE,
          DISP_GROUP_ENGINE
     };

@@ -70,7 +70,9 @@ public:
         LOW_OIL_PRESS_WARNING,
         LOW_FUEL_LEVEL_SHUTDOWN,
         LOW_FUEL_LEVEL_NOTIFICATION,
-        HIGH_WATER_TEMP,
+        //HIGH_WATER_TEMP, remove
+        HIGH_WATER_TEMP_SHUTDOWN,
+        HIGH_WATER_TEMP_WARNING,
         OVERSPEED_L1,
         OVERSPEED_L2,
         UNDERSPEED,
@@ -563,6 +565,8 @@ public:
     void ClearEgrFaultTimingInfo(void);
     bool IsEgrInputConfigured(void);
     bool ShutdownFromEGR(void);
+
+    bool IsCLNTTempJ1939Configured(void);
 
 private:
     #define FUEL_THEFT_WAKEUP_TIMER         (4U)

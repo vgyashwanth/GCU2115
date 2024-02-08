@@ -767,6 +767,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[FUEL_LEVEL];
             break;
 
+        /*  remove
         case HIGH_WATER_TEMP:
         {
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
@@ -816,7 +817,55 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             }
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[ENGINE_TEMPERATURE];
+        break; 
+        */
+        
+        case HIGH_WATER_TEMP_SHUTDOWN:
+        {
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+            {
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
+                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = High_Water_Temperature_id;
+                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CLNT_TEMP_SHUTDOWN_THRESH);
+                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
+                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
+            }
+            else if(IsCLNTTempJ1939Configured())
+            {
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Water_Temperature_id, _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CLNT_TEMP_SHUTDOWN_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+            }
+        }
+        ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[ENGINE_TEMPERATURE];
         break;
+
+        case HIGH_WATER_TEMP_WARNING:
+        {
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+            {
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
+                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = High_Water_Temperature_id;
+                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CLNT_TEMP_WARNING_THRESH);
+                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
+                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
+            }
+            else if(IsCLNTTempJ1939Configured())
+            {
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning =  (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Water_Temperature_id, _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CLNT_TEMP_WARNING_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+            }
+        }
+        ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[ENGINE_TEMPERATURE];
+        break;
+        
         case OVERSPEED_L1:
         {
             ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true;
@@ -2654,7 +2703,7 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
 
     _u8LowFuelLevelAlarm = ArrAlarmMonitoring[LOW_FUEL_LEVEL_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[LOW_FUEL_LEVEL_NOTIFICATION].bAlarmActive || ArrAlarmMonitoring[LFL_SWITCH].bAlarmActive;
 
-    _u8HighEngTempAlarm = ArrAlarmMonitoring[HIGH_WATER_TEMP].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive;
+    _u8HighEngTempAlarm = ArrAlarmMonitoring[HIGH_WATER_TEMP_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[HIGH_WATER_TEMP_WARNING].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive;
 
     _u8AuxSensS1Alarm =  0;
     _u8AuxSensS2Alarm =  0;
@@ -3210,7 +3259,7 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(ArrAlarmMonitoring[DG_B_OV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_B_OV_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[DG_B_UV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_B_UV_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[OVERCURRENT].bResultLatched, ACTUATOR::ACT_GEN_OC);
-    prvActDeactOutput(ArrAlarmMonitoring[HIGH_WATER_TEMP].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive, ACTUATOR::ACT_HIGH_TEMP);
+    prvActDeactOutput(ArrAlarmMonitoring[HIGH_WATER_TEMP_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[HIGH_WATER_TEMP_WARNING].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive, ACTUATOR::ACT_HIGH_TEMP);
     prvActDeactOutput(_u8LowFuelLevelAlarm, ACTUATOR::ACT_LOW_FUEL);
     prvActDeactOutput(ArrAlarmMonitoring[LOW_FUEL_LEVEL_NOTIFICATION].bNotificationLatched, ACTUATOR::ACT_LOW_FUEL_NOTIFICATION);
     prvActDeactOutput(_u8LowOilPressAlarm, ACTUATOR::ACT_LOW_PRES);
@@ -4361,4 +4410,10 @@ bool GCU_ALARMS::ShutdownFromEGR(void)
        beyond the level of severity.*/
     return ((_bEgrShutdownLatched)  && (prvIsEgrFaultPresent()));
 
+}
+
+bool GCU_ALARMS::IsCLNTTempJ1939Configured()
+{
+    return ((_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL)
+            && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE));
 }

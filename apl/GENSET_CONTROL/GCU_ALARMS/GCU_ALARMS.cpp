@@ -767,59 +767,6 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[FUEL_LEVEL];
             break;
 
-        /*  remove
-        case HIGH_WATER_TEMP:
-        {
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) != CFGZ::CFGZ_ACTION_NONE_NoWS);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == CFGZ::CFGZ_ACTION_SHUTDOWN_NoWS);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = (_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == CFGZ::CFGZ_ACTION_WARNING_NoWS);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = High_Water_Temperature_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.u16Value = (uint16_t)_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_THRESH);
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = TWO_BYTE_INT;
-            }
-            else if(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE)
-            {
-
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) > 0)
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = 1;
-                }
-
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == 1)
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = true;
-                }
-                else if(_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == 2)
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableElectricTrip = true;
-                }
-                else if(_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == 3)
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = true;
-                }
-                else if(_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == 4)
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableNotification = true;
-                }
-                else
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = false;
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableElectricTrip = false;
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = false;
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableNotification = false;
-                }
-                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Water_Temperature_id, (uint16_t) _cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
-            }
-        }
-        ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[ENGINE_TEMPERATURE];
-        break; 
-        */
-        
         case HIGH_WATER_TEMP_SHUTDOWN:
         {
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)

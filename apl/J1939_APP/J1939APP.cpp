@@ -834,7 +834,6 @@ void J1939APP::prvUpdatePGN65291Data(void)
     UpdateDGVoltAlarms( GCU_ALARMS::LOW_OIL_PRESS_WARNING  ,
                    GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN, ALARM_BYTE_0,(float*)&f32PGN_65291Data[0]);
 
-    //UpdateEngSensorAlarms( GCU_ALARMS::HIGH_WATER_TEMP, GCU_ALARMS::HWT_SWITCH, ALARM_BYTE_1 , (float*)&f32PGN_65291Data[0]); remove
         if(_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HIGH_WATER_TEMP_SHUTDOWN)  ||
         _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HIGH_WATER_TEMP_WARNING)
             ||  _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HWT_SWITCH))

@@ -73,7 +73,6 @@ uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] =
  LEAFNODES_IN_CHARGE_ALT_MON,
  LEAFNODES_IN_PREHEAT,
  LEAFNODES_IN_ECU,
- //LEAFNODES_IN_TEMP_FROM_ECU, remove
  LEAFNODES_IN_LOP_FROM_ECU,
  LEAFNODES_IN_COOL_TEMP_ECU,
  LEAFNODES_IN_MAINT_ALARM,
@@ -899,8 +898,6 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "AMB TEMPERATURE",
 
         "ENGINE TYPE",
-        "GCU SOURCE ADDR",
-        "ECU SOURCE ADDR",
         "ENG SPEED FROM ECU",
         "LOP FROM ECU",
         "CLNT TEMP FROM ECU",
@@ -921,8 +918,8 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "PROTECT ACTION",
         "PROTECT ACTIVATION",
         "PROTECT ACT DELAY",
-        // "ACTION", remove
-        // "THRESHLD", reomve
+        "GCU SOURCE ADDR",
+        "ECU SOURCE ADDR",
         "SHUTDOWN",
         "SHUTDOWN THRESHOLD",
         "WARNING",
@@ -1493,8 +1490,6 @@ void UI::InitEditableItems()
 
 
     ArrEditableItem[INDEX_OF_ENGINE_TYPE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE),strLeafNode[_u8LanguageArrayIndex][SID_ENGINE_TYPE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENGINE_TYPE],2, CEditableItem::PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_SGC_SOURCE_ADDRESS] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ:: ID_SGC_SOURCE_ADDRESS), strLeafNode[_u8LanguageArrayIndex][SID_SGC_SOURCE_ADDR], "", "%u", (uint16_t)0, (uint16_t)253, CEditableItem::PIN1_ALLOWED );
-    ArrEditableItem[INDEX_OF_ECU_SOURCE_ADDRESS] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ:: ID_ECU_SOURCE_ADDRESS), strLeafNode[_u8LanguageArrayIndex][SID_ECU_SOURCE_ADDR], "", "%u", (uint16_t)0, (uint16_t)253, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_FROM_ECU] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG),strLeafNode[_u8LanguageArrayIndex][SID_LOP_FROM_ECU], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_COOLANT_TEMP_FROM_ECU] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG),strLeafNode[_u8LanguageArrayIndex][SID_CLNT_TEMP_FROM_ECU], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_ENG_SPEED_FROM_ECU] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG),strLeafNode[_u8LanguageArrayIndex][SID_ENG_SPEED_FROM_ECU], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
@@ -1515,8 +1510,8 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_PROTECT_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_PROTECT_FAIL_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION], 5, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACT] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_PROTECT_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_PROTECT_FAIL_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_PROTECT_LAMP_ACT_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ECU_PROTECT_ACT_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_PROTECT_FAIL_ACT_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)0, (uint8_t)60, CEditableItem::PIN1_ALLOWED );
-    //ArrEditableItem[INDEX_OF_TEMP_FROM_ECU_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_TEMP_SENS_ECU_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION], 5, CEditableItem::PIN1_ALLOWED ); remove
-    //ArrEditableItem[INDEX_OF_TEMP_FROM_ECU_THRESH] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_TEMP_SENS_ECU_THRESH], arrUnit[ID_DEG_C], "%u", (uint8_t)10, (uint8_t)250, CEditableItem::PIN1_ALLOWED ); remove
+    ArrEditableItem[INDEX_OF_SGC_SOURCE_ADDRESS] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ:: ID_SGC_SOURCE_ADDRESS), strLeafNode[_u8LanguageArrayIndex][SID_SGC_SOURCE_ADDR], "", "%u", (uint8_t)0, (uint8_t)253, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_ECU_SOURCE_ADDRESS] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ:: ID_ECU_SOURCE_ADDRESS), strLeafNode[_u8LanguageArrayIndex][SID_ECU_SOURCE_ADDR], "", "%u", (uint8_t)0, (uint8_t)253, CEditableItem::PIN1_ALLOWED );
 
     ArrEditableItem[INDEX_OF_LOP_FROM_ECU_SHUTDOWN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUTDOWN), strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_SHUTDOWN], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_FROM_ECU_SHUTDOWN_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUT_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_SHUTDOWN_THRESH], "Bar", "%f", (float)0, (float)5.0 , CEditableItem::PIN1_ALLOWED );

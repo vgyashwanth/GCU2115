@@ -312,10 +312,10 @@ void J1939APP::GetPGN(uint8_t ubyPGN, uint8_t u8RxOrTx, J1939_PGN_DB_t *pstGetPG
     {
         (void)memcpy((void *)(pstGetPGN), (void *)(ubypReadRxPgns[ubyPGN]),10);
     }
-            if(u8RxOrTx == CALC_FOR_TRANSMIT)
-        {
-            pstGetPGN->ubyPDU_SA = (uint8_t)_cfgz.GetCFGZ_Param(CFGZ::ID_SGC_SOURCE_ADDRESS);
-        }
+    if(u8RxOrTx == CALC_FOR_TRANSMIT)
+    {
+        pstGetPGN->ubyPDU_SA = (uint8_t)_cfgz.GetCFGZ_Param(CFGZ::ID_SGC_SOURCE_ADDRESS);
+    }
 }
 
 void J1939APP::GetSPN(uint8_t ubyPGN, uint8_t ubySPN, uint8_t u8TxOrRX,

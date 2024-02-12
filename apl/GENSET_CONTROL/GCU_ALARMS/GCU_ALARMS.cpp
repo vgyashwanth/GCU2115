@@ -812,6 +812,26 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[ENGINE_TEMPERATURE];
         break;
+
+        case HIGH_LUBE_OIL_TEMP_SHUTDOWN:
+            if(OilTemperatureConfigured())
+            {
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Lube_Oil_Temp_id, _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_OIL_TEMP_SHUTDOWN_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+            }
+            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LUBE_OIL_TEMP];
+            break;
+
+        case HIGH_LUBE_OIL_TEMP_WARNING:
+            if(OilTemperatureConfigured())
+            {
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = (_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Lube_Oil_Temp_id, _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_OIL_TEMP_WARNING_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+            }
+            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LUBE_OIL_TEMP];
+            break;
         
         case OVERSPEED_L1:
         {
@@ -2046,6 +2066,10 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     {
         _ArrAlarmValue[ENGINE_TEMPERATURE].u16Value = (uint16_t)stEngTemp.stValAndStatus.f32InstSensorVal;
     }
+        
+    A_SENSE::SENSOR_RET_t stLubeOilTemp = GetLubeOilTempSensVal();
+    _ArrAlarmValue[LUBE_OIL_TEMP].f32Value = stLubeOilTemp.stValAndStatus.f32InstSensorVal;
+
     _ArrAlarmValue[ENGINE_SPEED].u16Value =(uint16_t) GetSpeedValue();
 
     _ArrAlarmValue[GENSET_FREQUENCY].f32Value = _hal.AcSensors.GENSET_GetMinFrq();
@@ -2263,6 +2287,9 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
         case High_Water_Temperature_id :
             _ArrAlarmStatus[u8LoggingID] = &_u8HighEngTempAlarm;
             break;
+        case High_Lube_Oil_Temp_id:
+            _ArrAlarmStatus[u8LoggingID] = &_u8HighLubeOilTempAlarm;
+            break;            
         case Radiator_Water_Level_id :
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[RWL_SWITCH].bAlarmActive;
             break;
@@ -2651,6 +2678,8 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
     _u8LowFuelLevelAlarm = ArrAlarmMonitoring[LOW_FUEL_LEVEL_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[LOW_FUEL_LEVEL_NOTIFICATION].bAlarmActive || ArrAlarmMonitoring[LFL_SWITCH].bAlarmActive;
 
     _u8HighEngTempAlarm = ArrAlarmMonitoring[HIGH_WATER_TEMP_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[HIGH_WATER_TEMP_WARNING].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive;
+
+    _u8HighLubeOilTempAlarm = ArrAlarmMonitoring[HIGH_LUBE_OIL_TEMP_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[HIGH_LUBE_OIL_TEMP_WARNING].bAlarmActive;
 
     _u8AuxSensS1Alarm =  0;
     _u8AuxSensS2Alarm =  0;
@@ -4363,4 +4392,44 @@ bool GCU_ALARMS::IsCLNTTempJ1939Configured()
 {
     return ((_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL)
             && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE));
+}
+
+bool GCU_ALARMS::OilTemperatureConfigured()
+{
+    return ((_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL)
+            && (_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU) == CFGZ::CFGZ_ENABLE));
+}
+
+A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLubeOilTempSensVal()
+{
+    A_SENSE::SENSOR_RET_t sensVal = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU)== CFGZ::CFGZ_ENABLE)&&(_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
+    {
+        sensVal.stValAndStatus.f32InstSensorVal = (float)gpJ1939->GetReadData(RX_PGN_ET1_65262, 1);
+        sensVal.stValAndStatus.eState = GetSPNSensorState(gpJ1939->GetSPNErrorStatus(RX_PGN_ET1_65262,1 ));
+        sensVal.eStatus = A_SENSE::SENSOR_READ_SUCCESS;
+    }
+
+    return sensVal;
+}
+
+ANLG_IP::ANLG_IP_STATE_t GCU_ALARMS::GetSPNSensorState(uint8_t u8SPNErrorStatus)
+{
+    if(gpJ1939->IsCommunicationFail())
+    {
+        return ANLG_IP:: BSP_STATE_COMM_FAILURE_HASH;
+    }
+    else if(u8SPNErrorStatus ==  J1939APP::NOT_AVAILABLE)
+    {
+        return ANLG_IP:: BSP_STATE_CAN_NA;
+    }
+    else if(u8SPNErrorStatus == J1939APP::VALID_DATA)
+    {
+        return ANLG_IP:: BSP_STATE_NORMAL;
+    }
+    else
+    {
+        return ANLG_IP:: BSP_STATE_CAN_ERROR;
+    }
+
 }

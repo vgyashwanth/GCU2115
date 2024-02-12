@@ -71,7 +71,10 @@ public:
         LOW_FUEL_LEVEL_SHUTDOWN,
         LOW_FUEL_LEVEL_NOTIFICATION,
         HIGH_WATER_TEMP_SHUTDOWN,
-        HIGH_WATER_TEMP_WARNING,
+        HIGH_WATER_TEMP_WARNING,        
+        HIGH_LUBE_OIL_TEMP_SHUTDOWN,
+        HIGH_LUBE_OIL_TEMP_WARNING,
+        
         OVERSPEED_L1,
         OVERSPEED_L2,
         UNDERSPEED,
@@ -184,6 +187,7 @@ public:
         Low_Oil_Pressure_id,
         fuel_level_id,
         High_Water_Temperature_id ,
+        High_Lube_Oil_Temp_id,
         Radiator_Water_Level_id ,
         Over_Speed_l1_id ,
         Over_Speed_l2_id ,
@@ -566,11 +570,16 @@ public:
     bool ShutdownFromEGR(void);
 
     bool IsCLNTTempJ1939Configured(void);
+    bool OilTemperatureConfigured(void);
+
+    ANLG_IP::ANLG_IP_STATE_t GetSPNSensorState(uint8_t u8SPNErrorStatus);
+    A_SENSE::SENSOR_RET_t GetLubeOilTempSensVal();
 
 private:
     #define FUEL_THEFT_WAKEUP_TIMER         (4U)
     typedef enum{
         LUBE_OIL_PRESSURE,
+        LUBE_OIL_TEMP,
         FUEL_LEVEL,
         ENGINE_TEMPERATURE,
         ENGINE_SPEED,

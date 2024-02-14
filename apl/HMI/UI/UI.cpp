@@ -2459,9 +2459,13 @@ void UI::Handler(int keyCode)
                 _pCurEditableItemsScreen = pCurMenu->pMenuItems[pCurMenu->indexOfSelectedMenuItem].pEditableItemsScreen;
                 _pCurEditableItemsScreen->initTempValues();
                 _pCurEditableItemsScreen->show(true);    // i.e. show tempValue(s) rather than Value(s)
+#if(CONFIG_EDIT == YES)
+                if(1)
+#else
                 if(((_pCurEditableItemsScreen->pEditableItems->u8PasswordLevel & _objPassword.GetEnteredPassword()) //If accessible through entered password
                         || (_objPassword.GetEnteredPassword()== PASSWORD_ENTRY_UI::MASTER_PIN))
                       )
+#endif
                 {
                     if (_pCurEditableItemsScreen->numOfEditableItems > 1)
                     {

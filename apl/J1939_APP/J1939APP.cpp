@@ -838,44 +838,42 @@ void J1939APP::prvUpdatePGN65291Data(void)
         _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HIGH_WATER_TEMP_WARNING)
             ||  _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HWT_SWITCH))
     {
-        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_SHUTDOWN) &&
-                _gcuAlarm.IsShutdownAlarmEnabled(GCU_ALARMS::HIGH_WATER_TEMP_SHUTDOWN))
+        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_SHUTDOWN))
         {
-            f32PGN_65291Data[ALARM_BYTE_2] = ALARM_SHUTDOWN ;
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_SHUTDOWN ;
         }
         else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
                 && _gcuAlarm.IsShutdownAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
         {
-            f32PGN_65291Data[ALARM_BYTE_2] = ALARM_SHUTDOWN ;
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_SHUTDOWN ;
         }
         else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
                 && _gcuAlarm.IsElectricTripAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
         {
-            f32PGN_65291Data[ALARM_BYTE_2] = ALARM_ELEC_TRIP ;
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_ELEC_TRIP ;
         }
         else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
                 && _gcuAlarm.IsWarningAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
         {
-            f32PGN_65291Data[ALARM_BYTE_2] = ALARM_WARNING ;
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_WARNING ;
         }
-        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_WARNING) &&
-                _gcuAlarm.IsWarningAlarmEnabled(GCU_ALARMS::HIGH_WATER_TEMP_WARNING))
+        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_WARNING))
         {
-            f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_WARNING;
+            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_WARNING;
         }
         else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
                 && _gcuAlarm.IsNotificationAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
         {
-            f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_NOTIFICATION;
+            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_NOTIFICATION;
         }
         else
         {
-            f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_INACTIVE;
+            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_INACTIVE;
         }
     }
     else
     {
-        f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_DISABLED;
+        f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_DISABLED;
     }
     
     if(_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN) ||

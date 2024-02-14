@@ -845,3 +845,15 @@ uint8_t CFGZ::GetCustomerCodefromCFGC()
 {
     return _cfgc.GetCustomerCode();
 }
+
+bool CFGZ::IsCLNTTempJ1939Configured()
+{
+    return ((GetEngType() != CFGZ::CFGZ_CONVENTIONAL)
+            && (GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE));
+}
+
+bool CFGZ::IsOilTemperatureConfigured()
+{
+    return ((GetEngType() != CFGZ::CFGZ_CONVENTIONAL)
+            && (GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU) == CFGZ::CFGZ_ENABLE));
+}

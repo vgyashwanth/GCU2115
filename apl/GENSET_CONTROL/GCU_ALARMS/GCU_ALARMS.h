@@ -569,9 +569,6 @@ public:
     bool IsEgrInputConfigured(void);
     bool ShutdownFromEGR(void);
 
-    bool IsCLNTTempJ1939Configured(void);
-    bool OilTemperatureConfigured(void);
-
     ANLG_IP::ANLG_IP_STATE_t GetSPNSensorState(uint8_t u8SPNErrorStatus);
     A_SENSE::SENSOR_RET_t GetLubeOilTempSensVal();
 

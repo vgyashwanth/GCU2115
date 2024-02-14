@@ -2848,7 +2848,7 @@ void UI::prvUpdateEngineTypeDependency(void)
     if(ArrEditableItem[INDEX_OF_ENGINE_TYPE].tempValue.u8Val == CFGZ::CFGZ_CONVENTIONAL)
     {
 
-        for(uint16_t u16LocalIndex = INDEX_OF_SGC_SOURCE_ADDRESS ; u16LocalIndex <= INDEX_OF_LOP_FROM_ECU_WARNING_THRESH; u16LocalIndex++)
+        for(uint16_t u16LocalIndex = INDEX_OF_SGC_SOURCE_ADDRESS ; u16LocalIndex <= INDEX_OF_HIGH_OIL_TEMP_WARNING_THRESH_FROM_ECU; u16LocalIndex++)
         {
             prvSetPasswordAccessLevel(u16LocalIndex , (uint8_t)CEditableItem::NOT_ALLOWED);
         }
@@ -2858,6 +2858,7 @@ void UI::prvUpdateEngineTypeDependency(void)
         ArrEditableItem[INDEX_OF_COOLANT_TEMP_FROM_ECU].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
         ArrEditableItem[INDEX_OF_ENG_RUN_HOURS_FROM_ECU].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
         ArrEditableItem[INDEX_OF_BAT_VTG_FROM_ECU].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
+        ArrEditableItem[INDEX_OF_OIL_TEMP_FROM_ECU].tempValue.u8Val = CFGZ::CFGZ_DISABLE;
 
         ArrEditableItem[INDEX_OF_ENG_SPEED_FROM_ECU].value.u8Val = CFGZ::CFGZ_DISABLE;
         ArrEditableItem[INDEX_OF_LOP_FROM_ECU].value.u8Val = CFGZ::CFGZ_DISABLE;
@@ -2873,7 +2874,7 @@ void UI::prvUpdateEngineTypeDependency(void)
     }
     else
     {
-        for(uint16_t u16LocalIndex = INDEX_OF_SGC_SOURCE_ADDRESS ; u16LocalIndex <= INDEX_OF_LOP_FROM_ECU_WARNING_THRESH; u16LocalIndex++)
+        for(uint16_t u16LocalIndex = INDEX_OF_SGC_SOURCE_ADDRESS ; u16LocalIndex <= INDEX_OF_HIGH_OIL_TEMP_WARNING_THRESH_FROM_ECU; u16LocalIndex++)
         {
             prvSetPasswordAccessLevel(u16LocalIndex , (uint8_t)CEditableItem::PIN1_ALLOWED);
         }

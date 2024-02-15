@@ -1677,6 +1677,7 @@ void UI::SaveConfigFile()
         {
             _objHal.Objpflash.Read((FACTORY_CFGZ_ADDRESS+ (ArrEditableItem[INDEX_OF_ACTIVE_PROFILE].value.u8Val
                     *( sizeof(CFGZ::CFGZ_PARAMS_t)- sizeof(uint8_t)*DUMMY_ITEMS))), (uint8_t*)&AllParam, sizeof(CFGZ::CFGZ_PARAMS_t) );
+            _MiscParam.u8MiscParam[PROFILE_NO] = ArrEditableItem[INDEX_OF_ACTIVE_PROFILE].value.u8Val;
         }
         else
         {

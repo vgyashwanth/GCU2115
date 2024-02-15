@@ -14,7 +14,7 @@
 /* Calibration feature */
 #define SUPPORT_CALIBRATION   (YES)
 
-#define TEST_AUTOMATION NO
+#define TEST_AUTOMATION YES
 
 #define CONFIG_EDIT YES
 

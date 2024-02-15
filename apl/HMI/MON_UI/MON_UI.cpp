@@ -3325,19 +3325,20 @@ void MON_UI::prvNormalMonScreens()
             {
                 if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_HOURS_65253,0) == J1939APP::VALID_DATA))
                 {
-                  _u32EngineRunHrs = (uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0));
+                    _u32EngineRunHrs = (uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0));
 /*
 Abhishek   Date- 14-09-2022
 if engine run hours goes beyond below mentioned value it is going out of screen so I Confirmed with Devendra D that if its value goes beyond that value then display 0.
 */
-                if(_u32EngineRunHrs > 999999)
-                {
-                    sprintf(arrTemp, "%.0f hr %.0f min",(double)0,(double)0);
-                }
-                else
-                {
-                    sprintf(arrTemp, "%lu hr %lu min",_u32EngineRunHrs,
-                      (uint32_t)((uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0) * 60) % 60));}
+                    if(_u32EngineRunHrs > 999999)
+                    {
+                        sprintf(arrTemp, "%.0f hr %.0f min",(double)0,(double)0);
+                    }
+                    else
+                    {
+                        sprintf(arrTemp, "%lu hr %lu min",_u32EngineRunHrs,
+                        (uint32_t)((uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0) * 60) % 60));
+                    }
                 }
                 else
                 {
@@ -3610,14 +3611,16 @@ void MON_UI::prvPrintVoltageData(SOURCE_TYPE_t eSource , uint8_t u8AcSystemType)
         if(eSource == MAINS)
         {
             _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
         }
         else
         {
             _Disp.printStringLeftAligned((char *)"Ph-N",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(104),GLCD_Y(37));
         }
         
 
-        _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
+        
         if(!prvIsValDigitsGreaterThan3((uint16_t)((&_hal.AcSensors)->*ArrGetVtgVal[eSource])(R_PHASE)))
         {
             sprintf(arrTemp,"%d",(uint16_t)((&_hal.AcSensors)->*ArrGetVtgVal[eSource])(R_PHASE));
@@ -3704,14 +3707,16 @@ void MON_UI::prvPrintPower(POWER_TYPE_t eType, uint8_t u8AcSystemType, SOURCE_TY
         if(eSourceType == MAINS)
         {
             _Disp.printStringLeftAligned((char *)strPhase[R_PHASE],FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
         }
         else
         {
             _Disp.printStringLeftAligned((char *)"Ph-N",FONT_VERDANA);
+            _Disp.gotoxy(GLCD_X(104),GLCD_Y(37));
         }
 
         sprintf(arrTemp,"%0.1f",((&_hal.AcSensors)->*ArrGetVal[eSourceType][eType])(R_PHASE)/1000);
-        _Disp.gotoxy(GLCD_X(90),GLCD_Y(37));
+        
         _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
         _Disp.printStringLeftAligned((char *)strPower[eType],FONT_VERDANA);
     }

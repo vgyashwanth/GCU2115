@@ -204,7 +204,7 @@ typedef struct
 } st_DTC;
 
 
-#define PCODE_LAST_ECU162    (164U)
+#define PCODE_LAST_ECU162    (151U)
 
 extern const st_DTC J1939AlarmArrayStringsECU162[PCODE_LAST_ECU162];
 extern char *strEgrFault[];

@@ -643,76 +643,26 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
     switch(u8AlarmIndex)
     {
         case LOW_OIL_PRESS_SHUTDOWN:
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) 
+            || (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE) 
+            || (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+            || (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2) )
             {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = false;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Low_Oil_Pressure_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUT_THRESH);
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            else if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-                    ||    (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
-            {
-
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8LopSensMon;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = false;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Low_Oil_Pressure_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUT_THRESH);
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            else if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE)
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = false;
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableElectricTrip = false;
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUTDOWN) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableNotification = false;
-                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, false, GCU_ALARMS::Low_Oil_Pressure_id, _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_SHUT_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8LopSensMon, false, GCU_ALARMS::Low_Oil_Pressure_id, _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_SHUTDOWN_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
             }
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LUBE_OIL_PRESSURE];
             break;
         case LOW_OIL_PRESS_WARNING:
-            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
+            if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) 
+            || (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE) 
+            || (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+            || (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2) )
             {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_WARNING) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_WARNING) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = false;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Low_Oil_Pressure_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_WARN_THRESH);
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            else if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-                    ||    (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
-            {
-
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_WARNING) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_WARNING) == CFGZ::CFGZ_ENABLE);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8LopSensMon;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = false;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Low_Oil_Pressure_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.f32Value = _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_WARN_THRESH);
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = FLOAT_TYPE;
-            }
-            else if(_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE)
-            {
-
-
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_WARNING) == 1);
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_WARNING) == 1);
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableElectricTrip = false;
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = false;
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableNotification = false;
-                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, false, GCU_ALARMS::Low_Oil_Pressure_id, _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ECU_WARN_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8LopSensMon, false, GCU_ALARMS::Low_Oil_Pressure_id, _cfgz.GetCFGZ_Param(CFGZ::ID_LOP_WARNING_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
             }
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LUBE_OIL_PRESSURE];
             break;
@@ -767,56 +717,50 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[FUEL_LEVEL];
             break;
 
-        case HIGH_WATER_TEMP:
+        case HIGH_WATER_TEMP_SHUTDOWN:
         {
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+            if(_cfgz.IsCLNTTempJ1939Configured() || (_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
             {
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) != CFGZ::CFGZ_ACTION_NONE_NoWS);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == CFGZ::CFGZ_ACTION_SHUTDOWN_NoWS);
-                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = (_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == CFGZ::CFGZ_ACTION_WARNING_NoWS);
-                ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8MonOn;
-                ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
-                ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = High_Water_Temperature_id;
-                ArrAlarmMonitoring[u8AlarmIndex].Threshold.u16Value = (uint16_t)_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_THRESH);
-                ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC;
-                ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = TWO_BYTE_INT;
-            }
-            else if(_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE)
-            {
-
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) > 0)
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = 1;
-                }
-
-                if(_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == 1)
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = true;
-                }
-                else if(_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == 2)
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableElectricTrip = true;
-                }
-                else if(_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == 3)
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = true;
-                }
-                else if(_cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_ACTION) == 4)
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableNotification = true;
-                }
-                else
-                {
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = false;
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableElectricTrip = false;
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = false;
-                    ArrAlarmMonitoring[u8AlarmIndex].bEnableNotification = false;
-                }
-                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Water_Temperature_id, (uint16_t) _cfgz.GetCFGZ_Param(CFGZ::ID_TEMP_FROM_ECU_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Water_Temperature_id, _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CLNT_TEMP_SHUTDOWN_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
             }
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[ENGINE_TEMPERATURE];
         break;
+
+        case HIGH_WATER_TEMP_WARNING:
+        {
+            if(_cfgz.IsCLNTTempJ1939Configured() || (_cfgz.GetCFGZ_Param(CFGZ::ID_ENG_TEMP_DIG_L_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1))
+            {
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning =  (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Water_Temperature_id, _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CLNT_TEMP_WARNING_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+            }
+        }
+        ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[ENGINE_TEMPERATURE];
+        break;
+
+        case HIGH_LUBE_OIL_TEMP_SHUTDOWN:
+            if(_cfgz.IsOilTemperatureConfigured())
+            {
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Lube_Oil_Temp_id, _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_OIL_TEMP_FROM_ECU_SHUTDOWN_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+            }
+            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LUBE_OIL_TEMP];
+            break;
+
+        case HIGH_LUBE_OIL_TEMP_WARNING:
+            if(_cfgz.IsOilTemperatureConfigured())
+            {
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = (_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Lube_Oil_Temp_id, _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_OIL_TEMP_FROM_ECU_WARNING_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+            }
+            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LUBE_OIL_TEMP];
+            break;
+        
         case OVERSPEED_L1:
         {
             ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true;
@@ -2050,6 +1994,10 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     {
         _ArrAlarmValue[ENGINE_TEMPERATURE].u16Value = (uint16_t)stEngTemp.stValAndStatus.f32InstSensorVal;
     }
+        
+    A_SENSE::SENSOR_RET_t stLubeOilTemp = GetLubeOilTempSensVal();
+    _ArrAlarmValue[LUBE_OIL_TEMP].f32Value = stLubeOilTemp.stValAndStatus.f32InstSensorVal;
+
     _ArrAlarmValue[ENGINE_SPEED].u16Value =(uint16_t) GetSpeedValue();
 
     _ArrAlarmValue[GENSET_FREQUENCY].f32Value = _hal.AcSensors.GENSET_GetMinFrq();
@@ -2267,6 +2215,9 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
         case High_Water_Temperature_id :
             _ArrAlarmStatus[u8LoggingID] = &_u8HighEngTempAlarm;
             break;
+        case High_Lube_Oil_Temp_id:
+            _ArrAlarmStatus[u8LoggingID] = &_u8HighLubeOilTempAlarm;
+            break;            
         case Radiator_Water_Level_id :
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[RWL_SWITCH].bAlarmActive;
             break;
@@ -2654,7 +2605,9 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
 
     _u8LowFuelLevelAlarm = ArrAlarmMonitoring[LOW_FUEL_LEVEL_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[LOW_FUEL_LEVEL_NOTIFICATION].bAlarmActive || ArrAlarmMonitoring[LFL_SWITCH].bAlarmActive;
 
-    _u8HighEngTempAlarm = ArrAlarmMonitoring[HIGH_WATER_TEMP].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive;
+    _u8HighEngTempAlarm = ArrAlarmMonitoring[HIGH_WATER_TEMP_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[HIGH_WATER_TEMP_WARNING].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive;
+
+    _u8HighLubeOilTempAlarm = ArrAlarmMonitoring[HIGH_LUBE_OIL_TEMP_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[HIGH_LUBE_OIL_TEMP_WARNING].bAlarmActive;
 
     _u8AuxSensS1Alarm =  0;
     _u8AuxSensS2Alarm =  0;
@@ -3210,7 +3163,7 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(ArrAlarmMonitoring[DG_B_OV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_B_OV_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[DG_B_UV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_B_UV_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[OVERCURRENT].bResultLatched, ACTUATOR::ACT_GEN_OC);
-    prvActDeactOutput(ArrAlarmMonitoring[HIGH_WATER_TEMP].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive, ACTUATOR::ACT_HIGH_TEMP);
+    prvActDeactOutput(ArrAlarmMonitoring[HIGH_WATER_TEMP_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[HIGH_WATER_TEMP_WARNING].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive, ACTUATOR::ACT_HIGH_TEMP);
     prvActDeactOutput(_u8LowFuelLevelAlarm, ACTUATOR::ACT_LOW_FUEL);
     prvActDeactOutput(ArrAlarmMonitoring[LOW_FUEL_LEVEL_NOTIFICATION].bNotificationLatched, ACTUATOR::ACT_LOW_FUEL_NOTIFICATION);
     prvActDeactOutput(_u8LowOilPressAlarm, ACTUATOR::ACT_LOW_PRES);
@@ -4360,5 +4313,39 @@ bool GCU_ALARMS::ShutdownFromEGR(void)
        its severe stage(72 Hours). The alarm type will be changed to Shutdown
        beyond the level of severity.*/
     return ((_bEgrShutdownLatched)  && (prvIsEgrFaultPresent()));
+
+}
+
+A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLubeOilTempSensVal()
+{
+    A_SENSE::SENSOR_RET_t sensVal = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU)== CFGZ::CFGZ_ENABLE)&&(_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
+    {
+        sensVal.stValAndStatus.f32InstSensorVal = (float)gpJ1939->GetReadData(RX_PGN_ET1_65262, 1);
+        sensVal.stValAndStatus.eState = GetSPNSensorState(gpJ1939->GetSPNErrorStatus(RX_PGN_ET1_65262,1 ));
+        sensVal.eStatus = A_SENSE::SENSOR_READ_SUCCESS;
+    }
+
+    return sensVal;
+}
+
+ANLG_IP::ANLG_IP_STATE_t GCU_ALARMS::GetSPNSensorState(uint8_t u8SPNErrorStatus)
+{
+    if(gpJ1939->IsCommunicationFail())
+    {
+        return ANLG_IP:: BSP_STATE_COMM_FAILURE_HASH;
+    }
+    else if(u8SPNErrorStatus ==  J1939APP::NOT_AVAILABLE)
+    {
+        return ANLG_IP:: BSP_STATE_CAN_NA;
+    }
+    else if(u8SPNErrorStatus == J1939APP::VALID_DATA)
+    {
+        return ANLG_IP:: BSP_STATE_NORMAL;
+    }
+    else
+    {
+        return ANLG_IP:: BSP_STATE_CAN_ERROR;
+    }
 
 }

@@ -380,6 +380,7 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"Low Oil Pressure",
       (char*)"Low Fuel level",
       (char*)"High Eng Temp",
+      (char*)"High Lube Oil Temp",
       (char*)"Low Water Level Switch",
       (char*)"Over Speed",
       (char*)"Gross Over Speed",

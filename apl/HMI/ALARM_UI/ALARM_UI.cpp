@@ -277,7 +277,8 @@ void ALARM_UI::prvDisplayAlarmScreen()
 
             case GCU_ALARMS::High_Water_Temperature_id:
             {
-                if(_alarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP))
+                if(_alarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_SHUTDOWN)  ||
+                    _alarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_WARNING))
                 {
                     strcpy(arrTemp, "Sensor");
                 }

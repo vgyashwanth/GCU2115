@@ -834,7 +834,48 @@ void J1939APP::prvUpdatePGN65291Data(void)
     UpdateDGVoltAlarms( GCU_ALARMS::LOW_OIL_PRESS_WARNING  ,
                    GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN, ALARM_BYTE_0,(float*)&f32PGN_65291Data[0]);
 
-    UpdateEngSensorAlarms( GCU_ALARMS::HIGH_WATER_TEMP, GCU_ALARMS::HWT_SWITCH, ALARM_BYTE_1 , (float*)&f32PGN_65291Data[0]);
+        if(_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HIGH_WATER_TEMP_SHUTDOWN)  ||
+        _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HIGH_WATER_TEMP_WARNING)
+            ||  _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HWT_SWITCH))
+    {
+        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_SHUTDOWN))
+        {
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_SHUTDOWN ;
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
+                && _gcuAlarm.IsShutdownAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
+        {
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_SHUTDOWN ;
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
+                && _gcuAlarm.IsElectricTripAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
+        {
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_ELEC_TRIP ;
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
+                && _gcuAlarm.IsWarningAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
+        {
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_WARNING ;
+        }
+        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_WARNING))
+        {
+            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_WARNING;
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
+                && _gcuAlarm.IsNotificationAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
+        {
+            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_NOTIFICATION;
+        }
+        else
+        {
+            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_INACTIVE;
+        }
+    }
+    else
+    {
+        f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_DISABLED;
+    }
+    
     if(_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN) ||
             _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION)
             ||  _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LFL_SWITCH))

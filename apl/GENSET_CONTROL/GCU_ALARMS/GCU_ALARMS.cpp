@@ -3871,12 +3871,17 @@ bool GCU_ALARMS::prvIsNewDTC(uint32_t u32Spn, uint8_t u8FMI, uint8_t u8Occurance
 
 void GCU_ALARMS::StartEgrFaultDetection()
 {
-    UTILS_ResetTimer(&_ecuFaultTimer);
-    egrInState  = EGR_DETECTION_INIT;
-    _bEgrShutdownLatched = false;
-    ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bEnableNotification = true; /* Initially, the alarm action will be Notification  */
+    if(_StartEgrDetection !=1)
+    {
+        UTILS_ResetTimer(&_ecuFaultTimer);
+        egrInState  = EGR_DETECTION_INIT;
+        _bEgrShutdownLatched = false;
+        ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bEnableNotification = true; /* Initially, the alarm action will be Notification  */
+        _StartEgrDetection = 1U;
+    }
 
-    _StartEgrDetection = 1U;
+
+
 }
 void GCU_ALARMS::DisableEGRDetection()
 {

@@ -314,7 +314,7 @@ void J1939APP::GetPGN(uint8_t ubyPGN, uint8_t u8RxOrTx, J1939_PGN_DB_t *pstGetPG
     }
     if(u8RxOrTx == CALC_FOR_TRANSMIT)
     {
-        pstGetPGN->ubyPDU_SA = (uint8_t)_cfgz.GetCFGZ_Param(CFGZ::ID_SGC_SOURCE_ADDRESS);
+        pstGetPGN->ubyPDU_SA = _cfgz.GetCFGZ_Param(CFGZ::ID_SGC_SOURCE_ADDRESS);
     }
 }
 

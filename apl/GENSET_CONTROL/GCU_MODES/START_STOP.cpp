@@ -131,6 +131,7 @@ void START_STOP::Update()
                     _bStartCommand = false;
                     _u8NoOfCrankAttempts = 0;
                     _GCUAlarms.LogEvent(GCU_ALARMS::Engine_Start_id, CFGZ::CFGZ_ACTION_NONE_NoWESN);
+                    _bOPFuelRelay =  true;
                     _bOPPreheat = false;
                     bPreheatTempLimitReached = false;
                     UTILS_DisableTimer(&_PreheatTimer);
@@ -147,7 +148,7 @@ void START_STOP::Update()
                 break;
 
             case ID_STATE_SS_PREHEAT:
-                prvSetOutputVariables(false, false, false, true);
+                prvSetOutputVariables(false, false, _bOPFuelRelay, true);
                 _bStartCommand = false;
 
                 if(_EngineMon.IsEngineOn() == 1U)
@@ -172,7 +173,8 @@ void START_STOP::Update()
                 break;
 
             case ID_STATE_SS_START_WAIT:
-                prvSetOutputVariables(false, false, false, false);
+                _bOPFuelRelay = true;
+                prvSetOutputVariables(false, false, _bOPFuelRelay, false);
                 _bStartCommand = false;
 
                 if(_EngineMon.IsEngineOn() == 1U)
@@ -255,7 +257,7 @@ void START_STOP::Update()
 
             case ID_STATE_SS_CRANK_REST:
                 _hal.ObjGlcd.TurnOnBackLight();
-                prvSetOutputVariables(false, false, false, false);
+                prvSetOutputVariables(false, false, _bOPFuelRelay, false);
                 _bStartCommand = false;
                 if((_bStopCommand)||(_GCUAlarms.IsCommonWarning()))
                 {

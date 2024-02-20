@@ -631,3 +631,8 @@ void CYCLIC_MODE::ClearStartOffTimerFlag()
     _bStartOffTimer = false;
 
 }
+
+bool CYCLIC_MODE::IsCyclicTimerEnabled(BASE_MODES::TIMER_STATE_t eTimer)
+{
+    return (_vars.TimerState == eTimer);
+}

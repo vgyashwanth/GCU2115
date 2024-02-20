@@ -932,6 +932,16 @@ void ENGINE_MONITORING::SetEngineRunTime(uint32_t u32EngineRunTimeInmin)
     _stCummulativeCnt.u32EngineRunTime_min=u32EngineRunTimeInmin;
 }
 
+void ENGINE_MONITORING::SetMainsRunTime(uint32_t u32MainsRunTimeInmin)
+{
+    _stCummulativeCnt.u32MainsRunTime_min = u32MainsRunTimeInmin;
+}
+
+void ENGINE_MONITORING::SetBTSRunTime(uint32_t u32BTSRunTimeInmin)
+{
+    _stCummulativeCnt.u32BTSRunTime_min = u32BTSRunTimeInmin;
+}
+
 void ENGINE_MONITORING::SetGenActiveEnergy(uint32_t u32GenActiveEnergy)
 {
     _stCummulativeCnt.f32GenKWH=(float)u32GenActiveEnergy;

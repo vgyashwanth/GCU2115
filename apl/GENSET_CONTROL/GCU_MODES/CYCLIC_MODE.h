@@ -43,6 +43,8 @@ public:
     bool IsCyclicOffTimerExpired();
 
     void ClearStartOffTimerFlag();
+
+    bool IsCyclicTimerEnabled(BASE_MODES::TIMER_STATE_t eTimer);
 private:
     HAL_Manager         &_hal;
     ENGINE_MONITORING   &_EngineMon;

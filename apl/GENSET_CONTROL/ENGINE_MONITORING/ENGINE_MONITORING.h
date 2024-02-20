@@ -141,6 +141,20 @@ public:
     void SetEngineRunTime(uint32_t u32EngineRunTimeInmin);
 
     /**
+     * This function overwrites the mains run hours (in mins) with the value received over
+     * MODBUS while automation testing.
+     * @param u32MainsRunTimeInmin - Desired engine run hours counts.
+     */
+    void SetMainsRunTime(uint32_t u32MainsRunTimeInmin);
+
+    /**
+     * This function overwrites the BTS run hours (in mins) with the value received over
+     * MODBUS while automation testing.
+     * @param u32BTSRunTimeInmin - Desired engine run hours counts.
+     */
+    void SetBTSRunTime(uint32_t u32BTSRunTimeInmin);
+
+    /**
      * This function overwrites the Active Gen Energy (in kWH) with the value received over
      * MODBUS while automation testing.
      * @param u32GenActiveEnergy - Desired Gen Active Energy.

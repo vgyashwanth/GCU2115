@@ -268,7 +268,7 @@ offset 14.
     typedef struct{
             uint16_t EngineRunTime:1;
             uint16_t MainsRunTime:1;
-            uint16_t Reserved0:1;
+            uint16_t BTSRunTime:1;
             uint16_t RTC:1;
             uint16_t ActiveEnergy:1;
             uint16_t ApparentEnergy:1;

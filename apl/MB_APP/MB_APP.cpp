@@ -796,7 +796,7 @@ void MB_APP::prvUpdateGCUAlarms()
     //For Remote_SS bresultInstant is applicable and not bAlarmActive because not action is enabled.
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_SS].bResultInstant << 10);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_G].bAlarmActive << 11);
-    _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::CA_FAIL]) << 12);
+    _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::CA_FAIL].bAlarmActive) << 12);
     _u16TempAlarmVal |=   (uint16_t)(1 << 13); /* Reserved */
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::BATT_CHG_FAIL].bAlarmActive << 14);
     _u16TempAlarmVal |=   (uint16_t)(1 << 15); /* Reserved */
@@ -1006,11 +1006,11 @@ void MB_APP::prvUpdateGCUAlarms()
     prvUpdateEngSensorAlarms(GCU_ALARMS::OPEN_AN_SEN_S2_CKT, SECOND_NIBBLE);
     prvUpdateEngSensorAlarms(GCU_ALARMS::HIGH_LUBE_OIL_TEMP_SHUTDOWN,GCU_ALARMS::HIGH_LUBE_OIL_TEMP_WARNING,THIRD_NIBBLE);
 
-    _u16TempAlarmVal |= (uint16_t)(_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_ON_TIMER)<<12);
+    _u16TempAlarmVal |= (uint16_t)(CYCLIC_MODE::IsCyclicTimerEnabled(BASE_MODES::CYCLIC_ON_TIMER)<<12);
 
     _u16TempAlarmVal |= (uint16_t)(1 << 13U);
 
-    _u16TempAlarmVal |= (uint16_t)(_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_OFF_TIMER)<<14);
+    _u16TempAlarmVal |= (uint16_t)(CYCLIC_MODE::IsCyclicTimerEnabled(BASE_MODES::CYCLIC_OFF_TIMER)<<14);
 
     _u16TempAlarmVal |= (uint16_t)(1 << 15U);
 
@@ -1540,6 +1540,61 @@ void MB_APP::prvUpdateDm01FaultCodesOnModbus(void)
 }
 #if (TEST_AUTOMATION == YES)
 
+void J1939APP::prvUpdatePGNNumber()
+{
+
+    uint32_t u32PGNNumber;
+    static uint16_t u16RxSPNNum;
+    static uint64_t *SPNVal;
+    uint8_t SPNStatus;
+
+    static DATABASE_RX_PGN_LIST_t eRxPGN;
+    if((_ObjmbApp.GetRegisterValue(MB_APP::MB_PGN_NUMBER_1) != 0U)
+            || (_ObjmbApp.GetRegisterValue(MB_APP::MB_PGN_NUMBER_2) != 0U)
+            || (_ObjmbApp.GetRegisterValue(MB_APP::MB_SPN_BIT_POSITION) != 0U))
+    {
+        u32PGNNumber = (uint32_t)_ObjmbApp.GetRegisterValue(MB_APP::MB_PGN_NUMBER_1) | (uint32_t)((_ObjmbApp.GetRegisterValue(MB_APP::MB_PGN_NUMBER_2) & 0x0003)<<16);
+
+        _ObjmbApp.SetWriteRegisterValue(MB_APP::MB_PGN_NUMBER_1, 0);
+        _ObjmbApp.SetWriteRegisterValue(MB_APP::MB_PGN_NUMBER_2, 0);
+        eRxPGN = GetRXPGNEnum(u32PGNNumber);
+
+        if(eRxPGN < RX_PGN_LAST)
+        {
+            u16RxSPNNum = GetSPNIndexFromStartBit(eRxPGN,_ObjmbApp.GetRegisterValue(MB_APP::MB_SPN_BIT_POSITION));
+        }
+        else
+        {
+            u16RxSPNNum = 65535;
+
+        }
+        _ObjmbApp.SetWriteRegisterValue(MB_APP::MB_SPN_BIT_POSITION , 0);
+
+    }
+
+    if((eRxPGN < RX_PGN_LAST) && (u16RxSPNNum !=65535U))
+    {
+
+        SPNVal =  (uint64_t*)&_ArrPgnReadData[eRxPGN][u16RxSPNNum];
+
+        SPNStatus = _ArrSpnErrorNAStatus[eRxPGN][u16RxSPNNum];
+
+        _ObjmbApp.SetReadRegisterValue(MB_APP::MB_SPN_VALUE_1, (uint16_t)((*SPNVal) & 0xFFFF));
+        _ObjmbApp.SetReadRegisterValue(MB_APP::MB_SPN_VALUE_2, (uint16_t)((*SPNVal>>16U) & 0xFFFF));
+        _ObjmbApp.SetReadRegisterValue(MB_APP::MB_SPN_VALUE_3, (uint16_t)((*SPNVal>>32U) & 0xFFFF));
+        _ObjmbApp.SetReadRegisterValue(MB_APP::MB_SPN_VALUE_4, (uint16_t)((*SPNVal>>48U) & 0xFFFF));
+        _ObjmbApp.SetReadRegisterValue(MB_APP::MB_SPN_STATUS, SPNStatus);
+    }
+    else
+    {
+        _ObjmbApp.SetReadRegisterValue(MB_APP::MB_SPN_VALUE_1,  0xFFFF);
+        _ObjmbApp.SetReadRegisterValue(MB_APP::MB_SPN_VALUE_2,  0xFFFF);
+        _ObjmbApp.SetReadRegisterValue(MB_APP::MB_SPN_VALUE_3,  0xFFFF);
+        _ObjmbApp.SetReadRegisterValue(MB_APP::MB_SPN_VALUE_4,  0xFFFF);
+        _ObjmbApp.SetReadRegisterValue(MB_APP::MB_SPN_STATUS,   0xFFFF);
+    }
+
+}
 
 void MB_APP::prvUpdateMBWriteRegisterForAutomation()
 {
@@ -1581,7 +1636,7 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation()
     if(command.stMBWriteCommandForAutomation.BTSRunTime == 1U)
     {
         bStoreInEeprom = true;
-        uint32_t u32BTSRunTimeInMin = (uint32_t)(GetRegisterValue(MB_AUTOMATION_BTS_RUN_HOURS_1)*60U) + GetRegisterValue(MB_AUTOMATION_BTS_RUN_HOURS_2);
+        uint32_t u32BTSRunTimeInMin = (uint32_t)(GetRegisterValue(MB_AUTOMATION_BTS_RUN_HOUR_1)*60U) + GetRegisterValue(MB_AUTOMATION_BTS_RUN_HOUR_2);
         _engineMonitoring.SetBTSRunTime(u32BTSRunTimeInMin);
         command.stMBWriteCommandForAutomation.BTSRunTime=0;
     }

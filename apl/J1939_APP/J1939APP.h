@@ -112,6 +112,7 @@ public:
     void LoadData(uint8_t u8PGNNum, uint8_t au8SPNDataBuf[8]);
     void GetSPN(uint8_t ubyPGN, uint8_t ubySPN, uint8_t u8TxOrRX, J1939_SPN_DB_t * pstGetSpn);
     void ExtractReadFrame();
+    DATABASE_RX_PGN_LIST_t GetRXPGNEnum(uint32_t u32ReceviedPgnNo);
     static void ClearCAN_Alarms(void);
     bool GetLampStatus(LAMP_st eLamp);
 
@@ -155,6 +156,8 @@ public:
     bool IsBeepOnTimerExpired();
     bool IsFaultCodeReceived(uint32_t u32SPNNo , uint8_t u8FMI);
     void UpdateInducementFlags(void);
+    uint16_t GetSPNIndexFromStartBit(DATABASE_RX_PGN_LIST_t eRxPGN , uint8_t u8StartPos);
+
 
 
 private:

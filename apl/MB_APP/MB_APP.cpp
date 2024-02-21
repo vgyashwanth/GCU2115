@@ -42,20 +42,13 @@ uint64_t MB_APP::Curr_MB_Valid_Count = 0;
 
 uint16_t MB_APP::MB_Count = 0;
 MB_APP::MB_APP(HAL_Manager &hal, CFGZ &cfgz, GCU_ALARMS &gcuAlarm,
-        ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode
-#if (TEST_AUTOMATION == YES)
-        , CYCLIC_MODE &CyclicMode
-#endif
-):
+        ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode):
 MODBUS(hal.ObjRS485, _AddressGrpLst),
 _hal(hal),
 _cfgz(cfgz),
 _gcuAlarm(gcuAlarm),
 _engineMonitoring(engineMonitoring),
 _Automode(Automode),
-#if (TEST_AUTOMATION == YES)
-_CyclicMode(CyclicMode),
-#endif
 _u16MODBUSCommand(0),
 _u16MODBUSOperModeCMD(0),
 _au16Grp1Registers{0},
@@ -997,11 +990,11 @@ void MB_APP::prvUpdateGCUAlarms()
     prvUpdateEngSensorAlarms(GCU_ALARMS::OPEN_AN_SEN_S2_CKT, SECOND_NIBBLE);
     prvUpdateEngSensorAlarms(GCU_ALARMS::HIGH_LUBE_OIL_TEMP_SHUTDOWN,GCU_ALARMS::HIGH_LUBE_OIL_TEMP_WARNING,THIRD_NIBBLE);
 
-    _u16TempAlarmVal |= (uint16_t)(_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_ON_TIMER) << 12);
+    _u16TempAlarmVal |= (uint16_t)(_Automode.IsTimerStateEnabled(BASE_MODES::CYCLIC_ON_TIMER) << 12);
 
     _u16TempAlarmVal |= (uint16_t)(1 << 13U);
 
-    _u16TempAlarmVal |= (uint16_t)(_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_OFF_TIMER) << 14);
+    _u16TempAlarmVal |= (uint16_t)(_Automode.IsTimerStateEnabled(BASE_MODES::CYCLIC_OFF_TIMER) << 14);
 
     _u16TempAlarmVal |= (uint16_t)(1 << 15U);
 
@@ -1465,9 +1458,9 @@ void MB_APP::prvUpdatePGNNumber(void)
     if((eRxPGN < RX_PGN_LAST) && (u16RxSPNNum !=65535U))
     {
 
-        SPNVal = (uint16_t)(gpJ1939->GetReadData(eRxPGN,u16RxSPNNum));
 
-        SPNStatus = gpJ1939->GetSPNErrorStatus(eRxPGN,u16RxSPNNum);   
+
+        SPNStatus = gpJ1939->GetSPNErrorStatus(eRxPGN,(uint8_t)u16RxSPNNum);
 
         SetReadRegisterValue(MB_APP::MB_SPN_VALUE_1, (uint16_t)((SPNVal) & 0xFFFF));
         SetReadRegisterValue(MB_APP::MB_SPN_VALUE_2, (uint16_t)((SPNVal>>16U) & 0xFFFF));

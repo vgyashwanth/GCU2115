@@ -42,7 +42,6 @@
 #include "GCU_ALARMS.h"
 #include "ENGINE_MONITORING.h"
 #include "AUTO_MODE.h"
-#include "CYCLIC_MODE.h"
 
 
 /*Defines the number of discontinuous address groups*/
@@ -323,11 +322,7 @@ offset 14.
      * None
      */
     MB_APP(HAL_Manager &hal,  CFGZ &cfgz, GCU_ALARMS &gcuAlarm,
-            ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode
-#if (TEST_AUTOMATION == YES)
-        , CYCLIC_MODE &CyclicMode
-#endif
-    );
+            ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode);
 
     /**
      * Fetches the value of a modbus register with write access(address group 2).
@@ -424,7 +419,6 @@ private:
     GCU_ALARMS          &_gcuAlarm;
     ENGINE_MONITORING   &_engineMonitoring;
     AUTO_MODE           &_Automode;
-    CYCLIC_MODE         &_CyclicMode;
     uint16_t             _u16MODBUSCommand;
     uint16_t             _u16MODBUSOperModeCMD;
 

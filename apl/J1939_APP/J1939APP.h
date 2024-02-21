@@ -156,7 +156,7 @@ public:
     bool IsBeepOnTimerExpired();
     bool IsFaultCodeReceived(uint32_t u32SPNNo , uint8_t u8FMI);
     void UpdateInducementFlags(void);
-    uint16_t GetSPNIndexFromStartBit(DATABASE_RX_PGN_LIST_t eRxPGN , uint8_t u8StartPos);
+    uint16_t GetSPNIndexFromStartBit(DATABASE_RX_PGN_LIST_t eRxPGN , uint16_t u16StartPos);
     uint16_t GetGenStatusRegister(void);
 
 

@@ -1365,67 +1365,67 @@ void J1939APP::ExtractReadFrame(void)
 
 DATABASE_RX_PGN_LIST_t J1939APP::GetRXPGNEnum(uint32_t u32ReceivedPgnNo)
 {
-    uint8_t u8ReceivedPgnNo = RX_PGN_LAST;
+    DATABASE_RX_PGN_LIST_t eReceivedPgnNo = RX_PGN_LAST;
     switch(u32ReceivedPgnNo)
     {
         case DPFC1_PGN:
-            u8ReceivedPgnNo = RX_PGN_DPFC1_64892  ;
+            eReceivedPgnNo = RX_PGN_DPFC1_64892  ;
             break;
         case AT1T1I_PGN:
-            u8ReceivedPgnNo = RX_PGN_AT1T1I_65110  ;
+            eReceivedPgnNo = RX_PGN_AT1T1I_65110  ;
             break;
         case PGN_EEC1   :
-            u8ReceivedPgnNo = RX_PGN_EEC1_61444 ;
+            eReceivedPgnNo = RX_PGN_EEC1_61444 ;
             break;
         case PGN_EEC2   :
-            u8ReceivedPgnNo = RX_PGN_EEC2_61443 ;
+            eReceivedPgnNo = RX_PGN_EEC2_61443 ;
             break;
         case PGN_EOI    :
-            u8ReceivedPgnNo = RX_PGN_EOI_64914 ;
+            eReceivedPgnNo = RX_PGN_EOI_64914 ;
             break;
         case PGN_HOURS  :
-            u8ReceivedPgnNo = RX_PGN_HOURS_65253 ;
+            eReceivedPgnNo = RX_PGN_HOURS_65253 ;
             break;
         case PGN_LFC1   :
-            u8ReceivedPgnNo = RX_PGN_LFC1_65257 ;
+            eReceivedPgnNo = RX_PGN_LFC1_65257 ;
             break;
         case PGN_ET1    :
-            u8ReceivedPgnNo = RX_PGN_ET1_65262 ;
+            eReceivedPgnNo = RX_PGN_ET1_65262 ;
             break;
         case PGN_EFL_P1 :
-            u8ReceivedPgnNo = RX_PGN_EFL_P1_65263 ;
+            eReceivedPgnNo = RX_PGN_EFL_P1_65263 ;
             break;
         case PGN_AMB    :
-            u8ReceivedPgnNo = RX_PGN_AMB_65269 ;
+            eReceivedPgnNo = RX_PGN_AMB_65269 ;
             break;
         case PGN_VEP1   :
-            u8ReceivedPgnNo = RX_PGN_VEP1_65271 ;
+            eReceivedPgnNo = RX_PGN_VEP1_65271 ;
             break;
         case PGN_WFI_OI :
-            u8ReceivedPgnNo = RX_PGN_WFI_OI_65279 ;
+            eReceivedPgnNo = RX_PGN_WFI_OI_65279 ;
             break;
         case PGN_DEFA   :
-            u8ReceivedPgnNo = RX_PGN_DEFA_65383 ;
+            eReceivedPgnNo = RX_PGN_DEFA_65383 ;
             break;
         case PGN_SHUTDN:
-            u8ReceivedPgnNo =  RX_PGN_SHUTDN_65252;
+            eReceivedPgnNo =  RX_PGN_SHUTDN_65252;
             break;
         case PGN_CSA:
-            u8ReceivedPgnNo = RX_PGN_CSA_64966;
+            eReceivedPgnNo = RX_PGN_CSA_64966;
             break;
         case PGN_DM03   :
-            u8ReceivedPgnNo = RX_PGN_DM03_65228;
+            eReceivedPgnNo = RX_PGN_DM03_65228;
             break;
         case PGN_IC1   :
-            u8ReceivedPgnNo = RX_PGN_IC1_65270;
+            eReceivedPgnNo = RX_PGN_IC1_65270;
             break;
         case PGN_LFE1   :
-            u8ReceivedPgnNo = RX_PGN_LFE1_65266;
+            eReceivedPgnNo = RX_PGN_LFE1_65266;
             break;
         default :
             break;
     }
-    return (DATABASE_RX_PGN_LIST_t)(u8ReceivedPgnNo);
+    return eReceivedPgnNo;
 }
 void J1939APP::Update(bool bDeviceInconfig)
 {
@@ -2243,7 +2243,7 @@ void J1939APP::UpdateInducementFlags(void)
 
 }
 
-uint16_t J1939APP::GetSPNIndexFromStartBit(DATABASE_RX_PGN_LIST_t eRxPGN , uint8_t u8StartPos)
+uint16_t J1939APP::GetSPNIndexFromStartBit(DATABASE_RX_PGN_LIST_t eRxPGN , uint16_t u16StartPos)
 {
     uint16_t u16Index = 0;
     J1939_PGN_DB_t tSupportPGN1;
@@ -2254,8 +2254,8 @@ uint16_t J1939APP::GetSPNIndexFromStartBit(DATABASE_RX_PGN_LIST_t eRxPGN , uint8
     GetPGN((uint8_t)eRxPGN, CALC_FOR_RECEIVE, &tSupportPGN1);
     for(u16Index = 0; u16Index<tSupportPGN1.ubyPDU_SPNs; u16Index++)
     {
-        GetSPN(eRxPGN, u16Index, CALC_FOR_RECEIVE, &tSupportSPN1);
-        if(tSupportSPN1.u16SPN_Loc == u8StartPos)
+        GetSPN(eRxPGN, (uint8_t)u16Index, CALC_FOR_RECEIVE, &tSupportSPN1);
+        if(tSupportSPN1.u16SPN_Loc == u16StartPos)
         {
             bFoundtheSPN = true;
             break;
@@ -2285,7 +2285,7 @@ uint16_t J1939APP::GetGenStatusRegister(void)
 
     /* Bit-14 for Mains healthy/unhealthy*/
     if((_Automode.GetMainsStatus()==BASE_MODES::MAINS_HELATHY)
-            && _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING))
+            && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
     {
         u16GenStatus|= 1<<14;
     }

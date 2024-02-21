@@ -773,3 +773,8 @@ bool BASE_MODES::EngineNotInCoolingStage()
     }
     return bEngineNotInCoolingStage;
 }
+
+bool BASE_MODES::IsTimerStateEnabled(BASE_MODES::TIMER_STATE_t eTimer)
+{
+    return (_vars.TimerState == eTimer);
+}

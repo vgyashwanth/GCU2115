@@ -2290,7 +2290,12 @@ uint16_t J1939APP::GetGenStatusRegister(void)
         u16GenStatus|= 1<<14;
     }
 
-    /* Bit-13 and 12 unimplemented */
+    /* Bit-13 and 12 unimplemented 
+       Bits 12-14 implement the dg status
+       101 - Auto
+       100 - Manual 
+       So, the values of the first 2 bits are hard coded and the last bit is toggled based on the status
+    */
     u16GenStatus |= (1 << 13);
     u16GenStatus |= (0 << 12);
 

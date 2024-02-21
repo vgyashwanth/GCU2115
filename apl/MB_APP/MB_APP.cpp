@@ -1428,7 +1428,7 @@ void MB_APP::prvUpdatePGNNumber(void)
 {
     uint32_t u32PGNNumber;
     static uint16_t u16RxSPNNum;
-    static uint16_t SPNVal;
+    static uint64_t* SPNVal;
     uint8_t SPNStatus;
 
     static DATABASE_RX_PGN_LIST_t eRxPGN;
@@ -1457,15 +1457,15 @@ void MB_APP::prvUpdatePGNNumber(void)
 
     if((eRxPGN < RX_PGN_LAST) && (u16RxSPNNum !=65535U))
     {
-
-
+        double SPNValTemp = gpJ1939->GetReadData(eRxPGN, (uint8_t)u16RxSPNNum);
+        SPNVal =  (uint64_t*)&(SPNValTemp);
 
         SPNStatus = gpJ1939->GetSPNErrorStatus(eRxPGN,(uint8_t)u16RxSPNNum);
 
-        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_1, (uint16_t)((SPNVal) & 0xFFFF));
-        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_2, (uint16_t)((SPNVal>>16U) & 0xFFFF));
-        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_3, (uint16_t)((SPNVal>>32U) & 0xFFFF));
-        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_4, (uint16_t)((SPNVal>>48U) & 0xFFFF));
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_1, (uint16_t)((*SPNVal) & 0xFFFF));
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_2, (uint16_t)((*SPNVal>>16U) & 0xFFFF));
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_3, (uint16_t)((*SPNVal>>32U) & 0xFFFF));
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_4, (uint16_t)((*SPNVal>>48U) & 0xFFFF));
         SetReadRegisterValue(MB_APP::MB_SPN_STATUS, SPNStatus);
     }
     else

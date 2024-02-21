@@ -14,20 +14,20 @@
 
 #include "J1939APP.h"
 #include "START_STOP.h"
+#include "../HMI/MAIN_UI/MAIN_UI.h"
 static const float F32_Null = (float)0xFFFFFFFF;
 bool J1939APP::bEnableEngineStart      = false;
 bool J1939APP::bExecutePreheat         = false;
 
 
 J1939APP::J1939APP(HAL_Manager &hal, CFGC &cfgc, CFGZ &cfgz,ENGINE_MONITORING &engineMonitoring, GCU_ALARMS &gcuAlarm,
-        MB_APP &mbApp, AUTO_MODE  &Automode /*, EGOV &egov */):
+        AUTO_MODE  &Automode /*, EGOV &egov */):
 J1939DRIVER(hal),
 _hal(hal),
 _ObjCfgc(cfgc),
 _cfgz(cfgz),
 _engMon(engineMonitoring),
 _gcuAlarm(gcuAlarm),
-_ObjmbApp(mbApp),
 _Automode(Automode),
 ubypReadTxPgns
 {
@@ -638,7 +638,7 @@ void J1939APP::prvUpdatePGN65289Data(void)
 
 
     /* f32PGN_65289Data[16] to f32PGN_65289Data[29] are used to represent Gen status*/
-    u16GenStatus = _ObjmbApp.GetGenStatusRegister();
+    u16GenStatus = GetGenStatusRegister();
     for(uint8_t u8Indx2 = 0, u8Index = 16; u8Index < 30; u8Index++)
     {
         if(u8Indx2 == 11U)
@@ -1374,7 +1374,6 @@ DATABASE_RX_PGN_LIST_t J1939APP::GetRXPGNEnum(uint32_t u32ReceivedPgnNo)
         case AT1T1I_PGN:
             u8ReceivedPgnNo = RX_PGN_AT1T1I_65110  ;
             break;
-
         case PGN_EEC1   :
             u8ReceivedPgnNo = RX_PGN_EEC1_61444 ;
             break;
@@ -2272,5 +2271,105 @@ uint16_t J1939APP::GetSPNIndexFromStartBit(DATABASE_RX_PGN_LIST_t eRxPGN , uint8
     {
         return 65535;
     }
-
 }
+
+uint16_t J1939APP::GetGenStatusRegister(void)
+{
+    uint16_t u16GenStatus = 0;
+
+    /* Bit-15 for GCU Mode */
+    if(IS_DISP_CONFIG_MODE()||IS_DISP_PASSWORD_ENTRY_MODE()||IS_DISP_EVENT_LOG_MODE())
+    {
+        u16GenStatus|= (1U<<15);
+    }
+
+    /* Bit-14 for Mains healthy/unhealthy*/
+    if((_Automode.GetMainsStatus()==BASE_MODES::MAINS_HELATHY)
+            && _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING))
+    {
+        u16GenStatus|= 1<<14;
+    }
+
+    /* Bit-13 and 12 unimplemented */
+    u16GenStatus |= (1 << 13);
+    u16GenStatus |= (0 << 12);
+
+    /*Bit-11 for DG Current Mode (Auto - Manual)*/
+    if(_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE)
+    {
+        u16GenStatus |= (1 << 11);
+    }
+
+    /*Bit-10 Load on Mains*/
+    if(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)==ACT_Manager::ACT_LATCHED)
+
+    {
+        u16GenStatus |= ((uint16_t)1U << 10U);
+    }
+
+    /*
+     * Bit-9 Load on DG*/
+    u16GenStatus |= (uint16_t)(_Automode.IsGenContactorClosed()<< 9U);
+
+    /*Bit-8 Current DG Status*/
+    if(_engMon.IsEngineOn())
+    {
+        u16GenStatus |= 1U << 8U;
+    }
+
+    /* Bit-7 DG Stopped Normally*/
+    if((_engMon.IsEngineOn()==false)
+            &&!(_gcuAlarm.IsCommonShutdown()
+                    ||_gcuAlarm.IsCommonElectricTrip()))
+    {
+        u16GenStatus |= 1U << 7U;
+    }
+
+    /* Bit-6 DG Stopped With Fault*/
+    if((_engMon.IsEngineOn()==false)
+            &&(_gcuAlarm.IsCommonShutdown()
+                    ||_gcuAlarm.IsCommonElectricTrip()))
+    {
+        u16GenStatus |= 1U << 6U;
+    }
+
+    /*
+     * Bit-5 DG fail to start*/
+    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::FAIL_TO_START))
+    {
+        u16GenStatus |= 1<< 5;
+    }
+
+    /* Bit-4 Genset Available*/
+    if( _engMon.IsGenAvailable())
+    {
+        u16GenStatus |= 1<< 4;
+    }
+
+    /* Bit-3 - Common shutdown */
+    if( _gcuAlarm.IsCommonShutdown())
+    {
+        u16GenStatus |= 1<< 3;
+    }
+
+    /* Bit-2 - Common electric trip*/
+    if( _gcuAlarm.IsCommonElectricTrip())
+    {
+        u16GenStatus |= 1<< 2;
+    }
+
+    /* Bit-1 - Common warning*/
+    if( _gcuAlarm.IsCommonWarning())
+    {
+        u16GenStatus |= 1<< 1;
+    }
+
+    /* Bit-0 - Common notification */
+    if( _gcuAlarm.IsCommonNotification())
+    {
+        u16GenStatus |= 1;
+    }
+
+    return u16GenStatus;
+}
+

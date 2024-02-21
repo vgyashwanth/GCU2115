@@ -42,6 +42,7 @@
 #include "GCU_ALARMS.h"
 #include "ENGINE_MONITORING.h"
 #include "AUTO_MODE.h"
+#include "CYCLIC_MODE.h"
 
 
 /*Defines the number of discontinuous address groups*/
@@ -322,7 +323,11 @@ offset 14.
      * None
      */
     MB_APP(HAL_Manager &hal,  CFGZ &cfgz, GCU_ALARMS &gcuAlarm,
-            ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode);
+            ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode
+#if (TEST_AUTOMATION == YES)
+        , CYCLIC_MODE &CyclicMode
+#endif
+    );
 
     /**
      * Fetches the value of a modbus register with write access(address group 2).
@@ -399,15 +404,7 @@ offset 14.
     static uint16_t MB_Count;
 
     static MISC_EEPROM_t stEepromMisc;
-    /**
-     * GetGenStatusRegister() returns the DG status register(uint16_t variable)
-     * depending on the current state of DG. We need to send the
-     * DG status register value through MODBUS as well as CAN.
-     * @param - None
-     * @return - uint16_t u16RegValue;
-     * None
-     */
-    uint16_t GetGenStatusRegister();
+
 private:
     #define MODBUS_GEN_START_CMD        (0x01)
     #define MODBUS_GEN_STOP_CMD         (0x02)
@@ -427,6 +424,7 @@ private:
     GCU_ALARMS          &_gcuAlarm;
     ENGINE_MONITORING   &_engineMonitoring;
     AUTO_MODE           &_Automode;
+    CYCLIC_MODE         &_CyclicMode;
     uint16_t             _u16MODBUSCommand;
     uint16_t             _u16MODBUSOperModeCMD;
 
@@ -534,6 +532,12 @@ private:
      * @param bDeviceInConfigMode
      */
     void prvUpdateMBReadRegisterForAutomation(bool bDeviceInConfigMode);
+
+    /**
+     * This function updates the PGN number for automation test support related modbus read registers.
+     */
+    void prvUpdatePGNNumber(void);
+
 
     /**
      * This function updates the automation test support related modbus write registers.

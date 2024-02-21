@@ -7,7 +7,11 @@ BASE_MODES::GCU_MODE_VARS_t _vars = {BASE_MODES::ENGINE_OFF_READY, BASE_MODES::N
 
 APL_Manager::APL_Manager():
  bDeviceInConfigMode(false),
-_MbApp(*this, _cfgz, _gcuAlarms, _engineMonitoring, _AutoMode),
+_MbApp(*this, _cfgz, _gcuAlarms, _engineMonitoring, _AutoMode
+#if (TEST_AUTOMATION == YES)
+        , _CyclicMode
+#endif
+),
 _cfgc(*this),
 _cfgz(*this, _MbApp, _cfgc),
 _sleep(*this, _cfgz),
@@ -22,7 +26,7 @@ _CyclicMode(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
 _display(this->ObjGlcd),
 _MainUI(*this,_cfgz, _gcuAlarms,_engineMonitoring, _startStop,
          _ManualMode, _display, _cfgc, _sleep,_J1939,_BTSMode,_CyclicMode, _EngineStartValidity),
-_J1939(*this, _cfgc, _cfgz, _engineMonitoring,_gcuAlarms,_MbApp,_AutoMode ),
+_J1939(*this, _cfgc, _cfgz, _engineMonitoring,_gcuAlarms,_AutoMode ),
 _EngineStartValidity(_cfgz, _gcuAlarms),
 _PowerOnUpdateTimer{0, false}
 {

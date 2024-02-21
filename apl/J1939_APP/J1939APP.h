@@ -97,7 +97,7 @@ public:
     static bool bExecutePreheat;
 
     J1939APP(HAL_Manager &hal, CFGC &cfgc, CFGZ &cfgz, ENGINE_MONITORING &_engineMonitoring,  GCU_ALARMS &gcuAlarm,
-            MB_APP &mbApp,  AUTO_MODE  &Automode /*, EGOV &egov */);
+            AUTO_MODE  &Automode /*, EGOV &egov */);
     void Update(bool bDeviceInconfig);
     void InitAfterConfigChange();
     void ClearAllPGNsDataBuffs(void);
@@ -157,6 +157,7 @@ public:
     bool IsFaultCodeReceived(uint32_t u32SPNNo , uint8_t u8FMI);
     void UpdateInducementFlags(void);
     uint16_t GetSPNIndexFromStartBit(DATABASE_RX_PGN_LIST_t eRxPGN , uint8_t u8StartPos);
+    uint16_t GetGenStatusRegister(void);
 
 
 
@@ -191,7 +192,6 @@ private:
     CFGZ              &_cfgz;
     ENGINE_MONITORING &_engMon;
     GCU_ALARMS        &_gcuAlarm;
-    MB_APP            &_ObjmbApp;
     AUTO_MODE         &_Automode;
 
     J1939_PGNs ubypReadTxPgns[TX_LAST_PGN];

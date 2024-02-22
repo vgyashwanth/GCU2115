@@ -227,6 +227,13 @@ public:
      */
     bool EngineNotInCoolingStage();
 
+    /**
+     * This function updates the timer state.
+     * @param  eTimer : Timer whose state is required
+     * @return None */
+    bool IsTimerStateEnabled(BASE_MODES::TIMER_STATE_t eTimer);
+
+
     void SetGCUOperatingMode(GCU_OPERATING_MODE_t eGCUMode);
 
     static GCU_OPERATING_MODE_t GetGCUOperatingMode();

@@ -115,6 +115,11 @@ public:
         MAIN_MENU_INDEX, //
         SUB_MENU_INDEX, //
         ITEM_INDEX, //
+        MB_SPN_VALUE_1,
+        MB_SPN_VALUE_2,
+        MB_SPN_VALUE_3,
+        MB_SPN_VALUE_4,
+        MB_SPN_STATUS,     
         MB_AUTOMATION_READ_REG_LAST
     }MODBUS_FOR_AUTOMATION_READ;
 #endif
@@ -262,13 +267,16 @@ offset 14.
         MB_AUTOMATION_GEN_REACTIVE_ENERGY_2,
         MB_AUTOMATION_NUMBER_OF_STARTS,
         MB_AUTOMATION_NUMBER_OF_TRIPS,
+        MB_PGN_LOW_WORD,
+        MB_PGN_HIGH_WORD,
+        MB_SPN_BIT_POSITION,
         MB_AUTOMATION_WRITE_REG_LAST
     }MODBUS_FOR_AUTOMATION_WRITE;
 
     typedef struct{
             uint16_t EngineRunTime:1;
             uint16_t MainsRunTime:1;
-            uint16_t Reserved0:1;
+            uint16_t BTSRunTime:1;
             uint16_t RTC:1;
             uint16_t ActiveEnergy:1;
             uint16_t ApparentEnergy:1;
@@ -391,15 +399,7 @@ offset 14.
     static uint16_t MB_Count;
 
     static MISC_EEPROM_t stEepromMisc;
-    /**
-     * GetGenStatusRegister() returns the DG status register(uint16_t variable)
-     * depending on the current state of DG. We need to send the
-     * DG status register value through MODBUS as well as CAN.
-     * @param - None
-     * @return - uint16_t u16RegValue;
-     * None
-     */
-    uint16_t GetGenStatusRegister();
+
 private:
     #define MODBUS_GEN_START_CMD        (0x01)
     #define MODBUS_GEN_STOP_CMD         (0x02)
@@ -526,6 +526,12 @@ private:
      * @param bDeviceInConfigMode
      */
     void prvUpdateMBReadRegisterForAutomation(bool bDeviceInConfigMode);
+
+    /**
+     * This function updates the PGN number for automation test support related modbus read registers.
+     */
+    void prvUpdatePGNNumber(void);
+
 
     /**
      * This function updates the automation test support related modbus write registers.

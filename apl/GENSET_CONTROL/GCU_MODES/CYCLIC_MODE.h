@@ -43,6 +43,7 @@ public:
     bool IsCyclicOffTimerExpired();
 
     void ClearStartOffTimerFlag();
+
 private:
     HAL_Manager         &_hal;
     ENGINE_MONITORING   &_EngineMon;

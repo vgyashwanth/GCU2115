@@ -32,8 +32,8 @@
  **/
 #include "MB_APP.h"
 #include "../HMI/MON_UI/MON_UI.h"
-#include "../HMI/MAIN_UI/MAIN_UI.h"
 #include "START_STOP.h"
+#include "../HMI/MAIN_UI/MAIN_UI.h"
 
 extern J1939APP *gpJ1939;
 MB_APP::KEY_MB_CAN_EVENT_t MB_APP::stMBEvent={};
@@ -94,6 +94,7 @@ void MB_APP::Update()
     prvUpdateEGRrelatedRegisters();
     prvUpdateDm01FaultCodesOnModbus();
 #if (TEST_AUTOMATION == YES)
+    prvUpdatePGNNumber();
     prvUpdateMBWriteRegisterForAutomation();
 #endif
 }
@@ -555,23 +556,6 @@ void MB_APP::prvUpdateMBCommandStatus()
        SetWriteRegisterValue(MB_APP::MB_MODE_REG, 0);
    }
 
-//#if (TEST_AUTOMATION == YES)
-//    if(GetRegisterValue(MB_APP::MB_DATE_TIME5)== 1U)
-//    {
-//          RTC::TIME_t currentTime;
-//
-//          currentTime.u8Second =0;
-//          currentTime.u8Minute =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME1) & 0xFF00)>>8);
-//          currentTime.u8Hour =(uint8_t)((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME2) & 0xFF);
-//          currentTime.u8DayOfWeek =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME2)& 0xFF00)>>8);
-//          currentTime.u8Day =(uint8_t)((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME3)& 0xFF);
-//          currentTime.u8Month =(uint8_t)(((uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME3) & 0xFF00)>>8);
-//          currentTime.u16Year = (uint16_t)GetRegisterValue(MB_APP::MB_DATE_TIME4) ;
-//          _hal.ObjRTC.SetTime(&currentTime);
-//
-//          SetWriteRegisterValue(MB_APP::MB_DATE_TIME5, 0);
-//    }
-//#endif
 
 }
 
@@ -748,7 +732,7 @@ void MB_APP::prvUpdateGCUAlarms()
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.IsLowOilPresAlarmActive() << 2);
     _u16TempAlarmVal |=   (uint16_t)(((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_D].bAlarmActive) || (_gcuAlarm.IsHighEngTempAlarmActive()) )<< 3);
     _u16TempAlarmVal |=   (uint16_t)(_Automode.IsGenContactorClosed() << 4);
-    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::V_BELT_BROKEN_SWITCH].bAlarmActive << 5);
+    _u16TempAlarmVal |=   (uint16_t)(1 << 5U); /* Reserved */
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_F].bAlarmActive << 6);
     _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::LFL_SWITCH].bAlarmActive ||
                                       _gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION].bAlarmActive ||
@@ -770,34 +754,36 @@ void MB_APP::prvUpdateGCUAlarms()
          _u16TempAlarmVal |=   (uint16_t)(1 << 9);
     }
 
-    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION].bAlarmActive << 10);
-    _u16TempAlarmVal |=   (uint16_t)(0 << 11);
-    _u16TempAlarmVal |=   (uint16_t)(0 << 12);
+    _u16TempAlarmVal |=   (uint16_t)(1 << 10); /* Reserved */
+    _u16TempAlarmVal |=   (uint16_t)(1 << 11); /* Reserved */
+    _u16TempAlarmVal |=   (uint16_t)(1 << 12); /* Reserved */
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::RWL_SWITCH].bAlarmActive << 13);
-    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::INVALID_DG_START].bAlarmActive << 15);
+    _u16TempAlarmVal |=   (uint16_t)(1 << 14); /* Reserved */
+    _u16TempAlarmVal |=   (uint16_t)(1 << 15); /* Reserved */
+
 
     SetReadRegisterValue(DIG_ALARM_1_REG, _u16TempAlarmVal);
 
     /* DIG ALARM 2 */
     _u16TempAlarmVal =0;
 
-    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bResultInstant << 0);
+    _u16TempAlarmVal |=   (uint16_t)(1 << 0); /* Reserved */
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::OVERLOAD].bAlarmActive << 1);
     _u16TempAlarmVal |=   (uint16_t)((_Automode.GetMainsStatus() != BASE_MODES::MAINS_HELATHY)<< 2);
-    _u16TempAlarmVal |=   (uint16_t)(0 << 3);
+    _u16TempAlarmVal |=   (uint16_t)(1 << 3);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FAIL_TO_START].bResultLatched << 4);
-    _u16TempAlarmVal |=   (uint16_t)(0 << 5);
+    _u16TempAlarmVal |=   (uint16_t)(1 << 5); /* Reserved */
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::OVERSPEED_L1].bAlarmActive << 6);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::UNDERSPEED].bAlarmActive << 7);
     _u16TempAlarmVal |=   (uint16_t)((uint16_t)_engineMonitoring.IsEngineOn() << 8);
-    _u16TempAlarmVal |=   (uint16_t)(0 << 9);
+    _u16TempAlarmVal |=   (uint16_t)(1 << 9); /* Reserved */
     //For Remote_SS bresultInstant is applicable and not bAlarmActive because not action is enabled.
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_SS].bResultInstant << 10);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_G].bAlarmActive << 11);
-    _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.IsRPhaseOverVoltAlarmActive() || _gcuAlarm.IsYPhaseOverVoltAlarmActive() || _gcuAlarm.IsBPhaseOverVoltAlarmActive() || _gcuAlarm.IsRPhaseUnderVoltAlarmActive() || _gcuAlarm.IsYPhaseUnderVoltAlarmActive() || _gcuAlarm.IsBPhaseUnderVoltAlarmActive()) << 12);
-    _u16TempAlarmVal |=   (uint16_t)(0 << 13);
+    _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::CA_FAIL].bAlarmActive) << 12);
+    _u16TempAlarmVal |=   (uint16_t)(1 << 13); /* Reserved */
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::BATT_CHG_FAIL].bAlarmActive << 14);
-    _u16TempAlarmVal |=   (uint16_t)(0 << 15);
+    _u16TempAlarmVal |=   (uint16_t)(1 << 15); /* Reserved */
 
     SetReadRegisterValue(DIG_ALARM_2_REG, _u16TempAlarmVal);
 
@@ -984,10 +970,7 @@ void MB_APP::prvUpdateGCUAlarms()
     prvUpdateEngSensorAlarms(GCU_ALARMS::V_BELT_BROKEN_SWITCH, THIRD_NIBBLE);
     prvUpdateEngSensorAlarms(GCU_ALARMS::HIGH_OIL_PRESS_DETECTED, FIRST_NIBBLE);
 
-    A_SENSE::SENSOR_RET_t stFuel = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
-    _u16TempAlarmVal |= (uint16_t)((uint8_t)(stFuel.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT) << SECOND_NIBBLE);
-
-    _u16TempAlarmVal |= 0xF000;
+    _u16TempAlarmVal |= 0xF0F0;
 
     SetReadRegisterValue(MB_ALARM_14, _u16TempAlarmVal);
 
@@ -1005,7 +988,16 @@ void MB_APP::prvUpdateGCUAlarms()
 
     prvUpdateEngSensorAlarms(GCU_ALARMS::OPEN_AN_SEN_S1_CKT, FIRST_NIBBLE);
     prvUpdateEngSensorAlarms(GCU_ALARMS::OPEN_AN_SEN_S2_CKT, SECOND_NIBBLE);
-    _u16TempAlarmVal |= 0xFF00;
+    prvUpdateEngSensorAlarms(GCU_ALARMS::HIGH_LUBE_OIL_TEMP_SHUTDOWN,GCU_ALARMS::HIGH_LUBE_OIL_TEMP_WARNING,THIRD_NIBBLE);
+
+    _u16TempAlarmVal |= (uint16_t)(_Automode.IsTimerStateEnabled(BASE_MODES::CYCLIC_ON_TIMER) << 12);
+
+    _u16TempAlarmVal |= (uint16_t)(1 << 13U);
+
+    _u16TempAlarmVal |= (uint16_t)(_Automode.IsTimerStateEnabled(BASE_MODES::CYCLIC_OFF_TIMER) << 14);
+
+    _u16TempAlarmVal |= (uint16_t)(1 << 15U);
+
 
     SetReadRegisterValue(MB_ALARM_16, _u16TempAlarmVal);
 
@@ -1134,7 +1126,9 @@ void MB_APP::prvUpadateDIGInOut()
 {
     /* SOLID STATE Output */
     _u16TempAlarmVal = 0;
-
+    _u16TempAlarmVal |=   (uint16_t)(1 << 0); /* Reserved */
+    _u16TempAlarmVal |=   (uint16_t)(1 << 1); /* Reserved */
+    _u16TempAlarmVal |=   (uint16_t)(1 << 2); /* Reserved */
     _u16TempAlarmVal |=   (uint16_t)(((START_STOP::IsMonitorDGIdleRunTrue() && (_hal.AcSensors.GENSET_GetPercentPower() <5)
                                    && (_Automode.EngineNotInCoolingStage())) || START_STOP::IsEngineOnFailToStopAck()) << 3);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.IsCommonAlarm() << 4);
@@ -1145,6 +1139,10 @@ void MB_APP::prvUpadateDIGInOut()
     _u16TempAlarmVal |=   (uint16_t)((START_STOP::IsStartRelayON()) << 9);
     _u16TempAlarmVal |=   (uint16_t)((_Automode.IsGenContactorClosed()) << 10);
     _u16TempAlarmVal |=   (uint16_t)((_Automode.IsMainsContactorClosed()) << 11);
+    _u16TempAlarmVal |=   (uint16_t)(1 << 12); /* Reserved */
+    _u16TempAlarmVal |=   (uint16_t)(1 << 13); /* Reserved */
+    _u16TempAlarmVal |=   (uint16_t)(1 << 14); /* Reserved */
+    _u16TempAlarmVal |=   (uint16_t)(1 << 15); /* Reserved */
 
     SetReadRegisterValue(SOLID_STATE_OP_REG, _u16TempAlarmVal);
 
@@ -1173,6 +1171,7 @@ void MB_APP::prvUpadateDIGInOut()
         }
         u8LocalCnt--;
     }
+    _u16TempAlarmVal |= (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SHELTER_TEMP_START_DG].bAlarmActive)  << 0U);
     SetReadRegisterValue(MB_DIG_OP_STATUS, _u16TempAlarmVal);
 
 #endif
@@ -1229,106 +1228,6 @@ void MB_APP::prvGetMiscParams()
     {
         stEepromMisc.u16Mbcount = 0;
     }
-}
-
-uint16_t MB_APP::GetGenStatusRegister()
-{
-    uint16_t u16GenStatus = 0;
-
-    /* Bit-15 for GCU Mode */
-    if(IS_DISP_CONFIG_MODE()||IS_DISP_PASSWORD_ENTRY_MODE()||IS_DISP_EVENT_LOG_MODE())
-    {
-        u16GenStatus|= (1U<<15);
-    }
-
-    /* Bit-14 for Mains healthy/unhealthy*/
-    if((_Automode.GetMainsStatus()==BASE_MODES::MAINS_HELATHY)
-            && _cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING))
-    {
-        u16GenStatus|= 1<<14;
-    }
-
-    /* Bit-13 and 12 unimplemented */
-    u16GenStatus |= (1 << 13);
-    u16GenStatus |= (0 << 12);
-
-    /*Bit-11 for DG Current Mode (Auto - Manual)*/
-    if(_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE)
-    {
-        u16GenStatus |= (1 << 11);
-    }
-
-    /*Bit-10 Load on Mains*/
-    if(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)==ACT_Manager::ACT_LATCHED)
-
-    {
-        u16GenStatus |= ((uint16_t)1U << 10U);
-    }
-
-    /*
-     * Bit-9 Load on DG*/
-    u16GenStatus |= (uint16_t)(_Automode.IsGenContactorClosed()<< 9U);
-
-    /*Bit-8 Current DG Status*/
-    if(_engineMonitoring.IsEngineOn())
-    {
-        u16GenStatus |= 1U << 8U;
-    }
-
-    /* Bit-7 DG Stopped Normally*/
-    if((_engineMonitoring.IsEngineOn()==false)
-            &&!(_gcuAlarm.IsCommonShutdown()
-                    ||_gcuAlarm.IsCommonElectricTrip()))
-    {
-        u16GenStatus |= 1U << 7U;
-    }
-
-    /* Bit-6 DG Stopped With Fault*/
-    if((_engineMonitoring.IsEngineOn()==false)
-            &&(_gcuAlarm.IsCommonShutdown()
-                    ||_gcuAlarm.IsCommonElectricTrip()))
-    {
-        u16GenStatus |= 1U << 6U;
-    }
-
-    /*
-     * Bit-5 DG fail to start*/
-    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::FAIL_TO_START))
-    {
-        u16GenStatus |= 1<< 5;
-    }
-
-    /* Bit-4 Genset Available*/
-    if( _engineMonitoring.IsGenAvailable())
-    {
-        u16GenStatus |= 1<< 4;
-    }
-
-    /* Bit-3 - Common shutdown */
-    if( _gcuAlarm.IsCommonShutdown())
-    {
-        u16GenStatus |= 1<< 3;
-    }
-
-    /* Bit-2 - Common electric trip*/
-    if( _gcuAlarm.IsCommonElectricTrip())
-    {
-        u16GenStatus |= 1<< 2;
-    }
-
-    /* Bit-1 - Common warning*/
-    if( _gcuAlarm.IsCommonWarning())
-    {
-        u16GenStatus |= 1<< 1;
-    }
-
-    /* Bit-0 - Common notification */
-    if( _gcuAlarm.IsCommonNotification())
-    {
-        u16GenStatus |= 1;
-    }
-
-    return u16GenStatus;
 }
 
 void MB_APP::prvUpdateLatestDM1Messages(void)
@@ -1523,148 +1422,70 @@ void MB_APP::prvUpdateDm01FaultCodesOnModbus(void)
         }
     }
 }
-
-
 #if (TEST_AUTOMATION == YES)
-//void MB_APP::prvUpdateMBReadRegisterForAutomation(bool bDeviceInConfigMode)
-//{
-//    _u16TempAlarmVal = 0U;
-//    _u16TempAlarmVal |= (uint16_t)(bDeviceInConfigMode <<15U);
-//    _u16TempAlarmVal |= (uint16_t)((BASE_MODES::GetMainsStatus()==BASE_MODES::MAINS_HELATHY) << 14U);
-//
-//    /*
-//        5 - Auto
-//        2 - GCU In Manual mode
-//        1 - Engine start in manual mode
-//
-//        As discussed with automation testing team, Default response of operation mode will be 2.
-//        This is done as the 3 bits representing operating mode does not have any free states to
-//        represent N/A. cyclic mode, BTS, etc. are not present in AL products.
-//    */
-//
-//    uint8_t tempMode=0x2;
-//    switch(_Automode.GetGCUOperatingMode())
-//    {
-//        case BASE_MODES::MANUAL_MODE:
-//            if(ENGINE_MONITORING::IsEngineOn())
-//            {
-//                tempMode=1;
-//            }
-//            else
-//            {
-//                tempMode=2;
-//            }
-//            break;
-//        case BASE_MODES::AUTO_MODE:
-//            tempMode=5;
-//            break;
-//        default:
-//            break;
-//    }
-//
-//    _u16TempAlarmVal |= (uint16_t)(tempMode<<11U);
-//    _u16TempAlarmVal |=  (uint16_t)(((BASE_MODES::IsGenContactorClosed()) && ((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR)
-//            != ACT_Manager:: ACT_NOT_CONFIGURED) || (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_GEN_OUT)
-//                    != ACT_Manager:: ACT_NOT_CONFIGURED)))<<10U);
-//    _u16TempAlarmVal |= (uint16_t)(((_Automode.IsMainsContactorClosed()) && ((_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)
-//            != ACT_Manager:: ACT_NOT_CONFIGURED) || (_hal.actuators.GetActStatus(ACTUATOR::ACT_OPEN_MAINS_OUT)
-//                    != ACT_Manager:: ACT_NOT_CONFIGURED)))<<9U);
-//    _u16TempAlarmVal |= (uint16_t)(ENGINE_MONITORING::IsEngineOn()<<8U);
-//
-//    static bool bEngineOnLatched=false;
-//    if(ENGINE_MONITORING::IsEngineOn() && !bEngineOnLatched)
-//    {
-//        bEngineOnLatched= true;
-//        /**
-//         * It is intended that if control reaches here, the 7th and 6th bits be set as zero. Since
-//         * _u16TempAlarmVal variable is initialized to zero, it is not explicitly reset here again.
-//         */
-//    }
-//    else if(bEngineOnLatched)
-//    {
-//        _u16TempAlarmVal |= (uint16_t)((!ENGINE_MONITORING::IsEngineOn() && !(_gcuAlarm.IsCommonElectricTrip() || _gcuAlarm.IsCommonShutdown()))<<7U);
-//        _u16TempAlarmVal |= (uint16_t)((!ENGINE_MONITORING::IsEngineOn() && (_gcuAlarm.IsCommonElectricTrip() || _gcuAlarm.IsCommonShutdown()))<<6U);
-//
-//        if(ENGINE_MONITORING::IsEngineOn())
-//        {
-//            bEngineOnLatched=false;
-//        }
-//    }
-//
-//    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.IsFailToStart() << 5U);
-//    _u16TempAlarmVal |= (uint16_t)(_engineMonitoring.IsGenAvailable() << 4U);
-//    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.IsCommonShutdown() << 3U);
-//    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.IsCommonElectricTrip() << 2U);
-//    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.IsCommonWarning() << 1U);
-//    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.IsCommonNotification()<<0U);
-//    SetReadRegisterValue(MB_AUTOMATION_DG_STATUS ,_u16TempAlarmVal);
-//
-//    _u16TempAlarmVal=0;
-//
-//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
-//    {
-//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_A, FIRST_NIBBLE);
-//    }
-//
-//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_B_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
-//    {
-//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_B, SECOND_NIBBLE);
-//    }
-//
-//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_C_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
-//    {
-//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_C, THIRD_NIBBLE);
-//    }
-//
-//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_D_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
-//    {
-//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_D, FOURTH_NIBBLE);
-//    }
-//
-//    SetReadRegisterValue(MB_AUTOMATION_ALARM_1 ,_u16TempAlarmVal);
-//
-//    _u16TempAlarmVal=0;
-//
-//    if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_E_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
-//    {
-//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_E, FIRST_NIBBLE);
-//    }
-//
-//    if((_cfgz.GetCFGZ_Param(CFGZ::ID_PIN26_SENS_SOURCE) == CFGZ::CFGZ_ANLG_DIG_IN) &&
-//            (_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_F_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR))
-//    {
-//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_F, SECOND_NIBBLE);
-//    }
-//
-//    if((_cfgz.GetCFGZ_Param(CFGZ::ID_PIN24_SENS_SOURCE) == CFGZ::CFGZ_ANLG_DIG_IN) &&
-//            (_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_G_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR))
-//    {
-//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_G, THIRD_NIBBLE);
-//    }
-//
-//    if((_cfgz.GetCFGZ_Param(CFGZ::ID_PIN25_SENS_SOURCE) == CFGZ::CFGZ_ANLG_DIG_IN) &&
-//            (_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_H_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR))
-//    {
-//        prvUpdateAlarmRegValue(GCU_ALARMS::DIG_IN_H, FOURTH_NIBBLE);
-//    }
-//
-//    SetReadRegisterValue(MB_AUTOMATION_ALARM_2 ,_u16TempAlarmVal);
-//
-//    _u16TempAlarmVal =0;
-//    _u16TempAlarmVal=_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_ON_STARTED_TIMER)<<0;
-//    _u16TempAlarmVal|=((_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_ON_PAUSED_TIMER))<<1);
-//    _u16TempAlarmVal|=((_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_OFF_STARTED_TIMER))<<2);
-//    _u16TempAlarmVal|=((_CyclicMode.IsCyclicTimerEnabled(BASE_MODES::CYCLIC_OFF_PAUSED_TIMER))<<3);
-//    SetReadRegisterValue(MB_AUTOMATION_CYCLIC_MODE ,_u16TempAlarmVal);
-//}
 
-void MB_APP::prvUpdateMBWriteRegisterForAutomation()
+void MB_APP::prvUpdatePGNNumber(void)
+{
+    uint32_t u32PGNNumber;
+    static uint16_t u16RxSPNNum;
+    static uint64_t* SPNVal;
+    uint8_t SPNStatus;
+
+    static DATABASE_RX_PGN_LIST_t eRxPGN;
+    if((GetRegisterValue(MB_APP::MB_PGN_LOW_WORD) != 0U)
+            || (GetRegisterValue(MB_APP::MB_PGN_HIGH_WORD) != 0U)
+            || (GetRegisterValue(MB_APP::MB_SPN_BIT_POSITION) != 0U))
+    {
+        u32PGNNumber = (uint32_t)GetRegisterValue(MB_APP::MB_PGN_LOW_WORD) | (uint32_t)((GetRegisterValue(MB_APP::MB_PGN_HIGH_WORD) & 0x0003)<<16);
+
+        SetWriteRegisterValue(MB_APP::MB_PGN_LOW_WORD, 0);
+        SetWriteRegisterValue(MB_APP::MB_PGN_HIGH_WORD, 0);
+        eRxPGN = gpJ1939->GetRXPGNEnum(u32PGNNumber);
+
+        if(eRxPGN < RX_PGN_LAST)
+        {
+            u16RxSPNNum = gpJ1939->GetSPNIndexFromStartBit(eRxPGN,GetRegisterValue(MB_APP::MB_SPN_BIT_POSITION));
+        }
+        else
+        {
+            u16RxSPNNum = 65535;
+
+        }
+        SetWriteRegisterValue(MB_APP::MB_SPN_BIT_POSITION , 0);
+
+    }
+
+    if((eRxPGN < RX_PGN_LAST) && (u16RxSPNNum !=65535U))
+    {
+        double SPNValTemp = gpJ1939->GetReadData(eRxPGN, (uint8_t)u16RxSPNNum);
+        SPNVal =  (uint64_t*)&(SPNValTemp);
+
+        SPNStatus = gpJ1939->GetSPNErrorStatus(eRxPGN,(uint8_t)u16RxSPNNum);
+
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_1, (uint16_t)((*SPNVal) & 0xFFFF));
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_2, (uint16_t)((*SPNVal>>16U) & 0xFFFF));
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_3, (uint16_t)((*SPNVal>>32U) & 0xFFFF));
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_4, (uint16_t)((*SPNVal>>48U) & 0xFFFF));
+        SetReadRegisterValue(MB_APP::MB_SPN_STATUS, SPNStatus);
+    }
+    else
+    {
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_1,  0xFFFF);
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_2,  0xFFFF);
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_3,  0xFFFF);
+        SetReadRegisterValue(MB_APP::MB_SPN_VALUE_4,  0xFFFF);
+        SetReadRegisterValue(MB_APP::MB_SPN_STATUS,   0xFFFF);
+    }
+
+}
+
+void MB_APP::prvUpdateMBWriteRegisterForAutomation(void)
 {
     bool bStoreInEeprom = false;
     MBWriteCommand command;
     command.u16CommandSet = GetRegisterValue(MB_APP::MB_AUTOMATION_WRITE_COMMAND);
 
-    if(command.stMBWriteCommandForAutomation.RTC==1U)
+    if(command.stMBWriteCommandForAutomation.RTC == 1U)
     {
         RTC::TIME_t currentTime;
 
@@ -1679,15 +1500,31 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation()
         command.stMBWriteCommandForAutomation.RTC=0;
     }
 
-    if(command.stMBWriteCommandForAutomation.EngineRunTime==1U)
+    if(command.stMBWriteCommandForAutomation.EngineRunTime == 1U)
     {
         bStoreInEeprom = true;
         uint32_t u32EngineRunTimeInMin = (uint32_t)(GetRegisterValue(MB_AUTOMATION_ENGINE_RUN_HOURS_1)*60U) + GetRegisterValue(MB_AUTOMATION_ENGINE_RUN_HOURS_2);
         _engineMonitoring.SetEngineRunTime(u32EngineRunTimeInMin);
         command.stMBWriteCommandForAutomation.EngineRunTime=0;
     }
+    
+    if(command.stMBWriteCommandForAutomation.MainsRunTime == 1U)
+    {
+        bStoreInEeprom = true;
+        uint32_t u32MainsRunTimeInMin = (uint32_t)(GetRegisterValue(MB_AUTOMATION_MAINS_RUN_HOURS_1)*60U) + GetRegisterValue(MB_AUTOMATION_MAINS_RUN_HOURS_2);
+        _engineMonitoring.SetMainsRunTime(u32MainsRunTimeInMin);
+        command.stMBWriteCommandForAutomation.MainsRunTime=0;
+    }
 
-    if(command.stMBWriteCommandForAutomation.ActiveEnergy==1U)
+    if(command.stMBWriteCommandForAutomation.BTSRunTime == 1U)
+    {
+        bStoreInEeprom = true;
+        uint32_t u32BTSRunTimeInMin = (uint32_t)(GetRegisterValue(MB_AUTOMATION_BTS_RUN_HOUR_1)*60U) + GetRegisterValue(MB_AUTOMATION_BTS_RUN_HOUR_2);
+        _engineMonitoring.SetBTSRunTime(u32BTSRunTimeInMin);
+        command.stMBWriteCommandForAutomation.BTSRunTime=0;
+    }
+
+    if(command.stMBWriteCommandForAutomation.ActiveEnergy == 1U)
     {
         bStoreInEeprom = true;
         uint32_t u32GenEnergy = (uint32_t)(GetRegisterValue(MB_AUTOMATION_GEN_ACTIVE_ENERGY_1));
@@ -1696,7 +1533,7 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation()
         command.stMBWriteCommandForAutomation.ActiveEnergy=0;
     }
 
-    if(command.stMBWriteCommandForAutomation.ApparentEnergy==1U)
+    if(command.stMBWriteCommandForAutomation.ApparentEnergy == 1U)
     {
         bStoreInEeprom = true;
         uint32_t u32GenEnergy = (uint32_t)(GetRegisterValue(MB_AUTOMATION_GEN_APPARENT_ENERGY_1));
@@ -1705,7 +1542,7 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation()
         command.stMBWriteCommandForAutomation.ApparentEnergy=0;
     }
 
-    if(command.stMBWriteCommandForAutomation.ReactiveEnergy==1U)
+    if(command.stMBWriteCommandForAutomation.ReactiveEnergy == 1U)
     {
         bStoreInEeprom = true;
         uint32_t u32GenEnergy = (uint32_t)(GetRegisterValue(MB_AUTOMATION_GEN_REACTIVE_ENERGY_1));
@@ -1714,7 +1551,7 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation()
         command.stMBWriteCommandForAutomation.ReactiveEnergy=0;
     }
 
-    if(command.stMBWriteCommandForAutomation.NumberOfStarts==1U)
+    if(command.stMBWriteCommandForAutomation.NumberOfStarts == 1U)
     {
         bStoreInEeprom = true;
         uint16_t u16NumberOfstarts = (uint16_t)GetRegisterValue(MB_AUTOMATION_NUMBER_OF_STARTS);
@@ -1722,7 +1559,7 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation()
         command.stMBWriteCommandForAutomation.NumberOfStarts=0;
     }
 
-    if(command.stMBWriteCommandForAutomation.NumberOfTrips==1U)
+    if(command.stMBWriteCommandForAutomation.NumberOfTrips == 1U)
     {
         bStoreInEeprom = true;
         uint16_t u16NumberOftrips = (uint16_t)GetRegisterValue(MB_AUTOMATION_NUMBER_OF_TRIPS);
@@ -1778,5 +1615,5 @@ void MB_APP::SetReadRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister, uint16_t
 }
 
 
-#endif
+#endif /* TEST_AUTOMATION == YES */
 

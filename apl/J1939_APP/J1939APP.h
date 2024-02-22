@@ -97,7 +97,7 @@ public:
     static bool bExecutePreheat;
 
     J1939APP(HAL_Manager &hal, CFGC &cfgc, CFGZ &cfgz, ENGINE_MONITORING &_engineMonitoring,  GCU_ALARMS &gcuAlarm,
-            MB_APP &mbApp,  AUTO_MODE  &Automode /*, EGOV &egov */);
+            AUTO_MODE  &Automode /*, EGOV &egov */);
     void Update(bool bDeviceInconfig);
     void InitAfterConfigChange();
     void ClearAllPGNsDataBuffs(void);
@@ -112,6 +112,7 @@ public:
     void LoadData(uint8_t u8PGNNum, uint8_t au8SPNDataBuf[8]);
     void GetSPN(uint8_t ubyPGN, uint8_t ubySPN, uint8_t u8TxOrRX, J1939_SPN_DB_t * pstGetSpn);
     void ExtractReadFrame();
+    DATABASE_RX_PGN_LIST_t GetRXPGNEnum(uint32_t u32ReceviedPgnNo);
     static void ClearCAN_Alarms(void);
     bool GetLampStatus(LAMP_st eLamp);
 
@@ -155,6 +156,9 @@ public:
     bool IsBeepOnTimerExpired();
     bool IsFaultCodeReceived(uint32_t u32SPNNo , uint8_t u8FMI);
     void UpdateInducementFlags(void);
+    uint16_t GetSPNIndexFromStartBit(DATABASE_RX_PGN_LIST_t eRxPGN , uint16_t u16StartPos);
+    uint16_t GetGenStatusRegister(void);
+
 
 
 private:
@@ -188,7 +192,6 @@ private:
     CFGZ              &_cfgz;
     ENGINE_MONITORING &_engMon;
     GCU_ALARMS        &_gcuAlarm;
-    MB_APP            &_ObjmbApp;
     AUTO_MODE         &_Automode;
 
     J1939_PGNs ubypReadTxPgns[TX_LAST_PGN];

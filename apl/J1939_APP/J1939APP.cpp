@@ -14,20 +14,20 @@
 
 #include "J1939APP.h"
 #include "START_STOP.h"
+#include "../HMI/MAIN_UI/MAIN_UI.h"
 static const float F32_Null = (float)0xFFFFFFFF;
 bool J1939APP::bEnableEngineStart      = false;
 bool J1939APP::bExecutePreheat         = false;
 
 
 J1939APP::J1939APP(HAL_Manager &hal, CFGC &cfgc, CFGZ &cfgz,ENGINE_MONITORING &engineMonitoring, GCU_ALARMS &gcuAlarm,
-        MB_APP &mbApp, AUTO_MODE  &Automode /*, EGOV &egov */):
+        AUTO_MODE  &Automode /*, EGOV &egov */):
 J1939DRIVER(hal),
 _hal(hal),
 _ObjCfgc(cfgc),
 _cfgz(cfgz),
 _engMon(engineMonitoring),
 _gcuAlarm(gcuAlarm),
-_ObjmbApp(mbApp),
 _Automode(Automode),
 ubypReadTxPgns
 {
@@ -638,7 +638,7 @@ void J1939APP::prvUpdatePGN65289Data(void)
 
 
     /* f32PGN_65289Data[16] to f32PGN_65289Data[29] are used to represent Gen status*/
-    u16GenStatus = _ObjmbApp.GetGenStatusRegister();
+    u16GenStatus = GetGenStatusRegister();
     for(uint8_t u8Indx2 = 0, u8Index = 16; u8Index < 30; u8Index++)
     {
         if(u8Indx2 == 11U)
@@ -1321,71 +1321,20 @@ void J1939APP::ExtractReadFrame(void)
                        break;
 
 
-                case DPFC1_PGN:
-                u8ReceivedPgnNo = RX_PGN_DPFC1_64892  ;
-                break;
-                case AT1T1I_PGN:
-                u8ReceivedPgnNo = RX_PGN_AT1T1I_65110  ;
-                break;
-
-                case PGN_EEC1   :
-                UTILS_ResetTimer(&_CommFailTimeout);
-                u8ReceivedPgnNo = RX_PGN_EEC1_61444    ;
-                _bIsCANJ1939CommFail = false;
-                break;
-                case PGN_EEC2   :
-                u8ReceivedPgnNo = RX_PGN_EEC2_61443 ;
-                break;
-                case PGN_EOI    :
-                u8ReceivedPgnNo = RX_PGN_EOI_64914 ;
-                break;
-                case PGN_HOURS  :
-                u8ReceivedPgnNo = RX_PGN_HOURS_65253 ;
-                break;
-                case PGN_LFC1   :
-                u8ReceivedPgnNo = RX_PGN_LFC1_65257 ;
-                break;
-                case PGN_ET1    :
-                u8ReceivedPgnNo = RX_PGN_ET1_65262 ;
-                break;
-                case PGN_EFL_P1 :
-                u8ReceivedPgnNo = RX_PGN_EFL_P1_65263 ;
-                break;
-                case PGN_AMB    :
-                u8ReceivedPgnNo = RX_PGN_AMB_65269 ;
-                break;
-                case PGN_VEP1   :
-                u8ReceivedPgnNo = RX_PGN_VEP1_65271 ;
-                break;
-                case PGN_WFI_OI :
-                u8ReceivedPgnNo = RX_PGN_WFI_OI_65279 ;
-                break;
-                case PGN_DEFA   :
-                u8ReceivedPgnNo = RX_PGN_DEFA_65383 ;
-                break;
-                case PGN_SHUTDN:
-                u8ReceivedPgnNo =  RX_PGN_SHUTDN_65252;
-                break;
-                case PGN_CSA:
-                u8ReceivedPgnNo = RX_PGN_CSA_64966;
-                break;
-                case PGN_DM03   :
-                u8ReceivedPgnNo = RX_PGN_DM03_65228;
-                break;
-                case PGN_IC1   :
-                u8ReceivedPgnNo = RX_PGN_IC1_65270;
-                break;
-                case PGN_LFE1   :
-                u8ReceivedPgnNo = RX_PGN_LFE1_65266;
-                break;
-
-               case PGN_DM11:
-                   _bClearActiveDTCs = true;
-                   u8ReceivedPgnNo = RX_PGN_LAST;
-                   break;
+                case PGN_DM11:
+                    _bClearActiveDTCs = true;
+                    u8ReceivedPgnNo = RX_PGN_LAST;
+                    break;
 
                 default:
+                    u8ReceivedPgnNo = GetRXPGNEnum(uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN);
                     break;
+            }
+
+            if(u8ReceivedPgnNo == RX_PGN_EEC1_61444)
+            {
+                UTILS_ResetTimer(&_CommFailTimeout);
+                _bIsCANJ1939CommFail = false;
             }
 
             if(RX_PGN_LAST > u8ReceivedPgnNo)
@@ -1414,6 +1363,70 @@ void J1939APP::ExtractReadFrame(void)
 }
 
 
+DATABASE_RX_PGN_LIST_t J1939APP::GetRXPGNEnum(uint32_t u32ReceivedPgnNo)
+{
+    DATABASE_RX_PGN_LIST_t eReceivedPgnNo = RX_PGN_LAST;
+    switch(u32ReceivedPgnNo)
+    {
+        case DPFC1_PGN:
+            eReceivedPgnNo = RX_PGN_DPFC1_64892  ;
+            break;
+        case AT1T1I_PGN:
+            eReceivedPgnNo = RX_PGN_AT1T1I_65110  ;
+            break;
+        case PGN_EEC1   :
+            eReceivedPgnNo = RX_PGN_EEC1_61444 ;
+            break;
+        case PGN_EEC2   :
+            eReceivedPgnNo = RX_PGN_EEC2_61443 ;
+            break;
+        case PGN_EOI    :
+            eReceivedPgnNo = RX_PGN_EOI_64914 ;
+            break;
+        case PGN_HOURS  :
+            eReceivedPgnNo = RX_PGN_HOURS_65253 ;
+            break;
+        case PGN_LFC1   :
+            eReceivedPgnNo = RX_PGN_LFC1_65257 ;
+            break;
+        case PGN_ET1    :
+            eReceivedPgnNo = RX_PGN_ET1_65262 ;
+            break;
+        case PGN_EFL_P1 :
+            eReceivedPgnNo = RX_PGN_EFL_P1_65263 ;
+            break;
+        case PGN_AMB    :
+            eReceivedPgnNo = RX_PGN_AMB_65269 ;
+            break;
+        case PGN_VEP1   :
+            eReceivedPgnNo = RX_PGN_VEP1_65271 ;
+            break;
+        case PGN_WFI_OI :
+            eReceivedPgnNo = RX_PGN_WFI_OI_65279 ;
+            break;
+        case PGN_DEFA   :
+            eReceivedPgnNo = RX_PGN_DEFA_65383 ;
+            break;
+        case PGN_SHUTDN:
+            eReceivedPgnNo =  RX_PGN_SHUTDN_65252;
+            break;
+        case PGN_CSA:
+            eReceivedPgnNo = RX_PGN_CSA_64966;
+            break;
+        case PGN_DM03   :
+            eReceivedPgnNo = RX_PGN_DM03_65228;
+            break;
+        case PGN_IC1   :
+            eReceivedPgnNo = RX_PGN_IC1_65270;
+            break;
+        case PGN_LFE1   :
+            eReceivedPgnNo = RX_PGN_LFE1_65266;
+            break;
+        default :
+            break;
+    }
+    return eReceivedPgnNo;
+}
 void J1939APP::Update(bool bDeviceInconfig)
 {
 #define GAIN 0.2f
@@ -2229,3 +2242,139 @@ void J1939APP::UpdateInducementFlags(void)
     }
 
 }
+
+uint16_t J1939APP::GetSPNIndexFromStartBit(DATABASE_RX_PGN_LIST_t eRxPGN , uint16_t u16StartPos)
+{
+    uint16_t u16Index = 0;
+    J1939_PGN_DB_t tSupportPGN1;
+    J1939_SPN_DB_t tSupportSPN1;
+    bool bFoundtheSPN = false;
+
+
+    GetPGN((uint8_t)eRxPGN, CALC_FOR_RECEIVE, &tSupportPGN1);
+    for(u16Index = 0; u16Index<tSupportPGN1.ubyPDU_SPNs; u16Index++)
+    {
+        GetSPN(eRxPGN, (uint8_t)u16Index, CALC_FOR_RECEIVE, &tSupportSPN1);
+        if(tSupportSPN1.u16SPN_Loc == u16StartPos)
+        {
+            bFoundtheSPN = true;
+            break;
+        }
+
+    }
+
+    if(bFoundtheSPN)
+    {
+        return u16Index;
+    }
+    else
+    {
+        return 65535;
+    }
+}
+
+uint16_t J1939APP::GetGenStatusRegister(void)
+{
+    uint16_t u16GenStatus = 0;
+
+    /* Bit-15 for GCU Mode */
+    if(IS_DISP_CONFIG_MODE()||IS_DISP_PASSWORD_ENTRY_MODE()||IS_DISP_EVENT_LOG_MODE())
+    {
+        u16GenStatus|= (1U<<15);
+    }
+
+    /* Bit-14 for Mains healthy/unhealthy*/
+    if((_Automode.GetMainsStatus()==BASE_MODES::MAINS_HELATHY)
+            && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
+    {
+        u16GenStatus|= 1<<14;
+    }
+
+    /* Bit-13 and 12 unimplemented 
+       Bits 12-14 implement the dg status
+       101 - Auto
+       100 - Manual 
+       So, the values of the first 2 bits are hard coded and the last bit is toggled based on the status
+    */
+    u16GenStatus |= (1 << 13);
+    u16GenStatus |= (0 << 12);
+
+    /*Bit-11 for DG Current Mode (Auto - Manual)*/
+    if(_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE)
+    {
+        u16GenStatus |= (1 << 11);
+    }
+
+    /*Bit-10 Load on Mains*/
+    if(_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_MAINS_CONTACTOR)==ACT_Manager::ACT_LATCHED)
+
+    {
+        u16GenStatus |= ((uint16_t)1U << 10U);
+    }
+
+    /*
+     * Bit-9 Load on DG*/
+    u16GenStatus |= (uint16_t)(_Automode.IsGenContactorClosed()<< 9U);
+
+    /*Bit-8 Current DG Status*/
+    if(_engMon.IsEngineOn())
+    {
+        u16GenStatus |= 1U << 8U;
+    }
+
+    /* Bit-7 DG Stopped Normally*/
+    if((_engMon.IsEngineOn()==false)
+            &&!(_gcuAlarm.IsCommonShutdown()
+                    ||_gcuAlarm.IsCommonElectricTrip()))
+    {
+        u16GenStatus |= 1U << 7U;
+    }
+
+    /* Bit-6 DG Stopped With Fault*/
+    if((_engMon.IsEngineOn()==false)
+            &&(_gcuAlarm.IsCommonShutdown()
+                    ||_gcuAlarm.IsCommonElectricTrip()))
+    {
+        u16GenStatus |= 1U << 6U;
+    }
+
+    /*
+     * Bit-5 DG fail to start*/
+    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::FAIL_TO_START))
+    {
+        u16GenStatus |= 1<< 5;
+    }
+
+    /* Bit-4 Genset Available*/
+    if( _engMon.IsGenAvailable())
+    {
+        u16GenStatus |= 1<< 4;
+    }
+
+    /* Bit-3 - Common shutdown */
+    if( _gcuAlarm.IsCommonShutdown())
+    {
+        u16GenStatus |= 1<< 3;
+    }
+
+    /* Bit-2 - Common electric trip*/
+    if( _gcuAlarm.IsCommonElectricTrip())
+    {
+        u16GenStatus |= 1<< 2;
+    }
+
+    /* Bit-1 - Common warning*/
+    if( _gcuAlarm.IsCommonWarning())
+    {
+        u16GenStatus |= 1<< 1;
+    }
+
+    /* Bit-0 - Common notification */
+    if( _gcuAlarm.IsCommonNotification())
+    {
+        u16GenStatus |= 1;
+    }
+
+    return u16GenStatus;
+}
+

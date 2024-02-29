@@ -46,7 +46,7 @@ _PowerOnUpdateTimer{0, false}
     }
     else
     {
-        AnlgIp.SetHSDKFactor(1250.0F);
+        AnlgIp.SetHSDKFactor(1547.0F);
     }
 
     prvCheckFirmwareInfo();

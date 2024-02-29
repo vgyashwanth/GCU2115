@@ -368,11 +368,11 @@ const char *StrMainsStatus[1][STR_MAINS_STATUS_LAST] =
 char strAuxAString[MAX_AUX_STRING_SIZE],strAuxBString[MAX_AUX_STRING_SIZE],strAuxCString[MAX_AUX_STRING_SIZE];
 char strAuxDString[MAX_AUX_STRING_SIZE],strAuxEString[MAX_AUX_STRING_SIZE],strAuxFString[MAX_AUX_STRING_SIZE];
 char strAuxGString[MAX_AUX_STRING_SIZE],strAuxHString[MAX_AUX_STRING_SIZE],strAuxIString[MAX_AUX_STRING_SIZE];
-char strAuxJString[MAX_AUX_STRING_SIZE],strAuxKString[MAX_AUX_STRING_SIZE],strAuxLString[21];
-char strAuxMString[21],strAuxNString[21],strAuxOString[21],strAuxPString[21];
-char strAuxS1String[21],strAuxS2String[21],strAuxS3String[21],strAuxS4String[21];
-char strAuxQString[21],strAuxRString[21];
-char strProfile[21];
+char strAuxJString[MAX_AUX_STRING_SIZE],strAuxKString[MAX_AUX_STRING_SIZE],strAuxLString[MAX_AUX_STRING_SIZE];
+char strAuxMString[MAX_AUX_STRING_SIZE],strAuxNString[MAX_AUX_STRING_SIZE],strAuxOString[MAX_AUX_STRING_SIZE],strAuxPString[MAX_AUX_STRING_SIZE];
+char strAuxS1String[MAX_AUX_STRING_SIZE],strAuxS2String[MAX_AUX_STRING_SIZE],strAuxS3String[MAX_AUX_STRING_SIZE],strAuxS4String[MAX_AUX_STRING_SIZE];
+char strAuxQString[MAX_AUX_STRING_SIZE],strAuxRString[MAX_AUX_STRING_SIZE];
+char strProfile[MAX_AUX_STRING_SIZE];
 
 const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
 {

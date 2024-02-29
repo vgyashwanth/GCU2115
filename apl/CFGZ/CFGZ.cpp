@@ -174,8 +174,17 @@ bool CFGZ::IsConfigWritten()
 
 void CFGZ::ReadFactoryProfile()
 {
-    _hal.Objpflash.Read(FACTORY_CFGZ_ADDRESS,
+    _hal.Objpflash.Read(GetFactoryProfilesStartAddress(),
                         (uint8_t*)&_All_Param,  sizeof(CFGZ_PARAMS_t));
+}
+
+uint32_t CFGZ::GetFactoryProfilesStartAddress()
+{
+    if(_hal.Objpflash.GetCodeFlashSize() == 0x100000U)
+    {
+        return FACTORY_CFGZ_ADDRESS_1_MB_MCU;
+    }
+    return FACTORY_CFGZ_ADDRESS_512_KB_MCU;
 }
 
 void CFGZ::prvConfigureDSENSE()
@@ -640,8 +649,6 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
      { CFGZ_DIG_IN_N                          , ACTUATOR::ACT_DIG_IN_N                   },
      { CFGZ_DIG_IN_O                          , ACTUATOR::ACT_DIG_IN_O                   },
      { CFGZ_DIG_IN_P                          , ACTUATOR::ACT_DIG_IN_P                   },
-     { CFGZ_DIG_IN_Q                          , ACTUATOR::ACT_DIG_IN_Q                   },
-     { CFGZ_DIG_IN_R                          , ACTUATOR::ACT_DIG_IN_R                   },
      { CFGZ_E_STOP                            , ACTUATOR::ACT_E_STOP                     },
      { CFGZ_STOP_SOLENOID                     , ACTUATOR::ACT_STOP_SOLENOID              },
      { CFGZ_FAIL_TO_START                     , ACTUATOR::ACT_FAIL_TO_START              },
@@ -680,6 +687,8 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
      { CFGZ_ECU_START                         , ACTUATOR::ACT_ECU_START                  },
      { CFGZ_MIL                               , ACTUATOR::ACT_MIL                        },
      {CFGZ_INDUCEMENT_BUZZER                  , ACTUATOR::ACT_INDUCEMENT_BUZZER          },
+     { CFGZ_DIG_IN_Q                          , ACTUATOR::ACT_DIG_IN_Q                   },
+     { CFGZ_DIG_IN_R                          , ACTUATOR::ACT_DIG_IN_R                   },
     };
 
     for(uint8_t i=0;i<(sizeof(dsenseMap)/sizeof(ACTUATOR_MAP_ROW_t));i++)

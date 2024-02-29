@@ -639,11 +639,12 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             prvSetAlarmActivation(SUPERCAP_FAIL, u8Activation);
             ArrAlarmMonitoring[SUPERCAP_FAIL].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
 
-            ArrAlarmMonitoring[SUPERCAP_FAIL].pValue = &_ArrAlarmValue[SUPERCAP_FAIL_STATUS];
+            ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[SUPERCAP_FAIL_STATUS];            
             prvSetAlarmActivation(u8InputIndex, u8Activation);
 
+            ArrAlarmMonitoring[SUPERCAP_FAIL].pValue = &_ArrAlarmValue[SUPERCAP_FAIL_STATUS];
             ArrAlarmMonitoring[SUPERCAP_FAIL].u8LoggingID = SuperCap_Charge_Fail_id;
-            ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[SUPERCAP_FAIL_STATUS];
+            
 
             break;
     }

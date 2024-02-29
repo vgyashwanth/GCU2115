@@ -1684,7 +1684,7 @@ void UI::prvFetchProfileNames()
     for(uint8_t i=0; i<MAX_NUMBER_OF_PROFILE; i++)
     {
 
-        _objHal.Objpflash.Read((FACTORY_CFGZ_ADDRESS+ (i * (sizeof(CFGZ::CFGZ_PARAMS_t) - sizeof(uint8_t)*(DUMMY_ITEMS)))), (uint8_t*)&param, sizeof(CFGZ::CFGZ_PARAMS_t) );
+        _objHal.Objpflash.Read((_objcfgz.GetFactoryProfilesStartAddress()+ (i * (sizeof(CFGZ::CFGZ_PARAMS_t) - sizeof(uint8_t)*(DUMMY_ITEMS)))), (uint8_t*)&param, sizeof(CFGZ::CFGZ_PARAMS_t) );
 
        memcpy( profilename[i], &param.u8ArrStringParam[CFGZ::ID_ARR_PROFILE], 21);
        _arrProfileNames[i]=profilename[i];
@@ -1721,7 +1721,7 @@ void UI::SaveConfigFile()
 
         if( _MiscParam.u8MiscParam[PROFILE_NO] != ArrEditableItem[INDEX_OF_ACTIVE_PROFILE].value.u8Val)
         {
-            _objHal.Objpflash.Read((FACTORY_CFGZ_ADDRESS+ (ArrEditableItem[INDEX_OF_ACTIVE_PROFILE].value.u8Val
+            _objHal.Objpflash.Read((_objcfgz.GetFactoryProfilesStartAddress()+ (ArrEditableItem[INDEX_OF_ACTIVE_PROFILE].value.u8Val
                     *( sizeof(CFGZ::CFGZ_PARAMS_t)- sizeof(uint8_t)*DUMMY_ITEMS))), (uint8_t*)&AllParam, sizeof(CFGZ::CFGZ_PARAMS_t) );
             _MiscParam.u8MiscParam[PROFILE_NO] = ArrEditableItem[INDEX_OF_ACTIVE_PROFILE].value.u8Val;
         }

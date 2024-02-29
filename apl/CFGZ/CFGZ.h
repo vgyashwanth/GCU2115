@@ -942,6 +942,8 @@ class CFGZ
 
    void ReadFactoryProfile();
 
+   uint32_t GetFactoryProfilesStartAddress();
+
    SM_DFLASH_STATUS ReturnCFGZFlashState();
 
    void EnableDisableMainsParam();

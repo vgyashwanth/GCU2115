@@ -9,7 +9,7 @@ AcSensors(this->AcIp, this->AnlgIp),
 #endif /* SUPPORT_CALIBRATION */
 DigitalSensors(this->dip), // @suppress("Symbol is not resolved")
 AnalogSensors(this->AnlgIp, this->PulseIp, this->AcIp, this->AcSensors),
-actuators(this->stpr, this->hsdManager),
+actuators(this->hsdManager),
 _PowerOnUpdate{0, false}
 {
     UTILS_ResetTimer(&_PowerOnUpdate);

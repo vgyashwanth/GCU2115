@@ -96,7 +96,7 @@
 /**********************************************************/
 
 /**********************************PFlash***********************************/
-#define FACTORY_CFGZ_ADDRESS                      0x78000
+#define FACTORY_CFGZ_ADDRESS                      0xF8000
 
 
 #define MAX_NUMBER_OF_PROFILE   10

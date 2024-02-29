@@ -297,6 +297,19 @@ void CFGZ::prvConfigureDSENSE()
     cfg.stDIConfig[D_SENSE::DI_P].u16ActivationDelaySeconds =
             (uint8_t)_All_Param.u8ArrParam[ID_AUX_S4_DIG_P_DIG_ACTIVATION_DELAY];
 
+    cfg.stDIConfig[D_SENSE::DI_Q].eType                     =
+            prvGetDigitalSensor(ID_DIG_IN_Q_SOURCE, D_SENSE::DI_Q);
+    cfg.stDIConfig[D_SENSE::DI_Q].eActivationPolarity       =
+            (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_Q_POLARITY];
+    cfg.stDIConfig[D_SENSE::DI_Q].u16ActivationDelaySeconds =
+            (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_Q_ACTIVATION_DELAY];
+    cfg.stDIConfig[D_SENSE::DI_R].eType                     =
+            prvGetDigitalSensor(ID_DIG_IN_R_SOURCE, D_SENSE::DI_R);
+    cfg.stDIConfig[D_SENSE::DI_R].eActivationPolarity       =
+            (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_R_POLARITY];
+    cfg.stDIConfig[D_SENSE::DI_R].u16ActivationDelaySeconds =
+            (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_R_ACTIVATION_DELAY];
+
     _hal.DigitalSensors.ConfigureSensor(cfg);
 }
 
@@ -332,7 +345,8 @@ DigitalSensor::D_SENSOR_TYPS_t CFGZ::prvGetDigitalSensor(uint8_t u8CfgSensorIdx,
      { CFGZ_AMB_TEMP_SELECT                          , DigitalSensor:: DI_AMB_TEMP_SELECT             },
      {CFGZ_EGR_ECU_DIGITAL_IN                        , DigitalSensor::DI_EGR_ECU_DIGITAL_IN           },
      { CFGZ_EB_MCCB_ON_FEEDBACK                      , DigitalSensor:: DI_EB_MCCB_ON_FEEDBACK         },
-     { CFGZ_DG_MCCB_ON_FEEDBACK                      , DigitalSensor:: DI_DG_MCCB_ON_FEEDBACK         }
+     { CFGZ_DG_MCCB_ON_FEEDBACK                      , DigitalSensor:: DI_DG_MCCB_ON_FEEDBACK         },
+     { CFGZ_SUPERCAP_FAIL                            , DigitalSensor:: DI_SUPERCAP_FAIL               }
     };
 
     /*Configurable input types*/
@@ -353,7 +367,9 @@ DigitalSensor::D_SENSOR_TYPS_t CFGZ::prvGetDigitalSensor(uint8_t u8CfgSensorIdx,
      DigitalSensor::DI_M_USER_CONFIGURED,
      DigitalSensor::DI_N_USER_CONFIGURED,
      DigitalSensor::DI_O_USER_CONFIGURED,
-     DigitalSensor::DI_P_USER_CONFIGURED
+     DigitalSensor::DI_P_USER_CONFIGURED,
+     DigitalSensor::DI_Q_USER_CONFIGURED,
+     DigitalSensor::DI_R_USER_CONFIGURED
     };
     if(_All_Param.u8ArrParam[u8CfgSensorIdx] == CFGZ_USER_CONFIGURED_SENSOR)
     {
@@ -624,6 +640,8 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
      { CFGZ_DIG_IN_N                          , ACTUATOR::ACT_DIG_IN_N                   },
      { CFGZ_DIG_IN_O                          , ACTUATOR::ACT_DIG_IN_O                   },
      { CFGZ_DIG_IN_P                          , ACTUATOR::ACT_DIG_IN_P                   },
+     { CFGZ_DIG_IN_Q                          , ACTUATOR::ACT_DIG_IN_Q                   },
+     { CFGZ_DIG_IN_R                          , ACTUATOR::ACT_DIG_IN_R                   },
      { CFGZ_E_STOP                            , ACTUATOR::ACT_E_STOP                     },
      { CFGZ_STOP_SOLENOID                     , ACTUATOR::ACT_STOP_SOLENOID              },
      { CFGZ_FAIL_TO_START                     , ACTUATOR::ACT_FAIL_TO_START              },

@@ -30,7 +30,7 @@ void D_SENSE::ConfigureSensor(CFG_t &cfg)
                            &_digIp.InputG, &_digIp.InputH, &_digIp.InputI,
                            &_digIp.InputJ, &_digIp.InputK, &_digIp.InputL,
                            &_digIp.InputM, &_digIp.InputN, &_digIp.InputO,
-                           &_digIp.InputP};
+                           &_digIp.InputP, &_digIp.InputQ, &_digIp.InputR};
 
     for(int i=0;i<DI_END;i++)
     {

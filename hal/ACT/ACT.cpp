@@ -76,15 +76,13 @@ bool ACTUATOR::GetActuatorStatus()
     return _ActuatorStatus;
 }
 
-ACT_Manager::ACT_Manager(STPR_DRV &stprDrv, HSD_Manager &HSDManager):
-_StprDrv(stprDrv),
+ACT_Manager::ACT_Manager(HSD_Manager &HSDManager):
 _HSDManager(HSDManager),
 _actuators{{HSDManager.HSD_OP_A}, {HSDManager.HSD_OP_B},
            {HSDManager.HSD_OP_C}, {HSDManager.HSD_OP_D},
            {HSDManager.HSD_OP_E}, {HSDManager.HSD_OP_F},
-           {HSDManager.HSD_OP_G}},
-_eDirectionToStop(STPR_DRV::BSP_DIR_CLOCKWISE),
-_eType(A3981)
+           {HSDManager.HSD_OP_G}, {HSDManager.HSD_OP_H},
+           {HSDManager.HSD_OP_I}}
 {
     
 }
@@ -156,69 +154,10 @@ void ACT_Manager::DeactivateAll()
     {
         _actuators[i].Deactivate();
     }
-	_StprDrv.Deactivate();
 }
 
-void ACT_Manager::STPR_ConfigDirection(STPR_DRV::DRV_DIR_t eDir)
-{
-    if(_eType == A3981)
-    {
-        _eDirectionToStop =eDir;
-    }
-    else
-    {
-        if(eDir == STPR_DRV::BSP_DIR_CLOCKWISE)
-        {
-            _eDirectionToStop = STPR_DRV::BSP_DIR_ANTICLOCKWISE;
-        }
-        else
-        {
-            _eDirectionToStop = STPR_DRV::BSP_DIR_CLOCKWISE;
-        }
-    }
-}
 
-void ACT_Manager::STPR_Rotate(uint16_t u16Steps, bool bDir)
-{
-    STPR_DRV::DRV_DIR_t  eDir;
 
-    if(bDir == true)
-    {
-        if(_eDirectionToStop == STPR_DRV::BSP_DIR_ANTICLOCKWISE)
-        {
-            eDir = STPR_DRV::BSP_DIR_CLOCKWISE;
-        }
-        else
-        {
-            eDir = STPR_DRV::BSP_DIR_ANTICLOCKWISE;
-        }
-    }
-    else
-    {
-        if(_eDirectionToStop == STPR_DRV::BSP_DIR_ANTICLOCKWISE)
-        {
-            eDir = STPR_DRV::BSP_DIR_ANTICLOCKWISE ;
-        }
-        else
-        {
-            eDir = STPR_DRV::BSP_DIR_CLOCKWISE;
-        }
-    }
-    _StprDrv.Activate();
-    _StprDrv.Rotate(eDir, u16Steps);
-}
 
-void ACT_Manager::STPR_MoveToHome()
-{
-    STPR_Rotate(PULSE_TO_GO_HOME_POSITION, 0);
-}
 
-uint16_t ACT_Manager::STPR_GetRunninStepCnt()
-{
-    return _StprDrv.GetRunninStepCnt();
-}
 
-void ACT_Manager::SetStepperDriveType(ALEGRO_t eType)
-{
-    _eType =eType;
-}

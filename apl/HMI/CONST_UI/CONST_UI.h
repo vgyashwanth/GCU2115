@@ -133,6 +133,7 @@ extern char strAuxJString[MAX_AUX_STRING_SIZE], strAuxKString[MAX_AUX_STRING_SIZ
 extern char strAuxOString[MAX_AUX_STRING_SIZE], strAuxPString[MAX_AUX_STRING_SIZE];
 extern char strAuxS1String[MAX_AUX_STRING_SIZE], strAuxS2String[MAX_AUX_STRING_SIZE],
             strAuxS3String[MAX_AUX_STRING_SIZE], strAuxS4String[MAX_AUX_STRING_SIZE];
+extern char strAuxQString[MAX_AUX_STRING_SIZE], strAuxRString[MAX_AUX_STRING_SIZE];
 extern char strProfile[MAX_AUX_STRING_SIZE];
 
 extern const char *StrDays[1][7];

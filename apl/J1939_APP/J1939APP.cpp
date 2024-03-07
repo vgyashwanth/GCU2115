@@ -1129,10 +1129,27 @@ void J1939APP::prvUpdatePGN65293Data(void)
     UpdateAlarmRegValue(GCU_ALARMS::DG_PHASE_ROTATION, ALARM_BYTE_9, (float*)&f32PGN_65293Data[0]);
     UpdateAlarmRegValue(GCU_ALARMS::EB_PHASE_ROTATION, ALARM_BYTE_8, (float*)&f32PGN_65293Data[0]);
 
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    A_SENSE::SENSOR_RET_t stval = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED} ;
+
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
     {
-        UpdateAlarmRegValue(GCU_ALARMS::OPEN_AN_SEN_S2_CKT, ALARM_BYTE_15 , (float*)&f32PGN_65293Data[0]);
+        stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
     }
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    {
+        stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
+    }
+
+    if(stval.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT)
+    {
+        f32PGN_65293Data[ALARM_BYTE_15] = 1U;
+    }
+    else
+    {
+        f32PGN_65293Data[ALARM_BYTE_15] = 0U;
+    }
+
+
 
     f32PGN_65293Data[ALARM_BYTE_14] = F32_Null;
     f32PGN_65293Data[ALARM_BYTE_13] = F32_Null;
@@ -1140,10 +1157,6 @@ void J1939APP::prvUpdatePGN65293Data(void)
     if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_OIL_PRESS_DETECTED))
     {
         UpdateAlarmRegValue(GCU_ALARMS::HIGH_OIL_PRESS_DETECTED, ALARM_BYTE_12 , (float*)&f32PGN_65293Data[0]);
-    }
-    else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LLOP_SWITCH))
-    {
-        UpdateAlarmRegValue(GCU_ALARMS::LLOP_SWITCH, ALARM_BYTE_12 , (float*)&f32PGN_65293Data[0]);
     }
     else
     {
@@ -1210,8 +1223,14 @@ void J1939APP::prvUpdatePGN65295Data(void)
         ;
     }
 
-    stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
-
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    {
+        stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
+    }
+    else //if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    {
+        stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
+    }
 
     if((stval.eStatus!=A_SENSE::SENSOR_NOT_CONFIGRUED)
                && (stval.stValAndStatus.eState != ANLG_IP::BSP_STATE_OPEN_CKT ))
@@ -1243,6 +1262,8 @@ void J1939APP::prvUpdatePGN65296Data(void)
 }
 void J1939APP::prvUpdatePGN65297Data(void)
 {
+    f32PGN_65297Data[1] = F32_Null;
+    
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
     {
         f32PGN_65297Data[0] = (float)(_hal.AcSensors.GENSET_GetTotalReactiveEnergySinceInitVARH()/1000);

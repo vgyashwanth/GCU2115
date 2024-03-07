@@ -393,7 +393,7 @@ private:
         &J1939APP::prvUpdatePGN65291Data,
         &J1939APP::prvUpdatePGN65292Data,
         &J1939APP::prvUpdatePGN65293Data,
-        &J1939APP::prvUpdatePGN65294Data
+        &J1939APP::prvUpdatePGN65294Data,
         &J1939APP::prvUpdatePGN65295Data,
         &J1939APP::prvUpdatePGN65296Data,
         &J1939APP::prvUpdatePGN65297Data,

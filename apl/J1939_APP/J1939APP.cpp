@@ -107,6 +107,7 @@ ubypReadRxPgns{
     f32PGN_65291Data{0},
     f32PGN_65292Data{0},
     f32PGN_65293Data{0},
+    f32PGN_65294Data{0},
     f32PGN_65295Data{0},
     f32PGN_65296Data{0},
     f32PGN_65297Data{0},
@@ -219,7 +220,7 @@ void J1939APP::ClearAllPGNsDataBuffs(void)
         f32PGN_64911Data[u8Local] = F32_Null;
     }
 
-    for(u8Local=0; u8Local<5; u8Local++)
+    for(u8Local=0; u8Local<17; u8Local++)
     {
         f32PGN_65280Data[u8Local] = F32_Null;
     }
@@ -229,6 +230,7 @@ void J1939APP::ClearAllPGNsDataBuffs(void)
         f32PGN_65291Data[u8Local] = F32_Null;
         f32PGN_65292Data[u8Local] = F32_Null;
         f32PGN_65293Data[u8Local] = F32_Null;
+        f32PGN_65294Data[u8Local] = F32_Null;
     }
 
     for(u8Local=0; u8Local<32; u8Local++)
@@ -607,12 +609,24 @@ void J1939APP::prvUpdatePGN65280Data(void)
     }
 
 
-    f32PGN_65280Data[1] = 3;  //Reserved
+    f32PGN_65280Data[1] = 0x3F;  //Reserved
+    f32PGN_65280Data[2] = 0x1F;  //Reserved
 
+    f32PGN_65289Data[3] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(ID_OUT_I_SOURCE))
+                == ACT_Manager::ACT_LATCHED));
 
-    f32PGN_65280Data[2] = 0xFFFF; //Reserved
-    f32PGN_65280Data[3] = _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_FREQ);
-    f32PGN_65280Data[4] = _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_VOLT);
+    f32PGN_65289Data[4] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(ID_OUT_H_SOURCE))
+                == ACT_Manager::ACT_LATCHED));
+
+    for(uint8_t u8Index = 13 ,u8Local=GCU_ALARMS::DIG_IN_J; u8Local <= GCU_ALARMS::DIG_IN_R; u8Local++)
+    {
+        f32PGN_65289Data[u8Index] = ((uint8_t)_gcuAlarm.AlarmResultLatched((GCU_ALARMS::ALARM_LIST_t)u8Local));
+        u8Index--;
+    }
+
+    f32PGN_65280Data[14] = _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_FREQ);
+    f32PGN_65280Data[15] = _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_VOLT);
+    f32PGN_65280Data[16] = 0xFFFF;
 }
 void J1939APP::prvUpdatePGN65289Data(void)
 {
@@ -1136,6 +1150,30 @@ void J1939APP::prvUpdatePGN65293Data(void)
     }
 }
 
+void J1939APP::prvUpdatePGN65294Data(void)
+{
+    memset((void*)&f32PGN_65294Data, 0x00, sizeof(f32PGN_65294Data));
+
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_J, ALARM_BYTE_3, (float*)&f32PGN_65294Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_K, ALARM_BYTE_2, (float*)&f32PGN_65294Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_L, ALARM_BYTE_1, (float*)&f32PGN_65294Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_M, ALARM_BYTE_0, (float*)&f32PGN_65294Data[0]);
+
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_N, ALARM_BYTE_7, (float*)&f32PGN_65294Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_O, ALARM_BYTE_6, (float*)&f32PGN_65294Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_P, ALARM_BYTE_5, (float*)&f32PGN_65294Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_Q, ALARM_BYTE_4, (float*)&f32PGN_65294Data[0]);
+
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_R, ALARM_BYTE_11, (float*)&f32PGN_65294Data[0]);
+    f32PGN_65294Data[ALARM_BYTE_10] = F32_Null; /* reserved */
+    f32PGN_65294Data[ALARM_BYTE_9] = F32_Null; /* reserved */
+    f32PGN_65294Data[ALARM_BYTE_8] = F32_Null; /* reserved */
+
+    f32PGN_65294Data[ALARM_BYTE_15] = F32_Null; /* reserved */
+    f32PGN_65294Data[ALARM_BYTE_14] = F32_Null; /* reserved */
+    f32PGN_65294Data[ALARM_BYTE_13] = F32_Null; /* reserved */
+    f32PGN_65294Data[ALARM_BYTE_12] = F32_Null; /* reserved */
+}
 
 void J1939APP::prvUpdatePGN65295Data(void)
 {

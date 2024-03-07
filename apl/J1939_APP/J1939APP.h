@@ -214,12 +214,13 @@ private:
     float f32PGN_65029Data[2];
     float f32PGN_65028Data[3];
     float f32PGN_64911Data[3];
-    float f32PGN_65280Data[5];
+    float f32PGN_65280Data[17];
     float f32PGN_65289Data[32];
     float f32PGN_65290Data[4];
     float f32PGN_65291Data[16];
     float f32PGN_65292Data[16];
     float f32PGN_65293Data[16];
+    float f32PGN_65294Data[16];
     float f32PGN_65295Data[4];
     float f32PGN_65296Data[2];
     float f32PGN_65297Data[2];
@@ -249,6 +250,7 @@ private:
         f32PGN_65291Data,
         f32PGN_65292Data,
         f32PGN_65293Data,
+        f32PGN_65294Data,
         f32PGN_65295Data,
         f32PGN_65296Data,
         f32PGN_65297Data,
@@ -360,6 +362,7 @@ private:
     void prvUpdatePGN65291Data(void);
     void prvUpdatePGN65292Data(void);
     void prvUpdatePGN65293Data(void);
+    void prvUpdatePGN65294Data(void);
     void prvUpdatePGN65295Data(void);
     void prvUpdatePGN65296Data(void);
     void prvUpdatePGN65297Data(void);
@@ -390,6 +393,7 @@ private:
         &J1939APP::prvUpdatePGN65291Data,
         &J1939APP::prvUpdatePGN65292Data,
         &J1939APP::prvUpdatePGN65293Data,
+        &J1939APP::prvUpdatePGN65294Data
         &J1939APP::prvUpdatePGN65295Data,
         &J1939APP::prvUpdatePGN65296Data,
         &J1939APP::prvUpdatePGN65297Data,

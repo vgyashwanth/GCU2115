@@ -3205,12 +3205,14 @@ void MON_UI::prvNormalMonScreens()
             {
                 stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
                 float f32FuelPctValue = stTemp.stValAndStatus.f32InstSensorVal;
-                /*Convert from percentage to liters*/
-                stTemp.stValAndStatus.f32InstSensorVal = prvPin23ConvFuelLvlToLit(f32FuelPctValue);
 
                 if(!((_hal.AnalogSensors.GetS4VoltVal() > FUEL_VOLT_MAX_VAL) && (stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)))
                 {
-                    prvPrintSensorStatus(stTemp,(char*)"Liters", FLOAT_TYPE);
+                    sprintf(arrTemp,"%d",(uint16_t)(f32FuelPctValue));
+                    _Disp.gotoxy(GLCD_X(93),GLCD_Y(50));
+                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                    _Disp.gotoxy(GLCD_X(94),GLCD_Y(50));
+                    _Disp.printStringLeftAligned((char*)"%",FONT_VERDANA);
                 }
 
                 if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
@@ -3231,13 +3233,11 @@ void MON_UI::prvNormalMonScreens()
                         _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
 
-                        if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_IN_PCT) == CFGZ::CFGZ_ENABLE)
+                        if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_IN_LITERS) == CFGZ::CFGZ_ENABLE)
                         {
-                            sprintf(arrTemp,"%d",(uint16_t)(f32FuelPctValue));
-                            _Disp.gotoxy(GLCD_X(93),GLCD_Y(50));
-                            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                            _Disp.gotoxy(GLCD_X(94),GLCD_Y(50));
-                            _Disp.printStringLeftAligned((char*)"%",FONT_VERDANA);
+                            /*Convert from percentage to liters*/
+                            stTemp.stValAndStatus.f32InstSensorVal = prvPin23ConvFuelLvlToLit(f32FuelPctValue);
+                            prvPrintSensorStatus(stTemp,(char*)"Liters", FLOAT_TYPE);
                         }
                     }
                 }

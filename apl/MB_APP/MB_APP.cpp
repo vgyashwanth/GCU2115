@@ -579,7 +579,7 @@ void MB_APP::prvUpdateEngSensorAlarms(uint8_t u8AlarmID1, uint8_t u8AlarmID2, ui
         }
         else if(_gcuAlarm.ArrAlarmMonitoring[u8AlarmID3].bAlarmActive)
         {
-            prvUpdateAlarmRegValue(u8AlarmID2, u8Offset);
+            prvUpdateAlarmRegValue(u8AlarmID3, u8Offset);
         }
         else
         {

@@ -231,7 +231,7 @@ void J1939APP::ClearAllPGNsDataBuffs(void)
         f32PGN_65293Data[u8Local] = F32_Null;
     }
 
-    for(u8Local=0; u8Local<32; u8Local++)
+    for(u8Local=0; u8Local<34; u8Local++)
     {
         f32PGN_65289Data[u8Local] = F32_Null;
     }
@@ -623,13 +623,13 @@ void J1939APP::prvUpdatePGN65289Data(void)
 
     /* f32PGN_65289Data[0] to f32PGN_65289Data[15] are used for Input Output
      * diagnostics*/
-    for(uint8_t u8Index = 15 ,u8Local=GCU_ALARMS::DIG_IN_A; u8Local <=GCU_ALARMS::DIG_IN_H; u8Local++)
+    for(uint8_t u8Index = 15 ,u8Local=GCU_ALARMS::DIG_IN_A; u8Local <= GCU_ALARMS::DIG_IN_I; u8Local++)
     {
         f32PGN_65289Data[u8Index] = ((uint8_t)_gcuAlarm.AlarmResultLatched((GCU_ALARMS::ALARM_LIST_t)u8Local));
         u8Index--;
     }
 
-    for(uint8_t u8Index = 7 ,u8Local=CFGZ::ID_OUT_A_SOURCE; u8Local <=CFGZ::ID_OUT_G_SOURCE; u8Local=u8Local+2)
+    for(uint8_t u8Index = 6 ,u8Local=CFGZ::ID_OUT_A_SOURCE; u8Local <= CFGZ::ID_OUT_G_SOURCE; u8Local=u8Local + 2)fhnrynry
     {
         f32PGN_65289Data[u8Index] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u8Local))
                 == ACT_Manager::ACT_LATCHED));
@@ -639,7 +639,7 @@ void J1939APP::prvUpdatePGN65289Data(void)
 
     /* f32PGN_65289Data[16] to f32PGN_65289Data[29] are used to represent Gen status*/
     u16GenStatus = GetGenStatusRegister();
-    for(uint8_t u8Indx2 = 0, u8Index = 16; u8Index < 30; u8Index++)
+    for(uint8_t u8Indx2 = 0, u8Index = 16; u8Index < 32; u8Index++)
     {
         if(u8Indx2 == 11U)
         {
@@ -670,14 +670,16 @@ void J1939APP::prvUpdatePGN65289Data(void)
 
     /* f32PGN_65289Data[30] to f32PGN_65289Data[31] are used to send Number
      * of Starts and Trips.*/
-    f32PGN_65289Data[30] = (float)_engMon.GetEngineNoOfStarts();
-    f32PGN_65289Data[31] = (float)_engMon.GetEngineNoOfTrips();
+    f32PGN_65289Data[32] = (float)_engMon.GetEngineNoOfStarts();
+    f32PGN_65289Data[33] = (float)_engMon.GetEngineNoOfTrips();
 }
 
 void J1939APP::prvUpdatePGN65290Data(void)
 {
-    f32PGN_65290Data[0] = (uint16_t)(_engMon.GetEngineRunTimeMin() /60);
-    f32PGN_65290Data[1] = (uint16_t)(_engMon.GetEngineRunTimeMin() % 60);
+    f32PGN_65290Data[0] = (uint16_t)(_gcuAlarm.GetSelectedEngRunMin() /60);
+    f32PGN_65290Data[1] = (uint16_t)(_gcuAlarm.GetSelectedEngRunMin() % 60);
+    f32PGN_65290Data[2] = F32_Null;
+    f32PGN_65290Data[3] = F32_Null;
 }
 
 
@@ -831,80 +833,77 @@ void J1939APP::prvUpdatePGN65291Data(void)
 {
     memset((void*)&f32PGN_65291Data, 0x00, sizeof(f32PGN_65291Data));
 
-    UpdateDGVoltAlarms( GCU_ALARMS::LOW_OIL_PRESS_WARNING  ,
-                   GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN, ALARM_BYTE_0,(float*)&f32PGN_65291Data[0]);
-
-        if(_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HIGH_WATER_TEMP_SHUTDOWN)  ||
-        _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HIGH_WATER_TEMP_WARNING)
-            ||  _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HWT_SWITCH))
+    if(_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN) ||
+            _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_OIL_PRESS_WARNING)
+            ||  _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LLOP_SWITCH))
     {
-        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_SHUTDOWN))
+        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOW_OIL_PRESS_SHUTDOWN))
         {
-            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_SHUTDOWN ;
+            f32PGN_65291Data[ALARM_BYTE_3] = ALARM_SHUTDOWN ;
         }
-        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
-                && _gcuAlarm.IsShutdownAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LLOP_SWITCH)
+                && _gcuAlarm.IsShutdownAlarmEnabled(GCU_ALARMS::LLOP_SWITCH))
         {
-            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_SHUTDOWN ;
+            f32PGN_65291Data[ALARM_BYTE_3] = ALARM_SHUTDOWN ;
         }
-        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
-                && _gcuAlarm.IsElectricTripAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LLOP_SWITCH)
+                && _gcuAlarm.IsElectricTripAlarmEnabled(GCU_ALARMS::LLOP_SWITCH))
         {
-            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_ELEC_TRIP ;
+            f32PGN_65291Data[ALARM_BYTE_3] = ALARM_ELEC_TRIP ;
         }
-        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
-                && _gcuAlarm.IsWarningAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LLOP_SWITCH)
+                && _gcuAlarm.IsWarningAlarmEnabled(GCU_ALARMS::LLOP_SWITCH))
         {
-            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_WARNING ;
+            f32PGN_65291Data[ALARM_BYTE_3] = ALARM_WARNING ;
         }
-        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_WARNING))
+        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOW_OIL_PRESS_WARNING))
         {
-            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_WARNING;
+            f32PGN_65291Data[ALARM_BYTE_3] =  ALARM_WARNING;
         }
-        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
-                && _gcuAlarm.IsNotificationAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LLOP_SWITCH)
+                && _gcuAlarm.IsNotificationAlarmEnabled(GCU_ALARMS::LLOP_SWITCH))
         {
-            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_NOTIFICATION;
+            f32PGN_65291Data[ALARM_BYTE_3] =  ALARM_NOTIFICATION;
         }
         else
         {
-            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_INACTIVE;
+            f32PGN_65291Data[ALARM_BYTE_3] =  ALARM_INACTIVE;
         }
     }
     else
     {
-        f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_DISABLED;
+        f32PGN_65291Data[ALARM_BYTE_3] =  ALARM_DISABLED;
     }
-    
-    if(_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN) ||
-            _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION)
-            ||  _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LFL_SWITCH))
+
+    if(_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HIGH_WATER_TEMP_SHUTDOWN)  ||
+    _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HIGH_WATER_TEMP_WARNING)
+        ||  _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::HWT_SWITCH))
     {
-        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN))
+        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_SHUTDOWN))
         {
             f32PGN_65291Data[ALARM_BYTE_2] = ALARM_SHUTDOWN ;
         }
-        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
-                && _gcuAlarm.IsShutdownAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
+                && _gcuAlarm.IsShutdownAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
         {
             f32PGN_65291Data[ALARM_BYTE_2] = ALARM_SHUTDOWN ;
         }
-        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
-                && _gcuAlarm.IsElectricTripAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
+                && _gcuAlarm.IsElectricTripAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
         {
             f32PGN_65291Data[ALARM_BYTE_2] = ALARM_ELEC_TRIP ;
         }
-        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
-                && _gcuAlarm.IsWarningAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
+                && _gcuAlarm.IsWarningAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
         {
             f32PGN_65291Data[ALARM_BYTE_2] = ALARM_WARNING ;
         }
-        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION))
+        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_WATER_TEMP_WARNING))
         {
-            f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_NOTIFICATION;
+            f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_WARNING;
         }
-        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
-                && _gcuAlarm.IsNotificationAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::HWT_SWITCH)
+                && _gcuAlarm.IsNotificationAlarmEnabled(GCU_ALARMS::HWT_SWITCH))
         {
             f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_NOTIFICATION;
         }
@@ -917,140 +916,224 @@ void J1939APP::prvUpdatePGN65291Data(void)
     {
         f32PGN_65291Data[ALARM_BYTE_2] =  ALARM_DISABLED;
     }
-    UpdateAlarmRegValue(GCU_ALARMS::RWL_SWITCH, ALARM_BYTE_3 , (float*)&f32PGN_65291Data[0]);
-
-    UpdateAlarmRegValue(GCU_ALARMS::UNDERSPEED, ALARM_BYTE_4 , (float*)&f32PGN_65291Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::OVERSPEED_L1, ALARM_BYTE_5 , (float*)&f32PGN_65291Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::FAIL_TO_START, ALARM_BYTE_6 , (float*)&f32PGN_65291Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::FAIL_TO_STOP, ALARM_BYTE_7 , (float*)&f32PGN_65291Data[0]);
-
-    if((_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_R_UV_WARNING)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_Y_UV_WARNING)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_B_UV_WARNING))
-            || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_R_UV_SHUTDOWN)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_Y_UV_SHUTDOWN))|| (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_B_UV_SHUTDOWN)))
+    
+    if(_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN) ||
+            _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION)
+            ||  _gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::LFL_SWITCH))
     {
-        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_UV_WARNING) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_UV_WARNING) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_UV_WARNING) )
+        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_SHUTDOWN))
         {
-            f32PGN_65291Data[ALARM_BYTE_8] =  (uint16_t)(ALARM_WARNING);
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_SHUTDOWN ;
         }
-        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_UV_SHUTDOWN) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_UV_SHUTDOWN) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_UV_SHUTDOWN) )
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
+                && _gcuAlarm.IsShutdownAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
         {
-            f32PGN_65291Data[ALARM_BYTE_8] =  (uint16_t)(ALARM_SHUTDOWN);
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_SHUTDOWN ;
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
+                && _gcuAlarm.IsElectricTripAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
+        {
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_ELEC_TRIP ;
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
+                && _gcuAlarm.IsWarningAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
+        {
+            f32PGN_65291Data[ALARM_BYTE_1] = ALARM_WARNING ;
+        }
+        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOW_FUEL_LEVEL_NOTIFICATION))
+        {
+            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_NOTIFICATION;
+        }
+        else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LFL_SWITCH)
+                && _gcuAlarm.IsNotificationAlarmEnabled(GCU_ALARMS::LFL_SWITCH))
+        {
+            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_NOTIFICATION;
         }
         else
         {
-            f32PGN_65291Data[ALARM_BYTE_8] =  (uint16_t)(ALARM_INACTIVE );
+            f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_INACTIVE;
         }
     }
     else
     {
-        f32PGN_65291Data[ALARM_BYTE_8] =  (uint16_t)(ALARM_DISABLED );
+        f32PGN_65291Data[ALARM_BYTE_1] =  ALARM_DISABLED;
     }
+    UpdateAlarmRegValue(GCU_ALARMS::RWL_SWITCH, ALARM_BYTE_0 , (float*)&f32PGN_65291Data[0]);
 
-    if((_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_R_OV_WARNING)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_Y_OV_WARNING)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_B_OV_WARNING))
-            || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_R_OV_SHUTDOWN)) || (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_Y_OV_SHUTDOWN))|| (_gcuAlarm.IsAlarmMonEnabled(GCU_ALARMS::DG_B_OV_SHUTDOWN)))
-    {
-        if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_OV_WARNING) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_OV_WARNING) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_OV_WARNING) )
-        {
-            f32PGN_65291Data[ALARM_BYTE_9] =  (uint16_t)(ALARM_WARNING);
-        }
-        else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_OV_SHUTDOWN) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_OV_SHUTDOWN) || _gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_OV_SHUTDOWN) )
-        {
-            f32PGN_65291Data[ALARM_BYTE_9] =  (uint16_t)(ALARM_SHUTDOWN);
-        }
-        else
-        {
-            f32PGN_65291Data[ALARM_BYTE_9] =  (uint16_t)(ALARM_INACTIVE );
-        }
-    }
-    else
-    {
-        f32PGN_65291Data[ALARM_BYTE_9] =  (uint16_t)(ALARM_DISABLED );
-    }
-
+    UpdateAlarmRegValue(GCU_ALARMS::UNDERSPEED, ALARM_BYTE_7 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::OVERSPEED_L1, ALARM_BYTE_6 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::FAIL_TO_START, ALARM_BYTE_5 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::FAIL_TO_STOP, ALARM_BYTE_4 , (float*)&f32PGN_65291Data[0]);
 
     UpdateDGVoltAlarms( GCU_ALARMS::UNDERFREQ_WARNING  ,
-               GCU_ALARMS::UNDERFREQ_SHUTDOWN, ALARM_BYTE_10,(float*)&f32PGN_65291Data[0]);
+               GCU_ALARMS::UNDERFREQ_SHUTDOWN, ALARM_BYTE_9,(float*)&f32PGN_65291Data[0]);
     UpdateDGVoltAlarms( GCU_ALARMS::OVERFREQ_WARNING  ,
-               GCU_ALARMS::OVERFREQ_SHUTDOWN, ALARM_BYTE_11,(float*)&f32PGN_65291Data[0]);
+               GCU_ALARMS::OVERFREQ_SHUTDOWN, ALARM_BYTE_8,(float*)&f32PGN_65291Data[0]);
 
-    UpdateAlarmRegValue(GCU_ALARMS::OVERCURRENT, ALARM_BYTE_12 , (float*)&f32PGN_65291Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::OVERLOAD, ALARM_BYTE_13 , (float*)&f32PGN_65291Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::LOAD_UNBALANCE, ALARM_BYTE_14 , (float*)&f32PGN_65291Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::ESTOP, ALARM_BYTE_15 , (float*)&f32PGN_65291Data[0]);
+    f32PGN_65291Data[ALARM_BYTE_10] = F32_Null;
+    f32PGN_65291Data[ALARM_BYTE_11] = F32_Null;
+
+    UpdateAlarmRegValue(GCU_ALARMS::OVERCURRENT, ALARM_BYTE_15 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::OVERLOAD, ALARM_BYTE_14 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::LOAD_UNBALANCE, ALARM_BYTE_13 , (float*)&f32PGN_65291Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::ESTOP, ALARM_BYTE_12 , (float*)&f32PGN_65291Data[0]);
 
 }
 void J1939APP::prvUpdatePGN65292Data(void)
 {
     memset((void*)&f32PGN_65292Data, 0x00, sizeof(f32PGN_65292Data));
 
+    UpdateAlarmRegValue(GCU_ALARMS::CA_FAIL, ALARM_BYTE_3 , (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::FILT_MAINTENANCE, ALARM_BYTE_2 , (float*)&f32PGN_65292Data[0]);
+    f32PGN_65292Data[ALARM_BYTE_1] = F32_Null;
     f32PGN_65292Data[ALARM_BYTE_0] = F32_Null;
-    UpdateAlarmRegValue(GCU_ALARMS::FILT_MAINTENANCE, ALARM_BYTE_1 , (float*)&f32PGN_65292Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::FILT_MAINTENANCE, ALARM_BYTE_1 , (float*)&f32PGN_65292Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::CA_FAIL, ALARM_BYTE_2 , (float*)&f32PGN_65292Data[0]);
-    f32PGN_65292Data[ALARM_BYTE_3] = F32_Null;
 
-    UpdateAlarmRegValue(GCU_ALARMS::VBAT_UV, ALARM_BYTE_4, (float*)&f32PGN_65292Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::VBAT_OV, ALARM_BYTE_5 , (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::VBAT_UV, ALARM_BYTE_7, (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::VBAT_OV, ALARM_BYTE_6 , (float*)&f32PGN_65292Data[0]);
     UpdateAlarmRegValue(GCU_ALARMS::OPEN_ENG_TEMP_CKT, ALARM_BYTE_5 , (float*)&f32PGN_65292Data[0]);
-    f32PGN_65292Data[ALARM_BYTE_7] = F32_Null;
+    f32PGN_65292Data[ALARM_BYTE_4] = F32_Null;
 
-    UpdateAlarmRegValue(GCU_ALARMS::FUEL_THEFT, ALARM_BYTE_8 , (float*)&f32PGN_65292Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::MPU_LOSS, ALARM_BYTE_9 , (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::FUEL_THEFT, ALARM_BYTE_11 , (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::MPU_LOSS, ALARM_BYTE_10 , (float*)&f32PGN_65292Data[0]);
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                     ||
        (_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2))
     {
         if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::OPEN_LOP_SENS_CKT))
         {
-            UpdateAlarmRegValue(GCU_ALARMS::OPEN_LOP_SENS_CKT, ALARM_BYTE_10,(float*)&f32PGN_65292Data[0] );
+            UpdateAlarmRegValue(GCU_ALARMS::OPEN_LOP_SENS_CKT, ALARM_BYTE_9,(float*)&f32PGN_65292Data[0] );
         }
         else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::LOP_SENS_SHORT_TO_BATTERY))
         {
-            UpdateAlarmRegValue(GCU_ALARMS::LOP_SENS_SHORT_TO_BATTERY, ALARM_BYTE_10 , (float*)&f32PGN_65292Data[0]);
+            UpdateAlarmRegValue(GCU_ALARMS::LOP_SENS_SHORT_TO_BATTERY, ALARM_BYTE_9 , (float*)&f32PGN_65292Data[0]);
         }
         else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::OPEN_LOP_CURR_SENS_CKT))
         {
-            UpdateAlarmRegValue(GCU_ALARMS::OPEN_LOP_CURR_SENS_CKT, ALARM_BYTE_10 , (float*)&f32PGN_65292Data[0]);
+            UpdateAlarmRegValue(GCU_ALARMS::OPEN_LOP_CURR_SENS_CKT, ALARM_BYTE_9 , (float*)&f32PGN_65292Data[0]);
         }
         else
         {
-            f32PGN_65292Data[ALARM_BYTE_10]= (uint16_t)(0);
+            f32PGN_65292Data[ALARM_BYTE_9]= (uint16_t)(0);
         }
     }
     else
     {
-        UpdateAlarmRegValue(GCU_ALARMS::OPEN_LOP_SENS_CKT, ALARM_BYTE_10 , (float*)&f32PGN_65292Data[0]);
+        UpdateAlarmRegValue(GCU_ALARMS::OPEN_LOP_SENS_CKT, ALARM_BYTE_9 , (float*)&f32PGN_65292Data[0]);
     }
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_I, ALARM_BYTE_11, (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_I, ALARM_BYTE_8, (float*)&f32PGN_65292Data[0]);
 
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_A, ALARM_BYTE_12, (float*)&f32PGN_65292Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_B, ALARM_BYTE_13, (float*)&f32PGN_65292Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_C, ALARM_BYTE_14, (float*)&f32PGN_65292Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_D, ALARM_BYTE_15, (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_A, ALARM_BYTE_15, (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_B, ALARM_BYTE_14, (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_C, ALARM_BYTE_13, (float*)&f32PGN_65292Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_D, ALARM_BYTE_12, (float*)&f32PGN_65292Data[0]);
 
 }
 void J1939APP::prvUpdatePGN65293Data(void)
 {
     memset((void*)&f32PGN_65293Data, 0x00, sizeof(f32PGN_65293Data));
 
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_E, ALARM_BYTE_0, (float*)&f32PGN_65293Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_F, ALARM_BYTE_1, (float*)&f32PGN_65293Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_G, ALARM_BYTE_2, (float*)&f32PGN_65293Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_H, ALARM_BYTE_3, (float*)&f32PGN_65293Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_E, ALARM_BYTE_3, (float*)&f32PGN_65293Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_F, ALARM_BYTE_2, (float*)&f32PGN_65293Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_G, ALARM_BYTE_1, (float*)&f32PGN_65293Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_H, ALARM_BYTE_0, (float*)&f32PGN_65293Data[0]);
 
-    f32PGN_65293Data[ALARM_BYTE_4] = F32_Null;
-    f32PGN_65293Data[ALARM_BYTE_5] = F32_Null;
-    f32PGN_65293Data[ALARM_BYTE_6] = F32_Null;
-    f32PGN_65293Data[ALARM_BYTE_7] = F32_Null;
 
-    f32PGN_65293Data[ALARM_BYTE_8] = F32_Null;
-    f32PGN_65293Data[ALARM_BYTE_9] = F32_Null;
-    f32PGN_65293Data[ALARM_BYTE_10] = F32_Null;
-    f32PGN_65293Data[ALARM_BYTE_11] = F32_Null;
+    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_UV_SHUTDOWN))
+    {
+        f32PGN_65293Data[ALARM_BYTE_7] = ALARM_SHUTDOWN;
+    }
+    else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_UV_WARNING))
+    {
+    f32PGN_65293Data[ALARM_BYTE_7] = ALARM_WARNING;
+    }
+    else
+    {
+        // do nothing
+    }
+    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_OV_SHUTDOWN))
+    {
+        f32PGN_65293Data[ALARM_BYTE_6] = ALARM_SHUTDOWN;
+    }
+    else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_R_OV_WARNING))
+    {
+        f32PGN_65293Data[ALARM_BYTE_6] = ALARM_WARNING;
+    }
+    else
+    {
+        // do nothing
+    }
+    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_UV_SHUTDOWN))
+    {
+        f32PGN_65293Data[ALARM_BYTE_5] = ALARM_SHUTDOWN;
+    }
+    else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_UV_WARNING))
+    {
+        f32PGN_65293Data[ALARM_BYTE_5] = ALARM_SHUTDOWN;
+    }
+    else
+    {
+        // do nothing
+    }
+    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_OV_SHUTDOWN))
+    {
+        f32PGN_65293Data[ALARM_BYTE_4] = ALARM_WARNING;
+    }
+    else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_Y_OV_SHUTDOWN))
+    {
+        f32PGN_65293Data[ALARM_BYTE_4] = ALARM_SHUTDOWN;
+    }
+    else
+    {
+        // do nothing
+    }
+    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_UV_SHUTDOWN))
+    {
+        f32PGN_65293Data[ALARM_BYTE_11] = ALARM_WARNING;
+    }
+    else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_UV_SHUTDOWN))
+    {
+        f32PGN_65293Data[ALARM_BYTE_11] = ALARM_SHUTDOWN;
+    }
+    else
+    {
+        // do nothing
+    }
+    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_OV_SHUTDOWN))
+    {
+        f32PGN_65293Data[ALARM_BYTE_10] = ALARM_WARNING;
+    }
+    else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::DG_B_OV_SHUTDOWN))
+    {
+        f32PGN_65293Data[ALARM_BYTE_10] = ALARM_SHUTDOWN;
+    }
+    else
+    {
+        // do nothing
+    }
 
-    f32PGN_65293Data[ALARM_BYTE_12] = F32_Null;
-    f32PGN_65293Data[ALARM_BYTE_13] = F32_Null;
+    UpdateAlarmRegValue(GCU_ALARMS::DG_PHASE_ROTATION, ALARM_BYTE_9, (float*)&f32PGN_65293Data[0]);
+    UpdateAlarmRegValue(GCU_ALARMS::EB_PHASE_ROTATION, ALARM_BYTE_8, (float*)&f32PGN_65293Data[0]);
+
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    {
+        UpdateAlarmRegValue(GCU_ALARMS::OPEN_AN_SEN_S2_CKT, ALARM_BYTE_15 , (float*)&f32PGN_65293Data[0]);
+    }
+
     f32PGN_65293Data[ALARM_BYTE_14] = F32_Null;
-    f32PGN_65293Data[ALARM_BYTE_15] = F32_Null;
+    f32PGN_65293Data[ALARM_BYTE_13] = F32_Null;
+
+    if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::HIGH_OIL_PRESS_DETECTED))
+    {
+        UpdateAlarmRegValue(GCU_ALARMS::HIGH_OIL_PRESS_DETECTED, ALARM_BYTE_12 , (float*)&f32PGN_65293Data[0]);
+    }
+    else if (_gcuAlarm.IsAlarmActive(GCU_ALARMS::LLOP_SWITCH))
+    {
+        UpdateAlarmRegValue(GCU_ALARMS::LLOP_SWITCH, ALARM_BYTE_12 , (float*)&f32PGN_65293Data[0]);
+    }
+    else
+    {
+        // do nothing
+    }
 }
 
 
@@ -2277,7 +2360,7 @@ uint16_t J1939APP::GetGenStatusRegister(void)
 {
     uint16_t u16GenStatus = 0;
 
-    /* Bit-15 for GCU Mode */
+    /* Bit-15 for GCU Mode */ ggbee
     if(IS_DISP_CONFIG_MODE()||IS_DISP_PASSWORD_ENTRY_MODE()||IS_DISP_EVENT_LOG_MODE())
     {
         u16GenStatus|= (1U<<15);

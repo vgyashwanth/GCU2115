@@ -231,7 +231,7 @@ void J1939APP::ClearAllPGNsDataBuffs(void)
         f32PGN_65293Data[u8Local] = F32_Null;
     }
 
-    for(u8Local=0; u8Local<34; u8Local++)
+    for(u8Local=0; u8Local<32; u8Local++)
     {
         f32PGN_65289Data[u8Local] = F32_Null;
     }
@@ -629,7 +629,7 @@ void J1939APP::prvUpdatePGN65289Data(void)
         u8Index--;
     }
 
-    for(uint8_t u8Index = 6 ,u8Local=CFGZ::ID_OUT_A_SOURCE; u8Local <= CFGZ::ID_OUT_G_SOURCE; u8Local=u8Local + 2)fhnrynry
+    for(uint8_t u8Index = 6 ,u8Local=CFGZ::ID_OUT_A_SOURCE; u8Local <= CFGZ::ID_OUT_G_SOURCE; u8Local=u8Local + 2)
     {
         f32PGN_65289Data[u8Index] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u8Local))
                 == ACT_Manager::ACT_LATCHED));
@@ -670,8 +670,8 @@ void J1939APP::prvUpdatePGN65289Data(void)
 
     /* f32PGN_65289Data[30] to f32PGN_65289Data[31] are used to send Number
      * of Starts and Trips.*/
-    f32PGN_65289Data[32] = (float)_engMon.GetEngineNoOfStarts();
-    f32PGN_65289Data[33] = (float)_engMon.GetEngineNoOfTrips();
+    f32PGN_65289Data[30] = (float)_engMon.GetEngineNoOfStarts();
+    f32PGN_65289Data[31] = (float)_engMon.GetEngineNoOfTrips();
 }
 
 void J1939APP::prvUpdatePGN65290Data(void)
@@ -2360,7 +2360,7 @@ uint16_t J1939APP::GetGenStatusRegister(void)
 {
     uint16_t u16GenStatus = 0;
 
-    /* Bit-15 for GCU Mode */ ggbee
+    /* Bit-15 for GCU Mode */
     if(IS_DISP_CONFIG_MODE()||IS_DISP_PASSWORD_ENTRY_MODE()||IS_DISP_EVENT_LOG_MODE())
     {
         u16GenStatus|= (1U<<15);

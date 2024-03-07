@@ -215,7 +215,7 @@ private:
     float f32PGN_65028Data[3];
     float f32PGN_64911Data[3];
     float f32PGN_65280Data[5];
-    float f32PGN_65289Data[34];
+    float f32PGN_65289Data[32];
     float f32PGN_65290Data[4];
     float f32PGN_65291Data[16];
     float f32PGN_65292Data[16];

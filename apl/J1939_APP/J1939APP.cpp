@@ -1129,28 +1129,28 @@ void J1939APP::prvUpdatePGN65293Data(void)
     UpdateAlarmRegValue(GCU_ALARMS::DG_PHASE_ROTATION, ALARM_BYTE_9, (float*)&f32PGN_65293Data[0]);
     UpdateAlarmRegValue(GCU_ALARMS::EB_PHASE_ROTATION, ALARM_BYTE_8, (float*)&f32PGN_65293Data[0]);
 
-    A_SENSE::SENSOR_RET_t stval = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED} ;
+    // A_SENSE::SENSOR_RET_t stval = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED} ;
 
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-    {
-        stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
-    }
-    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-    {
-        stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
-    }
+    // if(_cfgz.GetCFGZ_Param(CFGZ::ID_FUEL_LVL_DIG_K_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    // {
+    //     stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
+    // }
+    // else if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
+    // {
+    //     stval = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
+    // }
 
-    if(stval.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT)
-    {
-        f32PGN_65293Data[ALARM_BYTE_15] = 1U;
-    }
-    else
-    {
-        f32PGN_65293Data[ALARM_BYTE_15] = 0U;
-    }
+    // if(stval.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT)
+    // {
+    //     f32PGN_65293Data[ALARM_BYTE_15] = 1U;
+    // }
+    // else
+    // {
+    //     f32PGN_65293Data[ALARM_BYTE_15] = 0U;
+    // }
 
 
-
+    f32PGN_65293Data[ALARM_BYTE_15] = F32_Null;
     f32PGN_65293Data[ALARM_BYTE_14] = F32_Null;
     f32PGN_65293Data[ALARM_BYTE_13] = F32_Null;
 
@@ -1263,7 +1263,7 @@ void J1939APP::prvUpdatePGN65296Data(void)
 void J1939APP::prvUpdatePGN65297Data(void)
 {
     f32PGN_65297Data[1] = F32_Null;
-    
+
     if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_PRESENT))
     {
         f32PGN_65297Data[0] = (float)(_hal.AcSensors.GENSET_GetTotalReactiveEnergySinceInitVARH()/1000);

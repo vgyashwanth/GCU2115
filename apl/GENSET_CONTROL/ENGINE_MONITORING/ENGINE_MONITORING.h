@@ -68,6 +68,7 @@ public:
 
 /* Status prototypes */
     bool IsGenStartValid();
+    bool IsLOPSensorConfigured();
     static uint8_t IsEngineOn();
     static uint8_t IsEngineOff();
     static uint8_t IsGenAvailable();

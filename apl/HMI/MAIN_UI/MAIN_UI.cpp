@@ -76,6 +76,8 @@ _u16ScreenChangeTime(_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TI
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_SENSOR_S2_NAME ,strAuxS2String );
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_SENSOR_S3_NAME ,strAuxS3String );
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_SENSOR_S4_NAME ,strAuxS4String );
+    _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_AUX_INPUT_Q, strAuxQString);
+    _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_AUX_INPUT_R, strAuxRString);
 
     /* Copy profile name */
     _cfgz.GetCFGZ_Param(CFGZ::ID_ARR_PROFILE, strProfile);

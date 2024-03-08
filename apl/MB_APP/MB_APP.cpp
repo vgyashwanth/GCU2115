@@ -579,7 +579,7 @@ void MB_APP::prvUpdateEngSensorAlarms(uint8_t u8AlarmID1, uint8_t u8AlarmID2, ui
         }
         else if(_gcuAlarm.ArrAlarmMonitoring[u8AlarmID3].bAlarmActive)
         {
-            prvUpdateAlarmRegValue(u8AlarmID2, u8Offset);
+            prvUpdateAlarmRegValue(u8AlarmID3, u8Offset);
         }
         else
         {
@@ -758,7 +758,7 @@ void MB_APP::prvUpdateGCUAlarms()
     _u16TempAlarmVal |=   (uint16_t)(1 << 11); /* Reserved */
     _u16TempAlarmVal |=   (uint16_t)(1 << 12); /* Reserved */
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::RWL_SWITCH].bAlarmActive << 13);
-    _u16TempAlarmVal |=   (uint16_t)(1 << 14); /* Reserved */
+    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SUPERCAP_FAIL].bAlarmActive << 14); /* Reserved */
     _u16TempAlarmVal |=   (uint16_t)(1 << 15); /* Reserved */
 
 
@@ -968,9 +968,9 @@ void MB_APP::prvUpdateGCUAlarms()
     _u16TempAlarmVal =0;
 
     prvUpdateEngSensorAlarms(GCU_ALARMS::V_BELT_BROKEN_SWITCH, THIRD_NIBBLE);
+    prvUpdateEngSensorAlarms(GCU_ALARMS::SUPERCAP_FAIL, SECOND_NIBBLE);
     prvUpdateEngSensorAlarms(GCU_ALARMS::HIGH_OIL_PRESS_DETECTED, FIRST_NIBBLE);
-
-    _u16TempAlarmVal |= 0xF0F0;
+    _u16TempAlarmVal |= 0xF000;
 
     SetReadRegisterValue(MB_ALARM_14, _u16TempAlarmVal);
 
@@ -1004,7 +1004,12 @@ void MB_APP::prvUpdateGCUAlarms()
     /* Alarm 17 */
     _u16TempAlarmVal = 0;
 
-    _u16TempAlarmVal |= 0xFFFF;
+    _u16TempAlarmVal |= (uint16_t)(1 << 4U);
+    _u16TempAlarmVal |= (uint16_t)(1 << 3U);
+    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_R].bAlarmActive << 1U);
+    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_Q].bAlarmActive << 0U);
+    
+    _u16TempAlarmVal |= 0xFFF0;
 
     SetReadRegisterValue(MB_ALARM_17, _u16TempAlarmVal);
 
@@ -1162,7 +1167,7 @@ void MB_APP::prvUpadateDIGInOut()
     _u16TempAlarmVal =0;
     u8LocalCnt = 15;
 
-    for(u8Local=CFGZ::ID_OUT_A_SOURCE; u8Local <=CFGZ::ID_OUT_G_SOURCE; u8Local=u8Local+2)
+    for(u8Local=CFGZ::ID_OUT_A_SOURCE; u8Local <=CFGZ::ID_OUT_I_SOURCE; u8Local=u8Local+2)
     {
         if(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u8Local))
                 == ACT_Manager::ACT_LATCHED)

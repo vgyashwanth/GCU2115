@@ -18,7 +18,6 @@
 #define _ACT_H_
 
 #include "stdint.h"
-#include "STPR_DRV.h"
 
 /* Forward declaration*/
 class STPR_DRV;
@@ -62,6 +61,8 @@ public:
         ACT_DIG_IN_N,
         ACT_DIG_IN_O,
         ACT_DIG_IN_P,
+        ACT_DIG_IN_Q,
+        ACT_DIG_IN_R,
         ACT_E_STOP,
         ACT_STOP_SOLENOID,
         ACT_FAIL_TO_START,
@@ -185,7 +186,9 @@ public:
         OP_E   = 4,
         OP_F   = 5,
         OP_G   = 6,
-        OP_END = 7,
+        OP_H   = 7,
+        OP_I   = 8,
+        OP_END = 9,
     } HSD_OUTPUTS_t;
 
     typedef struct {
@@ -209,7 +212,7 @@ public:
      * @return
      * None
      */
-    ACT_Manager(STPR_DRV &stprDrv, HSD_Manager &HSDManager);
+    ACT_Manager(HSD_Manager &HSDManager);
 
     /**
      * Houses routines that needs to be called in the super-loop.
@@ -255,23 +258,15 @@ public:
      */    
     void DeactivateAll();
 
-    void STPR_ConfigDirection(STPR_DRV::DRV_DIR_t eDir);
-    void STPR_Rotate(uint16_t u16Steps,bool bDir);
-    void STPR_MoveToHome();
-    uint16_t STPR_GetRunninStepCnt();
-    void SetStepperDriveType(ALEGRO_t eType);
+
+
 private:
-    /*Holds reference to the stepper driver*/
-    STPR_DRV        &_StprDrv;
     /*Holds reference to the HSD driver*/
     HSD_Manager     &_HSDManager;
     /*Actuator objects*/
     ACTUATOR _actuators[OP_END];
-    /**
-     * Direction towards stop
-     */
-    STPR_DRV::DRV_DIR_t     _eDirectionToStop;
-    ALEGRO_t _eType;
+
+
 };
 #endif
 

@@ -16,32 +16,36 @@
 #include "CFGZ.h"
 #include "productSelection.h"
 
-#define MAX_DTC_ALLOWED             (106U)
+#define MAX_DTC_ALLOWED (106U)
 #define EGR_TEST (0U)
 
-class GCU_ALARMS{
+class GCU_ALARMS
+{
 public:
-
-    typedef enum{
+    typedef enum
+    {
         FLOAT_TYPE,
         TWO_BYTE_INT,
         ONE_BYTE_INT
-    }THRESHOLD_TYPE_t;
+    } THRESHOLD_TYPE_t;
 
-    typedef union{
+    typedef union
+    {
         float f32Value;
         uint16_t u16Value;
         uint8_t u8Value;
-    }PARAM_VALUE_t;
+    } PARAM_VALUE_t;
 
-    typedef union{
+    typedef union
+    {
         float f32Value;
         uint16_t u16Value;
-        int16_t s16Value; //Todo: If param Threshold has s16 values, then Param values also should have s16 and accordingly Threshold type adjusted to support it.
+        int16_t s16Value; // Todo: If param Threshold has s16 values, then Param values also should have s16 and accordingly Threshold type adjusted to support it.
         uint8_t u8Value;
-    }PARAM_THRESHOLD_t;
+    } PARAM_THRESHOLD_t;
 
-    typedef struct{
+    typedef struct
+    {
         uint16_t u16Counter;
         uint16_t u16CounterMax;
         PARAM_THRESHOLD_t Threshold;
@@ -62,19 +66,20 @@ public:
         bool bShutdownLatched;
         bool bElectricTripLatched;
         bool bAlarmActive;
-    }ALARM_MONITORING_t;
+    } ALARM_MONITORING_t;
 
-    typedef enum {
+    typedef enum
+    {
 
         LOW_OIL_PRESS_SHUTDOWN,
         LOW_OIL_PRESS_WARNING,
         LOW_FUEL_LEVEL_SHUTDOWN,
         LOW_FUEL_LEVEL_NOTIFICATION,
         HIGH_WATER_TEMP_SHUTDOWN,
-        HIGH_WATER_TEMP_WARNING,        
+        HIGH_WATER_TEMP_WARNING,
         HIGH_LUBE_OIL_TEMP_SHUTDOWN,
         HIGH_LUBE_OIL_TEMP_WARNING,
-        
+
         OVERSPEED_L1,
         OVERSPEED_L2,
         UNDERSPEED,
@@ -146,6 +151,8 @@ public:
         DIG_IN_N,
         DIG_IN_O,
         DIG_IN_P,
+        DIG_IN_Q,
+        DIG_IN_R,
         REMOTE_SS,
         FAIL_TO_STOP,
         FAIL_TO_START,
@@ -178,44 +185,45 @@ public:
         ALARM_RED_LAMP,
         ALARM_MIL_LAMP,
         ALARM_PROTECT_LAMP,
+        SUPERCAP_FAIL,
         ALARM_LIST_LAST
-    }ALARM_LIST_t;
+    } ALARM_LIST_t;
 
     typedef enum
     {
         NoAlarm_id,
         Low_Oil_Pressure_id,
         fuel_level_id,
-        High_Water_Temperature_id ,
+        High_Water_Temperature_id,
         High_Lube_Oil_Temp_id,
-        Radiator_Water_Level_id ,
-        Over_Speed_l1_id ,
-        Over_Speed_l2_id ,
-        Under_Speed_id ,
-        R_Over_Voltage_id ,
-        R_Under_Voltage_id ,
-        Y_Over_Voltage_id ,
-        Y_Under_Voltage_id ,
-        B_Over_Voltage_id ,
-        B_Under_Voltage_id ,
-        Over_Frequency_id ,
-        Under_Frequency_id ,
-        Emergency_Stop_id ,
-        Charge_Fail_id ,
-        Battery_Over_Voltage_id ,
-        Battery_Under_Voltage_id ,
-        Over_Current_id ,
-        Filter_maintenance_id ,
-        Over_Load_id ,
-        Auxilary_Input_A_id ,
-        Auxilary_Input_B_id ,
-        Auxilary_Input_C_id ,
-        Auxilary_Input_D_id ,
-        Auxilary_Input_E_id ,
-        Auxilary_Input_F_id ,
-        Auxilary_Input_G_id ,
-        Auxilary_Input_H_id ,
-        Auxilary_Input_I_id ,
+        Radiator_Water_Level_id,
+        Over_Speed_l1_id,
+        Over_Speed_l2_id,
+        Under_Speed_id,
+        R_Over_Voltage_id,
+        R_Under_Voltage_id,
+        Y_Over_Voltage_id,
+        Y_Under_Voltage_id,
+        B_Over_Voltage_id,
+        B_Under_Voltage_id,
+        Over_Frequency_id,
+        Under_Frequency_id,
+        Emergency_Stop_id,
+        Charge_Fail_id,
+        Battery_Over_Voltage_id,
+        Battery_Under_Voltage_id,
+        Over_Current_id,
+        Filter_maintenance_id,
+        Over_Load_id,
+        Auxilary_Input_A_id,
+        Auxilary_Input_B_id,
+        Auxilary_Input_C_id,
+        Auxilary_Input_D_id,
+        Auxilary_Input_E_id,
+        Auxilary_Input_F_id,
+        Auxilary_Input_G_id,
+        Auxilary_Input_H_id,
+        Auxilary_Input_I_id,
         Auxilary_Input_J_id,
         Auxilary_Input_K_id,
         Auxilary_Input_L_id,
@@ -223,11 +231,13 @@ public:
         Auxilary_Input_N_id,
         Auxilary_Input_O_id,
         Auxilary_Input_P_id,
-        Fail_To_Stop_id ,
-        Fuel_Theft_id ,
+        Auxilary_Input_Q_id,
+        Auxilary_Input_R_id,
+        Fail_To_Stop_id,
+        Fuel_Theft_id,
         Load_Unbalance_id,
         MPU_Loss_id,
-        Fail_To_Start_id ,
+        Fail_To_Start_id,
         Lop_Curr_Sens_Open_Ckt_id,
         Lop_Sen_Ckt_Open_id,
         Engine_Temperature_Ckt_Open_id,
@@ -243,8 +253,8 @@ public:
         Smoke_Fire_id,
         Engine_Start_id,
         Engine_Stop_id,
-        Config_Modified_By_Master_id  ,
-        Config_Modified_By_User_id ,
+        Config_Modified_By_Master_id,
+        Config_Modified_By_User_id,
         High_Shelter_temp_id,
         Fan_High_Current_id,
         Fan_Low_Current_id,
@@ -262,8 +272,9 @@ public:
         J1939DTC_id,
         EB_Mccb_On_Feedback_id,
         DG_Mccb_On_Feedback_id,
+        SuperCap_Charge_Fail_id,
         ID_ALL_ALARMS_LAST
-    }ALARM_LOGGING_ID_t;
+    } ALARM_LOGGING_ID_t;
 
     typedef struct
     {
@@ -282,7 +293,7 @@ public:
         uint8_t u8EventId;
         uint8_t u8EventType;
         uint8_t u8Dummy[3];
-    }EVENT_LOG_t ;
+    } EVENT_LOG_t;
 
     ALARM_MONITORING_t ArrAlarmMonitoring[ALARM_LIST_LAST];
 
@@ -442,11 +453,11 @@ public:
 
     uint8_t GetAlarmId(uint8_t u8Val);
 
-    static bool         _bModeSwitchAlarm;
-    static bool         _bAutomaticModeSwitchStatus;
+    static bool _bModeSwitchAlarm;
+    static bool _bAutomaticModeSwitchStatus;
 
-    static bool         _bEventNumberReadDone;
-    static bool         _bRollOverReadDone;
+    static bool _bEventNumberReadDone;
+    static bool _bRollOverReadDone;
     uint32_t GetCurrentEventNumber();
     bool GetEventRolloverBit();
     static bool bEventWrittenSuccessfully;
@@ -476,7 +487,7 @@ public:
     bool IsYPhaseUnderVoltAlarmActive();
     bool IsBPhaseUnderVoltAlarmActive();
 
-/* Public functions accessible to objects, return true if event monitoring enabled and event occured.*/
+    /* Public functions accessible to objects, return true if event monitoring enabled and event occured.*/
     bool RemoteStartConfigured();
     bool RemoteStartReceived();
     bool RemoteStopReceived();
@@ -506,7 +517,6 @@ public:
      */
     bool IsWarningAlarmEnabled(ALARM_LIST_t AlarmID);
 
-
     /**
      * checks whether notification is enabled for the particular alarm.
      * @param AlarmID: enum of the alarm list whose action needs to be checked
@@ -521,7 +531,7 @@ public:
         uint32_t u32Time40HrsEgrFault_min;
         uint16_t u16Dummy;
         uint16_t u16CRC;
-    }EGR_MON_TIME_LOG_t;
+    } EGR_MON_TIME_LOG_t;
 
     typedef enum
     {
@@ -532,7 +542,7 @@ public:
 
         EGR_MON_STATE_LAST
 
-    }EGR_MON_STATE_t;
+    } EGR_MON_STATE_t;
 
     typedef enum
     {
@@ -541,7 +551,7 @@ public:
         EGR_MON_START,
         EGR_500MS_ACTIVE_DETECT,
         EGR_500MS_INACTIVE_DETECT
-    }EGR_FAULT_DETECT_STATE_t;
+    } EGR_FAULT_DETECT_STATE_t;
 
     typedef enum
     {
@@ -555,7 +565,7 @@ public:
         EGR_TEMP_SENSOR_FAULTY,
         EGR_FAULT_NOTIFICATION_LAST
 
-    }EGR_FAULT_LIST_t;
+    } EGR_FAULT_LIST_t;
 
     void StartEgrFaultDetection();
     void DisableEGRDetection();
@@ -573,8 +583,9 @@ public:
     A_SENSE::SENSOR_RET_t GetLubeOilTempSensVal();
 
 private:
-    #define FUEL_THEFT_WAKEUP_TIMER         (4U)
-    typedef enum{
+#define FUEL_THEFT_WAKEUP_TIMER (4U)
+    typedef enum
+    {
         LUBE_OIL_PRESSURE,
         LUBE_OIL_TEMP,
         FUEL_LEVEL,
@@ -619,6 +630,8 @@ private:
         DIG_INPUT_N,
         DIG_INPUT_O,
         DIG_INPUT_P,
+        DIG_INPUT_Q,
+        DIG_INPUT_R,
         LOW_FUEL_LVL_SWITCH_STATUS,
         LLOP_SWITCH_STATUS,
         HWT_SWITCH_STATUS,
@@ -664,136 +677,135 @@ private:
         J1939_RED_LAMP_STATUS,
         J1939_MIL_LAMP_STATUS,
         J1939_PROTECT_LAMP_STATUS,
+        SUPERCAP_FAIL_STATUS,
         ALARM_VALUE_LAST
-    }ALARM_VALUE_t;
+    } ALARM_VALUE_t;
 
-    #define FOUR_SEC                   (4U)
-    #define NO_OF_50MSEC_TICKS_FOR_1SEC (20U)
-    #define FUEL_SETTLING_DELAY_MSEC     (500U)
-    #define IS_SENSOR_VAL_LESS_THAN_THRESH() (((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == ONE_BYTE_INT) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->u8Value) <= ArrAlarmMonitoring[_u8AlarmIndex].Threshold.u8Value) || \
-                                             ((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == TWO_BYTE_INT) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->u16Value) < ArrAlarmMonitoring[_u8AlarmIndex].Threshold.u16Value) ||   \
-                                             ((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == FLOAT_TYPE) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->f32Value) < ArrAlarmMonitoring[_u8AlarmIndex].Threshold.f32Value))
+#define FOUR_SEC (4U)
+#define NO_OF_50MSEC_TICKS_FOR_1SEC (20U)
+#define FUEL_SETTLING_DELAY_MSEC (500U)
+#define IS_SENSOR_VAL_LESS_THAN_THRESH() (((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == ONE_BYTE_INT) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->u8Value) <= ArrAlarmMonitoring[_u8AlarmIndex].Threshold.u8Value) ||  \
+                                          ((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == TWO_BYTE_INT) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->u16Value) < ArrAlarmMonitoring[_u8AlarmIndex].Threshold.u16Value) || \
+                                          ((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == FLOAT_TYPE) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->f32Value) < ArrAlarmMonitoring[_u8AlarmIndex].Threshold.f32Value))
 
-    #define IS_SENSOR_VAL_MORE_THAN_THRESH() (((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == ONE_BYTE_INT) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->u8Value) > ArrAlarmMonitoring[_u8AlarmIndex].Threshold.u8Value) || \
-                                             ((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == TWO_BYTE_INT) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->u16Value) >= ArrAlarmMonitoring[_u8AlarmIndex].Threshold.u16Value) ||   \
-                                             ((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == FLOAT_TYPE) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->f32Value) > ArrAlarmMonitoring[_u8AlarmIndex].Threshold.f32Value))
-    #define EVENT_LOG_LOP_SENSOR_NA         (0xFFDC)
-    #define EVENT_LOG_LOP_SENSOR_OC         (0xFFDD)
-
+#define IS_SENSOR_VAL_MORE_THAN_THRESH() (((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == ONE_BYTE_INT) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->u8Value) > ArrAlarmMonitoring[_u8AlarmIndex].Threshold.u8Value) ||    \
+                                          ((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == TWO_BYTE_INT) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->u16Value) >= ArrAlarmMonitoring[_u8AlarmIndex].Threshold.u16Value) || \
+                                          ((ArrAlarmMonitoring[_u8AlarmIndex].ThreshDataType == FLOAT_TYPE) && (ArrAlarmMonitoring[_u8AlarmIndex].pValue->f32Value) > ArrAlarmMonitoring[_u8AlarmIndex].Threshold.f32Value))
+#define EVENT_LOG_LOP_SENSOR_NA (0xFFDC)
+#define EVENT_LOG_LOP_SENSOR_OC (0xFFDD)
 
     /*Reference to the hal*/
-    HAL_Manager   &_hal;
+    HAL_Manager &_hal;
     /*Reference to the configuration*/
-    CFGZ          &_cfgz;
+    CFGZ &_cfgz;
 
-    bool          _bCommonAlarm;
-    bool          _bCommonNotification;
-    bool          _bCommonWarning;
-    bool          _bCommonElectricTrip;
-    bool          _bCommonShutdown;
-    bool          _bOPSounderAlarm;
-    bool          _bFailToStart;
-    bool          _bFailToStop;
-    bool          _bCLNTTempCtrl;
-    bool          _bBTSBattHealthy;
-    bool          _bHighShelterTemp;
-    bool          _bLowShelterTemp;
-    bool          _bUpdateFuelTheftCalc;
-    bool          _bEgrShutdownLatched;
-    uint8_t       _u8UnderFreqAlarm;
-    uint8_t       _u8OverFreqAlarm;
-    uint8_t       _u8RPhaseOverVoltAlarm;
-    uint8_t       _u8YPhaseOverVoltAlarm;
-    uint8_t       _u8BPhaseOverVoltAlarm;
-    uint8_t       _u8RPhaseUnderVoltAlarm;
-    uint8_t       _u8YPhaseUnderVoltAlarm;
-    uint8_t       _u8BPhaseUnderVoltAlarm;
-    uint8_t       _u8LowFuelLevelAlarm;
-    uint8_t       _u8LowOilPressAlarm;
-    uint8_t       _u8HighOilPressDetectedAlarm;
-    uint8_t       _u8AuxSensS1Alarm;
-    uint8_t       _u8AuxSensS2Alarm;
-    uint8_t       _u8AuxSensS3Alarm;
-    uint8_t       _u8AuxSensS4Alarm;
-    uint8_t       _u8ActuatorFailAlarm;
-    uint8_t       _u8AFTActivationTimeout;
-    uint8_t       _u8HighEngTempAlarm;
-    uint8_t       _u8HighEngTempSwitch;
-    uint8_t       _u8HighLubeOilTempAlarm;
-    uint8_t       _u8AlarmIndex;
-    uint8_t       _u8DummyZero;
-    uint8_t       _u8DummyOne;
-    uint8_t       _u8Dummy255;
-    uint8_t       _u8CrankMon;
-    uint8_t       _u8EngineOff;
-    uint8_t       _u8GenAvailable;
-    uint8_t       _u8EngineOn;
-    uint8_t       _u8GenReady;
-    uint8_t       _u8MonOn;
-    uint8_t       _u8FuelRelayOn;
-    uint8_t       _u8LopSensMon;
-    uint8_t       _u8FuelSensMon;
-    uint8_t       _u8UnbalancedloadMon;
-    uint8_t       _u8AuxSensS1;
-    uint8_t       _u8AuxSensS2;
-    uint8_t       _u8AuxSensS3;
-    uint8_t       _u8AuxSensS4;
-    uint8_t       _u8LopHiOilPressMon;
-    uint8_t       _u8TempSensMon;
-    uint8_t       _u8LowIdleSpeedMon;
-    uint8_t       _u8FuelTheftAlarm;
-    uint8_t       _u8MPULossAlarm;
-    uint8_t       _u8AlarmArrayIndex;
-    uint8_t       _u8MaintAlarm;
-    float         _f32FuelLevelOldValue;
-    stTimer       _FuelSettlingTimer;
-    stTimer       _SounderAlarmTimer;
-    stTimer       _UpdateAlarmMonTimer;
-    stTimer       _AlarmUpdate;
-    stTimer       _FuelTheftOneHourTimer;
-    stTimer       _FuelTheftWakeUpTimer;
-    stTimer       _Modbus10minTimer;
-    uint8_t       *_ArrAlarmStatus[ID_ALL_ALARMS_LAST];
+    bool _bCommonAlarm;
+    bool _bCommonNotification;
+    bool _bCommonWarning;
+    bool _bCommonElectricTrip;
+    bool _bCommonShutdown;
+    bool _bOPSounderAlarm;
+    bool _bFailToStart;
+    bool _bFailToStop;
+    bool _bCLNTTempCtrl;
+    bool _bBTSBattHealthy;
+    bool _bHighShelterTemp;
+    bool _bLowShelterTemp;
+    bool _bUpdateFuelTheftCalc;
+    bool _bEgrShutdownLatched;
+    uint8_t _u8UnderFreqAlarm;
+    uint8_t _u8OverFreqAlarm;
+    uint8_t _u8RPhaseOverVoltAlarm;
+    uint8_t _u8YPhaseOverVoltAlarm;
+    uint8_t _u8BPhaseOverVoltAlarm;
+    uint8_t _u8RPhaseUnderVoltAlarm;
+    uint8_t _u8YPhaseUnderVoltAlarm;
+    uint8_t _u8BPhaseUnderVoltAlarm;
+    uint8_t _u8LowFuelLevelAlarm;
+    uint8_t _u8LowOilPressAlarm;
+    uint8_t _u8HighOilPressDetectedAlarm;
+    uint8_t _u8AuxSensS1Alarm;
+    uint8_t _u8AuxSensS2Alarm;
+    uint8_t _u8AuxSensS3Alarm;
+    uint8_t _u8AuxSensS4Alarm;
+    uint8_t _u8ActuatorFailAlarm;
+    uint8_t _u8AFTActivationTimeout;
+    uint8_t _u8HighEngTempAlarm;
+    uint8_t _u8HighEngTempSwitch;
+    uint8_t _u8HighLubeOilTempAlarm;
+    uint8_t _u8AlarmIndex;
+    uint8_t _u8DummyZero;
+    uint8_t _u8DummyOne;
+    uint8_t _u8Dummy255;
+    uint8_t _u8CrankMon;
+    uint8_t _u8EngineOff;
+    uint8_t _u8GenAvailable;
+    uint8_t _u8EngineOn;
+    uint8_t _u8GenReady;
+    uint8_t _u8MonOn;
+    uint8_t _u8FuelRelayOn;
+    uint8_t _u8LopSensMon;
+    uint8_t _u8FuelSensMon;
+    uint8_t _u8UnbalancedloadMon;
+    uint8_t _u8AuxSensS1;
+    uint8_t _u8AuxSensS2;
+    uint8_t _u8AuxSensS3;
+    uint8_t _u8AuxSensS4;
+    uint8_t _u8LopHiOilPressMon;
+    uint8_t _u8TempSensMon;
+    uint8_t _u8LowIdleSpeedMon;
+    uint8_t _u8FuelTheftAlarm;
+    uint8_t _u8MPULossAlarm;
+    uint8_t _u8AlarmArrayIndex;
+    uint8_t _u8MaintAlarm;
+    float _f32FuelLevelOldValue;
+    stTimer _FuelSettlingTimer;
+    stTimer _SounderAlarmTimer;
+    stTimer _UpdateAlarmMonTimer;
+    stTimer _AlarmUpdate;
+    stTimer _FuelTheftOneHourTimer;
+    stTimer _FuelTheftWakeUpTimer;
+    stTimer _Modbus10minTimer;
+    uint8_t *_ArrAlarmStatus[ID_ALL_ALARMS_LAST];
     PARAM_VALUE_t _ArrAlarmValue[ALARM_VALUE_LAST];
-    uint8_t       _ArrAlarmForDisplay[ID_ALL_ALARMS_LAST];
-    uint32_t     _u32EventNumber;
-    uint32_t     _u32RolledOverByte ;
-    EVENT_LOG_t  _stEventLog;
+    uint8_t _ArrAlarmForDisplay[ID_ALL_ALARMS_LAST];
+    uint32_t _u32EventNumber;
+    uint32_t _u32RolledOverByte;
+    EVENT_LOG_t _stEventLog;
 
     typedef struct
     {
         uint8_t u8OC;
         uint8_t u8FMI;
         uint32_t u32SpnNo;
-    }PREVIOUS_DTC_t;
+    } PREVIOUS_DTC_t;
 
     PREVIOUS_DTC_t prvPreviousDTC_OC[MAX_DTC_ALLOWED];
     typedef struct
     {
-        uint32_t     u32EventNo;
-        EVENT_LOG_t  stEventLog;
-    }EVENT_LOG_Q_t;
+        uint32_t u32EventNo;
+        EVENT_LOG_t stEventLog;
+    } EVENT_LOG_Q_t;
 
     EVENT_LOG_Q_t _stLog;
 
-    #define EVENT_LOG_Q_SIZE (10)
+#define EVENT_LOG_Q_SIZE (10)
 
-   /** Internal Q to hold received frames */
-   static CircularQueue<EVENT_LOG_Q_t> _EventQueue;
-   static EVENT_LOG_Q_t  _EventQArr[EVENT_LOG_Q_SIZE];
+    /** Internal Q to hold received frames */
+    static CircularQueue<EVENT_LOG_Q_t> _EventQueue;
+    static EVENT_LOG_Q_t _EventQArr[EVENT_LOG_Q_SIZE];
 
+    uint8_t _StartEgrDetection;
 
-   uint8_t       _StartEgrDetection;
-
-   EGR_MON_TIME_LOG_t  _stNvEgrTimeLog;
-   EGR_MON_STATE_t     _eEgrMonState;
-   uint32_t            _u32EgrFault72HrsMonitoring_min;
-   uint32_t            _u32EgrFaultReset40HrsMonitoring_min;
-   stTimer             _stGeneralTimer1Minute;
-   EGR_FAULT_LIST_t    eEgrFault;
-   EGR_FAULT_DETECT_STATE_t egrInState;
-   stTimer             _ecuFaultTimer;
-   uint16_t            u16PulseDetectionCount;
+    EGR_MON_TIME_LOG_t _stNvEgrTimeLog;
+    EGR_MON_STATE_t _eEgrMonState;
+    uint32_t _u32EgrFault72HrsMonitoring_min;
+    uint32_t _u32EgrFaultReset40HrsMonitoring_min;
+    stTimer _stGeneralTimer1Minute;
+    EGR_FAULT_LIST_t eEgrFault;
+    EGR_FAULT_DETECT_STATE_t egrInState;
+    stTimer _ecuFaultTimer;
+    uint16_t u16PulseDetectionCount;
 
     void prvAssignAlarmLatchedAction(uint8_t u8Index);
     void prvLogAlarmEvent(uint8_t u8Index);
@@ -814,8 +826,8 @@ private:
     void prvSetAlarmActivation(uint8_t u8AlarmIndex, uint8_t u8AlarmActivation);
 
     void prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSource,
-            uint8_t u8Activation, uint8_t u8ActivationDelay,
-                uint8_t u8AlarmAction, uint8_t u8LoggingID);
+                                uint8_t u8Activation, uint8_t u8ActivationDelay,
+                                uint8_t u8AlarmAction, uint8_t u8LoggingID);
 
     float prvGetMinMainsFreq();
     float prvGetMaxMainsFreq();
@@ -851,17 +863,17 @@ private:
     void prvCheckTripAction(uint8_t u8ReturnIndex, uint8_t u8TripIndex, bool status);
 
     uint8_t prvIsLopSensOverVal();
-    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-            bool bMonitoringPolarity, uint8_t u8LoggingID, uint8_t u8Threshold,
-                uint16_t u16CounterMax);
+    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t *Pu8LocalEnable,
+                            bool bMonitoringPolarity, uint8_t u8LoggingID, uint8_t u8Threshold,
+                            uint16_t u16CounterMax);
 
-    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-            bool bMonitoringPolarity, uint8_t u8LoggingID,
-                uint16_t u16Threshold, uint16_t u16CounterMax);
+    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t *Pu8LocalEnable,
+                            bool bMonitoringPolarity, uint8_t u8LoggingID,
+                            uint16_t u16Threshold, uint16_t u16CounterMax);
 
-    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t* Pu8LocalEnable,
-            bool bMonitoringPolarity, uint8_t u8LoggingID,
-                float f32Threshold, uint16_t u16CounterMax);
+    void prvUpdateMonParams(uint8_t u8AlarmIndex, uint8_t *Pu8LocalEnable,
+                            bool bMonitoringPolarity, uint8_t u8LoggingID,
+                            float f32Threshold, uint16_t u16CounterMax);
     void prvUpdateDTCEventLog();
     bool prvIsNewDTC(uint32_t u32Spn, uint8_t u8FMI, uint8_t u8Occurances);
 
@@ -875,9 +887,8 @@ private:
     void prvEGR_TimeLog_WriteToNV(void);
     bool prvIsEgrFaultPresent();
 
-#if(EGR_TEST)
+#if (EGR_TEST)
     void GenerateEgrTestSignal();
 #endif
-
 };
 #endif

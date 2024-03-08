@@ -96,8 +96,8 @@
 /**********************************************************/
 
 /**********************************PFlash***********************************/
-#define FACTORY_CFGZ_ADDRESS                      0x78000
-
+#define FACTORY_CFGZ_ADDRESS_1_MB_MCU               0xF8000
+#define FACTORY_CFGZ_ADDRESS_512_KB_MCU             0x78000
 
 #define MAX_NUMBER_OF_PROFILE   10
 #define MAX_DISP_CONST   100

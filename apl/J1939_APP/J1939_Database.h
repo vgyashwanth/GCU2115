@@ -262,7 +262,7 @@ typedef struct __attribute__((packed))
 typedef struct __attribute__((packed))
 {
     J1939DRIVER::J1939_PGN_DB_t PGNinfo;
-    J1939DRIVER::J1939_SPN_DB_t arrSPNinfo[5];
+    J1939DRIVER::J1939_SPN_DB_t arrSPNinfo[17];
 } PGN_65280_t ;
 
 
@@ -301,6 +301,12 @@ typedef struct __attribute__((packed))
     J1939DRIVER::J1939_PGN_DB_t PGNinfo;
     J1939DRIVER::J1939_SPN_DB_t arrSPNinfo[16];
 } PGN_65293_t ;
+
+typedef struct __attribute__((packed))
+{
+    J1939DRIVER::J1939_PGN_DB_t PGNinfo;
+    J1939DRIVER::J1939_SPN_DB_t arrSPNinfo[16];
+} PGN_65294_t ;
 
 typedef struct __attribute__((packed))
 {
@@ -372,6 +378,7 @@ typedef struct
     PGN_65291_t PGNAlarms1_4;                 //  65291
     PGN_65292_t PGNAlarms5_8;                 //  65292
     PGN_65293_t PGNAlarms9_12;                //  65293
+    PGN_65294_t PGNAlarms13_16;               //  65294
     PGN_65295_t PGNPrcntgLdFuelCA;            //  65295
     PGN_65296_t PGNCumltvDGKwhKvah;           //  65296
     PGN_65297_t PGNCumltvDGKvarh;             //  65297
@@ -429,6 +436,7 @@ enum
     PROP_ALARMS1_4,
     PROP_ALARMS5_8,
     PROP_ALARMS9_12,
+    PROP_ALARMS13_16,
     PROP_PERCNTGLD_FUEL_CA,
     PROP_CUML_GEN_KWH_KVAH,
     PROP_CUML_GEN_KVARH,

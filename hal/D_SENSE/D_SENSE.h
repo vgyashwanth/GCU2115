@@ -43,6 +43,8 @@ public:
          DI_N_USER_CONFIGURED           ,
          DI_O_USER_CONFIGURED           ,
          DI_P_USER_CONFIGURED           ,
+         DI_Q_USER_CONFIGURED           ,
+         DI_R_USER_CONFIGURED           ,
          DI_LOW_FUEL_LEVEL_SWITCH       ,
          DI_LOW_LUBE_OIL_PRESSURE_SWITCH,
          DI_HIGH_ENGINE_TEMP_SWITCH     ,
@@ -65,6 +67,7 @@ public:
          DI_EGR_ECU_DIGITAL_IN,
          DI_EB_MCCB_ON_FEEDBACK,
          DI_DG_MCCB_ON_FEEDBACK,
+         DI_SUPERCAP_FAIL,
          DI_SENSOR_END
     } D_SENSOR_TYPS_t;
 
@@ -172,6 +175,8 @@ public:
         DI_N,
         DI_O,
         DI_P,
+        DI_Q,
+        DI_R,
         DI_END
     } INPUTS_t;
 

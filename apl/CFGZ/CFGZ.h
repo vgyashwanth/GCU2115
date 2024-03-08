@@ -434,8 +434,18 @@ class CFGZ
         ID_AUX_S4_DIG_P_NOTIFICATION_THRESHOLD,
         ID_AUX_S4_DIG_P_FUEL_THEFT_WARNING,
         ID_AUX_S4_DIG_P_FUEL_THEFT_THRESHOLD,
-        ID_AUX_S4_DIG_P_FUEL_IN_PCT,
+        ID_AUX_S4_DIG_P_FUEL_IN_LITERS,
         ID_AUX_S4_DIG_P_TANK_WITH_STEP,
+        ID_DIG_IN_Q_SOURCE,
+        ID_DIG_IN_Q_POLARITY,
+        ID_DIG_IN_Q_ACTION,
+        ID_DIG_IN_Q_ACTIVATION,
+        ID_DIG_IN_Q_ACTIVATION_DELAY,
+        ID_DIG_IN_R_SOURCE,
+        ID_DIG_IN_R_POLARITY,
+        ID_DIG_IN_R_ACTION,
+        ID_DIG_IN_R_ACTIVATION,
+        ID_DIG_IN_R_ACTIVATION_DELAY,
         ID_OUT_A_SOURCE,
         ID_OUT_A_ON_ACTIVATION,
         ID_OUT_B_SOURCE,
@@ -450,6 +460,10 @@ class CFGZ
         ID_OUT_F_ON_ACTIVATION,
         ID_OUT_G_SOURCE,
         ID_OUT_G_ON_ACTIVATION,
+        ID_OUT_H_SOURCE,
+        ID_OUT_H_ON_ACTIVATION,
+        ID_OUT_I_SOURCE,
+        ID_OUT_I_ON_ACTIVATION,
         ID_ALT_CONFIG_ALT_PRESENT,
         ID_ALT_CONFIG_NUMBER_OF_POLES,
         ID_ALT_CONFIG_ALT_AC_SYSTEM,
@@ -562,6 +576,8 @@ class CFGZ
         ID_ARR_SENSOR_S2_NAME,
         ID_ARR_SENSOR_S3_NAME,
         ID_ARR_SENSOR_S4_NAME,
+        ID_ARR_AUX_INPUT_Q,
+        ID_ARR_AUX_INPUT_R,
         ID_ARR_PROFILE,
 
         ID_ARRAY_20_BYTE_LAST
@@ -607,6 +623,8 @@ class CFGZ
         CFGZ_EGR_ECU_DIGITAL_IN,
         CFGZ_EB_MCCB_ON_FEEDBACK,
         CFGZ_DG_MCCB_ON_FEEDBACK,
+        CFGZ_SUPERCAP_FAIL,
+        CFGZ_INPUT_LAST,
 
 } CFGZ_DIGITAL_SENSORS_t;
 
@@ -748,7 +766,9 @@ class CFGZ
         CFGZ_ECU_START,
         CFGZ_MIL,
         CFGZ_INDUCEMENT_BUZZER,
-
+        CFGZ_DIG_IN_Q,
+        CFGZ_DIG_IN_R,
+        CFGZ_OUTPUT_LAST
     } CFGZ_ACT_TYPS_t;
 
     typedef enum {
@@ -921,6 +941,8 @@ class CFGZ
    bool IsConfigWritten();
 
    void ReadFactoryProfile();
+
+   uint32_t GetFactoryProfilesStartAddress();
 
    SM_DFLASH_STATUS ReturnCFGZFlashState();
 

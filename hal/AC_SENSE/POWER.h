@@ -52,7 +52,9 @@
 #define V_TO_ADC_SAMPLE          (1.0F/ADC_SAMPLE_TO_V)
 #define I_ANLG_FRONTEND_UPSCALER (10.0F)
 #define DC_VOLTAGE_OFFSET        (1.5F)
-#define TIME_PERIOD_80HZ         (0.0125)
+#define TIME_PERIOD_OF_FREQ(x)     (1/x)
+#define MAX_FREQ_DETECTION         (80.0F)
+#define MIN_FREQ_DETECTION         (5.0F)
 
 class POWER {
 public:
@@ -378,6 +380,11 @@ private:
            half cycle
          */
         bool       bIsPrevPositiveHalfCycle;
+        /*
+         * Used to identify the first valid zero positive to negative half cycle detection
+         * The first detection can have abrupt random values
+         */
+        bool    bIgnoreDetection;
     } FREQ_VARS_t;
 
     /* Encapsulates all the variables necessary to compute the Power Factor sign */

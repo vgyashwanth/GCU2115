@@ -943,8 +943,8 @@ void MB_APP::prvUpdateGCUAlarms()
     /* Alarm 13 */
     _u16TempAlarmVal =0;
 
-    prvUpdateEngSensorAlarms(GCU_ALARMS::DG_B_UV_WARNING, GCU_ALARMS::DG_B_UV_SHUTDOWN, FOURTH_NIBBLE);
-    prvUpdateEngSensorAlarms(GCU_ALARMS::DG_B_OV_WARNING, GCU_ALARMS::DG_B_OV_SHUTDOWN, THIRD_NIBBLE);
+    prvUpdateEngSensorAlarms(GCU_ALARMS::DG_B_UV_SHUTDOWN, GCU_ALARMS::DG_B_UV_WARNING, FOURTH_NIBBLE);
+    prvUpdateEngSensorAlarms(GCU_ALARMS::DG_B_OV_SHUTDOWN, GCU_ALARMS::DG_B_OV_WARNING, THIRD_NIBBLE);
     prvUpdateEngSensorAlarms(GCU_ALARMS::DG_PHASE_ROTATION, SECOND_NIBBLE);
     if(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::EB_PHASE_ROTATION].bEnableMonitoring)
     {

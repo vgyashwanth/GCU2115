@@ -2017,16 +2017,16 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     {
         if((!gpJ1939->IsCommunicationFail()) && (gpJ1939->GetSPNErrorStatus(RX_PGN_ET1_65262,0) == J1939APP::VALID_DATA))
         {
-            _ArrAlarmValue[ENGINE_TEMPERATURE].u16Value = (uint16_t)gpJ1939->GetReadData(RX_PGN_ET1_65262,0);
+            _ArrAlarmValue[ENGINE_TEMPERATURE].f32Value = gpJ1939->GetReadData(RX_PGN_ET1_65262,0);
         }
         else
         {
-            _ArrAlarmValue[ENGINE_TEMPERATURE].u16Value = (uint16_t)0;
+            _ArrAlarmValue[ENGINE_TEMPERATURE].f32Value = 0;
         }
     }
     else
     {
-        _ArrAlarmValue[ENGINE_TEMPERATURE].u16Value = (uint16_t)stEngTemp.stValAndStatus.f32InstSensorVal;
+        _ArrAlarmValue[ENGINE_TEMPERATURE].f32Value = stEngTemp.stValAndStatus.f32InstSensorVal;
     }
         
     A_SENSE::SENSOR_RET_t stLubeOilTemp = GetLubeOilTempSensVal();
@@ -3861,18 +3861,18 @@ bool GCU_ALARMS::IsShutdownAlarmEnabled(ALARM_LIST_t AlarmID)
 
 bool GCU_ALARMS::IsElectricTripAlarmEnabled(ALARM_LIST_t AlarmID)
 {
-    return ArrAlarmMonitoring[AlarmID].bEnableShutdown;
+    return ArrAlarmMonitoring[AlarmID].bEnableElectricTrip;
 }
 
 bool GCU_ALARMS::IsWarningAlarmEnabled(ALARM_LIST_t AlarmID)
 {
-    return ArrAlarmMonitoring[AlarmID].bEnableShutdown;
+    return ArrAlarmMonitoring[AlarmID].bEnableWarning;
 }
 
 
 bool GCU_ALARMS::IsNotificationAlarmEnabled(ALARM_LIST_t AlarmID)
 {
-    return ArrAlarmMonitoring[AlarmID].bEnableShutdown;
+    return ArrAlarmMonitoring[AlarmID].bEnableNotification;
 }
 
 void GCU_ALARMS::prvUpdateDTCEventLog()

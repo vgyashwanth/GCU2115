@@ -73,7 +73,8 @@ _GensetFreqParams{
     0,                                         /*fFrequency*/
     0,                                         /*fPrevFreq*/
     0,
-    false                                      /*bIsPrevPositiveHalfCycle*/
+    false,                                      /*bIsPrevPositiveHalfCycle*/
+    true                                        /*bIgnoreDetection*/ //Initialized true as the first detection can have abrupt values
 },
 _MainsFreqParams{
     0,                                         /*u16FreqSampleCtr*/
@@ -81,7 +82,8 @@ _MainsFreqParams{
     0,                                         /*fFrequency*/
     0,                                         /*fPrevFreq*/
     0,
-    false                                      /*bIsPrevPositiveHalfCycle*/
+    false,                                      /*bIsPrevPositiveHalfCycle*/
+    true                                        /*bIgnoreDetection*/ //Initialized true as the first detection can have abrupt values
 },
 #if (SUPPORT_CALIBRATION == YES)
 /* RMS multiplication factor has been made '1' for the below parameters as scaling is taken care during adjustment of measurements due to calibration. */
@@ -808,30 +810,44 @@ void POWER::prvComputePowerFactor()
 
 }
 
-void POWER::prvFrequencyFilter(FREQ_VARS_t &FreqParams)
-{
-    /* IIR filter formula
-       Y[n] = (FREQ_FILTER_MULTIPLIER*X[n]) + (1-FREQ_FILTER_MULTIPLIER)*Y[n-1]
-     */
-    FreqParams.fFrequencyfilt = (FREQ_FILTER_MULTIPLIER * FreqParams.fFrequency)
-                            + ((1 - FREQ_FILTER_MULTIPLIER) * FreqParams.fFrequencyfilt);
-}
-
 void POWER::prvComputeFrequency(FREQ_VARS_t &FreqParams)
 {
     if(FreqParams.u16LatchedFreqSampleCtr != 0)
     {
-        float fTimePeriod = FreqParams.u16LatchedFreqSampleCtr *
-                                                    SAMPLE_UPDATE_TIME_PERIOD_S;
+        float fTimePeriod = FreqParams.u16LatchedFreqSampleCtr * SAMPLE_UPDATE_TIME_PERIOD_S;
 
-        if(fTimePeriod > TIME_PERIOD_80HZ) // 80hz
+        if((fTimePeriod > TIME_PERIOD_OF_FREQ(MAX_FREQ_DETECTION)) && (!FreqParams.bIgnoreDetection)) // 80hz
         {
             FreqParams.fFrequency = 1/fTimePeriod;
 
-            prvFrequencyFilter(FreqParams);
+            FreqParams.fFrequencyfilt = (FREQ_FILTER_MULTIPLIER * FreqParams.fFrequency)
+                                    + ((1.0F - FREQ_FILTER_MULTIPLIER) * FreqParams.fFrequencyfilt);
         }
         FreqParams.u16LatchedFreqSampleCtr = 0;
+        FreqParams.bIgnoreDetection =false;
+    }
+    else
+    {
+        /*
+         If u16LatchedFreqSampleCtr is zero
+         Then there are two possibilities
+         1. The signal has not yet into the negative cycle
+         2. There is no signal at all which will lead to not updating the frequency
 
+         To handle this if the counter is greater than 5Hz signals time
+         then the scenario will be considered as there is no signal and in case of case 1
+         the execution does not enter the below if condition
+         Once the if is executed the counter is made 0 to avoid rapid ramp down of filter frequency
+        */
+        if((FreqParams.u16FreqSampleCtr*SAMPLE_UPDATE_TIME_PERIOD_S)>TIME_PERIOD_OF_FREQ(MIN_FREQ_DETECTION))
+        {
+            FreqParams.u16FreqSampleCtr = 0;
+            FreqParams.fFrequency = 0;
+            FreqParams.bIgnoreDetection = true;
+
+            FreqParams.fFrequencyfilt = (FREQ_FILTER_MULTIPLIER * FreqParams.fFrequency)
+                                    + ((1.0F - FREQ_FILTER_MULTIPLIER) * FreqParams.fFrequencyfilt);
+        }
     }
 }
 

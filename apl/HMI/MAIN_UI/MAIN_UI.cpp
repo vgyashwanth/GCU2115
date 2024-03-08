@@ -106,6 +106,8 @@ void MAIN_UI::prvExitFromConfigMode()
     
     _MonUI.Init(); /* MON UI need to be updated at the end */
 
+    _j1939.InitAfterConfigChange();
+
     if(CEditableItem::IsAnyConfigValueEdited())
     {
       _GCUAlarms.LogEvent(GCU_ALARMS::Config_Modified_By_User_id,CFGZ::CFGZ_ACTION_NONE_NoWESN);

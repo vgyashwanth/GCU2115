@@ -810,15 +810,6 @@ void POWER::prvComputePowerFactor()
 
 }
 
-void POWER::prvFrequencyFilter(FREQ_VARS_t &FreqParams)
-{
-    /* IIR filter formula
-       Y[n] = (FREQ_FILTER_MULTIPLIER*X[n]) + (1-FREQ_FILTER_MULTIPLIER)*Y[n-1]
-     */
-    FreqParams.fFrequencyfilt = (FREQ_FILTER_MULTIPLIER * FreqParams.fFrequency)
-                            + ((1 - FREQ_FILTER_MULTIPLIER) * FreqParams.fFrequencyfilt);
-}
-
 void POWER::prvComputeFrequency(FREQ_VARS_t &FreqParams)
 {
     if(FreqParams.u16LatchedFreqSampleCtr != 0)

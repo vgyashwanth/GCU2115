@@ -533,14 +533,6 @@ private:
     void prvCountFreqSamples(int16_t i16FilteredVoltageSample, FREQ_VARS_t &FreqParams);
 #endif /* SUPPORT_CALIBRATION */
 
-    /**
-     * Does a weighted average over the previous and current frequency sample.
-     * @param - FreqParams - Reference to FREQ_VARS_t type struct
-     * @return
-     * None
-     */
-    void prvFrequencyFilter(FREQ_VARS_t &FreqParams);
-
      /**
      * Computes the active, apparent and reactive energies from their respective power
      * by multiplying it with the time it takes for the window to move.

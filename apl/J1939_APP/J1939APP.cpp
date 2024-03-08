@@ -178,7 +178,7 @@ void J1939APP::InitAfterConfigChange()
         for(gu8SPNNumber = 0; gu8SPNNumber < MAX_NO_SPN_IN_PGN; gu8SPNNumber++)
         {
             _ArrSpnErrorNAStatus[gu8PGNNumber][gu8SPNNumber] = NOT_AVAILABLE;
-            (void)memset((void *)(&_ArrPgnReadData[gu8PGNNumber][gu8SPNNumber]), (int)0xFFFFFFFFF, sizeof(double));
+            _ArrPgnReadData[gu8PGNNumber][gu8SPNNumber] = 0xFFFFFFFF;
         }
     }
 }

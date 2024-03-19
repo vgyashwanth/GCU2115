@@ -65,7 +65,7 @@
 
 
 /* EEPROM memory allocation for EGR timelog */
-#define EGR_TIME_LOG_NV_MEMORY_ADDR           (0x1200U) /* EEEPROM address */
+#define EGR_TIME_LOG_NV_MEMORY_ADDR           (0x5600U) /* EEEPROM address */
 #define EGR_TIME_LOG_NV_MEMORY_SIZE           (sizeof(GCU_ALARMS::EGR_MON_TIME_LOG_t)) //12 bytes
 
 /*

@@ -470,7 +470,7 @@ public:
     bool IsCommonAlarm();
     A_SENSE::SENSOR_RET_t GetSelectedTempSensVal();
     float GetSelectedBatteryVtg();
-    uint32_t GetSelectedEngRunMin();
+    uint64_t GetSelectedEngRunMin();
 
     bool IsBTSBattHealthy();
     bool IsShelterTempHigh();

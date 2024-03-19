@@ -374,17 +374,9 @@ void MB_APP::prvUpdateAnalogParams()
 
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
         && (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
-    {
-        if((!gpJ1939->IsCommunicationFail()) && (gpJ1939->GetSPNErrorStatus(RX_PGN_EFL_P1_65263,0) == J1939APP::VALID_DATA))
-        {
-            u16Tmp =(uint16_t)((round(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263, 0)*10)*10) * 0.01);
-            SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
-        }
-        else
-        {
-            u16Tmp = 0;
-            SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
-        }
+    { 
+        u16Tmp =(uint16_t)((round(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263, 0)*10)*10) * 0.01);
+        SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
     }
     else
     {
@@ -412,16 +404,8 @@ void MB_APP::prvUpdateAnalogParams()
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
             && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
     {
-        if((!gpJ1939->IsCommunicationFail()) && (gpJ1939->GetSPNErrorStatus(RX_PGN_ET1_65262,0) == J1939APP::VALID_DATA))
-        {
-            u16Tmp = (int16_t)gpJ1939->GetReadData(RX_PGN_ET1_65262,0);
-            SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
-        }
-        else
-        {
-            u16Tmp = 0;
-            SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
-        }
+        u16Tmp = (int16_t)gpJ1939->GetReadData(RX_PGN_ET1_65262,0);
+        SetReadRegisterValue(MB_COOLANT_TEMPERATURE, u16Tmp);
     }
     else
     {

@@ -128,7 +128,6 @@ ubypReadRxPgns{
     _Timer80ms{0, false},
     _Timer100ms{0, false},
     _Timer250ms{0, false},
-    _Timer300ms{0, false},
     _Timer500ms{0, false},
     _Timer1s{0, false},
     _CommFailTimeout{0, false},
@@ -155,7 +154,6 @@ ubypReadRxPgns{
 
     UTILS_ResetTimer(&_Timer100ms);
     UTILS_ResetTimer(&_Timer250ms);
-    UTILS_ResetTimer(&_Timer300ms);
     UTILS_ResetTimer(&_Timer500ms);
     UTILS_ResetTimer(&_Timer1s);
     UTILS_ResetTimer(&_Timer20ms);
@@ -1627,22 +1625,6 @@ void J1939APP::Update(bool bDeviceInconfig)
             UTILS_ResetTimer(&_Timer100ms);
         }
 
-        if(( UTILS_GetElapsedTimeInMs(&_Timer300ms) >= 300))
-        {
-            u16PGN_State =  *(uint16_t*)(ubypReadTxPgns[PGN_TX_RQST]) ;
-            if(u16PGN_State == PGN_300MS)
-            {
-                TransmitFrame(PGN_TX_RQST);
-                _u8SPNIndexInRQSTPGN++;
-                if(_u8SPNIndexInRQSTPGN >= 2)
-                {
-                    _u8SPNIndexInRQSTPGN = 0;
-                }
-            }
-            (void)R_IWDT_Refresh(&g_wdt0_ctrl);
-            UTILS_ResetTimer(&_Timer300ms);
-        }
-
         if(( UTILS_GetElapsedTimeInMs(&_Timer500ms) >= 500))
         {
             for(uint8_t u8PGN=0; u8PGN<TX_LAST_PGN; u8PGN++ )
@@ -1651,6 +1633,15 @@ void J1939APP::Update(bool bDeviceInconfig)
                 if(u16PGN_State == PGN_500MS)
                 {
                     TransmitFrame(u8PGN);
+                    if(u8PGN ==PGN_TX_RQST )
+                    {
+                        _u8SPNIndexInRQSTPGN++;
+                        if(_u8SPNIndexInRQSTPGN >= 2)
+                        {
+                            _u8SPNIndexInRQSTPGN = 0;
+                        }
+                    }
+
                 }
                 (void)R_IWDT_Refresh(&g_wdt0_ctrl);
             }
@@ -2117,7 +2108,15 @@ bool J1939APP::GetLampStatus(LAMP_st eLamp)
 
 double J1939APP::GetReadData(DATABASE_RX_PGN_LIST_t ePgn, uint8_t u8SpnNum)
 {
-    return _ArrPgnReadData[(uint8_t)ePgn][u8SpnNum];
+    if((!IsCommunicationFail()) && (GetSPNErrorStatus(ePgn,u8SpnNum) == J1939APP::VALID_DATA))
+    {
+        return _ArrPgnReadData[(uint8_t)ePgn][u8SpnNum];
+    }
+    else
+    {
+        return 0.0;
+    }
+    
 }
 
 J1939APP::J1939_DM_MSG_DECODE J1939APP::GetDM1Message(uint8_t u8MessageNum)

@@ -1958,7 +1958,7 @@ float GCU_ALARMS::GetSpeedValue()
     if(  (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) != CFGZ::CFGZ_CONVENTIONAL)
        && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG) == CFGZ::CFGZ_ENABLE))
      {
-        speedValue = (uint16_t)(round(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0)));
+        speedValue = (float)(round(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0)));
         if((isnan(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0))) || (isinf(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0))))
         {
             speedValue = 0.0f;

@@ -1011,26 +1011,47 @@ void MB_APP::prvUpdateGCUAlarms()
         _u16TempAlarmVal |= ((uint16_t)1U << 14U);
     }
 
-    if(_Automode.IsNightModeRestrictOn())
+    if(_Automode.GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE)
     {
-        _u16TempAlarmVal |= ((uint16_t)1U << 13U);
+        if(_Automode.IsNightModeRestrictOn())
+        {
+            _u16TempAlarmVal |= ((uint16_t)1U << 13U);
+            _u16TempAlarmVal |= ((uint16_t)1U << 12U);
+            _u16TempAlarmVal |= ((uint16_t)1U << 11U);
+        }
+        else if(_Automode.GetGCUOperatingMode() == BASE_MODES::CYCLIC_MODE)
+        {
+            _u16TempAlarmVal |= ((uint16_t)1U << 12U);
+            _u16TempAlarmVal |= ((uint16_t)1U << 11U);
+        }
+        else if(_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE)
+        {
+            _u16TempAlarmVal |= ((uint16_t)1U << 13U);
+            _u16TempAlarmVal |= ((uint16_t)1U << 11U);
+        }
+        else if(_Automode.GetGCUOperatingMode() == BASE_MODES::BTS_MODE)
+        {
+            _u16TempAlarmVal |= ((uint16_t)1U << 13U);
+        }
     }
-    else if(_Automode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
+    else
     {
-        _u16TempAlarmVal |= ((uint16_t)0U << 11U);
-    }
-    else if(_Automode.GetGCUOperatingMode() == BASE_MODES::AUTO_MODE)
-    {
-        _u16TempAlarmVal |= ((uint16_t)1U << 11U);
-    }
-    else if(_Automode.GetGCUOperatingMode() == BASE_MODES::CYCLIC_MODE)
-    {
-        _u16TempAlarmVal |= ((uint16_t)1U << 12U);
-    }
-    else if(_Automode.GetGCUOperatingMode() == BASE_MODES::BTS_MODE)
-    {
-        _u16TempAlarmVal |= ((uint16_t)1U << 12U);
-        _u16TempAlarmVal |= ((uint16_t)1U << 11U);
+        /*
+         * Soujanya M. 06.07.2023
+         * If GCU is in Manual mode and night mode restrict is active
+         * then send 7 value.
+         * As per request received from Automation
+         * test team(Amol S.)*/
+        if(_Automode.IsNightModeRestrictOn())
+        {
+            _u16TempAlarmVal |= ((uint16_t)1U << 13U);
+            _u16TempAlarmVal |= ((uint16_t)1U << 12U);
+            _u16TempAlarmVal |= ((uint16_t)1U << 11U);
+        }
+        else
+        {
+            _u16TempAlarmVal |= ((uint16_t)1U << 12U);
+        }
     }
 
    if((_engineMonitoring.GetContactorLoadStatus() ==  ENGINE_MONITORING::LOAD_ON_GEN) && (_engineMonitoring.IsEngineOn()))
@@ -1140,9 +1161,12 @@ void MB_APP::prvUpadateDIGInOut()
     uint8_t u8LocalCnt=15,u8Local = 0;
     _u16TempAlarmVal =0;
 
-    for(u8Local=GCU_ALARMS::DIG_IN_A; u8Local <=GCU_ALARMS::DIG_IN_P; u8Local++)
+    for(u8Local=D_SENSE::DI_A; u8Local <=D_SENSE::DI_P; u8Local++)
     {
-        _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[u8Local].bAlarmActive << u8LocalCnt);
+        if(_hal.DigitalSensors.GetDigInputState(u8Local)==DigitalSensor::SENSOR_LATCHED)
+        {
+            _u16TempAlarmVal |= (uint16_t)(1U<<u8LocalCnt);
+        }
         u8LocalCnt--;
     }
 

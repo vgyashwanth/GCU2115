@@ -1271,7 +1271,7 @@ void MON_UI::prvNormalMonScreens()
             _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
             if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_EOI_64914,0) == J1939APP::VALID_DATA))
             {
-                if (int((uint8_t)(_j1939.GetReadData(RX_PGN_EOI_64914,0)) < MAX_NUM_OF_ENG_OPER_STATES - 1))
+                if ((uint8_t)(_j1939.GetReadData(RX_PGN_EOI_64914,0)) < MAX_NUM_OF_ENG_OPER_STATES - 1)
                 {
                     sprintf(arrTemp,StrEngOperatingState[int((_j1939.GetReadData(RX_PGN_EOI_64914,0)))]); /* yet implement states */
                 }
@@ -1656,7 +1656,14 @@ void MON_UI::prvNormalMonScreens()
              _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
              if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_SHUTDN_65252,0) == J1939APP::VALID_DATA))
              {
-                     sprintf(arrTemp,StrPGN_65252_states[int((_j1939.GetReadData(RX_PGN_SHUTDN_65252,0)))]);
+                if((int)(_j1939.GetReadData(RX_PGN_SHUTDN_65252,0)) < PGN_65252_STRING_OPTIONS)
+                {
+                    sprintf(arrTemp,StrPGN_65252_states[(int)(_j1939.GetReadData(RX_PGN_SHUTDN_65252,0))]);
+                }
+                else
+                {
+                    sprintf(arrTemp,"INVLD");
+                }
              }
              else
              {
@@ -1683,7 +1690,14 @@ void MON_UI::prvNormalMonScreens()
              _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
              if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_CSA_64966,0) == J1939APP::VALID_DATA))
              {
-                     sprintf(arrTemp,StrPGN_64966_states[int((_j1939.GetReadData(RX_PGN_CSA_64966,0)))]);
+                if((int)(_j1939.GetReadData(RX_PGN_CSA_64966,0)) < PGN_64966_STRING_OPTIONS)
+                {
+                    sprintf(arrTemp,StrPGN_64966_states[(int)(_j1939.GetReadData(RX_PGN_CSA_64966,0))]);
+                }
+                else
+                {
+                    sprintf(arrTemp,"INVLD");
+                }
              }
              else
              {

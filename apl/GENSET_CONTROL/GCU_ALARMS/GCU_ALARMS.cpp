@@ -1954,22 +1954,24 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
 
 float GCU_ALARMS::GetSpeedValue()
 {
+    float speedValue = 0.0f;
     if(  (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) != CFGZ::CFGZ_CONVENTIONAL)
        && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG) == CFGZ::CFGZ_ENABLE))
      {
-        return (uint16_t)gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0);
+        speedValue = (uint16_t)(round(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0)));
+        if((isnan(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0))) || (isinf(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0))))
+        {
+            speedValue = 0.0f;
+        }
      }
      else
      {
-         if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
-          {
-              return _hal.AnalogSensors.GetFiltRPMThruCompartor();
-          }
-          else
-          {
-              return 0;
-          }
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
+        {
+            speedValue = (float)_hal.AnalogSensors.GetFiltRPMThruCompartor();
+        }
      }
+    return speedValue;
 }
 
 float GCU_ALARMS::GetInvalidDGSpeedValue()
@@ -3660,6 +3662,10 @@ A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLOPSensorVal()
        && (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE) )
     {
         stLOP.stValAndStatus.f32InstSensorVal =  (float)(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0)*0.01);
+        if((isnan(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0))) || (isinf(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0))))
+        {
+            stLOP.stValAndStatus.f32InstSensorVal = 0;
+        }
         stLOP.eStatus = A_SENSE::SENSOR_READ_SUCCESS;
     }
     else
@@ -3706,7 +3712,7 @@ float GCU_ALARMS::GetSelectedBatteryVtg()
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_BAT_VTG_FROM_ECU)== CFGZ::CFGZ_ENABLE)
             &&(_cfgz.GetEngType()!=CFGZ::CFGZ_CONVENTIONAL))
     {
-        if((isnan(gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0)) == true) || (isinf(gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0)) == true))
+        if((isnan(gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0))) || (isinf(gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0))))
         {
             return 0;
         }
@@ -3896,11 +3902,11 @@ bool GCU_ALARMS::prvIsNewDTC(uint32_t u32Spn, uint8_t u8FMI, uint8_t u8Occurance
                                     == DigitalSensor::SENSOR_LATCHED)
 #define IS_EGR_INPUT_INACTIVE()  (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN)\
                                     == DigitalSensor::SENSOR_UNLATCHED)
-#define IS_EGR_NOT_CONFIGURED()  (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN)\
-                                    == DigitalSensor::SENSOR_NOT_CONFIGRUED)
+#define IS_EGR_CONFIGURED()  (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN)\
+                                    != DigitalSensor::SENSOR_NOT_CONFIGRUED)
 void GCU_ALARMS::StartEgrFaultDetection()
 {
-    if(_StartEgrDetection !=1 && !IS_EGR_NOT_CONFIGURED())
+    if((_StartEgrDetection !=1) && IS_EGR_CONFIGURED())
     {
         UTILS_ResetTimer(&_ecuFaultTimer);
         egrInState  = EGR_DETECTION_INIT;
@@ -4351,6 +4357,10 @@ A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLubeOilTempSensVal()
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU)== CFGZ::CFGZ_ENABLE)&&(_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
     {
         sensVal.stValAndStatus.f32InstSensorVal = (float)gpJ1939->GetReadData(RX_PGN_ET1_65262, 1);
+        if((isnan(gpJ1939->GetReadData(RX_PGN_ET1_65262, 1))) || (isinf(gpJ1939->GetReadData(RX_PGN_ET1_65262, 1))))
+        {
+            sensVal.stValAndStatus.f32InstSensorVal = 0;
+        }
         sensVal.stValAndStatus.eState = GetSPNSensorState(gpJ1939->GetSPNErrorStatus(RX_PGN_ET1_65262,1 ));
         sensVal.eStatus = A_SENSE::SENSOR_READ_SUCCESS;
     }

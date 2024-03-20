@@ -2108,15 +2108,12 @@ bool J1939APP::GetLampStatus(LAMP_st eLamp)
 
 double J1939APP::GetReadData(DATABASE_RX_PGN_LIST_t ePgn, uint8_t u8SpnNum)
 {
+    double pgnReadData = 0.0;
     if((!IsCommunicationFail()) && (GetSPNErrorStatus(ePgn,u8SpnNum) == J1939APP::VALID_DATA))
     {
-        return _ArrPgnReadData[(uint8_t)ePgn][u8SpnNum];
+        pgnReadData = _ArrPgnReadData[(uint8_t)ePgn][u8SpnNum];
     }
-    else
-    {
-        return 0.0;
-    }
-    
+    return pgnReadData;  
 }
 
 J1939APP::J1939_DM_MSG_DECODE J1939APP::GetDM1Message(uint8_t u8MessageNum)

@@ -1153,12 +1153,12 @@ uint8_t gau8Icon7[6][27]
 
  char *strEgrFault[]
  {
-     (char*)"Egr Ecu Healthy",
-     (char*)"Egr Ecu Faulty",
-     (char*)"Vlv nt closing",
-     (char*)"Vlv NT-Lift/SC",
-     (char*)"Vlv snsr flt",
-     (char*)"Vlv wire Open",
-     (char*)"Temp snsr out",
-     (char*)"Temp snsr flt"
+      (char*)"<No fault>",
+      (char*)"ECU Faulty",
+      (char*)"EGR Not Clse",
+      (char*)"EGR Not Lift",
+      (char*)"EGR Vlv Flty",
+      (char*)"EGR Vlv Open",
+      (char*)"Tmp Sen Flty",
+      (char*)"Tmp Sen Open"
  };

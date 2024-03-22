@@ -582,6 +582,8 @@ public:
     ANLG_IP::ANLG_IP_STATE_t GetSPNSensorState(uint8_t u8SPNErrorStatus);
     A_SENSE::SENSOR_RET_t GetLubeOilTempSensVal();
 
+    void UpdateEGRTimeValuesFromJ1939(uint32_t u32FaultTime, uint32_t u32Healtime);
+
 private:
 #define FUEL_THEFT_WAKEUP_TIMER (4U)
     typedef enum

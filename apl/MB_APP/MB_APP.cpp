@@ -990,8 +990,15 @@ void MB_APP::prvUpdateGCUAlarms()
 
     _u16TempAlarmVal |= (uint16_t)(1 << 4U);
     _u16TempAlarmVal |= (uint16_t)(1 << 3U);
-    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_R].bAlarmActive << 1U);
-    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_Q].bAlarmActive << 0U);
+    
+    if(_hal.DigitalSensors.GetDigInputState(D_SENSE::DI_R)==DigitalSensor::SENSOR_LATCHED)
+    {
+        _u16TempAlarmVal |= (uint16_t)(1U<<1U);
+    }
+    if(_hal.DigitalSensors.GetDigInputState(D_SENSE::DI_Q)==DigitalSensor::SENSOR_LATCHED)
+    {
+        _u16TempAlarmVal |= (uint16_t)(1U<<0U);
+    }
     
     _u16TempAlarmVal |= 0xFFF0;
 

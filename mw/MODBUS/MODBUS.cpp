@@ -358,8 +358,8 @@ void MODBUS::prvProcessRequest()
         case MB_WRITE_HOLGING_SINGLE_REG:
         {
             ADDRESS_GROUP_t &_addrGrp = _AddressGrp.pau8Registers[1];
-            uint8_t u8RegisterIdx = (uint8_t)(_pkt.u16StartAddress-_addrGrp.u16StartAddress);
-            _addrGrp.pu16Registers[u8RegisterIdx] = _pkt.au16Registers[0];
+            uint16_t u16RegisterIdx = _pkt.u16StartAddress-_addrGrp.u16StartAddress;
+            _addrGrp.pu16Registers[u16RegisterIdx] = _pkt.au16Registers[0];
            if(_ParseStatus != MB_VALID_PACKET)
            {
                 break;
@@ -400,8 +400,8 @@ void MODBUS::prvProcessWriteReq()
     for(uint8_t j=0;j<_pkt.u16NoOfRegisters;j++)
     {
         /*Determine the register index within this group*/
-        uint8_t u8RegisterIdx = (uint8_t)(_pkt.u16StartAddress-_addrGrp.u16StartAddress);
-        _addrGrp.pu16Registers[u8RegisterIdx+j] = _pkt.au16Registers[j];
+        uint16_t u16RegisterIdx = _pkt.u16StartAddress-_addrGrp.u16StartAddress;
+        _addrGrp.pu16Registers[u16RegisterIdx+j] = _pkt.au16Registers[j];
     }
 }
 
@@ -417,12 +417,12 @@ uint8_t MODBUS::prvProcessReadReq(uint8_t *pu8Resp, uint8_t u8BuffLen)
     for(uint8_t j=0; j<_pkt.u16NoOfRegisters; j++)
     {
         /*Determine the register index within this group*/
-        uint8_t u8RegisterIdx = (uint8_t)(_pkt.u16StartAddress-_addrGrp.u16StartAddress);
+        uint16_t u16RegisterIdx = _pkt.u16StartAddress-_addrGrp.u16StartAddress;
         /*MSB*/
-        (*puTmpBuffPointer) = GET_HIGHER_BYTE_FROM_U16_LE(_addrGrp.pu16Registers[u8RegisterIdx+j]);
+        (*puTmpBuffPointer) = GET_HIGHER_BYTE_FROM_U16_LE(_addrGrp.pu16Registers[u16RegisterIdx+j]);
         puTmpBuffPointer++;
         /*LSB*/
-        (*puTmpBuffPointer) = (uint8_t)_addrGrp.pu16Registers[u8RegisterIdx+j] & 0xFFU;
+        (*puTmpBuffPointer) = (uint8_t)_addrGrp.pu16Registers[u16RegisterIdx+j] & 0xFFU;
         puTmpBuffPointer++;
     }
     return (uint8_t)(puTmpBuffPointer-pu8Resp);

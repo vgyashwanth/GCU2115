@@ -1958,10 +1958,13 @@ float GCU_ALARMS::GetSpeedValue()
     if(  (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) != CFGZ::CFGZ_CONVENTIONAL)
        && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG) == CFGZ::CFGZ_ENABLE))
      {
-        speedValue = (float)(round(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0)));
         if((isnan(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0))) || (isinf(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0))))
         {
             speedValue = 0.0f;
+        }
+        else
+        {
+            speedValue = (float)(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0));
         }
      }
      else
@@ -3661,11 +3664,15 @@ A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLOPSensorVal()
     if(   (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
        && (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE) )
     {
-        stLOP.stValAndStatus.f32InstSensorVal =  (float)(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0)*0.01);
         if((isnan(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0))) || (isinf(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0))))
         {
             stLOP.stValAndStatus.f32InstSensorVal = 0;
         }
+        else
+        {
+            stLOP.stValAndStatus.f32InstSensorVal =  (float)(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0)*0.01);
+        }
+        stLOP.stValAndStatus.eState = GetSPNSensorState(gpJ1939->GetSPNErrorStatus(RX_PGN_EFL_P1_65263,0));
         stLOP.eStatus = A_SENSE::SENSOR_READ_SUCCESS;
     }
     else
@@ -4356,10 +4363,13 @@ A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLubeOilTempSensVal()
     A_SENSE::SENSOR_RET_t sensVal = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU)== CFGZ::CFGZ_ENABLE)&&(_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
     {
-        sensVal.stValAndStatus.f32InstSensorVal = (float)gpJ1939->GetReadData(RX_PGN_ET1_65262, 1);
         if((isnan(gpJ1939->GetReadData(RX_PGN_ET1_65262, 1))) || (isinf(gpJ1939->GetReadData(RX_PGN_ET1_65262, 1))))
         {
             sensVal.stValAndStatus.f32InstSensorVal = 0;
+        }
+        else
+        {
+            sensVal.stValAndStatus.f32InstSensorVal = (float)gpJ1939->GetReadData(RX_PGN_ET1_65262, 1);
         }
         sensVal.stValAndStatus.eState = GetSPNSensorState(gpJ1939->GetSPNErrorStatus(RX_PGN_ET1_65262,1 ));
         sensVal.eStatus = A_SENSE::SENSOR_READ_SUCCESS;

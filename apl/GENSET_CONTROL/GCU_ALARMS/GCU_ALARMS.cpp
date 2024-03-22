@@ -3911,6 +3911,7 @@ bool GCU_ALARMS::prvIsNewDTC(uint32_t u32Spn, uint8_t u8FMI, uint8_t u8Occurance
                                     == DigitalSensor::SENSOR_UNLATCHED)
 #define IS_EGR_CONFIGURED()  (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN)\
                                     != DigitalSensor::SENSOR_NOT_CONFIGRUED)
+
 void GCU_ALARMS::StartEgrFaultDetection()
 {
     if((_StartEgrDetection !=1) && IS_EGR_CONFIGURED())
@@ -3921,10 +3922,8 @@ void GCU_ALARMS::StartEgrFaultDetection()
         ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bEnableNotification = true; /* Initially, the alarm action will be Notification  */
         _StartEgrDetection = 1U;
     }
-
-
-
 }
+
 void GCU_ALARMS::DisableEGRDetection()
 {
     if(_StartEgrDetection != 0U)
@@ -3945,9 +3944,9 @@ void GCU_ALARMS::UpdateEgrDetections()
 }
 
 /* EGR monitoring config */
-#define FAULT_PRESENT_MONITORING_TIME_MINUTES  (4) //(4320)   //72 hrs = 72 * 60 = 4320 minutes
-#define FAULT_RESET_MONITORING_TIME_MINUTES   (2)   //40 hrs
-#define EGR_LOG_NV_WRITE_CYCLE_IN_MINUTES     (1)
+#define FAULT_PRESENT_MONITORING_TIME_MINUTES (4320U)   //72 hrs = 72 * 60 = 4320 minutes
+#define FAULT_RESET_MONITORING_TIME_MINUTES   (2400U)   //40 hrs = 40 * 60 = 2400 minutes
+#define EGR_LOG_NV_WRITE_CYCLE_IN_MINUTES     (1U)
 #define IS_ONE_MINUTE_TIME_ELAPSED()          (UTILS_GetElapsedTimeInSec(&_stGeneralTimer1Minute) > 60U)
 #define KICK_ONE_MINUTE_TIMER()               (UTILS_ResetTimer(&_stGeneralTimer1Minute))
 
@@ -4397,4 +4396,12 @@ ANLG_IP::ANLG_IP_STATE_t GCU_ALARMS::GetSPNSensorState(uint8_t u8SPNErrorStatus)
         return ANLG_IP:: BSP_STATE_CAN_ERROR;
     }
 
+}
+
+void GCU_ALARMS::UpdateEGRTimeValuesFromJ1939(uint32_t u32FaultTime, uint32_t u32Healtime)
+{
+    _u32EgrFault72HrsMonitoring_min = u32FaultTime;
+    _u32EgrFaultReset40HrsMonitoring_min = u32Healtime;
+
+    prvEGR_TimeLog_WriteToNV();
 }

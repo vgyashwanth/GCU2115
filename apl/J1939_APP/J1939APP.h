@@ -23,6 +23,9 @@
 #include "MB_APP.h"
 #include "../GENSET_CONTROL/ENGINE_MONITORING/ENGINE_MONITORING.h"
 
+#define EGR_SHUTDOWN_INDUCEMENT_LEVEL_TIME  (72U * 60U) //in minutes
+#define EGR_WARNING_INDUCEMENT_LEVEL_TIME   (36U * 60U) //in minutes
+
 class J1939APP: public J1939DRIVER
 {
 
@@ -50,6 +53,7 @@ public:
     #define    PGN_DM03        (65228)
     #define    PGN_IC1         (65270)
     #define    PGN_LFE1        (65266)
+    #define PGN_EGR_INDUCEMENT_PGN_RUN_HRS (65290)
 
 
 
@@ -425,10 +429,8 @@ private:
    void UpdateEngSensorAlarms( uint8_t u8SensorID,uint8_t u8SwitchID, uint8_t u8Offset , float* f32PGN);
    void prvUpdateDGVoltAlarmsInAnyPhase( uint8_t u8WarningID, uint8_t u8ShutdownID, uint8_t u8Offset , float* f32PGN);
 
-
-
-
-
+   bool _bIsEGRInducementWarning;
+   bool _bIsEGRInducementShutdown;
 };
 
 #endif /* APL_J1939APP_J1939APP_H_ */

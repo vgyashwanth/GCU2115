@@ -81,7 +81,8 @@ ubypReadRxPgns{
     (J1939_PGNs)&(gstPGNs.PGN_DM11_65235 ),
     (J1939_PGNs)&(gstPGNs.PGN_DM03_65228 ),
     (J1939_PGNs)&(gstPGNs.PGN_IC1_65270  ),
-    (J1939_PGNs)&(gstPGNs.PGN_LFE1_65266  )
+    (J1939_PGNs)&(gstPGNs.PGN_LFE1_65266  ),
+    (J1939_PGNs)&(gstPGNs.PGNRunHrs),
 
 },
 
@@ -1321,7 +1322,6 @@ void J1939APP::ExtractReadFrame(void)
         /// read the CAN frame id
         uPDU_ID_Data.ulPDUId =  CAN_RxQueueBuffer.id;
 
-
         u8PS =(uint8_t)( uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN & 0x00FF);    // PDU Specific
         u8PF =(uint8_t) ((uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN >>8)& 0x00FF); //PDU Format
 
@@ -1332,6 +1332,7 @@ void J1939APP::ExtractReadFrame(void)
         {
             bECUSourceAddressMatched = true;
         }
+
         //bECUSourceAddressMatched = true;
         //  when 0 <= PF(PDU Format) <= 239 defines peer-peer communication. This is PDU1 format.
         //  In this case, PS defines a 8 bit destination node address.
@@ -1352,6 +1353,13 @@ void J1939APP::ExtractReadFrame(void)
             uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN = (uint16_t)((((uint16_t)uPDU_ID_Data.tPDUIdFrame.ubPGN_DP)<<9U)
                                                + (((uint16_t)u8PF)<<8U)) ;
         }
+
+        //Receive the PGN of 65290 only from Source Address 0 irrespective of Engine type
+        if(uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN == PGN_EGR_INDUCEMENT_PGN_RUN_HRS)
+        {
+            bECUSourceAddressMatched = (u8SourceAddress == 0U);
+        }
+
         if(bECUSourceAddressMatched)
         {
             bECUSourceAddressMatched = false;
@@ -1498,6 +1506,15 @@ void J1939APP::ExtractReadFrame(void)
                         _ArrPgnReadData[u8ReceivedPgnNo][u8RxSPNNum] = 0;
                     }
                 }
+
+                if(u8ReceivedPgnNo == RX_PGN_EGR_RUNHRS_65290)
+                {
+                    if((GetSPNErrorStatus(RX_PGN_EGR_RUNHRS_65290,2) == J1939APP::VALID_DATA)
+                            && (GetSPNErrorStatus(RX_PGN_EGR_RUNHRS_65290,3) == J1939APP::VALID_DATA))
+                    {
+                        _gcuAlarm.UpdateEGRTimeValuesFromJ1939((uint32_t)GetReadData(RX_PGN_EGR_RUNHRS_65290,2),(uint32_t)GetReadData(RX_PGN_EGR_RUNHRS_65290,3));
+                    }
+                }
             }
         }
     }
@@ -1563,11 +1580,17 @@ DATABASE_RX_PGN_LIST_t J1939APP::GetRXPGNEnum(uint32_t u32ReceivedPgnNo)
         case PGN_LFE1   :
             eReceivedPgnNo = RX_PGN_LFE1_65266;
             break;
+
+        case PGN_EGR_INDUCEMENT_PGN_RUN_HRS:
+            eReceivedPgnNo = RX_PGN_EGR_RUNHRS_65290;
+            break;
+
         default :
             break;
     }
     return eReceivedPgnNo;
 }
+
 void J1939APP::Update(bool bDeviceInconfig)
 {
 #define GAIN 0.2f
@@ -2260,11 +2283,11 @@ void J1939APP::CommonAlarmBeeping()
 
 bool J1939APP::IsBeepOnTimerExpired()
 {
-    if(_bIsDEFLevelLow)
+    if(_bIsDEFLevelSevere || _bIsEGRInducementShutdown)
     {
         return (UTILS_GetElapsedTimeInSec(&_BeepOnTimer)>=2);
     }
-    else if(_bIsDEFLevelSevere)
+    else if(_bIsDEFLevelLow || _bIsEGRInducementWarning)
     {
         return (UTILS_GetElapsedTimeInSec(&_BeepOnTimer)>=2);
     }
@@ -2272,16 +2295,15 @@ bool J1939APP::IsBeepOnTimerExpired()
     return false;
 }
 
-
 bool J1939APP::IsBeepOffTimerExpired()
 {
-    if(_bIsDEFLevelLow)
-    {
-        return (UTILS_GetElapsedTimeInSec(&_BeepOffTimer)>=5);
-    }
-    else if(_bIsDEFLevelSevere)
+    if(_bIsDEFLevelSevere || _bIsEGRInducementShutdown)
     {
         return (UTILS_GetElapsedTimeInSec(&_BeepOffTimer)>=2);
+    }
+    else if(_bIsDEFLevelLow || _bIsEGRInducementWarning)
+    {
+        return (UTILS_GetElapsedTimeInSec(&_BeepOffTimer)>=5);
     }
 
     return false;
@@ -2289,7 +2311,47 @@ bool J1939APP::IsBeepOffTimerExpired()
 
 void J1939APP::UpdateDEFInducementStrategy()
 {
-    if((_bIsDEFLevelLow || _bIsDEFLevelSevere))
+    bool IsInducementDueToEGR =  (_gcuAlarm.GetEgrEcuFaultStatus() != GCU_ALARMS::EGR_NO_FAULT);
+
+    uint32_t EGRFaultTime  = _gcuAlarm.GetFaultPreset72HrsTimeInMin();
+
+
+    if((EGRFaultTime >= EGR_SHUTDOWN_INDUCEMENT_LEVEL_TIME) && IsInducementDueToEGR)
+    {
+        _bIsEGRInducementShutdown = true;
+        _bIsEGRInducementWarning = false;
+    }
+    else if((EGRFaultTime >= EGR_WARNING_INDUCEMENT_LEVEL_TIME)  && IsInducementDueToEGR)
+    {
+        _bIsEGRInducementWarning = true;
+        _bIsEGRInducementShutdown = false;
+    }
+    else
+    {
+        _bIsEGRInducementShutdown = false;
+        _bIsEGRInducementWarning = false;
+    }
+
+    if(_bIsEGRInducementWarning || _bIsEGRInducementShutdown)
+    {
+        if((!_BeepOnTimer.bEnabled) &&  (!_BeepOffTimer.bEnabled))
+        {
+            UTILS_ResetTimer(&_BeepOnTimer);
+            UTILS_DisableTimer(&_BeepOffTimer);
+        }
+        else
+        {
+            /* Timers are already in use */
+        }
+    }
+    else
+    {
+        /* Timers will be in default state that is in OFF state */
+    }
+
+
+
+    if((_bIsDEFLevelLow || _bIsDEFLevelSevere || _bIsEGRInducementWarning || _bIsEGRInducementShutdown))
      {
          CommonAlarmBeeping();
      }

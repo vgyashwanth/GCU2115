@@ -37,6 +37,7 @@ _cfgc(CFGC),
 _j1939(j1939),
 _BTSMode(BTSMode),
 _cyclicMode(cyclicMode),
+_LogoTimer{0,false},
 _eOpMode (BASE_MODES::MANUAL_MODE),
 ExternalInputUpdateTimer{0, false},
 AutomaticModeSwitchingTimer{0, false},
@@ -855,961 +856,6 @@ void MON_UI::prvPrintNotAvailable(uint8_t u8RowNum, uint8_t u8ColStart)
     _Disp.printStringLeftAligned((char*)NotAvailable, FONT_ARIAL);
 }
 
-#if ENABLE_MON_J1939
-void MON_UI::prvPrintPGN65378OrPGN65367(uint8_t u8PGNReceived)
-{
-    char arrTemp[32];
-    if( _j1939.IsCommunicationFail() || (_j1939.GetSPNErrorStatus(u8PGNReceived, 0) == J1939APP::J1939APP::NOT_AVAILABLE) )
-    {
-        _Disp.gotoxy(64, 32);
-        prvPrintCANMsgRcvError();
-    }
-    else if(_j1939.GetSPNErrorStatus(u8PGNReceived, 0) == J1939APP::ERROR)
-    {
-        _Disp.gotoxy(64, 32);
-        _Disp.printStringCenterAligned((char*)Error, FONT_ARIAL);
-    }
-    else
-    {
-        if(u8PGNReceived == RX_PGN_PROPB62_65378)
-        {
-            _Disp.gotoxy(80, 37);
-            sprintf(arrTemp,"%7.2f", (float)_j1939.GetReadData((DATABASE_RX_PGN_LIST_t)u8PGNReceived, 0));
-            _Disp.printStringRightAligned(arrTemp, FONT_ARIAL);
-        }
-        else if(u8PGNReceived == RX_PGN_PROPB57_65367)
-        {
-            _Disp.gotoxy(80, 37);
-            sprintf(arrTemp,"%.0f", (float)_j1939.GetReadData((DATABASE_RX_PGN_LIST_t)u8PGNReceived, 0));
-            _Disp.printStringRightAligned(arrTemp, FONT_ARIAL);
-        }
-        else{/*do nothing*/}
-        _Disp.gotoxy(90, 37);
-        _Disp.printStringLeftAligned((char *)array_units[astJ1939Display[u8PGNReceived].stpSPN[0].u8SPNUnitIndx], FONT_VERDANA);
-    }
-}
-
-
-
-void MON_UI::prvPrintSPNErrorVal(uint8_t u8RowNum, uint8_t u8ColStart)
-{
-    _Disp.gotoxy(u8ColStart, u8RowNum);
-    _Disp.printStringLeftAligned((char*)Error, FONT_ARIAL);
-}
-
-void MON_UI::prvPrintJ1939SPNVal(SPNData_t stData, uint8_t u8x, uint8_t u8y )
-{
-    char arrTemp[32];
-    switch(stData.u8DPInResolution)
-    {
-        case 0:
-        default:
-                sprintf(arrTemp,"%.0f", stData.f64SpnVal);
-                break;
-        case 1:
-                sprintf(arrTemp,"%.1f", stData.f64SpnVal);
-                break;
-        case 2:
-                sprintf(arrTemp,"%.2f", stData.f64SpnVal);
-                break;
-        case 3:
-                sprintf(arrTemp,"%.3f", stData.f64SpnVal);
-                break;
-        case 4:
-                sprintf(arrTemp,"%.4f", stData.f64SpnVal);
-                break;
-    }
-    if(stData.u8DPInResolution == 0)
-    {
-        _Disp.gotoxy(u8x, u8y);
-        _Disp.printStringRightAligned(arrTemp, FONT_VERDANA);
-    }
-    else
-    {
-        char arrTemp1[32], arrTemp2[32];
-        uint8_t j=0;
-        bool bCopyInSecondString = false;
-        uint8_t u8Length=0;;
-        for(uint8_t i=0;i<strlen(arrTemp);i++)
-        {
-            u8Length++;
-            if(arrTemp[i]=='\0')
-            {
-                break;
-            }
-        }
-
-        for(uint8_t i=0;i<u8Length;i++)
-        {
-            if(arrTemp[i]=='.')
-            {
-                bCopyInSecondString = true;
-                arrTemp1[i] = '\0';
-            }
-
-            if(bCopyInSecondString)
-            {
-                arrTemp2[j]=arrTemp[i];
-                j++;
-            }
-            else
-            {
-                arrTemp1[i]=arrTemp[i];
-            }
-
-        }
-        arrTemp2[j] = '\0';
-        _Disp.gotoxy(u8x, u8y);
-        _Disp.printStringRightAligned(arrTemp1, FONT_VERDANA);
-        _Disp.gotoxy(u8x+1, u8y);
-        _Disp.printStringLeftAligned(arrTemp2, FONT_VERDANA);
-    }
-
-}
-
-void  MON_UI::prvPrintJ1939AfterTreatDataOnScreen(bool bIsAfterTreat1PGN, uint8_t u8RxATPGNNo)
-{
-
-    uint8_t i = 0;
-    _Disp.gotoxy(64, 12);
-    _Disp.printStringCenterAligned((char *)(&(gstPgnSubHeadings[_u8LanguageIndex][u8RxATPGNNo - (DISP_AT1IG1_PGN_61454 -DISP_MON_SCREEN_LAST-1)].SubHeadings)), FONT_VERDANA);
-
-    for(i = 0; i < (astJ1939Display[u8RxATPGNNo].u8NoOfSPNs); i++)
-    {
-        _Disp.gotoxy(2, 23 + (i * 10));
-//        if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-//        {
-//            _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxATPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
-//        }
-//        else
-        {
-            _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxATPGNNo].stpSPN[i].cs8pSPNName, FONT_VERDANA);
-        }
-
-
-        if(_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA))
-        {
-            /* If EEC1 PGN is not received for configurable time then display
-             * "NA" - Not available in front of the SPN name.*/
-            if( (_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::NOT_AVAILABLE)))
-            {
-                prvPrintNotAvailable((uint8_t)(23 + (i * 10)), 83);
-            }
-            else if( _DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::ERROR )
-            {
-                prvPrintSPNErrorVal((uint8_t)(23 + (i * 10)), 83);
-            }
-        }
-        else
-        {
-            prvPrintJ1939SPNVal(_DisplayPGNScreenData[i], 93,(uint8_t)(23 + (i * 10)));
-            _Disp.gotoxy(127, 23 + (i * 10));
-            _Disp.printStringRightAligned((char *)array_units[astJ1939Display[u8RxATPGNNo].stpSPN[i].u8SPNUnitIndx],FONT_VERDANA);
-        }
-    }
-}
-
-void MON_UI::prvJ1939MonScreens()
-{
-
-    uint8_t i = 0;
-    char arrTemp[32];
-    char * ps8PGNNameToPrint;
-    volatile uint8_t u8RxPGNNo = _stScreenNo - DISP_MON_SCREEN_LAST-1;
-    ps8PGNNameToPrint = (char*)arrPGNAbbreviations[_u8LanguageIndex][astJ1939Display[u8RxPGNNo].cu8PGNName- DISP_MON_SCREEN_LAST-1];
-   // ps8PGNNameToPrint = &arrPGNAbbreviations[astJ1939Display[u8RxPGNNo].cu8PGNName- DISP_MON_SCREEN_LAST-1][0];
-
-    _Disp.ClearScreen();
-    _Disp.drawRectangle();
-    _Disp.drawHorizontalLine(0, 11, 127);
-    _Disp.gotoxy(64, 1);
-
-    _Disp.printStringCenterAligned((char *)ps8PGNNameToPrint, FONT_VERDANA);
-
-    switch(_stScreenNo)
-    {
-        case DISP_PROPB62_PGN_65378 :
-        case DISP_PROPB57_PGN_65367:
-            {
-                prvPrintPGN65378OrPGN65367(u8RxPGNNo);
-            }
-            break;
-
-        case DISP_EDC4_CAN_STATUS:
-            if( _j1939.IsCommunicationFail() || (_j1939.GetSPNErrorStatus(RX_PGN_EMR_PREHEAT_65284, 1) == J1939APP::J1939APP::NOT_AVAILABLE) )
-            {
-                _Disp.gotoxy(64, 37);
-                prvPrintCANMsgRcvError();
-            }
-            else if( _j1939.GetSPNErrorStatus(RX_PGN_EMR_PREHEAT_65284, 1)== J1939APP::ERROR )
-            {
-                _Disp.gotoxy(64, 37);
-                _Disp.printStringCenterAligned((char *)Error, FONT_ARIAL);
-            }
-            else
-            {
-                _Disp.gotoxy(64, 37);
-                sprintf(arrTemp,"%3.0f", (float)_j1939.GetReadData(RX_PGN_EMR_PREHEAT_65284, 1));
-                _Disp.printStringCenterAligned(arrTemp, FONT_ARIAL);
-
-            }
-            break;
-
-        case DISP_WFI_PGN_65279:
-            _Disp.gotoxy(3, 15 + (i * 10));
-//            if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-//            {
-//                _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSpanishSPNName, FONT_VERDANA);
-//            }
-//            else
-            {
-                _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSPNName, FONT_VERDANA);
-            }
-            if(_j1939.IsCommunicationFail()  || (_DisplayPGNScreenData[i].SPNStatusErrorNA))
-            {
-                if(( _j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::NOT_AVAILABLE)))
-                {
-                    prvPrintNotAvailable(15, 83);
-                }
-                else if(_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::ERROR)
-                {
-                    prvPrintSPNErrorVal(15, 83);
-                }
-            }
-            else
-            {
-                _Disp.gotoxy(83, 15);
-                if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 0  )
-                {
-                    _Disp.printStringLeftAligned((char*)No, FONT_ARIAL);
-                }
-                else if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 1 )
-                {
-                    _Disp.printStringLeftAligned((char*)Yes[_u8LanguageIndex], FONT_ARIAL);
-                }
-                else if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 2 )
-                {
-                    prvPrintSPNErrorVal(15, 83);
-                }
-                else if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 3 )
-                {
-                    prvPrintNotAvailable(15, 83);
-                }
-            }
-            break;
-
-        case DISP_OII_PGN_64554:
-        case DISP_S2_PGN_65166:
-        case DISP_EFL_P2_PGN_65243:
-        case DISP_PROPB5E_PGN_65374_1:
-        case DISP_PROPB5E_PGN_65374_2:
-        case DISP_PROPB5E_PGN_65374_3:
-        case DISP_PROPB5E_PGN_65374_4:
-        case DISP_PROPB5E_PGN_65374_5:
-        case DISP_PROPB5E_PGN_65374_6:
-        case DISP_EFG1_PGN_61450:
-        case DISP_LFC_PGN_65257:
-        case DISP_TCI4_PGN_65176:
-        case DISP_GFC_PGN_65199:
-            for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
-            {
-                _Disp.gotoxy(3, 15 + (i * 22));
-//                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-//                {
-//                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
-//                }
-//                else
-                {
-                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSPNName, FONT_VERDANA);
-                }
-
-
-                if(_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA))
-                {
-                    /* If EEC1 PGN is not received for configurable time then display
-                     * "NA" - Not available in front of the SPN name.*/
-                    if( (_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::NOT_AVAILABLE)) )
-                    {
-                        prvPrintNotAvailable((uint8_t)(15+(i * 22)), 83);
-                    }
-                    else if(_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::ERROR)
-                    {
-                        prvPrintSPNErrorVal((uint8_t)(15 + (i * 22)), 83);
-                    }
-                }
-                else
-                {
-                    prvPrintJ1939SPNVal(_DisplayPGNScreenData[i], 93,(uint8_t)(26 + (i * 22)));
-                    _Disp.gotoxy( 127,(26 + (i * 22)));
-                    _Disp.printStringRightAligned((char *)array_units[astJ1939Display[u8RxPGNNo].stpSPN[i].u8SPNUnitIndx],FONT_VERDANA  );
-
-                }
-            }
-            break;
-
-        case DISP_AI_PGN_65237:
-        case DISP_ETC5_PGN_65219:
-        case DISP_SHUTDOWN_PGN_65252:
-            for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
-            {
-                _Disp.gotoxy(3, 15 + (i * 11));
-//                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-//                {
-//                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
-//                }
-//                else
-                {
-                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSPNName, FONT_VERDANA);
-                }
-                if(_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA))
-                {
-                    /* If EEC1 PGN is not received for configurable time then display
-                     * "NA" - Not available in front of the SPN name.*/
-                    if(((_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::NOT_AVAILABLE))))
-                    {
-                        prvPrintNotAvailable((uint8_t)(15 + (i * 11)), 83);
-                    }
-                    else if((_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::ERROR) )
-                    {
-                        prvPrintSPNErrorVal((uint8_t)(15 + (i * 11)), 83);
-                    }
-                }
-                else
-                {
-                    if(i == J1939APP::ENG_WAIT_TO_STRT_LAMP)
-                    {
-                        _Disp.gotoxy(83,15);
-                        if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 0) )
-                        {
-                            if(_stScreenNo == DISP_AI_PGN_65237)
-                            {
-                                _Disp.printStringLeftAligned((char*)StrNotCharging, FONT_ARIAL);
-                            }
-                            else
-                            {
-                                _Disp.printStringLeftAligned((char*)StrOff[_u8LanguageIndex], FONT_ARIAL);
-                            }
-                        }
-                        else if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 1 )
-                        {
-                            if(_stScreenNo == DISP_AI_PGN_65237)
-                            {
-                                _Disp.printStringLeftAligned((char*)strCharging, FONT_ARIAL);
-                            }
-                            else
-                            {
-                                _Disp.printStringLeftAligned((char*)StrOn[_u8LanguageIndex], FONT_ARIAL);
-                            }
-                        }
-                        else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 2) )
-                        {
-                            prvPrintSPNErrorVal(15, 83);
-                        }
-                        else if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 3)
-                        {
-                            prvPrintNotAvailable(15, 83);
-                        }
-                    }
-                    else if((i == J1939APP::EPS_SHUTDOWN_ENG)&&(_stScreenNo == DISP_SHUTDOWN_PGN_65252))
-                    {
-                        _Disp.gotoxy(83,26);
-                        if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 0)
-                        {
-                            _Disp.printStringLeftAligned((char*)No, FONT_ARIAL);
-                        }
-                        else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 1) )
-                        {
-                            _Disp.printStringLeftAligned((char*)Yes[_u8LanguageIndex], FONT_ARIAL);
-                        }
-                        else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 2))
-                        {
-                            prvPrintSPNErrorVal(26, 83);
-                        }
-                        else if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 3)
-                        {
-                            prvPrintNotAvailable(26, 83);
-                        }
-                    }
-                    else if((i == J1939APP::EPS_APPROACHING_SHUTDOWN)&&(_stScreenNo == DISP_SHUTDOWN_PGN_65252))
-                    {
-                        _Disp.gotoxy(83,37);
-                        if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 0)
-                        {
-                            _Disp.printStringLeftAligned((char*)NotApproaching, FONT_ARIAL);
-                        }
-                        else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 1) )
-                        {
-                            _Disp.printStringLeftAligned((char*)Approaching, FONT_ARIAL);
-                        }
-                        else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 2))
-                        {
-                            prvPrintSPNErrorVal(37, 83);
-                        }
-                        else if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 3)
-                        {
-                            prvPrintNotAvailable(37, 83);
-                        }
-                    }
-                }
-            }
-            break;
-
-
-        case DISP_EOI_PGN_64914:
-            for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
-            {
-                _Disp.gotoxy(3, 15 + (i * 11));
-//                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-//                {
-//                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
-//                }
-//                else
-                {
-                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSPNName, FONT_VERDANA);
-                }
-
-                if(_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA))
-                {
-                    /* If EEC1 PGN is not received for configurable time then display
-                     * "NA" - Not available in front of the SPN name.*/
-                    if( (_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::NOT_AVAILABLE)) )
-                    {
-                        prvPrintNotAvailable((uint8_t)(15+(i*11)), 83);
-                    }
-                    else if(_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::ERROR)
-                    {
-                        prvPrintSPNErrorVal((uint8_t)(15 + (i * 11)), 83);
-                    }
-                }
-                else
-                {
-                    if(i == 0)
-                    {
-                        _Disp.gotoxy(95, 15 + (i * 11));
-                        _Disp.printStringCenterAligned((char*)(gstEngOperatingState[_u8LanguageIndex][(uint8_t)_DisplayPGNScreenData[i].f64SpnVal].OperatingState), FONT_VERDANA);
-                    }
-                    else if(i == 1)
-                    {
-                        prvPrintJ1939SPNVal(_DisplayPGNScreenData[i], 95, (uint8_t)(15+(i*11)));
-
-                    }
-                    else if(i == 2)
-                    {
-                        _Disp.gotoxy(83,37);
-                        if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 0))
-                        {
-                            _Disp.printStringLeftAligned((char*)StrOff[_u8LanguageIndex], FONT_ARIAL);
-                        }
-                        else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 1) )
-                        {
-                            _Disp.printStringLeftAligned((char*)StrOn[_u8LanguageIndex], FONT_ARIAL);
-                        }
-                        else if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 2))
-                        {
-                            prvPrintSPNErrorVal(37, 83);
-                        }
-                        else if((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 3)
-                        {
-                            prvPrintNotAvailable(37, 83);
-                        }
-                    }
-                    else{/*do nothing*/}
-
-                    _Disp.gotoxy(127, 15 + (i * 11));
-                    _Disp.printStringRightAligned((char *)array_units[astJ1939Display[u8RxPGNNo].stpSPN[i].u8SPNUnitIndx], FONT_VERDANA);
-                }
-            }
-            break;
-
-        case DISP_AT1IG1_PGN_61454:
-        case DISP_A1DOC_PGN_64800:
-        case DISP_AT1IG2_PGN_64948:
-        case DISP_AT1IMG_PGN_64946:
-        case DISP_AT1OG1_PGN_61455:
-        case DISP_A1SCRDSI1_PGN_61475:
-        case DISP_A1SCRDSI2_PGN_64833:
-        case DISP_A1SCRDSR1_PGN_61476:
-        case DISP_A1SCREGT1_PGN_64830:
-        case DISP_AT1T1I_PGN_65110:
-        case DISP_AT1OG2_PGN_64947:
-        case DISP_AT1S_PGN_64891:
-            prvPrintJ1939AfterTreatDataOnScreen(true,u8RxPGNNo);
-            break;
-
-        case DISP_AT2IG1_PGN_61456:
-        case DISP_AT2OG1_PGN_61457:
-        case DISP_A2SCRDSI2_PGN_64827:
-        case DISP_A2SCRDSI1_PGN_61478:
-        case DISP_A2SCRDSR1_PGN_61479:
-        case DISP_A2SCREGT1_PGN_64824:
-            prvPrintJ1939AfterTreatDataOnScreen(false, u8RxPGNNo);
-            break;
-
-        case DISP_AT1S2_PGN_64697:
-
-            _Disp.gotoxy(64, 12);
-            _Disp.printStringCenterAligned((char*)"Service 2", FONT_VERDANA);
-            _Disp.gotoxy(3, 24);
-//            if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-//            {
-//                _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSpanishSPNName, FONT_VERDANA);
-//            }
-//            else
-            {
-                _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[0].cs8pSPNName, FONT_VERDANA);
-            }
-
-            if(_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA))
-            {
-                /* If EEC1 PGN is not received for configurable time then display
-                 * "NA" - Not available in front of the SPN name.*/
-                if( (_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::NOT_AVAILABLE)))
-                {
-                    prvPrintNotAvailable(24, 83);
-                }
-                else if( _DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::ERROR )
-                {
-                    _Disp.gotoxy(83, 24);
-                    _Disp.printStringLeftAligned((char *)Error, FONT_ARIAL);
-                }
-            }
-            else
-            {
-                prvPrintJ1939SPNVal(_DisplayPGNScreenData[0], 93,24);
-                _Disp.gotoxy(127,24);
-                _Disp.printStringRightAligned((char *)array_units[astJ1939Display[u8RxPGNNo].stpSPN[0].u8SPNUnitIndx], FONT_VERDANA);
-            }
-            break;
-
-
-        case DISP_PROPB32_PGN_65330:
-            {
-                if(_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA))
-                {
-                    if(((_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::NOT_AVAILABLE))))
-                    {
-                        _Disp.gotoxy(64, 32);
-                        prvPrintCANMsgRcvError();
-                    }
-                    else if((_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::ERROR) && (Error != NULL))
-                    {
-                        _Disp.gotoxy(1, 34);
-                        _Disp.printStringCenterAligned((char*)Error,FONT_ARIAL);
-                    }
-                }
-                else
-                {
-                    if(((uint8_t)_DisplayPGNScreenData[i].f64SpnVal > 5) || ((uint8_t)_DisplayPGNScreenData[i].f64SpnVal == 2))
-                    {
-                        _Disp.gotoxy(64, 32);
-                        prvPrintCANMsgRcvError();
-                    }
-                    else
-                    {
-                        _Disp.gotoxy(2, 25);
-
-                        _Disp.printStringLeftAligned((char*)gstNcdInduceData[_u8LanguageIndex][(uint8_t)_DisplayPGNScreenData[i].f64SpnVal].NcdInduceStrategy, FONT_VERDANA );
-                    }
-                }
-            }
-            break;
-
-
-        default:
-            for(i = 0; i < (astJ1939Display[u8RxPGNNo].u8NoOfSPNs); i++)
-            {
-                _Disp.gotoxy(2, 15 + (i * 11));
-//                if(_u8LanguageIndex == CFGZ::LANGUAGE_SPANISH)
-//                {
-//                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSpanishSPNName, FONT_VERDANA);
-//                }
-//                else
-                {
-                    _Disp.printStringLeftAligned((char *)astJ1939Display[u8RxPGNNo].stpSPN[i].cs8pSPNName, FONT_VERDANA);
-                }
-                if(_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA))
-                {
-                    /* If EEC1 PGN is not received for configurable time then display
-                     * "NA" - Not available in front of the SPN name.*/
-                    if( (_j1939.IsCommunicationFail() || (_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::NOT_AVAILABLE)) )
-                    {
-                        prvPrintNotAvailable((uint8_t)(15 + (i*11)), 83);
-                    }
-                    else if(_DisplayPGNScreenData[i].SPNStatusErrorNA == J1939APP::ERROR)
-                    {
-                        _Disp.gotoxy(83, 15 + (i * 11));
-                        _Disp.printStringLeftAligned((char *)Error, FONT_ARIAL);
-                    }
-                }
-                else
-                {
-                    prvPrintJ1939SPNVal(_DisplayPGNScreenData[i], 93, (uint8_t)(15 + (i * 11)));
-
-                    _Disp.gotoxy(127, 15 + (i * 11));
-                    _Disp.printStringRightAligned((char *)array_units[astJ1939Display[u8RxPGNNo].stpSPN[i].u8SPNUnitIndx], FONT_VERDANA);
-                }
-            }
-            break;
-    }
-
-}
-
-void MON_UI::prvPGNScreenDataAssignment(uint8_t u8PGNEnumNo)
-{
-    uint8_t u8SPNEnumNo = 0;
-    uint8_t u8DispPGNNumber = _stScreenNo -DISP_MON_SCREEN_LAST-1;
-    (void)memset((void *)(&_DisplayPGNScreenData), 0x00, sizeof(_DisplayPGNScreenData));
-
-    switch(_stScreenNo)
-    {
-        case DISP_IVECO_ENGINE_STATUS:
-            for(u8SPNEnumNo = J1939APP::COOLING_WATER_TEMP_1; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_65282 ; u8SPNEnumNo++)
-            {
-                if(u8SPNEnumNo == J1939APP::OIL_PRESSURE_3)
-                {
-                    // Convert kpa to bar i.e 100kpa = 1bar.
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_IVECO_ENG_STATUS_65282, u8SPNEnumNo)/100;
-                }
-                else
-                {
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_IVECO_ENG_STATUS_65282,u8SPNEnumNo);
-                }
-                prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_IVECO_ENG_STATUS_65282, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_AMB_PGN_65269:
-            for(u8SPNEnumNo = J1939APP::BAROMETER_PRESSURE_SPN_108; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_65269 ; u8SPNEnumNo++)
-            {
-                if(u8SPNEnumNo == J1939APP::BAROMETER_PRESSURE_SPN_108)
-                {
-                    // Convert kpa to bar i.e 100kpa = 1bar.
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_AMB_65269,u8SPNEnumNo)/100;
-                }
-                else
-                {
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal =_j1939.GetReadData(RX_PGN_AMB_65269,u8SPNEnumNo);
-
-                }
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_AMB_65269, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_ET1_PGN_65262_1:
-            for(u8SPNEnumNo = J1939APP::ENG_CLNT_TEMP_SPN_110; u8SPNEnumNo < J1939APP::ENG_TURBO_OIL_TEMP_SPN_176; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal =_j1939.GetReadData(RX_PGN_ET1_65262,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_ET1_65262, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_ET1_PGN_65262_2:
-            for(u8SPNEnumNo = J1939APP::ENG_TURBO_OIL_TEMP_SPN_176; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_65262; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo - J1939APP::ENG_TURBO_OIL_TEMP_SPN_176].f64SpnVal =_j1939.GetReadData(RX_PGN_ET1_65262,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo - J1939APP::ENG_TURBO_OIL_TEMP_SPN_176], RX_PGN_ET1_65262, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_EEC1_PGN_61444_1:
-            for(u8SPNEnumNo = J1939APP::ENGINE_TORQUE_SPN_899; u8SPNEnumNo < J1939APP::SOURCE_ADDR_SPN_1483; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal =_j1939.GetReadData(RX_PGN_EEC1_61444,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_EEC1_61444, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_EEC1_PGN_61444_2:
-            for(u8SPNEnumNo = J1939APP::SOURCE_ADDR_SPN_1483; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_61444; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SOURCE_ADDR_SPN_1483].f64SpnVal =_j1939.GetReadData(RX_PGN_EEC1_61444,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SOURCE_ADDR_SPN_1483], RX_PGN_EEC1_61444, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_PROPB5E_PGN_65374_1:
-            for(u8SPNEnumNo = J1939APP::SPN_1; u8SPNEnumNo < J1939APP::SPN_3; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal =_j1939.GetReadData(RX_PGN_PROPB5E_65374,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_PROPB5E_65374, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_PROPB5E_PGN_65374_2:
-            for(u8SPNEnumNo = J1939APP::SPN_3; u8SPNEnumNo < J1939APP::SPN_5; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SPN_3].f64SpnVal =_j1939.GetReadData(RX_PGN_PROPB5E_65374,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SPN_3], RX_PGN_PROPB5E_65374, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_PROPB5E_PGN_65374_3:
-            for(u8SPNEnumNo = J1939APP::SPN_5; u8SPNEnumNo < J1939APP::SPN_7; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SPN_5].f64SpnVal =_j1939.GetReadData(RX_PGN_PROPB5E_65374,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SPN_5], RX_PGN_PROPB5E_65374, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_PROPB5E_PGN_65374_4:
-            for(u8SPNEnumNo = J1939APP::SPN_7; u8SPNEnumNo < J1939APP::SPN_9; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SPN_7].f64SpnVal =_j1939.GetReadData(RX_PGN_PROPB5E_65374,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SPN_7], RX_PGN_PROPB5E_65374, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_PROPB5E_PGN_65374_5:
-            for(u8SPNEnumNo = J1939APP::SPN_9; u8SPNEnumNo < J1939APP::SPN_11; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SPN_9].f64SpnVal =_j1939.GetReadData(RX_PGN_PROPB5E_65374,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SPN_9], RX_PGN_PROPB5E_65374, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_PROPB5E_PGN_65374_6:
-            for(u8SPNEnumNo = J1939APP::SPN_11; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_65374; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SPN_11].f64SpnVal =_j1939.GetReadData(RX_PGN_PROPB5E_65374,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo - J1939APP::SPN_11], RX_PGN_PROPB5E_65374, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_EFL_P1_PGN_65263_1:
-            for(u8SPNEnumNo = J1939APP::ENG_FUEL_PRESS_SPN_94; u8SPNEnumNo < J1939APP::ENG_CRANCKCASE_PRESS_SPN_101; u8SPNEnumNo++)
-            {
-                if(u8SPNEnumNo != J1939APP::ENG_OIL_LVL_SPN_98)
-                {
-                    // Convert kpa to bar i.e 100kpa = 1bar.
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal =_j1939.GetReadData(RX_PGN_EFL_P1_65263,u8SPNEnumNo)/100;
-                    prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_EFL_P1_65263, u8SPNEnumNo);
-                }
-                else
-                {
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal =_j1939.GetReadData(RX_PGN_EFL_P1_65263,u8SPNEnumNo);
-                    prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_EFL_P1_65263, u8SPNEnumNo);
-                }
-            }
-            break;
-        case DISP_EFL_P1_PGN_65263_2:
-            for(u8SPNEnumNo = J1939APP::ENG_CRANCKCASE_PRESS_SPN_101; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_65263; u8SPNEnumNo++)
-            {
-                if((u8SPNEnumNo == J1939APP::ENG_CRANCKCASE_PRESS_SPN_101) || (u8SPNEnumNo == J1939APP::ENG_COOLANT_PRESS_SPN_109))
-                {
-                    // Convert kpa to bar i.e 100kpa = 1bar.
-                    _DisplayPGNScreenData[u8SPNEnumNo -J1939APP::ENG_CRANCKCASE_PRESS_SPN_101].f64SpnVal = _j1939.GetReadData(RX_PGN_EFL_P1_65263,u8SPNEnumNo)/100;
-                    prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo - J1939APP::ENG_CRANCKCASE_PRESS_SPN_101], RX_PGN_EFL_P1_65263, u8SPNEnumNo );
-                }
-                else
-                {
-                    _DisplayPGNScreenData[u8SPNEnumNo-3].f64SpnVal =_j1939.GetReadData(RX_PGN_EFL_P1_65263,u8SPNEnumNo);
-                    prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo-3], RX_PGN_EFL_P1_65263, u8SPNEnumNo );
-                }
-            }
-            break;
-        case DISP_IC1_PGN_65270_1:
-            for(u8SPNEnumNo = J1939APP::ENG_TRAP_INLET_PRESS_SPN_81; u8SPNEnumNo < J1939APP::ENG_AIR_FILT_DIFF_PRESS_SPN_107; u8SPNEnumNo++)
-            {
-                if(u8SPNEnumNo == J1939APP::ENG_INTAKE_MANIFOLD_TEMP_SPN_105)
-                {
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal =_j1939.GetReadData(RX_PGN_IC1_65270,u8SPNEnumNo);
-                }
-                else
-                {
-                    // Convert kpa to bar i.e 100kpa = 1bar.
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_IC1_65270,u8SPNEnumNo)/100;
-
-                }
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_IC1_65270, u8SPNEnumNo );
-            }
-            break;
-        case DISP_IC1_PGN_65270_2:
-            for(u8SPNEnumNo = J1939APP::ENG_AIR_FILT_DIFF_PRESS_SPN_107; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_65270; u8SPNEnumNo++)
-            {
-                if(u8SPNEnumNo == J1939APP::ENG_EXHAUST_GAS_TEMP_SPN_173)
-                {
-                    _DisplayPGNScreenData[u8SPNEnumNo -J1939APP::ENG_AIR_FILT_DIFF_PRESS_SPN_107].f64SpnVal =_j1939.GetReadData(RX_PGN_IC1_65270,u8SPNEnumNo);
-
-                }
-                else
-                {
-                    // Convert kpa to bar i.e 100kpa = 1bar.
-                    _DisplayPGNScreenData[u8SPNEnumNo - J1939APP::ENG_AIR_FILT_DIFF_PRESS_SPN_107].f64SpnVal = _j1939.GetReadData(RX_PGN_IC1_65270,u8SPNEnumNo)/100;
-                }
-                prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo -J1939APP::ENG_AIR_FILT_DIFF_PRESS_SPN_107], RX_PGN_IC1_65270, u8SPNEnumNo );
-            }
-            break;
-
-        case DISP_DD_PGN_65276:
-            for(u8SPNEnumNo = J1939APP::ENG_FUEL_FILT_DIFF_PRESS_SPN_95; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_65276; u8SPNEnumNo++)
-            {
-                // Convert kpa to bar i.e 100kpa = 1bar.
-                _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_DD_65276,u8SPNEnumNo)/100;
-                prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_DD_65276, u8SPNEnumNo);
-            }
-            break;
-        case DISP_IC2_PGN_64976:
-            for(u8SPNEnumNo = J1939APP::ENG_AIR_FILT_PRESS_SPN_2809; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_64976; u8SPNEnumNo++)
-            {
-                // Convert kpa to bar i.e 100kpa = 1bar.
-                _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_IC2_64976,u8SPNEnumNo)/100;
-                prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_IC2_64976, u8SPNEnumNo);
-            }
-            break;
-        case DISP_LFC_PGN_65257:
-            for(u8SPNEnumNo = J1939APP::ENG_TRIP_FUEL_SPN_182; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_65257; u8SPNEnumNo++)
-            {
-                if(u8SPNEnumNo == J1939APP::ENG_TRIP_FUEL_SPN_182)
-                {
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_LFC_65257,u8SPNEnumNo);
-                    prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_LFC_65257, u8SPNEnumNo);
-                }
-                else
-                {
-                    // Convert Litre to KL.
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_LFC_65257,u8SPNEnumNo)/1000;
-                    prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_LFC_65257, u8SPNEnumNo);
-                }
-            }
-            break;
-        case DISP_A1SCRDSI1_PGN_61475:
-            for(u8SPNEnumNo = J1939APP::EXHAUST_FLUID_DOSING_QUANTITY_SPN_4331; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_61475; u8SPNEnumNo++)
-            {
-                if(u8SPNEnumNo == J1939APP::EXHAUST_FLUID_DOSING_QUANTITY_SPN_4331)
-                {
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal =_j1939.GetReadData(RX_PGN_A1SCRDSI1_61475,u8SPNEnumNo);
-                    prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_A1SCRDSI1_61475, u8SPNEnumNo);
-                }
-                else
-                {
-                    // Convert kpa to bar i.e 100kpa = 1bar.
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_A1SCRDSI1_61475,u8SPNEnumNo)/100;
-                    prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_A1SCRDSI1_61475, u8SPNEnumNo);
-                }
-            }
-            break;
-        case DISP_A2SCRDSI1_PGN_61478:
-            for(u8SPNEnumNo = J1939APP::EXAUST_FLUID_ACT_DOSING_QUANTITY_SPN_4384; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_61478; u8SPNEnumNo++)
-            {
-                if(u8SPNEnumNo == J1939APP::EXAUST_FLUID_ACT_DOSING_QUANTITY_SPN_4384)
-                {
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_A2SCRDSI1_61478,u8SPNEnumNo);
-
-                }
-                else
-                {
-                    // Convert kpa to bar i.e 100kpa = 1bar.
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_A2SCRDSI1_61478,u8SPNEnumNo)/100;
-                }
-                prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_A2SCRDSI1_61478, u8SPNEnumNo);
-            }
-            break;
-        case DISP_AT1S2_PGN_64697:
-            // Convert seconds to hours
-            _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_AT1S2_64697,u8SPNEnumNo)/3600;
-            prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_AT1S2_64697, u8SPNEnumNo);
-            break;
-
-        case DISP_AT1T1I_PGN_65110:
-            for(u8SPNEnumNo = J1939APP::DISEL_EXHAUST_TANK_LVL_SPN_1761; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_65110; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal= _j1939.GetReadData(RX_PGN_AT1T1I_65110,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_AT1T1I_65110, u8SPNEnumNo);
-            }
-            break;
-        case DISP_PROSTOUT_PGN_65364_1 :
-            for(u8SPNEnumNo = 0; u8SPNEnumNo < 4; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal= _j1939.GetReadData(RX_PGN_PROSTOUT_65364,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_PROSTOUT_65364, u8SPNEnumNo);
-            }
-            break;
-        case DISP_PROSTOUT_PGN_65364_2:
-            for(u8SPNEnumNo = 4; u8SPNEnumNo < 8; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo - 4].f64SpnVal= _j1939.GetReadData(RX_PGN_PROSTOUT_65364,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo - 4], RX_PGN_PROSTOUT_65364, u8SPNEnumNo);
-            }
-            break;
-
-        case DISP_HATZ_PROPB_PHYS_PGN_65280:
-        case DISP_AI_PGN_65237:
-        case DISP_ETC5_PGN_65219:
-        case DISP_OII_PGN_64554:
-        case DISP_HATZ_CCVS_PGN_65265:
-        case DISP_IT1_PGN_65154:
-        case DISP_GFP_PGN_65163:
-        case DISP_IMI1_PGN_65190:
-        case DISP_FD1_PGN_65213   :
-        case DISP_DLCC1_PGN_64775 :
-        case DISP_GFC_PGN_65199  :
-        {
-            /*Amruta - 23-Apr-2020
-             * Below subtraction is done in order to match display array enum variable
-             * with database array enum.
-             * */
-            for(u8SPNEnumNo = 0; u8SPNEnumNo < astJ1939Display[u8DispPGNNumber].u8NoOfSPNs; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal= _j1939.GetReadData((DATABASE_RX_PGN_LIST_t)(u8PGNEnumNo),u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP(&_DisplayPGNScreenData[u8SPNEnumNo], u8PGNEnumNo , u8SPNEnumNo );
-            }
-            break;
-        }
-        case DISP_AT1IG1_PGN_61454   :
-        case DISP_A1DOC_PGN_64800    :
-        case DISP_AT1IG2_PGN_64948   :
-        case DISP_AT1IMG_PGN_64946   :
-        case DISP_AT1OG1_PGN_61455   :
-        case DISP_A1SCRDSI2_PGN_64833:
-        case DISP_A1SCRDSR1_PGN_61476:
-        case DISP_A1SCREGT1_PGN_64830:
-        case DISP_AT2IG1_PGN_61456   :
-        case DISP_AT2OG1_PGN_61457   :
-        case DISP_A2SCRDSI2_PGN_64827:
-        case DISP_A2SCRDSR1_PGN_61479:
-        case DISP_A2SCREGT1_PGN_64824:
-        case DISP_AT1OG2_PGN_64947   :
-        case DISP_AT1S_PGN_64891     :
-        case DISP_PROPB32_PGN_65330  :
-            {
-                /*Amruta - 23-Apr-2020
-                 * Below subtraction is done in order to match display array enum variable
-                 * with database array enum.
-                 * */
-                for(u8SPNEnumNo = 0; u8SPNEnumNo < astJ1939Display[u8DispPGNNumber].u8NoOfSPNs; u8SPNEnumNo++)
-                {
-                    _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData((DATABASE_RX_PGN_LIST_t)(u8PGNEnumNo ),u8SPNEnumNo);
-                    prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], u8PGNEnumNo, u8SPNEnumNo );
-                }
-                break;
-            }
-
-        case DISP_EEC3_PGN_65247_1  :
-            for(u8SPNEnumNo = J1939APP::NOMINAL_FRICTION_PERCENT_TORQUE; u8SPNEnumNo < J1939APP::PARISITIC_TORQUE_LOSS; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData(RX_PGN_EEC3_65247,u8SPNEnumNo);
-                 prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], RX_PGN_EEC3_65247, u8SPNEnumNo );
-             }
-            break;
-        case DISP_EEC3_PGN_65247_2  :
-           for(u8SPNEnumNo = J1939APP::PARISITIC_TORQUE_LOSS; u8SPNEnumNo < J1939APP::LAST_SPN_IN_PGN_65247; u8SPNEnumNo++)
-           {
-               _DisplayPGNScreenData[u8SPNEnumNo - J1939APP::PARISITIC_TORQUE_LOSS].f64SpnVal = _j1939.GetReadData(RX_PGN_EEC3_65247,(u8SPNEnumNo));
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo - J1939APP::PARISITIC_TORQUE_LOSS], RX_PGN_EEC3_65247, u8SPNEnumNo );
-            }
-           break;
-        default:
-            for(u8SPNEnumNo = 0; u8SPNEnumNo < astJ1939Display[u8DispPGNNumber].u8NoOfSPNs; u8SPNEnumNo++)
-            {
-                _DisplayPGNScreenData[u8SPNEnumNo].f64SpnVal = _j1939.GetReadData((DATABASE_RX_PGN_LIST_t)u8PGNEnumNo,u8SPNEnumNo);
-                prvAssignNoOfDigitAfterDP( &_DisplayPGNScreenData[u8SPNEnumNo], u8PGNEnumNo, u8SPNEnumNo );
-            }
-            break;
-    }
-}
-#endif
-
-
 /************************************************************************************************/
 unsigned int  MON_UI::prvGetNoOfFractionalDigits(double dNumber)
 {
@@ -2226,7 +1272,7 @@ void MON_UI::prvNormalMonScreens()
             _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
             if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_EOI_64914,0) == J1939APP::VALID_DATA))
             {
-                if (int((_j1939.GetReadData(RX_PGN_EOI_64914,0)) < MAX_NUM_OF_ENG_OPER_STATES - 1))
+                if ((uint8_t)(_j1939.GetReadData(RX_PGN_EOI_64914,0)) < MAX_NUM_OF_ENG_OPER_STATES - 1)
                 {
                     sprintf(arrTemp,StrEngOperatingState[int((_j1939.GetReadData(RX_PGN_EOI_64914,0)))]); /* yet implement states */
                 }
@@ -2289,9 +1335,7 @@ void MON_UI::prvNormalMonScreens()
             _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
             if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_HOURS_65253,0) == J1939APP::VALID_DATA))
             {
-              _u32EngineRunHrs = (uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0));
-              sprintf(arrTemp, "%lu hr %lu min",_u32EngineRunHrs,
-                (uint32_t)((uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0) * 60) % 60));
+                sprintf(arrTemp,"%luhrs  %umin ", (uint32_t)( _GCUAlarms.GetSelectedEngRunMin()/60), (uint8_t)(_GCUAlarms.GetSelectedEngRunMin()%60) );
             }
             else
             {
@@ -2613,7 +1657,14 @@ void MON_UI::prvNormalMonScreens()
              _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
              if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_SHUTDN_65252,0) == J1939APP::VALID_DATA))
              {
-                     sprintf(arrTemp,StrPGN_65252_states[int((_j1939.GetReadData(RX_PGN_SHUTDN_65252,0)))]);
+                if((int)(_j1939.GetReadData(RX_PGN_SHUTDN_65252,0)) < PGN_65252_STRING_OPTIONS)
+                {
+                    sprintf(arrTemp,StrPGN_65252_states[(int)(_j1939.GetReadData(RX_PGN_SHUTDN_65252,0))]);
+                }
+                else
+                {
+                    sprintf(arrTemp,"INVLD");
+                }
              }
              else
              {
@@ -2640,7 +1691,14 @@ void MON_UI::prvNormalMonScreens()
              _Disp.gotoxy(GLCD_X(64),GLCD_Y(40));
              if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_CSA_64966,0) == J1939APP::VALID_DATA))
              {
-                     sprintf(arrTemp,StrPGN_64966_states[int((_j1939.GetReadData(RX_PGN_CSA_64966,0)))]);
+                if((int)(_j1939.GetReadData(RX_PGN_CSA_64966,0)) < PGN_64966_STRING_OPTIONS)
+                {
+                    sprintf(arrTemp,StrPGN_64966_states[(int)(_j1939.GetReadData(RX_PGN_CSA_64966,0))]);
+                }
+                else
+                {
+                    sprintf(arrTemp,"INVLD");
+                }
              }
              else
              {
@@ -3205,14 +2263,12 @@ void MON_UI::prvNormalMonScreens()
             {
                 stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
                 float f32FuelPctValue = stTemp.stValAndStatus.f32InstSensorVal;
+                /*Convert from percentage to liters*/
+                stTemp.stValAndStatus.f32InstSensorVal = prvPin23ConvFuelLvlToLit(f32FuelPctValue);
 
                 if(!((_hal.AnalogSensors.GetS4VoltVal() > FUEL_VOLT_MAX_VAL) && (stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)))
                 {
-                    sprintf(arrTemp,"%d",(uint16_t)(f32FuelPctValue));
-                    _Disp.gotoxy(GLCD_X(93),GLCD_Y(50));
-                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                    _Disp.gotoxy(GLCD_X(94),GLCD_Y(50));
-                    _Disp.printStringLeftAligned((char*)"%",FONT_VERDANA);
+                    prvPrintSensorStatus(stTemp,(char*)"Liters", FLOAT_TYPE);
                 }
 
                 if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
@@ -3233,11 +2289,13 @@ void MON_UI::prvNormalMonScreens()
                         _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
 
-                        if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_IN_LITERS) == CFGZ::CFGZ_ENABLE)
+                        if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_FUEL_IN_PCT) == CFGZ::CFGZ_ENABLE)
                         {
-                            /*Convert from percentage to liters*/
-                            stTemp.stValAndStatus.f32InstSensorVal = prvPin23ConvFuelLvlToLit(f32FuelPctValue);
-                            prvPrintSensorStatus(stTemp,(char*)"Liters", FLOAT_TYPE);
+                            sprintf(arrTemp,"%.0f",f32FuelPctValue);
+                            _Disp.gotoxy(GLCD_X(93),GLCD_Y(50));
+                            _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                            _Disp.gotoxy(GLCD_X(94),GLCD_Y(50));
+                            _Disp.printStringLeftAligned((char*)"%",FONT_VERDANA);
                         }
                     }
                 }
@@ -3325,19 +2383,17 @@ void MON_UI::prvNormalMonScreens()
             {
                 if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_HOURS_65253,0) == J1939APP::VALID_DATA))
                 {
-                    _u32EngineRunHrs = (uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0));
 /*
 Abhishek   Date- 14-09-2022
 if engine run hours goes beyond below mentioned value it is going out of screen so I Confirmed with Devendra D that if its value goes beyond that value then display 0.
 */
-                    if(_u32EngineRunHrs > 999999)
+                    if((uint32_t)(_GCUAlarms.GetSelectedEngRunMin()/60) > 999999)
                     {
                         sprintf(arrTemp, "%.0f hr %.0f min",(double)0,(double)0);
                     }
                     else
                     {
-                        sprintf(arrTemp, "%lu hr %lu min",_u32EngineRunHrs,
-                        (uint32_t)((uint32_t)(_j1939.GetReadData(RX_PGN_HOURS_65253,0) * 60) % 60));
+                        sprintf(arrTemp,"%luhrs  %umin ", (uint32_t)( _GCUAlarms.GetSelectedEngRunMin()/60), (uint8_t)(_GCUAlarms.GetSelectedEngRunMin()%60) );
                     }
                 }
                 else
@@ -3358,9 +2414,9 @@ if engine run hours goes beyond below mentioned value it is going out of screen 
             }
             else
             {
-                sprintf(arrTemp,"%ldhrs  %dmin ", ( _GCUAlarms.GetSelectedEngRunMin()/60), (uint8_t)(_GCUAlarms.GetSelectedEngRunMin()%60) );
-                  _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
+                sprintf(arrTemp,"%luhrs  %umin ", (uint32_t)( _GCUAlarms.GetSelectedEngRunMin()/60), (uint8_t)(_GCUAlarms.GetSelectedEngRunMin()%60) );
             }
+            _Disp.printStringRightAligned((char *)arrTemp,FONT_VERDANA);
 
             _Disp.gotoxy(GLCD_X(40),GLCD_Y(37));
             _Disp.printStringLeftAligned((char *)StrStarts[_u8LanguageIndex],FONT_VERDANA);
@@ -4423,7 +3479,7 @@ void MON_UI::prvBuildExhaustIconScreen(void)
         /* Displayed the icon for SPN 5246 when malfunction lamp is active or the value received from
          * SPN 5246 is more than or equal to 3.
          * 30/4/20 : Mal-function Lamp value compared with Lamp ON status.*/
-        if((_j1939.GetLampStatus(J1939APP::MIL_LAMP)== 1) || ((2 < _j1939.GetReadData(RX_PGN_AT1T1I_65110,3)) && (_j1939.GetReadData(RX_PGN_AT1T1I_65110,3) < 7)))
+        if((_j1939.GetLampStatus(J1939APP::MIL_LAMP)== 1) || ((2 < (uint8_t)_j1939.GetReadData(RX_PGN_AT1T1I_65110,3)) && ((uint8_t)_j1939.GetReadData(RX_PGN_AT1T1I_65110,3) < 7)))
         {
             _Disp.printImage((uint8_t *)&gau8Icon4, 4, 20, 40, 74);
         }
@@ -4563,137 +3619,3 @@ void MON_UI::prvBuildLampIconScreen(void)
         }
     }
 }
-
-
-#if ENABLE_MON_J1939
-void MON_UI::prvBuildLampIconScreen(void)
-{
-    _Disp.ClearScreen();
-    _Disp.drawRectangle();
-    _Disp.gotoxy(GLCD_X(64),GLCD_Y(5));
-    _Disp.printStringCenterAligned((char *)StrLampIcons[_u8LanguageIndex],FONT_ARIAL);
-    _Disp.drawHorizontalLine(0, 19, 127);
-    /* to solve SGC-225 */
-    if( _j1939.IsCommunicationFail() || (!_j1939.IsDM1PGNRecieved()) )
-    {
-        _Disp.gotoxy(32,64);
-        _Disp.printStringCenterAligned((char*)strCANMsgRcvError[_u8LanguageIndex],FONT_ARIAL);
-    }
-    else
-    {
-        if(_j1939.GetLampStatus(J1939APP::RED_LAMP) == 1)
-        {
-            _Disp.printImage((uint8_t *)&gau8Icon6, 6, 27, 25, 1);
-        }
-
-        if(_j1939.GetLampStatus(J1939APP::AMBER_LAMP)  == 1)
-        {
-            _Disp.printImage((uint8_t *)&gau8Icon7, 6, 27, 25, 43);
-        }
-
-        if(_j1939.GetLampStatus(J1939APP::MIL_LAMP) == 1)
-        {
-            _Disp.printImage((uint8_t *)&gau8Icon8, 6, 27, 25, 85);
-        }
-    }
-}
-
-void MON_UI::prvBuildExhaustIconScreen(void)
-{
-    static stTimer tmr;
-    static bool _blink;
-    if(!tmr.bEnabled)
-    {
-        UTILS_ResetTimer(&tmr);
-    }
-
-    if(UTILS_GetElapsedTimeInMs(&tmr) >= 500)
-    {
-        UTILS_ResetTimer(&tmr);
-        if (_blink)
-        {
-            _blink= false;
-        }
-        else
-        {
-            _blink= true;
-        }
-    }
-
-    _Disp.ClearScreen();
-    _Disp.drawRectangle();
-    _Disp.gotoxy(GLCD_X(64),GLCD_Y(1));
-    _Disp.printStringCenterAligned((char *)StrExhaustAFT[_u8LanguageIndex],FONT_ARIAL);
-    _Disp.drawHorizontalLine(0, 11, 127);
-    /* If communication failure alarm occurs then display "Not available" on screen
-     * 1. ArrPgnReadData[RX_PGN_DPFC1_64892][0] = SPN 3698
-     *     display the icon only when on solid = 1 received else don not display the icon.
-     * 2. ArrPgnReadData[RX_PGN_DPFC1_64892][1] = SPN 3697
-     *      000     OFF
-     *      001     Solid On
-     *      100     Blink with 1Hz
-     * 3. ArrPgnReadData[RX_PGN_DPFC1_64892][2] = SPN 3703
-     *     display the icon only when on solid = 1 received else don not display the icon
-     */
-    if( _j1939.IsCommunicationFail() )
-    {
-        _Disp.gotoxy(32,64);
-        _Disp.printStringCenterAligned((char*)strCANMsgRcvError[_u8LanguageIndex],FONT_ARIAL);
-    }
-    else
-    {
-        if((uint8_t)_j1939.GetReadData(RX_PGN_DPFC1_64892,0) == 1)
-        {
-            _Disp.printImage((uint8_t *)&gau8Icon0, 4, 24, 13, 4);
-        }
-
-        if((uint8_t)_j1939.GetReadData(RX_PGN_DPFC1_64892,1) == 1)
-        {
-            _Disp.printImage((uint8_t *)&gau8Icon1, 5, 22, 13, 45);
-        }
-        else if((uint8_t)_j1939.GetReadData(RX_PGN_DPFC1_64892,1)== 4)
-        {
-            if(_blink)
-            {
-                _Disp.printImage((uint8_t *)&gau8Icon1, 5, 22, 13, 45);
-            }
-            else
-            {
-                // do nothing.
-            }
-        }
-        if((uint8_t)_j1939.GetReadData(RX_PGN_DPFC1_64892,2) == 1)
-        {
-            _Disp.printImage((uint8_t *)&gau8Icon2, 5, 24, 13, 85);
-        }
-
-        /* AT1T1I */
-        /* Displayed the  image for SPN 5245 of PGN AT1T1I depending on the received value.
-             *          000             OFF
-             *          001             ON-Solid
-             *          100             ON-Fast blink (1 HZ)*/
-        if((uint8_t)_j1939.GetReadData(RX_PGN_AT1T1I_65110,2)  == 1)
-        {
-            _Disp.printImage((uint8_t *)&gau8Icon3, 4, 27, 35, 28);
-        }
-        else if((uint8_t)_j1939.GetReadData(RX_PGN_AT1T1I_65110,2) == 4)
-        {
-            if(_blink)
-            {
-                _Disp.printImage((uint8_t *)&gau8Icon3, 4, 27, 35, 28);
-            }
-            else
-            {
-                // do nothing.
-            }
-        }
-        /* Displayed the icon for SPN 5246 when malfunction lamp is active or the value received from
-         * SPN 5246 is more than or equal to 3.
-         * 30/4/20 : Mal-function Lamp value compared with Lamp ON status.*/
-        if((_j1939.GetLampStatus(J1939APP::MIL_LAMP)== 1) || ((2 < _j1939.GetReadData(RX_PGN_AT1T1I_65110,3)) && (_j1939.GetReadData(RX_PGN_AT1T1I_65110,3) < 7)))
-        {
-            _Disp.printImage((uint8_t *)&gau8Icon4, 4, 20, 40, 72);
-        }
-    }
-}
-#endif

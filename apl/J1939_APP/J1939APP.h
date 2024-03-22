@@ -173,7 +173,6 @@ private:
     #define PGN_100MS       100
     #define PGN_250MS       250
     #define PGN_500MS       500
-    #define PGN_300MS       300
     #define PGN_1SEC        1000
     #define PGN_50MS        50
     #define PGN_80MS        80
@@ -297,7 +296,6 @@ private:
     stTimer _Timer80ms;
     stTimer _Timer100ms;
     stTimer _Timer250ms;
-    stTimer _Timer300ms;
     stTimer _Timer500ms;
     stTimer _Timer1s;
     stTimer _CommFailTimeout;

@@ -449,11 +449,11 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
         case CFGZ::CFGZ_LOW_WATER_LVL_SWITCH:
             ArrAlarmMonitoring[RWL_SWITCH].bEnableMonitoring = true;
             prvSetAlarmAction_NoWESN(RWL_SWITCH, u8AlarmAction);
-            prvSetAlarmActivation(RWL_SWITCH, u8Activation);
+            prvSetAlarmActivation(RWL_SWITCH, CFGZ::CFGZ_FROM_MONITORING_ON);
             ArrAlarmMonitoring[RWL_SWITCH].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
 
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[WATER_LEVEL_SWITCH_STATUS];
-            prvSetAlarmActivation(u8InputIndex, u8Activation);
+            prvSetAlarmActivation(u8InputIndex, CFGZ::CFGZ_FROM_MONITORING_ON);
 
             ArrAlarmMonitoring[RWL_SWITCH].u8LoggingID = GCU_ALARMS::Radiator_Water_Level_id;
             ArrAlarmMonitoring[RWL_SWITCH].pValue = &_ArrAlarmValue[WATER_LEVEL_SWITCH_STATUS];
@@ -1954,29 +1954,27 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
 
 float GCU_ALARMS::GetSpeedValue()
 {
+    float speedValue = 0.0f;
     if(  (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE) != CFGZ::CFGZ_CONVENTIONAL)
        && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_SPEED_FROM_ENG) == CFGZ::CFGZ_ENABLE))
      {
-         if((!gpJ1939->IsCommunicationFail()) && (gpJ1939->GetSPNErrorStatus(RX_PGN_EEC1_61444,0) == J1939APP::VALID_DATA))
-         {
-             return (uint16_t)gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0);
-         }
-         else
-         {
-             return 0;
-         }
+        if((isnan(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0))) || (isinf(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0))))
+        {
+            speedValue = 0.0f;
+        }
+        else
+        {
+            speedValue = (float)(gpJ1939->GetReadData(RX_PGN_EEC1_61444, 0));
+        }
      }
      else
      {
-         if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
-          {
-              return _hal.AnalogSensors.GetFiltRPMThruCompartor();
-          }
-          else
-          {
-              return 0;
-          }
+        if(_cfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_SPEED_SENSE_SOURCE) == CFGZ::CFGZ_ALT_FREQUENCY)
+        {
+            speedValue = (float)_hal.AnalogSensors.GetFiltRPMThruCompartor();
+        }
      }
+    return speedValue;
 }
 
 float GCU_ALARMS::GetInvalidDGSpeedValue()
@@ -2015,14 +2013,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
             && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
     {
-        if((!gpJ1939->IsCommunicationFail()) && (gpJ1939->GetSPNErrorStatus(RX_PGN_ET1_65262,0) == J1939APP::VALID_DATA))
-        {
-            _ArrAlarmValue[ENGINE_TEMPERATURE].f32Value = gpJ1939->GetReadData(RX_PGN_ET1_65262,0);
-        }
-        else
-        {
-            _ArrAlarmValue[ENGINE_TEMPERATURE].f32Value = 0;
-        }
+        _ArrAlarmValue[ENGINE_TEMPERATURE].f32Value = (float)gpJ1939->GetReadData(RX_PGN_ET1_65262,0);
     }
     else
     {
@@ -2057,14 +2048,7 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
                 && (_cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ECU) == CFGZ::CFGZ_ENABLE))
     {
-        if((!gpJ1939->IsCommunicationFail()) && (gpJ1939->GetSPNErrorStatus(RX_PGN_HOURS_65253,0) == J1939APP::VALID_DATA))
-        {
-            _ArrAlarmValue[ENG_RUN_HOURS].u16Value = (uint16_t)(gpJ1939->GetReadData(RX_PGN_HOURS_65253,0));
-        }
-        else
-        {
-            _ArrAlarmValue[ENG_RUN_HOURS].u16Value = 0;
-        }
+        _ArrAlarmValue[ENG_RUN_HOURS].u16Value = (uint16_t)(gpJ1939->GetReadData(RX_PGN_HOURS_65253,0));
     }
     else
     {
@@ -3040,7 +3024,7 @@ void GCU_ALARMS::LogEvent(uint8_t u8EventID, uint8_t u8EventType)
     stLogLocal.stEventLog.u8Month = currentTime.u8Month;
     stLogLocal.stEventLog.u16Year =  currentTime.u16Year;
 
-    stLogLocal.stEventLog.u32EngineHrs = GetSelectedEngRunMin();
+    stLogLocal.stEventLog.u32EngineHrs = (uint32_t)GetSelectedEngRunMin();
     stLogLocal.u32EventNo =_u32EventNumber;
     _EventQueue.EnQueue(&stLogLocal);
 
@@ -3101,7 +3085,7 @@ void GCU_ALARMS::LogEvent(uint8_t u8EventID, uint8_t u8EventType, uint32_t u32SP
     stLogLocal.stEventLog.u32SPN = u32SPN;
     stLogLocal.stEventLog.u16FMI = u16FMI;
 
-    stLogLocal.stEventLog.u32EngineHrs = GetSelectedEngRunMin();
+    stLogLocal.stEventLog.u32EngineHrs = (uint32_t)GetSelectedEngRunMin();
     stLogLocal.u32EventNo =_u32EventNumber;
     _EventQueue.EnQueue(&stLogLocal);
 
@@ -3680,14 +3664,16 @@ A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLOPSensorVal()
     if(   (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
        && (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE) )
     {
-        if((!gpJ1939->IsCommunicationFail()) && (gpJ1939->GetSPNErrorStatus(RX_PGN_EFL_P1_65263,0) == J1939APP::VALID_DATA))
+        if((isnan(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0))) || (isinf(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0))))
         {
-            stLOP.stValAndStatus.f32InstSensorVal =  (float)(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0)*0.01);
+            stLOP.stValAndStatus.f32InstSensorVal = 0;
         }
         else
         {
-             stLOP.stValAndStatus.f32InstSensorVal = 0.0;
+            stLOP.stValAndStatus.f32InstSensorVal =  (float)(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263,0)*0.01);
         }
+        stLOP.stValAndStatus.eState = GetSPNSensorState(gpJ1939->GetSPNErrorStatus(RX_PGN_EFL_P1_65263,0));
+        stLOP.eStatus = A_SENSE::SENSOR_READ_SUCCESS;
     }
     else
     {
@@ -3733,26 +3719,27 @@ float GCU_ALARMS::GetSelectedBatteryVtg()
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_BAT_VTG_FROM_ECU)== CFGZ::CFGZ_ENABLE)
             &&(_cfgz.GetEngType()!=CFGZ::CFGZ_CONVENTIONAL))
     {
-        if(!gpJ1939->IsCommunicationFail())
-        {
-            if((isnan(gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0)) == true) || (isinf(gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0)) == true))
-            {
-                return 0;
-            }
-            return (float)gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0);
-        }
-        else
+        if((isnan(gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0))) || (isinf(gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0))))
         {
             return 0;
         }
-
+        return (float)gpJ1939->GetReadData(RX_PGN_VEP1_65271, 0);
     }
     return _hal.AnalogSensors.GetFilteredVbattVolts();
 }
 
-uint32_t GCU_ALARMS::GetSelectedEngRunMin()
+uint64_t GCU_ALARMS::GetSelectedEngRunMin()
 {
-    return ( ENGINE_MONITORING::GetEngineRunTimeMin());
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_RUNNING_HOURS_FROM_ECU)== CFGZ::CFGZ_ENABLE)&&(_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL))
+    {
+        if((isnan(gpJ1939->GetReadData(RX_PGN_HOURS_65253, 0U) * 60U)) || (isinf(gpJ1939->GetReadData(RX_PGN_HOURS_65253, 0U) * 60U)))
+        {
+            return (uint64_t)0U;
+        }
+        return (uint64_t)(gpJ1939->GetReadData(RX_PGN_HOURS_65253, 0U) * 60U);
+    }
+
+    return (uint64_t)( ENGINE_MONITORING::GetEngineRunTimeMin());
 }
 
 bool GCU_ALARMS::IsBTSBattHealthy(void)
@@ -3918,9 +3905,15 @@ bool GCU_ALARMS::prvIsNewDTC(uint32_t u32Spn, uint8_t u8FMI, uint8_t u8Occurance
 
 /*--------------------------------------------< EGR Fault Monitoring >----------------------------------------------------*/
 
+#define IS_EGR_INPUT_ACTIVE()   (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN)\
+                                    == DigitalSensor::SENSOR_LATCHED)
+#define IS_EGR_INPUT_INACTIVE()  (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN)\
+                                    == DigitalSensor::SENSOR_UNLATCHED)
+#define IS_EGR_CONFIGURED()  (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN)\
+                                    != DigitalSensor::SENSOR_NOT_CONFIGRUED)
 void GCU_ALARMS::StartEgrFaultDetection()
 {
-    if(_StartEgrDetection !=1)
+    if((_StartEgrDetection !=1) && IS_EGR_CONFIGURED())
     {
         UTILS_ResetTimer(&_ecuFaultTimer);
         egrInState  = EGR_DETECTION_INIT;
@@ -3950,11 +3943,6 @@ void GCU_ALARMS::UpdateEgrDetections()
         prvMonitorEgrFaultStatus();
     }
 }
-
-#define IS_EGR_INPUT_ACTIVE()   (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN)\
-                                    == DigitalSensor::SENSOR_LATCHED)
-#define IS_EGR_INPUT_INACTIVE()  (_hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_EGR_ECU_DIGITAL_IN)\
-                                    == DigitalSensor::SENSOR_UNLATCHED)
 
 /* EGR monitoring config */
 #define FAULT_PRESENT_MONITORING_TIME_MINUTES  (4) //(4320)   //72 hrs = 72 * 60 = 4320 minutes
@@ -4375,7 +4363,14 @@ A_SENSE::SENSOR_RET_t GCU_ALARMS::GetLubeOilTempSensVal()
     A_SENSE::SENSOR_RET_t sensVal = {{0.0f,ANLG_IP::BSP_STATE_NORMAL},A_SENSE::SENSOR_NOT_CONFIGRUED};
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU)== CFGZ::CFGZ_ENABLE)&&(_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
     {
-        sensVal.stValAndStatus.f32InstSensorVal = (float)gpJ1939->GetReadData(RX_PGN_ET1_65262, 1);
+        if((isnan(gpJ1939->GetReadData(RX_PGN_ET1_65262, 1))) || (isinf(gpJ1939->GetReadData(RX_PGN_ET1_65262, 1))))
+        {
+            sensVal.stValAndStatus.f32InstSensorVal = 0;
+        }
+        else
+        {
+            sensVal.stValAndStatus.f32InstSensorVal = (float)gpJ1939->GetReadData(RX_PGN_ET1_65262, 1);
+        }
         sensVal.stValAndStatus.eState = GetSPNSensorState(gpJ1939->GetSPNErrorStatus(RX_PGN_ET1_65262,1 ));
         sensVal.eStatus = A_SENSE::SENSOR_READ_SUCCESS;
     }

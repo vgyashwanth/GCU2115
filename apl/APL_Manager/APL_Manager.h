@@ -55,7 +55,7 @@ private:
        uint32_t u32PLMID;
        uint16_t u16Dummy;
     }INFO_t;
-    INFO_t _stFirmwareInfo={0, 11, 13651, 0};
+    INFO_t _stFirmwareInfo={0, 12, 13651, 0};
     void prvCheckFirmwareInfo();
 };
 

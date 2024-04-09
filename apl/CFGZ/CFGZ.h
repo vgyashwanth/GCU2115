@@ -36,7 +36,7 @@
 #define CFGZ_DFLT_MODBUS_SLAVE_ID (2U)
 
 #define PULSE_IP_SENSOR    A_SENSE::MPU_TYPE
-#define DUMMY_ITEMS        3U
+#define DUMMY_ITEMS        1U
 
 class CFGZ
 {
@@ -436,6 +436,7 @@ class CFGZ
         ID_AUX_S4_DIG_P_FUEL_THEFT_THRESHOLD,
         ID_AUX_S4_DIG_P_FUEL_IN_PCT,
         ID_AUX_S4_DIG_P_TANK_WITH_STEP,
+#if (USE_INPUTS_Q_R == 1U)
         ID_DIG_IN_Q_SOURCE,
         ID_DIG_IN_Q_POLARITY,
         ID_DIG_IN_Q_ACTION,
@@ -446,6 +447,7 @@ class CFGZ
         ID_DIG_IN_R_ACTION,
         ID_DIG_IN_R_ACTIVATION,
         ID_DIG_IN_R_ACTIVATION_DELAY,
+#endif /* (USE_INPUTS_Q_R == 1U) */
         ID_OUT_A_SOURCE,
         ID_OUT_A_ON_ACTIVATION,
         ID_OUT_B_SOURCE,
@@ -576,8 +578,10 @@ class CFGZ
         ID_ARR_SENSOR_S2_NAME,
         ID_ARR_SENSOR_S3_NAME,
         ID_ARR_SENSOR_S4_NAME,
+#if (USE_INPUTS_Q_R == 1U)
         ID_ARR_AUX_INPUT_Q,
         ID_ARR_AUX_INPUT_R,
+#endif /* (USE_INPUTS_Q_R == 1U) */
         ID_ARR_PROFILE,
 
         ID_ARRAY_20_BYTE_LAST
@@ -766,8 +770,12 @@ class CFGZ
         CFGZ_ECU_START,
         CFGZ_MIL,
         CFGZ_INDUCEMENT_BUZZER,
+#if (USE_INPUTS_Q_R == 1U)
         CFGZ_DIG_IN_Q,
         CFGZ_DIG_IN_R,
+#endif /* (USE_INPUTS_Q_R == 1U) */
+        CFGZ_EGR,
+        CFGZ_AUTO_MODE_SW_OUTPUT,
         CFGZ_OUTPUT_LAST
     } CFGZ_ACT_TYPS_t;
 

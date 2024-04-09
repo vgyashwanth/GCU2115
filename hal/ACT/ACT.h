@@ -103,6 +103,9 @@ public:
         ACT_EGR,
         ACT_INDUCEMENT_BUZZER,
 
+        ACT_AUTO_MODE_SW_OUTPUT,
+
+        ACT_VBAT_OV_UV
     } ACTUATOR_TYPS_t;
 
     /* Two possibilities for activation*/
@@ -188,7 +191,9 @@ public:
         OP_G   = 6,
         OP_H   = 7,
         OP_I   = 8,
-        OP_END = 9,
+        OP_J   = 9,
+        OP_K   = 10,
+        OP_END
     } HSD_OUTPUTS_t;
 
     typedef struct {

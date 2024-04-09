@@ -28,7 +28,11 @@
 
 //#define SUBMENUS_IN_MODULE                  6
 #define SUBMENUS_IN_MODULE                  7
+#if (USE_INPUTS_Q_R == 1U)
 #define SUBMENUS_IN_INPUTS                 18
+#else
+#define SUBMENUS_IN_INPUTS                 16
+#endif /* (USE_INPUTS_Q_R == 1U) */
 #define SUBMENUS_IN_OUTPUTS                 9
 #define SUBMENUS_IN_TIMERS                  2
 #define SUBMENUS_IN_GENERATOR               6
@@ -63,8 +67,10 @@
 #define LEAFNODES_IN_AUX_S2_RES_DIG_N      30
 #define LEAFNODES_IN_AUX_S3_DIG_O          27
 #define LEAFNODES_IN_AUX_S4_DIG_P          22
+#if (USE_INPUTS_Q_R == 1U)
 #define LEAFNODES_IN_DIG_IN_Q               5
 #define LEAFNODES_IN_DIG_IN_R               5
+#endif /* (USE_INPUTS_Q_R == 1U) */
  /*Outputs*/
 #define LEAFNODES_IN_OUT_A                  2
 #define LEAFNODES_IN_OUT_B                  2
@@ -424,6 +430,7 @@
        SID_AUX_S4_DIG_P_TANK_LENGTH_2,
        SID_AUX_S4_DIG_P_TANK_HEIGHT_2,
 
+#if (USE_INPUTS_Q_R == 1U)
        SID_DIG_IN_Q_SOURCE,
        SID_DIG_IN_Q_POLARITY,
        SID_DIG_IN_Q_ACTION,
@@ -435,6 +442,7 @@
        SID_DIG_IN_R_ACTION,
        SID_DIG_IN_R_ACTIVATION,
        SID_DIG_IN_R_ACTIVATION_DELAY,
+#endif /* (USE_INPUTS_Q_R == 1U) */
 
        SID_OUT_A_SOURCE,
        SID_OUT_A_ON_ACTIVATION,
@@ -672,8 +680,10 @@
        ID_AUX_S2_RES_DIG_N,
        ID_AUX_S3_DIG_O_S,
        ID_AUX_S4_DIG_P_S,
+#if (USE_INPUTS_Q_R == 1U)
        ID_DIG_IN_Q_S,
        ID_DIG_IN_R_S,
+#endif /* (USE_INPUTS_Q_R == 1U) */
        /*Outputs*/
        ID_OUT_A_S,
        ID_OUT_B_S,
@@ -1038,6 +1048,7 @@ enum
     INDEX_OF_AUX_S4_DIG_P_TANK_LENGTH_2,
     INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2,
 
+#if (USE_INPUTS_Q_R == 1U)
     INDEX_OF_DIG_IN_Q_SOURCE,
     INDEX_OF_DIG_IN_Q_POLARITY,
     INDEX_OF_DIG_IN_Q_ACTION,
@@ -1049,6 +1060,8 @@ enum
     INDEX_OF_DIG_IN_R_ACTION,
     INDEX_OF_DIG_IN_R_ACTIVATION,
     INDEX_OF_DIG_IN_R_ACTIVATION_DELAY,
+#endif /* (USE_INPUTS_Q_R == 1U) */
+
     /*Outputs menu*/
     INDEX_OF_OUT_A_SOURCE,
     INDEX_OF_OUT_A_ON_ACTIVATION,

@@ -47,8 +47,10 @@ uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] =
  LEAFNODES_IN_AUX_S2_RES_DIG_N,
  LEAFNODES_IN_AUX_S3_DIG_O,
  LEAFNODES_IN_AUX_S4_DIG_P,
+#if (USE_INPUTS_Q_R == 1U)
  LEAFNODES_IN_DIG_IN_Q,
  LEAFNODES_IN_DIG_IN_R,
+#endif /* (USE_INPUTS_Q_R == 1U) */
  LEAFNODES_IN_OUT_A,
  LEAFNODES_IN_OUT_B,
  LEAFNODES_IN_OUT_C,
@@ -194,7 +196,7 @@ static const char* arrUnit[ID_UNIT_LST]=
    " mm"
 };
 
-static const char* strOutputSources[1][71] =
+static const char* strOutputSources[1][CFGZ::CFGZ_OUTPUT_LAST] =
 {
  {
   "Disable",
@@ -265,8 +267,12 @@ static const char* strOutputSources[1][71] =
   "ECU Start",
   "Malfunction Indicator Lamp",
   "Inducement Buzzer",
+#if (USE_INPUTS_Q_R == 1U)
   "Dig In Q",
-  "Dig In R"
+  "Dig In R",
+#endif /* (USE_INPUTS_Q_R == 1U) */
+  "EGR Output",
+  "AMF Switch Buzzer"
  }
 };
 
@@ -391,8 +397,10 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "AUX S2 RES /DIG N",
         "AUX S3/DIG O",
         "AUX S4/DIG P",
+#if (USE_INPUTS_Q_R == 1U)
         "DIG IN Q",
         "DIG IN R",
+#endif /* (USE_INPUTS_Q_R == 1U) */
         //Outputs
         "OUT A",
         "OUT B",
@@ -756,6 +764,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "TANK HEIGHT 1",
         "TANK LENGTH 2",
         "TANK HEIGHT 2",
+#if (USE_INPUTS_Q_R == 1U)
         //"DIG IN Q"
         "SOURCE",
         "POLARITY",
@@ -768,6 +777,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "ACTION",
         "ACTIVATION",
         "ACTIVATION  DELAY",
+#endif /* (USE_INPUTS_Q_R == 1U) */
         //"OUT A"
         "SOURCE",
         "ON ACTIVATION",
@@ -1085,7 +1095,7 @@ void UI::InitEditableItems()
 
     ArrEditableItem[INDEX_OF_AUTO_MD_SWITCH_AUTO_MD_SWITCH] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUTO_MD_SWITCH_AUTO_MD_SWITCH),strLeafNode[_u8LanguageArrayIndex][SID_AUTO_MD_SWITCH_AUTO_MD_SWITCH], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_AUTO_MD_SWITCH_MANUAL_MODE_TIME] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUTO_MD_SWITCH_MANUAL_MODE_TIME),strLeafNode[_u8LanguageArrayIndex][SID_AUTO_MD_SWITCH_MANUAL_MODE_TIME], arrUnit[ID_MINS], "%u", (uint16_t)16, (uint16_t)120, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_AUTO_MD_SWITCH_OUTPUT_ON_TIME] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUTO_MD_SWITCH_OUTPUT_ON_TIME), strLeafNode[_u8LanguageArrayIndex][SID_AUTO_MD_SWITCH_OUTPUT_ON_TIME], arrUnit[ID_MINS], "%u", (uint8_t)5, (uint8_t)15, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_AUTO_MD_SWITCH_OUTPUT_ON_TIME] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUTO_MD_SWITCH_OUTPUT_ON_TIME), strLeafNode[_u8LanguageArrayIndex][SID_AUTO_MD_SWITCH_OUTPUT_ON_TIME], arrUnit[ID_MINS], "%u", (uint8_t)2, (uint8_t)15, CEditableItem::PIN1_ALLOWED );
 
     ArrEditableItem[INDEX_OF_DIG_IN_A_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_A_SOURCE], "", "%s",  strInputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_INPUT_LAST, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_DIG_IN_A_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_A_POLARITY),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_A_POLARITY], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
@@ -1367,6 +1377,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_TANK_LENGTH_2] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_2), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S4_DIG_P_TANK_LENGTH_2], arrUnit[ID_MM],  "%u", (uint16_t)0, (uint16_t)3000, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_2), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S4_DIG_P_TANK_HEIGHT_2], arrUnit[ID_MM],  "%u", (uint16_t)0, (uint16_t)3000, CEditableItem::NOT_ALLOWED );
 
+#if (USE_INPUTS_Q_R == 1U)
     ArrEditableItem[INDEX_OF_DIG_IN_Q_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_Q_SOURCE], "", "%s",  strInputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_INPUT_LAST, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_DIG_IN_Q_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_POLARITY),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_Q_POLARITY], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_DIG_IN_Q_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_Q_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::NOT_ALLOWED );
@@ -1378,6 +1389,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_DIG_IN_R_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_R_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_DIG_IN_R_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_R_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_DIG_IN_R_ACTIVATION_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTIVATION_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_R_ACTIVATION_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)1, (uint8_t)180, CEditableItem::NOT_ALLOWED );
+#endif /* (USE_INPUTS_Q_R == 1U) */
 
     ArrEditableItem[INDEX_OF_OUT_A_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_A_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_A_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_OUTPUT_LAST, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_OUT_A_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_A_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_OUT_A_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
@@ -2009,8 +2021,10 @@ void UI::HandleMenuVisibility(void)
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_G_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_H_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_I_SOURCE);
+#if (USE_INPUTS_Q_R == 1U)
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_Q_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_R_SOURCE);
+#endif /* (USE_INPUTS_Q_R == 1U) */
 
 
     //Sensor J

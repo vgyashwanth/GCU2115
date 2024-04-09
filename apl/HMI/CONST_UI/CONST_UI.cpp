@@ -417,8 +417,10 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)&strAuxNString,
       (char*)&strAuxOString,
       (char*)&strAuxPString,
+#if (USE_INPUTS_Q_R == 1U)
       (char*)&strAuxQString,
       (char*)&strAuxRString,
+#endif /* (USE_INPUTS_Q_R == 1U) */
       (char*)"Fail To Stop",
       (char*)"Fuel Theft",
       (char*)"Unbalanced Load",

@@ -61,8 +61,10 @@ public:
         ACT_DIG_IN_N,
         ACT_DIG_IN_O,
         ACT_DIG_IN_P,
+#if (USE_INPUTS_Q_R == 1U)
         ACT_DIG_IN_Q,
         ACT_DIG_IN_R,
+#endif /* (USE_INPUTS_Q_R == 1U) */
         ACT_E_STOP,
         ACT_STOP_SOLENOID,
         ACT_FAIL_TO_START,
@@ -193,6 +195,13 @@ public:
         OP_I   = 8,
         OP_J   = 9,
         OP_K   = 10,
+        OP_L   = 11,
+        OP_M   = 12,
+        OP_N   = 13,
+        OP_O   = 14,
+        OP_P   = 15,
+        OP_Q   = 16,
+        OP_R   = 17,
         OP_END
     } HSD_OUTPUTS_t;
 

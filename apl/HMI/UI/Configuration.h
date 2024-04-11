@@ -33,7 +33,7 @@
 #else
 #define SUBMENUS_IN_INPUTS                 16
 #endif /* (USE_INPUTS_Q_R == 1U) */
-#define SUBMENUS_IN_OUTPUTS                 9
+#define SUBMENUS_IN_OUTPUTS                16
 #define SUBMENUS_IN_TIMERS                  2
 #define SUBMENUS_IN_GENERATOR               6
 #define SUBMENUS_IN_MAINS                   5
@@ -81,6 +81,14 @@
 #define LEAFNODES_IN_OUT_G                  2
 #define LEAFNODES_IN_OUT_H                  2
 #define LEAFNODES_IN_OUT_I                  2
+
+#define LEAFNODES_IN_OUT_L                  2
+#define LEAFNODES_IN_OUT_M                  2
+#define LEAFNODES_IN_OUT_N                  2
+#define LEAFNODES_IN_OUT_O                  2
+#define LEAFNODES_IN_OUT_P                  2
+#define LEAFNODES_IN_OUT_Q                  2
+#define LEAFNODES_IN_OUT_R                  2
  /*Timer*/
 #define LEAFNODES_IN_CRANKING_TIMER         4
 #define LEAFNODES_IN_GENERAL_TIMER         13
@@ -463,6 +471,21 @@
        SID_OUT_I_SOURCE,
        SID_OUT_I_ON_ACTIVATION,
 
+       SID_OUT_L_SOURCE,
+       SID_OUT_L_ON_ACTIVATION,
+       SID_OUT_M_SOURCE,
+       SID_OUT_M_ON_ACTIVATION,
+       SID_OUT_N_SOURCE,
+       SID_OUT_N_ON_ACTIVATION,
+       SID_OUT_O_SOURCE,
+       SID_OUT_O_ON_ACTIVATION,
+       SID_OUT_P_SOURCE,
+       SID_OUT_P_ON_ACTIVATION,
+       SID_OUT_Q_SOURCE,
+       SID_OUT_Q_ON_ACTIVATION,
+       SID_OUT_R_SOURCE,
+       SID_OUT_R_ON_ACTIVATION,
+
        SID_CRANKING_TIMER_CRANK_HOLD_TIME,
        SID_CRANKING_TIMER_CRANK_REST_TIME,
        SID_CRANKING_TIMER_MANUAL_START_DELAY,
@@ -694,6 +717,13 @@
        ID_OUT_G_S,
        ID_OUT_H_S,
        ID_OUT_I_S,
+       ID_OUT_L_S,
+       ID_OUT_M_S,
+       ID_OUT_N_S,
+       ID_OUT_O_S,
+       ID_OUT_P_S,
+       ID_OUT_Q_S,
+       ID_OUT_R_S,
        /*Timer*/
        ID_CRANKING_TIMER_S,
        ID_GENERAL_TIMER_S,
@@ -1089,6 +1119,22 @@ enum
 
     INDEX_OF_OUT_I_SOURCE,
     INDEX_OF_OUT_I_ON_ACTIVATION,
+
+    INDEX_OF_OUT_L_SOURCE,
+    INDEX_OF_OUT_L_ON_ACTIVATION,
+    INDEX_OF_OUT_M_SOURCE,
+    INDEX_OF_OUT_M_ON_ACTIVATION,
+    INDEX_OF_OUT_N_SOURCE,
+    INDEX_OF_OUT_N_ON_ACTIVATION,
+    INDEX_OF_OUT_O_SOURCE,
+    INDEX_OF_OUT_O_ON_ACTIVATION,
+    INDEX_OF_OUT_P_SOURCE,
+    INDEX_OF_OUT_P_ON_ACTIVATION,
+    INDEX_OF_OUT_Q_SOURCE,
+    INDEX_OF_OUT_Q_ON_ACTIVATION,
+    INDEX_OF_OUT_R_SOURCE,
+    INDEX_OF_OUT_R_ON_ACTIVATION,
+
     /*Timers menu*/
     INDEX_OF_CRANKING_TIMER_CRANK_HOLD_TIME,
     INDEX_OF_CRANKING_TIMER_CRANK_REST_TIME,

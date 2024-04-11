@@ -83,7 +83,11 @@ _actuators{{HSDManager.HSD_OP_A}, {HSDManager.HSD_OP_B},
            {HSDManager.HSD_OP_E}, {HSDManager.HSD_OP_F},
            {HSDManager.HSD_OP_G}, {HSDManager.HSD_OP_H},
            {HSDManager.HSD_OP_I}, {HSDManager.HSD_OP_J},
-           {HSDManager.HSD_OP_K}}
+           {HSDManager.HSD_OP_K}, {HSDManager.HSD_OP_L},
+           {HSDManager.HSD_OP_M}, {HSDManager.HSD_OP_N},
+           {HSDManager.HSD_OP_O}, {HSDManager.HSD_OP_P},
+           {HSDManager.HSD_OP_Q}, {HSDManager.HSD_OP_R},
+}
 {
     
 }

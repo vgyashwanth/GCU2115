@@ -3162,6 +3162,7 @@ void GCU_ALARMS::prvActDeactOutput(bool bOutputCondition, ACTUATOR::ACTUATOR_TYP
     }
 }
 
+//bsp_io_level_t eDOJState = BSP_IO_LEVEL_LOW;
 void GCU_ALARMS::prvUpdateOutputs()
 {
     prvActDeactOutput(_bOPSounderAlarm, ACTUATOR::ACT_AUDIBLE_ALARM);
@@ -3247,11 +3248,13 @@ void GCU_ALARMS::prvUpdateOutputs()
 
     /* Below code was used for HW testing. Commenting it to use
      * later if necessary. Can be removed once HW is finalized. */
-//    bsp_io_level_t eDOJState = (ArrAlarmMonitoring[DIG_IN_A].bResultInstant ? BSP_IO_LEVEL_HIGH : BSP_IO_LEVEL_LOW);
-//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_08, BSP_IO_LEVEL_HIGH);
-//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_09, BSP_IO_LEVEL_HIGH);
-//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_12, BSP_IO_LEVEL_HIGH);
-//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_13, BSP_IO_LEVEL_HIGH);
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_06_PIN_01, eDOJState);
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_11, eDOJState);
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_13, eDOJState);
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_02_PIN_14, eDOJState);
+//
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_06_PIN_03, eDOJState);
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_06_PIN_02, eDOJState);
 
     prvActDeactOutput(ArrAlarmMonitoring[VBAT_OV].bResultInstant || ArrAlarmMonitoring[VBAT_UV].bResultInstant, ACTUATOR::ACT_VBAT_OV_UV);
     prvActDeactOutput(_bAutomaticModeSwitchStatus, ACTUATOR::ACT_AUTO_MODE_SW_OUTPUT);

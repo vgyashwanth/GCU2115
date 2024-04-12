@@ -1631,6 +1631,8 @@ void J1939APP::Update(bool bDeviceInconfig)
 
     ExtractReadFrame();
     UpdateEngineStartStopDecisions();
+    UpdateInducementFlags();
+    UpdateDEFInducementStrategy();
 
     if((!_bDeviceInConfigMode)&&(_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
     {

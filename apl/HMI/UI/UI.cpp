@@ -279,7 +279,7 @@ static const char* strOutputSources[1][CFGZ::CFGZ_OUTPUT_LAST] =
   "Dig In R",
 #endif /* (USE_INPUTS_Q_R == 1U) */
   "EGR Output",
-  "AMF Switch Buzzer"
+  "Buzzer 2"
  }
 };
 

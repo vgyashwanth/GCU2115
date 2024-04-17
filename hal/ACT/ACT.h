@@ -61,10 +61,6 @@ public:
         ACT_DIG_IN_N,
         ACT_DIG_IN_O,
         ACT_DIG_IN_P,
-#if (USE_INPUTS_Q_R == 1U)
-        ACT_DIG_IN_Q,
-        ACT_DIG_IN_R,
-#endif /* (USE_INPUTS_Q_R == 1U) */
         ACT_E_STOP,
         ACT_STOP_SOLENOID,
         ACT_FAIL_TO_START,
@@ -104,10 +100,8 @@ public:
         ACT_MIL,
         ACT_EGR,
         ACT_INDUCEMENT_BUZZER,
-
         ACT_AUTO_MODE_SW_OUTPUT,
-
-        ACT_VBAT_OV_UV
+        ACT_BATTERY_UNHEALTHY
     } ACTUATOR_TYPS_t;
 
     /* Two possibilities for activation*/
@@ -200,8 +194,6 @@ public:
         OP_N   = 13,
         OP_O   = 14,
         OP_P   = 15,
-        OP_Q   = 16,
-        OP_R   = 17,
         OP_END
     } HSD_OUTPUTS_t;
 

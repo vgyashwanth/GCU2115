@@ -47,10 +47,6 @@ uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] =
  LEAFNODES_IN_AUX_S2_RES_DIG_N,
  LEAFNODES_IN_AUX_S3_DIG_O,
  LEAFNODES_IN_AUX_S4_DIG_P,
-#if (USE_INPUTS_Q_R == 1U)
- LEAFNODES_IN_DIG_IN_Q,
- LEAFNODES_IN_DIG_IN_R,
-#endif /* (USE_INPUTS_Q_R == 1U) */
  LEAFNODES_IN_OUT_A,
  LEAFNODES_IN_OUT_B,
  LEAFNODES_IN_OUT_C,
@@ -60,13 +56,13 @@ uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] =
  LEAFNODES_IN_OUT_G,
  LEAFNODES_IN_OUT_H,
  LEAFNODES_IN_OUT_I,
+ LEAFNODES_IN_OUT_J,
+ LEAFNODES_IN_OUT_K,
  LEAFNODES_IN_OUT_L,
  LEAFNODES_IN_OUT_M,
  LEAFNODES_IN_OUT_N,
  LEAFNODES_IN_OUT_O,
  LEAFNODES_IN_OUT_P,
- LEAFNODES_IN_OUT_Q,
- LEAFNODES_IN_OUT_R,
  LEAFNODES_IN_CRANKING_TIMER,
  LEAFNODES_IN_GENERAL_TIMER,
  LEAFNODES_IN_ALT_CONFIG,
@@ -267,19 +263,16 @@ static const char* strOutputSources[1][CFGZ::CFGZ_OUTPUT_LAST] =
   "Under Speed Shutdown",
   "Maintenance Due",
   "Stop Mode",
-  "Auto Mode",
+  "DG Not In Manual",
   "Manual Mode",
   "BTS Mode",
   "Preheat Output",
   "ECU Start",
   "Malfunction Indicator Lamp",
   "Inducement Buzzer",
-#if (USE_INPUTS_Q_R == 1U)
-  "Dig In Q",
-  "Dig In R",
-#endif /* (USE_INPUTS_Q_R == 1U) */
   "EGR Output",
-  "Buzzer 2"
+  "Buzzer 2",
+  "Battery Unhealthy"
  }
 };
 
@@ -404,10 +397,6 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "AUX S2 RES /DIG N",
         "AUX S3/DIG O",
         "AUX S4/DIG P",
-#if (USE_INPUTS_Q_R == 1U)
-        "DIG IN Q",
-        "DIG IN R",
-#endif /* (USE_INPUTS_Q_R == 1U) */
         //Outputs
         "OUT A",
         "OUT B",
@@ -419,13 +408,13 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "OUT H",
         "OUT I",
 
+        "OUT J",
+        "OUT K",
         "OUT L",
         "OUT M",
         "OUT N",
         "OUT O",
         "OUT P",
-        "OUT Q",
-        "OUT R",
         //Timers
         "CRANKING TIMER",
         "GENERAL TIMER",
@@ -779,20 +768,6 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "TANK HEIGHT 1",
         "TANK LENGTH 2",
         "TANK HEIGHT 2",
-#if (USE_INPUTS_Q_R == 1U)
-        //"DIG IN Q"
-        "SOURCE",
-        "POLARITY",
-        "ACTION",
-        "ACTIVATION",
-        "ACTIVATION  DELAY",
-        //"DIG IN R"
-        "SOURCE",
-        "POLARITY",
-        "ACTION",
-        "ACTIVATION",
-        "ACTIVATION  DELAY",
-#endif /* (USE_INPUTS_Q_R == 1U) */
         //"OUT A"
         "SOURCE",
         "ON ACTIVATION",
@@ -820,6 +795,12 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         //"OUT I"
         "SOURCE",
         "ON ACTIVATION",
+        // "OUT J"
+        "SOURCE",
+        "ON ACTIVATION",
+        // "OUT K"
+        "SOURCE",
+        "ON ACTIVATION",
         // "OUT L"
         "SOURCE",
         "ON ACTIVATION",
@@ -833,12 +814,6 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "SOURCE",
         "ON ACTIVATION",
         // "OUT P"
-        "SOURCE",
-        "ON ACTIVATION",
-        // "OUT Q"
-        "SOURCE",
-        "ON ACTIVATION",
-        // "OUT R"
         "SOURCE",
         "ON ACTIVATION",
         //"CRANKING"
@@ -1413,20 +1388,6 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_TANK_LENGTH_2] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_LENGTH_2), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S4_DIG_P_TANK_LENGTH_2], arrUnit[ID_MM],  "%u", (uint16_t)0, (uint16_t)3000, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_AUX_S4_DIG_P_TANK_HEIGHT_2), strLeafNode[_u8LanguageArrayIndex][SID_AUX_S4_DIG_P_TANK_HEIGHT_2], arrUnit[ID_MM],  "%u", (uint16_t)0, (uint16_t)3000, CEditableItem::NOT_ALLOWED );
 
-#if (USE_INPUTS_Q_R == 1U)
-    ArrEditableItem[INDEX_OF_DIG_IN_Q_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_Q_SOURCE], "", "%s",  strInputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_INPUT_LAST, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_Q_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_POLARITY),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_Q_POLARITY], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_Q_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_Q_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_Q_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_Q_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_Q_ACTIVATION_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTIVATION_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_Q_ACTIVATION_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)1, (uint8_t)180, CEditableItem::NOT_ALLOWED );
-
-    ArrEditableItem[INDEX_OF_DIG_IN_R_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_R_SOURCE], "", "%s",  strInputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_INPUT_LAST, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_R_POLARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_POLARITY),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_R_POLARITY], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_R_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_R_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_R_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_R_ACTIVATION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_DIG_IP_ACTIVATION], 4, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_DIG_IN_R_ACTIVATION_DELAY] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTIVATION_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_DIG_IN_R_ACTIVATION_DELAY], arrUnit[ID_SEC], "%u", (uint8_t)1, (uint8_t)180, CEditableItem::NOT_ALLOWED );
-#endif /* (USE_INPUTS_Q_R == 1U) */
-
     ArrEditableItem[INDEX_OF_OUT_A_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_A_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_A_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_OUTPUT_LAST, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_OUT_A_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_A_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_OUT_A_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
 
@@ -1454,6 +1415,12 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_OUT_I_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_I_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_I_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_OUTPUT_LAST, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_OUT_I_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_I_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_OUT_I_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
 
+    ArrEditableItem[INDEX_OF_OUT_J_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_J_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_J_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_OUTPUT_LAST, CEditableItem::NOT_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_J_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_J_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_OUT_J_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
+
+    ArrEditableItem[INDEX_OF_OUT_K_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_K_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_K_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_OUTPUT_LAST, CEditableItem::NOT_ALLOWED );
+    ArrEditableItem[INDEX_OF_OUT_K_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_K_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_OUT_K_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
+
     ArrEditableItem[INDEX_OF_OUT_L_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_L_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_L_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_OUTPUT_LAST, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_OUT_L_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_L_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_OUT_L_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
 
@@ -1468,12 +1435,6 @@ void UI::InitEditableItems()
 
     ArrEditableItem[INDEX_OF_OUT_P_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_P_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_P_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_OUTPUT_LAST, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_OUT_P_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_P_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_OUT_P_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
-
-    ArrEditableItem[INDEX_OF_OUT_Q_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_Q_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_Q_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_OUTPUT_LAST, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_OUT_Q_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_Q_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_OUT_Q_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
-
-    ArrEditableItem[INDEX_OF_OUT_R_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_R_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_OUT_R_SOURCE], "", "%s", strOutputSources[_u8LanguageArrayIndex], CFGZ::CFGZ_OUTPUT_LAST, CEditableItem::NOT_ALLOWED );
-    ArrEditableItem[INDEX_OF_OUT_R_ON_ACTIVATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OUT_R_ON_ACTIVATION),strLeafNode[_u8LanguageArrayIndex][SID_OUT_R_ON_ACTIVATION], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_DIG_OP_POLARITY], 2, CEditableItem::NOT_ALLOWED );
 
     ArrEditableItem[INDEX_OF_CRANKING_TIMER_CRANK_HOLD_TIME] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME), strLeafNode[_u8LanguageArrayIndex][SID_CRANKING_TIMER_CRANK_HOLD_TIME], arrUnit[ID_SEC], "%u", (uint16_t)1, (uint16_t)10, CEditableItem::PIN2_ALLOWED );//8
     ArrEditableItem[INDEX_OF_CRANKING_TIMER_CRANK_REST_TIME] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_REST_TIME), strLeafNode[_u8LanguageArrayIndex][SID_CRANKING_TIMER_CRANK_REST_TIME], arrUnit[ID_SEC], "%u", (uint16_t)2, (uint16_t)60, CEditableItem::NOT_ALLOWED );//8
@@ -1994,7 +1955,7 @@ void UI::TurnOFFActionActivation(uint16_t u16Index)
 }
 bool UI::IsOutputConfigured(uint8_t u8Source)
 {
-    for(uint16_t i = INDEX_OF_OUT_A_SOURCE ; i<=INDEX_OF_OUT_R_SOURCE; i = i+2)
+    for(uint16_t i = INDEX_OF_OUT_A_SOURCE ; i<=INDEX_OF_OUT_P_SOURCE; i = i+2)
     {
         if(ArrEditableItem[i].value.u8Val == u8Source)
         {
@@ -2078,11 +2039,6 @@ void UI::HandleMenuVisibility(void)
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_G_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_H_SOURCE);
     DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_I_SOURCE);
-#if (USE_INPUTS_Q_R == 1U)
-    DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_Q_SOURCE);
-    DigitalInputMenuVisiblity(INDEX_OF_DIG_IN_R_SOURCE);
-#endif /* (USE_INPUTS_Q_R == 1U) */
-
 
     //Sensor J
     if(ArrEditableItem[INDEX_OF_LOP_RES_DIG_J_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_SENSOR_NOT_USED)
@@ -2200,13 +2156,13 @@ void UI::HandleMenuVisibility(void)
     menuItemsLowestLevel[INDEX_OF_OUT_H_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_H_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
     menuItemsLowestLevel[INDEX_OF_OUT_I_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_I_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
 
+    menuItemsLowestLevel[INDEX_OF_OUT_J_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_J_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
+    menuItemsLowestLevel[INDEX_OF_OUT_K_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_K_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
     menuItemsLowestLevel[INDEX_OF_OUT_L_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_L_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
     menuItemsLowestLevel[INDEX_OF_OUT_M_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_M_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
     menuItemsLowestLevel[INDEX_OF_OUT_N_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_N_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
     menuItemsLowestLevel[INDEX_OF_OUT_O_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_O_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
     menuItemsLowestLevel[INDEX_OF_OUT_P_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_P_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
-    menuItemsLowestLevel[INDEX_OF_OUT_Q_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_Q_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
-    menuItemsLowestLevel[INDEX_OF_OUT_R_ON_ACTIVATION].isEnabled = (bool)(ArrEditableItem[INDEX_OF_OUT_R_SOURCE].value.u8Val!=CFGZ::CFGZ_NOT_CONFIGURED);
 
     //TIMERS MENU
     //GENERATOR MENU

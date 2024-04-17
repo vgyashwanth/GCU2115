@@ -436,18 +436,7 @@ class CFGZ
         ID_AUX_S4_DIG_P_FUEL_THEFT_THRESHOLD,
         ID_AUX_S4_DIG_P_FUEL_IN_PCT,
         ID_AUX_S4_DIG_P_TANK_WITH_STEP,
-#if (USE_INPUTS_Q_R == 1U)
-        ID_DIG_IN_Q_SOURCE,
-        ID_DIG_IN_Q_POLARITY,
-        ID_DIG_IN_Q_ACTION,
-        ID_DIG_IN_Q_ACTIVATION,
-        ID_DIG_IN_Q_ACTIVATION_DELAY,
-        ID_DIG_IN_R_SOURCE,
-        ID_DIG_IN_R_POLARITY,
-        ID_DIG_IN_R_ACTION,
-        ID_DIG_IN_R_ACTIVATION,
-        ID_DIG_IN_R_ACTIVATION_DELAY,
-#endif /* (USE_INPUTS_Q_R == 1U) */
+
         ID_OUT_A_SOURCE,
         ID_OUT_A_ON_ACTIVATION,
         ID_OUT_B_SOURCE,
@@ -462,10 +451,16 @@ class CFGZ
         ID_OUT_F_ON_ACTIVATION,
         ID_OUT_G_SOURCE,
         ID_OUT_G_ON_ACTIVATION,
+
         ID_OUT_H_SOURCE,
         ID_OUT_H_ON_ACTIVATION,
         ID_OUT_I_SOURCE,
         ID_OUT_I_ON_ACTIVATION,
+
+        ID_OUT_J_SOURCE,
+        ID_OUT_J_ON_ACTIVATION,
+        ID_OUT_K_SOURCE,
+        ID_OUT_K_ON_ACTIVATION,
         ID_OUT_L_SOURCE,
         ID_OUT_L_ON_ACTIVATION,
         ID_OUT_M_SOURCE,
@@ -476,10 +471,7 @@ class CFGZ
         ID_OUT_O_ON_ACTIVATION,
         ID_OUT_P_SOURCE,
         ID_OUT_P_ON_ACTIVATION,
-        ID_OUT_Q_SOURCE,
-        ID_OUT_Q_ON_ACTIVATION,
-        ID_OUT_R_SOURCE,
-        ID_OUT_R_ON_ACTIVATION,
+
         ID_ALT_CONFIG_ALT_PRESENT,
         ID_ALT_CONFIG_NUMBER_OF_POLES,
         ID_ALT_CONFIG_ALT_AC_SYSTEM,
@@ -592,10 +584,6 @@ class CFGZ
         ID_ARR_SENSOR_S2_NAME,
         ID_ARR_SENSOR_S3_NAME,
         ID_ARR_SENSOR_S4_NAME,
-#if (USE_INPUTS_Q_R == 1U)
-        ID_ARR_AUX_INPUT_Q,
-        ID_ARR_AUX_INPUT_R,
-#endif /* (USE_INPUTS_Q_R == 1U) */
         ID_ARR_PROFILE,
 
         ID_ARRAY_20_BYTE_LAST
@@ -784,12 +772,9 @@ class CFGZ
         CFGZ_ECU_START,
         CFGZ_MIL,
         CFGZ_INDUCEMENT_BUZZER,
-#if (USE_INPUTS_Q_R == 1U)
-        CFGZ_DIG_IN_Q,
-        CFGZ_DIG_IN_R,
-#endif /* (USE_INPUTS_Q_R == 1U) */
         CFGZ_EGR,
         CFGZ_AUTO_MODE_SW_OUTPUT,
+        CFGZ_BATTERY_UNHEALTHY,
         CFGZ_OUTPUT_LAST
     } CFGZ_ACT_TYPS_t;
 

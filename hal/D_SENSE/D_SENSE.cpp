@@ -31,9 +31,6 @@ void D_SENSE::ConfigureSensor(CFG_t &cfg)
                            &_digIp.InputJ, &_digIp.InputK, &_digIp.InputL,
                            &_digIp.InputM, &_digIp.InputN, &_digIp.InputO,
                            &_digIp.InputP
-#if (USE_INPUTS_Q_R == 1U)
-                           , &_digIp.InputQ, &_digIp.InputR
-#endif /* (USE_INPUTS_Q_R == 1U) */
                            };
 
     for(int i=0;i<DI_END;i++)

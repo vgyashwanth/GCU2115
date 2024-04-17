@@ -991,19 +991,6 @@ void MB_APP::prvUpdateGCUAlarms()
     _u16TempAlarmVal |= (uint16_t)(1 << 4U);
     _u16TempAlarmVal |= (uint16_t)(1 << 3U);
     
-#if (USE_INPUTS_Q_R == 1U)
-    if(_hal.DigitalSensors.GetDigInputState(D_SENSE::DI_R)==DigitalSensor::SENSOR_LATCHED)
-    {
-        _u16TempAlarmVal |= (uint16_t)(1U<<1U);
-    }
-    if(_hal.DigitalSensors.GetDigInputState(D_SENSE::DI_Q)==DigitalSensor::SENSOR_LATCHED)
-    {
-        _u16TempAlarmVal |= (uint16_t)(1U<<0U);
-    }
-#else
-    /* Do nothing as TempVal is already set to zero before filling bits. */
-#endif /* (USE_INPUTS_Q_R == 1U) */
-    
     _u16TempAlarmVal |= 0xFFF0;
 
     SetReadRegisterValue(MB_ALARM_17, _u16TempAlarmVal);

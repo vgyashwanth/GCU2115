@@ -372,14 +372,9 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
                                         uint8_t u8Activation, uint8_t u8ActivationDelay,
                                         uint8_t u8AlarmAction, uint8_t u8LoggingID)
 {
-    if((u8InputIndex >= DIG_IN_A )&&(u8InputIndex <=
-#if (USE_INPUTS_Q_R == 1U)
-            DIG_IN_R
-#else
-            DIG_IN_P
-#endif /* (USE_INPUTS_Q_R == 1U) */
-            )
-               &&(u8InputSource != CFGZ:: CFGZ_USER_CONFIGURED_SENSOR))
+    if((u8InputIndex >= DIG_IN_A )&&(u8InputIndex <= DIG_IN_P)
+               &&(u8InputSource != CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+               &&(u8InputSource != CFGZ:: CFGZ_NOT_CONFIGURED))
        {
              ArrAlarmMonitoring[u8InputIndex].bEnableMonitoring = true;
              ArrAlarmMonitoring[u8InputIndex].u8LoggingID = NoAlarm_id;
@@ -1679,28 +1674,6 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
                 }
             }
             break;
-#if (USE_INPUTS_Q_R == 1U)
-        case DIG_IN_Q:
-        {
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTION), GCU_ALARMS::Auxilary_Input_Q_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_Q];
-                prvSetAlarmAction_NoWESN(DIG_IN_Q, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTION));
-            }
-        }
-        break;
-        case DIG_IN_R:
-        {
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTION), GCU_ALARMS::Auxilary_Input_R_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_R];
-                prvSetAlarmAction_NoWESN(DIG_IN_R, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTION));
-            }
-        }
-        break;
-#endif /* (USE_INPUTS_Q_R == 1U) */
         case REMOTE_SS:
         {
             //Implemented Completely in prvAssignInputSettings func.
@@ -2124,11 +2097,6 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[DIG_INPUT_N].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_N_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
     _ArrAlarmValue[DIG_INPUT_O].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_O_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
     _ArrAlarmValue[DIG_INPUT_P].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_P_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
-#if (USE_INPUTS_Q_R == 1U)
-    _ArrAlarmValue[DIG_INPUT_Q].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_Q_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
-    _ArrAlarmValue[DIG_INPUT_R].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_R_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
-#endif /* (USE_INPUTS_Q_R == 1U) */
-
 
     /*
      * By SuryaPranayTeja.BVV
@@ -2355,14 +2323,6 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
         case Auxilary_Input_P_id:
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_P].bAlarmActive;
             break;
-#if (USE_INPUTS_Q_R == 1U)
-        case Auxilary_Input_Q_id:
-            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_Q].bAlarmActive;
-            break;
-        case Auxilary_Input_R_id:
-            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_R].bAlarmActive;
-            break;        
-#endif /* (USE_INPUTS_Q_R == 1U) */
         case Fail_To_Stop_id :
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[FAIL_TO_STOP].bAlarmActive;
             break;
@@ -3194,10 +3154,6 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_N].bResultInstant, ACTUATOR::ACT_DIG_IN_N);
     prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_O].bResultInstant, ACTUATOR::ACT_DIG_IN_O);
     prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_P].bResultInstant, ACTUATOR::ACT_DIG_IN_P);
-#if (USE_INPUTS_Q_R == 1U)
-    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_Q].bResultInstant, ACTUATOR::ACT_DIG_IN_Q);
-    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_R].bResultInstant, ACTUATOR::ACT_DIG_IN_R);
-#endif /* (USE_INPUTS_Q_R == 1U) */
     prvActDeactOutput(ArrAlarmMonitoring[ESTOP].bResultLatched, ACTUATOR::ACT_E_STOP);
     //Activate and Deactivate of ACT_STOP_SOLENOID is done in START_STOP
     prvActDeactOutput(ArrAlarmMonitoring[FAIL_TO_START].bResultLatched, ACTUATOR::ACT_FAIL_TO_START);
@@ -3256,7 +3212,7 @@ void GCU_ALARMS::prvUpdateOutputs()
 //    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_06_PIN_03, eDOJState);
 //    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_06_PIN_02, eDOJState);
 
-    prvActDeactOutput(ArrAlarmMonitoring[VBAT_OV].bResultInstant || ArrAlarmMonitoring[VBAT_UV].bResultInstant, ACTUATOR::ACT_VBAT_OV_UV);
+    prvActDeactOutput(ArrAlarmMonitoring[VBAT_OV].bResultInstant || ArrAlarmMonitoring[VBAT_UV].bResultInstant, ACTUATOR::ACT_BATTERY_UNHEALTHY);
     prvActDeactOutput(_bAutomaticModeSwitchStatus, ACTUATOR::ACT_AUTO_MODE_SW_OUTPUT);
     prvActDeactOutput(prvIsEgrFaultPresent(), ACTUATOR::ACT_EGR);
 }

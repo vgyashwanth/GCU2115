@@ -306,22 +306,6 @@ void CFGZ::prvConfigureDSENSE()
     cfg.stDIConfig[D_SENSE::DI_P].u16ActivationDelaySeconds =
             (uint8_t)_All_Param.u8ArrParam[ID_AUX_S4_DIG_P_DIG_ACTIVATION_DELAY];
 
-#if (USE_INPUTS_Q_R == 1U)
-    cfg.stDIConfig[D_SENSE::DI_Q].eType                     =
-            prvGetDigitalSensor(ID_DIG_IN_Q_SOURCE, D_SENSE::DI_Q);
-    cfg.stDIConfig[D_SENSE::DI_Q].eActivationPolarity       =
-            (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_Q_POLARITY];
-    cfg.stDIConfig[D_SENSE::DI_Q].u16ActivationDelaySeconds =
-            (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_Q_ACTIVATION_DELAY];
-
-    cfg.stDIConfig[D_SENSE::DI_R].eType                     =
-            prvGetDigitalSensor(ID_DIG_IN_R_SOURCE, D_SENSE::DI_R);
-    cfg.stDIConfig[D_SENSE::DI_R].eActivationPolarity       =
-            (DigitalSensor::ACTIV_POLARITY_t)_All_Param.u8ArrParam[ID_DIG_IN_R_POLARITY];
-    cfg.stDIConfig[D_SENSE::DI_R].u16ActivationDelaySeconds =
-            (uint8_t)_All_Param.u8ArrParam[ID_DIG_IN_R_ACTIVATION_DELAY];
-#endif /* (USE_INPUTS_Q_R == 1U) */
-
     _hal.DigitalSensors.ConfigureSensor(cfg);
 }
 
@@ -380,10 +364,6 @@ DigitalSensor::D_SENSOR_TYPS_t CFGZ::prvGetDigitalSensor(uint8_t u8CfgSensorIdx,
      DigitalSensor::DI_N_USER_CONFIGURED,
      DigitalSensor::DI_O_USER_CONFIGURED,
      DigitalSensor::DI_P_USER_CONFIGURED,
-#if (USE_INPUTS_Q_R == 1U)
-     DigitalSensor::DI_Q_USER_CONFIGURED,
-     DigitalSensor::DI_R_USER_CONFIGURED,
-#endif /* (USE_INPUTS_Q_R == 1U) */
     };
     if(_All_Param.u8ArrParam[u8CfgSensorIdx] == CFGZ_USER_CONFIGURED_SENSOR)
     {
@@ -601,29 +581,6 @@ void CFGZ::prvConfigureACT()
     uint8_t u8SourceIdx     = ID_OUT_A_SOURCE;
     for(uint8_t u8Idx=0; u8Idx<ACT_Manager::OP_END; u8Idx++)
     {
-        /* 9/4/24 Ramachandran S
-         * Current requirement is to hard-code specific outputs to these pins and
-         * not have them as configurable sources. Hence the below if-else-if ladder.
-         * Later, if there is a change where these sources are to be made a part of
-         * the general list of sources, then this ladder can just be removed.
-         */
-        if(u8Idx == ACT_Manager::OP_J)
-        {
-            cfg.properties[u8Idx].eType = ACTUATOR::ACT_VBAT_OV_UV;
-            cfg.properties[u8Idx].eActivation = ACTUATOR::ENERGIZE_TO_ACTIVATE;
-            continue;
-        }
-        else if(u8Idx == ACT_Manager::OP_K)
-        {
-            cfg.properties[u8Idx].eType = ACTUATOR::ACT_MODE_AUTO;
-            cfg.properties[u8Idx].eActivation = ACTUATOR::ENERGIZE_TO_ACTIVATE;
-            continue;
-        }
-        else
-        {
-            /* Do nothing */
-        }
-
         cfg.properties[u8Idx].eType = prvGetACTType(u8SourceIdx);
         /* <LDRA Phase code 9S> <Assignment operation in expression.: Resolved.>
          * <Verified by: Nikhil Mhaske> <9/9/2021> */
@@ -715,12 +672,9 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
      { CFGZ_ECU_START                         , ACTUATOR::ACT_ECU_START                  },
      { CFGZ_MIL                               , ACTUATOR::ACT_MIL                        },
      { CFGZ_INDUCEMENT_BUZZER                 , ACTUATOR::ACT_INDUCEMENT_BUZZER          },
-#if (USE_INPUTS_Q_R == 1U)
-     { CFGZ_DIG_IN_Q                          , ACTUATOR::ACT_DIG_IN_Q                   },
-     { CFGZ_DIG_IN_R                          , ACTUATOR::ACT_DIG_IN_R                   },
-#endif /* (USE_INPUTS_Q_R == 1U) */
      { CFGZ_EGR                               , ACTUATOR::ACT_EGR                        },
-     { CFGZ_AUTO_MODE_SW_OUTPUT               , ACTUATOR::ACT_AUTO_MODE_SW_OUTPUT        }
+     { CFGZ_AUTO_MODE_SW_OUTPUT               , ACTUATOR::ACT_AUTO_MODE_SW_OUTPUT        },
+     { CFGZ_BATTERY_UNHEALTHY                 , ACTUATOR::ACT_BATTERY_UNHEALTHY          },
     };
 
     for(uint8_t i=0;i<(sizeof(dsenseMap)/sizeof(ACTUATOR_MAP_ROW_t));i++)

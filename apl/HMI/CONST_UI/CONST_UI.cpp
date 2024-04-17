@@ -371,7 +371,6 @@ char strAuxGString[MAX_AUX_STRING_SIZE],strAuxHString[MAX_AUX_STRING_SIZE],strAu
 char strAuxJString[MAX_AUX_STRING_SIZE],strAuxKString[MAX_AUX_STRING_SIZE],strAuxLString[MAX_AUX_STRING_SIZE];
 char strAuxMString[MAX_AUX_STRING_SIZE],strAuxNString[MAX_AUX_STRING_SIZE],strAuxOString[MAX_AUX_STRING_SIZE],strAuxPString[MAX_AUX_STRING_SIZE];
 char strAuxS1String[MAX_AUX_STRING_SIZE],strAuxS2String[MAX_AUX_STRING_SIZE],strAuxS3String[MAX_AUX_STRING_SIZE],strAuxS4String[MAX_AUX_STRING_SIZE];
-char strAuxQString[MAX_AUX_STRING_SIZE],strAuxRString[MAX_AUX_STRING_SIZE];
 char strProfile[MAX_AUX_STRING_SIZE];
 
 const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
@@ -417,10 +416,6 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)&strAuxNString,
       (char*)&strAuxOString,
       (char*)&strAuxPString,
-#if (USE_INPUTS_Q_R == 1U)
-      (char*)&strAuxQString,
-      (char*)&strAuxRString,
-#endif /* (USE_INPUTS_Q_R == 1U) */
       (char*)"Fail To Stop",
       (char*)"Fuel Theft",
       (char*)"Unbalanced Load",

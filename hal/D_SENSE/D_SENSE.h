@@ -43,10 +43,6 @@ public:
          DI_N_USER_CONFIGURED           ,
          DI_O_USER_CONFIGURED           ,
          DI_P_USER_CONFIGURED           ,
-#if (USE_INPUTS_Q_R == 1U)
-         DI_Q_USER_CONFIGURED           ,
-         DI_R_USER_CONFIGURED           ,
-#endif /* (USE_INPUTS_Q_R == 1U) */
          DI_LOW_FUEL_LEVEL_SWITCH       ,
          DI_LOW_LUBE_OIL_PRESSURE_SWITCH,
          DI_HIGH_ENGINE_TEMP_SWITCH     ,
@@ -177,10 +173,6 @@ public:
         DI_N,
         DI_O,
         DI_P,
-#if (USE_INPUTS_Q_R == 1U)
-        DI_Q,
-        DI_R,
-#endif /* (USE_INPUTS_Q_R == 1U) */
         DI_END
     } INPUTS_t;
 

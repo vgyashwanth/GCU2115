@@ -86,7 +86,6 @@ _actuators{{HSDManager.HSD_OP_A}, {HSDManager.HSD_OP_B},
            {HSDManager.HSD_OP_K}, {HSDManager.HSD_OP_L},
            {HSDManager.HSD_OP_M}, {HSDManager.HSD_OP_N},
            {HSDManager.HSD_OP_O}, {HSDManager.HSD_OP_P},
-           {HSDManager.HSD_OP_Q}, {HSDManager.HSD_OP_R},
 }
 {
     
@@ -160,9 +159,3 @@ void ACT_Manager::DeactivateAll()
         _actuators[i].Deactivate();
     }
 }
-
-
-
-
-
-

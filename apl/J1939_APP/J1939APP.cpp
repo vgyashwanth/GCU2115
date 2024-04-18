@@ -82,7 +82,6 @@ ubypReadRxPgns{
     (J1939_PGNs)&(gstPGNs.PGN_DM03_65228 ),
     (J1939_PGNs)&(gstPGNs.PGN_IC1_65270  ),
     (J1939_PGNs)&(gstPGNs.PGN_LFE1_65266  ),
-    (J1939_PGNs)&(gstPGNs.PGNRunHrs),
 
 },
 
@@ -1354,12 +1353,6 @@ void J1939APP::ExtractReadFrame(void)
                                                + (((uint16_t)u8PF)<<8U)) ;
         }
 
-        //Receive the PGN of 65290 only from Source Address 0 irrespective of Engine type
-        if(uPDU_ID_Data.tPDUIdFrame.uiPDU_PGN == PGN_EGR_INDUCEMENT_PGN_RUN_HRS)
-        {
-            bECUSourceAddressMatched = (u8SourceAddress == 0U);
-        }
-
         if(bECUSourceAddressMatched)
         {
             bECUSourceAddressMatched = false;
@@ -1506,15 +1499,6 @@ void J1939APP::ExtractReadFrame(void)
                         _ArrPgnReadData[u8ReceivedPgnNo][u8RxSPNNum] = 0;
                     }
                 }
-
-                if(u8ReceivedPgnNo == RX_PGN_EGR_RUNHRS_65290)
-                {
-                    if((GetSPNErrorStatus(RX_PGN_EGR_RUNHRS_65290,2) == J1939APP::VALID_DATA)
-                            && (GetSPNErrorStatus(RX_PGN_EGR_RUNHRS_65290,3) == J1939APP::VALID_DATA))
-                    {
-                        _gcuAlarm.UpdateEGRTimeValuesFromJ1939((uint32_t)GetReadData(RX_PGN_EGR_RUNHRS_65290,2),(uint32_t)GetReadData(RX_PGN_EGR_RUNHRS_65290,3));
-                    }
-                }
             }
         }
     }
@@ -1579,10 +1563,6 @@ DATABASE_RX_PGN_LIST_t J1939APP::GetRXPGNEnum(uint32_t u32ReceivedPgnNo)
             break;
         case PGN_LFE1   :
             eReceivedPgnNo = RX_PGN_LFE1_65266;
-            break;
-
-        case PGN_EGR_INDUCEMENT_PGN_RUN_HRS:
-            eReceivedPgnNo = RX_PGN_EGR_RUNHRS_65290;
             break;
 
         default :
@@ -2316,12 +2296,12 @@ void J1939APP::UpdateDEFInducementStrategy()
     uint32_t EGRFaultTime  = _gcuAlarm.GetFaultPreset72HrsTimeInMin();
 
 
-    if((EGRFaultTime >= EGR_SHUTDOWN_INDUCEMENT_LEVEL_TIME) && IsInducementDueToEGR)
+    if((EGRFaultTime >= _cfgz.GetEGRShutdownTimer()) && IsInducementDueToEGR)
     {
         _bIsEGRInducementShutdown = true;
         _bIsEGRInducementWarning = false;
     }
-    else if((EGRFaultTime >= EGR_WARNING_INDUCEMENT_LEVEL_TIME)  && IsInducementDueToEGR)
+    else if((EGRFaultTime >= _cfgz.GetEGRWarningTimer())  && IsInducementDueToEGR)
     {
         _bIsEGRInducementWarning = true;
         _bIsEGRInducementShutdown = false;

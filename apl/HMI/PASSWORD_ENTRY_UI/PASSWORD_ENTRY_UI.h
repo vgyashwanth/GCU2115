@@ -53,7 +53,7 @@ public:
      * @param cfgz object
      * @param Disp object
      */
-    PASSWORD_ENTRY_UI(HAL_Manager &hal, CFGZ &cfgz, Display &Disp);
+    PASSWORD_ENTRY_UI(HAL_Manager &hal, CFGC &cfgc, CFGZ &cfgz, Display &Disp);
 
     /** Update function of password class
      * @param bRefresh
@@ -102,8 +102,9 @@ private:
     /**Object references
      */
     HAL_Manager &_hal;
-    CFGZ &_cfgz;
-    Display &_Disp;
+    CFGC        &_cfgc;
+    CFGZ        &_cfgz;
+    Display     &_Disp;
 
     /**To display password while editing
      */

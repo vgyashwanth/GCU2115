@@ -14,8 +14,9 @@
 #include "../UI/UI.h"
 #include "../UI/CKeyCodes.h"
 
-PASSWORD_ENTRY_UI::PASSWORD_ENTRY_UI(HAL_Manager &hal, CFGZ &cfgz, Display &Disp):
+PASSWORD_ENTRY_UI::PASSWORD_ENTRY_UI(HAL_Manager &hal, CFGC &cfgc, CFGZ &cfgz, Display &Disp):
 _hal(hal),
+_cfgc(cfgc),
 _cfgz(cfgz),
 _Disp(Disp),
 ArrChar{'#','#','#','#'},
@@ -173,10 +174,10 @@ void PASSWORD_ENTRY_UI::prvCheckEnteredPassword()
     {
         _u8EnteredPassword = PIN2;
     }
-//    else if(_u16EnterdPassword == 0)  // Read thirds Password
-//    {
-//        _u8EnteredPassword = PIN3;
-//    }
+    else if(_u16EnterdPassword == _cfgc.GetPasswords(2))  // Read thirds Password
+    {
+        _u8EnteredPassword = PIN3;
+    }
     /*
      * Removed the Master password for GC2111 as per the requirement.
      */

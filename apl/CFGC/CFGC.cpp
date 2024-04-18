@@ -107,7 +107,9 @@ uint16_t CFGC::GetPasswords(uint8_t u8PasswordNo)
         case 1:
             return (uint16_t)((_stCfgc.u8PIN2PasswordChar0 * 1000U) + (_stCfgc.u8PIN2PasswordChar1 * 100U) +(_stCfgc.u8PIN2PasswordChar2 * 10U) + (_stCfgc.u8PIN2PasswordChar3));
         break;
-
+        case 2:
+            return (uint16_t)((_stCfgc.u8PIN3PasswordChar0 * 1000U) + (_stCfgc.u8PIN3PasswordChar1 * 100U) +(_stCfgc.u8PIN3PasswordChar2 * 10U) + (_stCfgc.u8PIN3PasswordChar3));
+        break;
         default:
             return (uint16_t)((_stCfgc.u8PIN1PasswordChar0 * 1000U) + (_stCfgc.u8PIN1PasswordChar1 * 100U) +(_stCfgc.u8PIN1PasswordChar2 * 10U) + (_stCfgc.u8PIN1PasswordChar3));
             break;

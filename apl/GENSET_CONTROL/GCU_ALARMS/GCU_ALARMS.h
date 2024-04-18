@@ -524,15 +524,6 @@ public:
      */
     bool IsNotificationAlarmEnabled(ALARM_LIST_t AlarmID);
 
-    /* EGR monitoring */
-    typedef struct
-    {
-        uint32_t u32Time72HrsEgrFault_min;
-        uint32_t u32Time40HrsEgrFault_min;
-        uint16_t u16Dummy;
-        uint16_t u16CRC;
-    } EGR_MON_TIME_LOG_t;
-
     typedef enum
     {
         EGR_MON_IDLE_STATE,
@@ -581,8 +572,6 @@ public:
 
     ANLG_IP::ANLG_IP_STATE_t GetSPNSensorState(uint8_t u8SPNErrorStatus);
     A_SENSE::SENSOR_RET_t GetLubeOilTempSensVal();
-
-    void UpdateEGRTimeValuesFromJ1939(uint32_t u32FaultTime, uint32_t u32Healtime);
 
 private:
 #define FUEL_THEFT_WAKEUP_TIMER (4U)
@@ -799,10 +788,9 @@ private:
 
     uint8_t _StartEgrDetection;
 
-    EGR_MON_TIME_LOG_t _stNvEgrTimeLog;
     EGR_MON_STATE_t _eEgrMonState;
-    uint32_t _u32EgrFault72HrsMonitoring_min;
-    uint32_t _u32EgrFaultReset40HrsMonitoring_min;
+    uint16_t _u16EgrFaultMonTime_min;
+    uint16_t _u16EgrFaultHealTime_min;
     stTimer _stGeneralTimer1Minute;
     EGR_FAULT_LIST_t eEgrFault;
     EGR_FAULT_DETECT_STATE_t egrInState;
@@ -885,7 +873,6 @@ private:
     void Update_EGR_Valve_Open_Detection();
 
     void prvMonitorEgrFaultStatus(void);
-    void prvInitNV_EGR_TimeLog(void);
     void prvEGR_TimeLog_WriteToNV(void);
     bool prvIsEgrFaultPresent();
 

@@ -61,8 +61,6 @@ public:
         ACT_DIG_IN_N,
         ACT_DIG_IN_O,
         ACT_DIG_IN_P,
-        ACT_DIG_IN_Q,
-        ACT_DIG_IN_R,
         ACT_E_STOP,
         ACT_STOP_SOLENOID,
         ACT_FAIL_TO_START,
@@ -102,7 +100,8 @@ public:
         ACT_MIL,
         ACT_EGR,
         ACT_INDUCEMENT_BUZZER,
-
+        ACT_AUTO_MODE_SW_OUTPUT,
+        ACT_BATTERY_UNHEALTHY
     } ACTUATOR_TYPS_t;
 
     /* Two possibilities for activation*/
@@ -188,7 +187,14 @@ public:
         OP_G   = 6,
         OP_H   = 7,
         OP_I   = 8,
-        OP_END = 9,
+        OP_J   = 9,
+        OP_K   = 10,
+        OP_L   = 11,
+        OP_M   = 12,
+        OP_N   = 13,
+        OP_O   = 14,
+        OP_P   = 15,
+        OP_END
     } HSD_OUTPUTS_t;
 
     typedef struct {

@@ -529,10 +529,12 @@ void START_STOP::prvTurnOnOffOutputs()
     if(_bOPFuelRelay)
     {
         _hal.actuators.Activate(ACTUATOR::ACT_FUEL_RELAY);
+        _hal.actuators.Activate(ACTUATOR::ACT_ECU_START);
     }
     else
     {
         _hal.actuators.Deactivate(ACTUATOR::ACT_FUEL_RELAY);
+        _hal.actuators.Deactivate(ACTUATOR::ACT_ECU_START);
     }
 
     if(_bOPPreheat)

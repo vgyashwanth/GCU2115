@@ -994,8 +994,8 @@ uint8_t gau8Icon7[6][27]
 
  const st_DTC J1939AlarmArrayStringsECU162[PCODE_LAST_ECU162] =
  {
-    { 97,5,  (char*)"P2269",  (char*)"Water in fuel detected"},  
-    { 97,2,  (char*)"P2169",  (char*)"Error during sensor test-water in fuel"},  
+    { 97,5,  (char*)"P2269",  (char*)"Error during sensor test-water in fuel"},
+    { 97,2,  (char*)"P2169",  (char*)"Water in fuel detected"},
     { 100,11,  (char*)"P26DF",  (char*)"Low oil pressure"},  
     { 100,3,  (char*)"P26E0",  (char*)"Oil Press. Sensor Short to Battery"},  
     { 100,4,  (char*)"P26E1",  (char*)"Oil Press. Sensor Short to Ground"},  

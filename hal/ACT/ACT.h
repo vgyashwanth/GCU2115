@@ -98,8 +98,8 @@ public:
         ACT_PREHEAT,
         ACT_ECU_START,
         ACT_MIL,
-        ACT_EGR,
         ACT_INDUCEMENT_BUZZER,
+        ACT_EGR,
         ACT_AUTO_MODE_SW_OUTPUT,
         ACT_BATTERY_UNHEALTHY
     } ACTUATOR_TYPS_t;

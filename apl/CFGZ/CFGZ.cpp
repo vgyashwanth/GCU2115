@@ -26,11 +26,13 @@ _cfgc(cfgc),
 _All_Param{},
 _EraseAndWriteInitiated(false),
 strCFGZMetadata{},
+_stProductSpecificData{},
 _bDflashCallbackRcvd(false),
 _bConfigWritten(true),
 _stMiscParam{}
 {
     pcfgz = this;
+    prvLoadProductSpecificData();
     if(prvGetIntegrityStatus() == BSP_SUCCESS)
     {
         _CFGZ_Verification_status = BSP_SUCCESS;
@@ -43,6 +45,111 @@ _stMiscParam{}
     ApplyConfigChanges();
     prvSetPassword();
     ReadMiscParam(&_stMiscParam);
+}
+
+void CFGZ::prvLoadProductSpecificData()
+{
+    bool bDefaultInitialize = false;
+    bool bUpdateDataInEEPROM = false;
+
+    static PS_VERSION_t stPSVersion={};
+
+    _hal.Objeeprom.BlockingRead(PRODUCT_SPECIFIC_DATA_VERSION_ADDR - sizeof(stPSVersion)   ,
+                                 (uint8_t*)&stPSVersion,  sizeof(stPSVersion));
+
+
+    if((stPSVersion.u32Signature1 == PRODUCT_DATA_SIGNATURE1)
+            && (stPSVersion.u32Signature2 == PRODUCT_DATA_SIGNATURE2))
+    {
+
+        if(stPSVersion.u32PSVersion!=PRODUCT_SPECIFIC_DATA_VERSION)
+        {
+            /*
+             * In future if there is a new version then the
+             * code for porting from one version to another should
+             * be written here.*/
+            stPSVersion.u32PSVersion = PRODUCT_SPECIFIC_DATA_VERSION;
+            bUpdateDataInEEPROM = true;
+        }
+        else
+        {
+            _hal.Objeeprom.BlockingRead(PRODUCT_SPECIFIC_AREA_START_ADDR  ,
+                                         (uint8_t*)&_stProductSpecificData,  sizeof(LATEST_PRODUCT_SPECIFIC_DATA_t));
+
+            if(CRC16::ComputeCRCGeneric((uint8_t *)&_stProductSpecificData, sizeof(LATEST_PRODUCT_SPECIFIC_DATA_t) - sizeof(uint16_t)
+                                        , CRC_MEMORY_SEED) != _stProductSpecificData.u16CRC)
+            {
+                //Initialize the Product specific data with default values.
+                bDefaultInitialize = true;
+                bUpdateDataInEEPROM = true;
+            }
+        }
+
+    }
+    else
+    {
+        /*
+         * If the signatures doesn't match GCU will assume that the
+         * PS version in device is 0 and it will read the data accordingly.
+         * even if the version is not 0 the CRC will not match and the
+         * PS data will be initialized with default values.*/
+        stPSVersion.u32Signature1 = PRODUCT_DATA_SIGNATURE1;
+        stPSVersion.u32Signature2 = PRODUCT_DATA_SIGNATURE2;
+        stPSVersion.u32PSVersion = PRODUCT_SPECIFIC_DATA_VERSION;
+
+        bUpdateDataInEEPROM = true;
+        bDefaultInitialize = true;
+
+        EGR_MON_TIME_LOG_t  stNvEgrTimeLog;
+        _hal.Objeeprom.BlockingRead(PRODUCT_SPECIFIC_AREA_START_ADDR, (uint8_t*) &stNvEgrTimeLog, sizeof(EGR_MON_TIME_LOG_t));
+
+        if(stNvEgrTimeLog.u16CRC !=  CRC16::ComputeCRCGeneric((uint8_t *)&stNvEgrTimeLog, (sizeof(EGR_MON_TIME_LOG_t) - sizeof(uint16_t))
+                                                               , CRC_MEMORY_SEED))
+        {
+            //Initialize the Product specific data with default values.
+            bDefaultInitialize = true;
+        }
+        else
+        {
+            bDefaultInitialize = false;
+            _stProductSpecificData.u16ProductParam[PS_EGR_FAULT_TIMER] = (uint16_t)stNvEgrTimeLog.u32Time72HrsEgrFault_min;
+            _stProductSpecificData.u16ProductParam[PS_EGR_HEAL_TIMER] = (uint16_t)stNvEgrTimeLog.u32Time40HrsEgrFault_min;
+            _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_SHUTDOWN_TIMER] =FAULT_PRESENT_MONITORING_TIME_MINUTES;
+            _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_WARNING_TIMER] = EGR_WARNING_INDUCEMENT_LEVEL_TIME;
+            _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_HEAL_TIMER] = FAULT_RESET_MONITORING_TIME_MINUTES;
+            _stProductSpecificData.u8ProductParam[PS_EGR_TIMERS_ENABLE] = CFGZ_DISABLE;
+
+        }
+
+
+    }
+
+
+    if(bDefaultInitialize)
+    {
+        bDefaultInitialize = false;
+        _stProductSpecificData.u16ProductParam[PS_EGR_FAULT_TIMER] = 0;
+        _stProductSpecificData.u16ProductParam[PS_EGR_HEAL_TIMER] = 0;
+        _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_SHUTDOWN_TIMER] =FAULT_PRESENT_MONITORING_TIME_MINUTES;
+        _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_WARNING_TIMER] = EGR_WARNING_INDUCEMENT_LEVEL_TIME;
+        _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_HEAL_TIMER] = FAULT_RESET_MONITORING_TIME_MINUTES;
+        _stProductSpecificData.u8ProductParam[PS_EGR_TIMERS_ENABLE] = CFGZ_DISABLE;
+
+    }
+#if DUMMY_PRODUCT_SPECIFIC
+    memset((uint8_t*)_stProductSpecificData.u8Dummy,0xFF, sizeof( _stProductSpecificData.u8Dummy));
+#endif
+
+    if(bUpdateDataInEEPROM)
+    {
+        bUpdateDataInEEPROM = false;
+
+        _stProductSpecificData.u16CRC =CRC16::ComputeCRCGeneric((uint8_t *)&_stProductSpecificData, sizeof(LATEST_PRODUCT_SPECIFIC_DATA_t) - sizeof(uint16_t)
+                                                                , CRC_MEMORY_SEED);
+        _hal.Objeeprom.RequestWrite(PRODUCT_SPECIFIC_AREA_START_ADDR, (uint8_t*)&_stProductSpecificData, sizeof(LATEST_PRODUCT_SPECIFIC_DATA_t), NULL);
+        _hal.Objeeprom.RequestWrite(PRODUCT_SPECIFIC_DATA_VERSION_ADDR - sizeof(stPSVersion), (uint8_t*)&stPSVersion, sizeof(stPSVersion), NULL);
+    }
+
 }
 
 bool CFGZ::IsC03Error()
@@ -160,6 +267,11 @@ void CFGZ::Update(void)
             _bConfigWritten = false;
         }
     }
+}
+
+void  CFGZ::GetProductSpecificData(LATEST_PRODUCT_SPECIFIC_DATA_t* ProductData)
+{
+    memcpy(ProductData, (uint8_t*)&_stProductSpecificData, sizeof(LATEST_PRODUCT_SPECIFIC_DATA_t) );
 }
 
 BSP_STATUS_t CFGZ::GetCFGZ_VerificationStatus(void)
@@ -869,4 +981,86 @@ bool CFGZ::IsOilTemperatureConfigured()
 {
     return ((GetEngType() != CFGZ::CFGZ_CONVENTIONAL)
             && (GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU) == CFGZ::CFGZ_ENABLE));
+}
+
+float CFGZ::GetProductSpecificData(PRODUCT_SPECIFIC_PARAM_FLOAT32_t eProductData)
+{
+    float f32ProductData = 0.0f;
+    if(eProductData < PS_FLOAT32_LAST)
+    {
+        f32ProductData =  _stProductSpecificData.f32ProductParam[eProductData];
+    }
+
+    return f32ProductData;
+}
+
+
+uint16_t CFGZ::GetProductSpecificData(PRODUCT_SPECIFIC_PARAM_UINT16_t eProductData)
+{
+    uint16_t u16ProductData = 0U;
+    if(eProductData < PS_UINT16_LAST)
+    {
+        u16ProductData = _stProductSpecificData.u16ProductParam[eProductData];
+    }
+
+    return u16ProductData;
+}
+
+uint8_t CFGZ::GetProductSpecificData(PRODUCT_SPECIFIC_PARAM_8_t eProductData)
+{
+    uint8_t u8ProductData = 0U;
+    if(eProductData < PS_UINT8_LAST)
+    {
+        u8ProductData =  _stProductSpecificData.u8ProductParam[eProductData];
+    }
+
+    return u8ProductData;
+}
+
+void CFGZ::WriteProductSpecificData(LATEST_PRODUCT_SPECIFIC_DATA_t* ProductData)
+{
+
+    memcpy((uint8_t*)&_stProductSpecificData, ProductData, sizeof(LATEST_PRODUCT_SPECIFIC_DATA_t));
+#if DUMMY_PRODUCT_SPECIFIC
+    memset((uint8_t*)_stProductSpecificData.u8Dummy,0xFF, sizeof( _stProductSpecificData.u8Dummy));
+#endif
+
+    _stProductSpecificData.u16CRC  = CRC16::ComputeCRCGeneric((uint8_t*)&_stProductSpecificData,
+                                               sizeof(LATEST_PRODUCT_SPECIFIC_DATA_t) - (sizeof(uint16_t)),
+                                               CRC_MEMORY_SEED);
+
+    _hal.Objeeprom.RequestWrite(PRODUCT_SPECIFIC_AREA_START_ADDR , (uint8_t*)&_stProductSpecificData, sizeof(LATEST_PRODUCT_SPECIFIC_DATA_t),NULL);
+
+}
+
+uint16_t CFGZ::GetEGRShutdownTimer()
+{
+    uint16_t u16EGRShutdownTimer = FAULT_PRESENT_MONITORING_TIME_MINUTES;
+    if(_stProductSpecificData.u8ProductParam[PS_EGR_TIMERS_ENABLE] == CFGZ::CFGZ_ENABLE)
+    {
+        u16EGRShutdownTimer = _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_SHUTDOWN_TIMER];
+    }
+    return u16EGRShutdownTimer;
+}
+
+
+uint16_t CFGZ::GetEGRWarningTimer()
+{
+    uint16_t u16EGRWarningTimer = EGR_WARNING_INDUCEMENT_LEVEL_TIME;
+    if(_stProductSpecificData.u8ProductParam[PS_EGR_TIMERS_ENABLE] == CFGZ::CFGZ_ENABLE)
+    {
+        u16EGRWarningTimer = _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_WARNING_TIMER];
+    }
+    return u16EGRWarningTimer;
+}
+
+uint16_t CFGZ::GetEGRHealTimer()
+{
+    uint16_t u16EGRHealTimer = FAULT_RESET_MONITORING_TIME_MINUTES;
+    if(_stProductSpecificData.u8ProductParam[PS_EGR_TIMERS_ENABLE] == CFGZ::CFGZ_ENABLE)
+    {
+        u16EGRHealTimer = _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_HEAL_TIMER];
+    }
+
+    return u16EGRHealTimer;
 }

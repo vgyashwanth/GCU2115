@@ -38,6 +38,16 @@
 #define PULSE_IP_SENSOR    A_SENSE::MPU_TYPE
 #define DUMMY_ITEMS        1U
 
+#define DUMMY_PRODUCT_SPECIFIC (3U)
+
+/* EGR monitoring config */
+#define FAULT_PRESENT_MONITORING_TIME_MINUTES (72U*60U) //in minutes
+#define EGR_WARNING_INDUCEMENT_LEVEL_TIME     (36U*60U) //in minutes
+#define FAULT_RESET_MONITORING_TIME_MINUTES   (40U*60U) //in minutes
+
+#define PRODUCT_DATA_SIGNATURE1  0x12345678
+#define PRODUCT_DATA_SIGNATURE2  0x9abcdef0
+
 class CFGZ
 {
   public:
@@ -871,6 +881,78 @@ class CFGZ
         ECU_162,
     }ENGINE_TYPES_t;
 
+        /*
+     * Product specific area initial version
+     * i.e. version 0 . Version 1 onwards will be
+     * represented in the form of product specific
+     * structures
+     * Even though this version is old this is
+     * still required to port old info
+     * into new structure to avoid data loss*/
+    typedef struct
+    {
+        uint32_t u32Time72HrsEgrFault_min;
+        uint32_t u32Time40HrsEgrFault_min;
+        uint8_t u8Dummy[2];
+        uint16_t u16CRC;
+    }EGR_MON_TIME_LOG_t;
+
+
+    typedef enum
+    {
+        PS_FLOAT32_LAST
+    }PRODUCT_SPECIFIC_PARAM_FLOAT32_t;
+
+    typedef enum
+    {
+        PS_EGR_FAULT_TIMER,
+        PS_EGR_HEAL_TIMER,
+        PS_EGR_CONFIGURED_SHUTDOWN_TIMER,
+        PS_EGR_CONFIGURED_WARNING_TIMER,
+        PS_EGR_CONFIGURED_HEAL_TIMER,
+        PS_UINT16_LAST
+    }PRODUCT_SPECIFIC_PARAM_UINT16_t;
+
+
+    typedef enum
+    {
+        PS_EGR_TIMERS_ENABLE,
+        PS_UINT8_LAST
+    }PRODUCT_SPECIFIC_PARAM_8_t;
+
+    #define PRODUCT_SPECIFIC_DATA_VERSION          (1U)
+
+
+    /*
+     * This structure represents the latest product specific data structure,
+     * If there is a new vesion in future then this structure can be copied and it
+     * will be named as PRODUCT_SPECIFIC_DATA_V1_t and the new structure will be
+     * defined in LATEST_PRODUCT_SPECIFIC_DATA_t.
+     * The size parameter of the arrays will change in PRODUCT_SPECIFIC_DATA_V1_t
+     * Suppose there is an uint16 parameter addition in v2 then the number of
+     * uint16 variables in V1 struct should be changed from PS_UINT16_LAST to
+     * PS_EGR_CONFIGURED_HEAL_TIMER - PS_EGR_FAULT_TIMER + 1
+     * or PS_NEWLY_ADDED_PARAM - PS_EGR_FAULT_TIMER.
+     * */
+    typedef struct __attribute__((packed))
+    {
+        float    f32ProductParam[PS_FLOAT32_LAST];
+        uint16_t u16ProductParam[PS_UINT16_LAST];
+        uint8_t  u8ProductParam[PS_UINT8_LAST];
+#if DUMMY_PRODUCT_SPECIFIC
+        uint8_t u8Dummy[DUMMY_PRODUCT_SPECIFIC];
+#endif
+        uint16_t u16CRC;
+    }LATEST_PRODUCT_SPECIFIC_DATA_t;
+
+
+    typedef struct
+    {
+        uint32_t u32Signature1;
+        uint32_t u32PSVersion;
+        uint32_t u32Signature2;
+    }PS_VERSION_t;
+
     /**
      * Constructor, initiates this module.
      * @param : None
@@ -976,6 +1058,76 @@ class CFGZ
     bool IsCLNTTempJ1939Configured(void);
     
     bool IsOilTemperatureConfigured(void);
+
+   /**
+   * This function is used to read the whole Product Specific Data
+   * from External EEPROM and store the values in the structure
+   * whose address is shared via the argument.
+   * @return,
+   */
+   void  GetProductSpecificData(LATEST_PRODUCT_SPECIFIC_DATA_t* ProductData);
+
+
+   /**
+    * This function is used to get the Product Specific parameter value of float type.
+    * @eparam   : Parameter enum value
+    * @return  : Value of the Parameter
+    */
+   float GetProductSpecificData(PRODUCT_SPECIFIC_PARAM_FLOAT32_t eProductData);
+
+   /**
+    * This function is used to get the Product Specific parameter value of uint16 type.
+    * @eparam   : Parameter enum value
+    * @return  : Value of the Parameter
+    */
+   uint16_t  GetProductSpecificData(PRODUCT_SPECIFIC_PARAM_UINT16_t eProductData);
+
+   /**
+    * This function is used to get the Product Specific parameter value of uint8 type.
+    * @eparam   : Parameter enum value
+    * @return  : Value of the Parameter
+    */
+   uint8_t  GetProductSpecificData(PRODUCT_SPECIFIC_PARAM_8_t eProductData);
+
+
+   /**
+    * This function is used to request to write the Product specific
+    * data in External EEPROM .
+    * @param  : PRODUCT_SPECIFIC_DATA_t : Pointer of the data structure
+    */
+   void WriteProductSpecificData(LATEST_PRODUCT_SPECIFIC_DATA_t* ProductData);
+
+
+   /**
+    * This function is used to get the value of EGR Shutdown
+    * Timer. If the enable timers parameter is yes/true then GCU
+    * returns the value of Timers which is stored in Product specific region
+    * or the configured values. If the enable timers is disabled then
+    * default values are considered.
+    * @return  : Value of the EGR Shutdown Timer
+    */
+   uint16_t GetEGRShutdownTimer();
+
+   /**
+    * This function is used to get the value of EGR Warning
+    * Timer. If the enable timers parameter is yes/true then GCU
+    * returns the value of Timers which is stored in Product specific region
+    * or the configured values. If the enable timers is disabled then
+    * default values are considered.
+    * @return  : Value of the EGR Warning Timer
+    */
+   uint16_t GetEGRWarningTimer();
+
+   /**
+    * This function is used to get the value of EGR Heal
+    * Timer. If the enable timers parameter is yes/true then GCU
+    * returns the value of Timers which is stored in Product specific region
+    * or the configured values. If the enable timers is disabled then
+    * default values are considered.
+    * @return  : Value of the EGR Heal Timer
+    */
+   uint16_t GetEGRHealTimer();
+
 private:
     /**
     * Reference object of DFLASH class.
@@ -1127,6 +1279,8 @@ private:
 
     void prvSetPassword();
 
+    void prvLoadProductSpecificData();
+    
     /*
      * The following structure is "firmware metadata".
      * This will be stored as the last few bytes in the firmware area.
@@ -1142,6 +1296,7 @@ private:
     } CFGZ_METADATA_t;
 
     CFGZ_METADATA_t strCFGZMetadata;
+    LATEST_PRODUCT_SPECIFIC_DATA_t _stProductSpecificData;
     bool _bDflashCallbackRcvd;
     bool _bConfigWritten;
     MISC_PARAM_t _stMiscParam;

@@ -167,7 +167,7 @@ public:
         MB_EGR_FAULT_NOTIFICATION_INFO = 0X4024,
         MB_EGR_FAULT_NOTIFICATION_TIME,
         MB_EGR_HEAL_TIME,
-        MB_EGR_SHUTDOWN_INFO,
+        MB_EGR_ALARMS_INFO,
 
 /* Expected start address for the first parameter over modbus is 0x4000.
 This start address is subtracted while parsing the modbus packet so the

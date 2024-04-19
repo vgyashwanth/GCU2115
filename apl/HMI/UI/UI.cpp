@@ -85,6 +85,7 @@ uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] =
  LEAFNODES_IN_LOP_FROM_ECU,
  LEAFNODES_IN_COOL_TEMP_ECU,
  LEAFNODES_IN_LOT_ECU,
+ LEAFNODES_IN_EGR_FAULT_MON,
  LEAFNODES_IN_MAINT_ALARM,
  LEAFNODES_IN_ALARM_DUE_DATE,
  LEAFNODES_IN_ENG_SR_NO,
@@ -442,6 +443,9 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "LUBE OIL PRESSURE",
         "ENG TEMPERATURE",
         "LUBE OIL TEMP",
+
+        //EGR
+        "EGR TIMERS",
 
         //Maintenance
         "MAINT ALARM",
@@ -984,6 +988,12 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "OIL TEMP SHDN TH",
         "OIL TEMP WARN EN",
         "OIL TEMP WARN TH",
+
+        //EGR Timers
+        "ENABLE TIMERS",
+        "FAULT SHUTDOWN TIMER",
+        "FAULT WARNING TIMER",
+        "HEAL TIMER",
 
         //"MAINT ALARM",
         "ACTION",
@@ -1599,9 +1609,9 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_ECU_SOURCE_ADDRESS] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ:: ID_ECU_SOURCE_ADDRESS), strLeafNode[_u8LanguageArrayIndex][SID_ECU_SOURCE_ADDR], "", "%u", (uint8_t)0, (uint8_t)253, CEditableItem::PIN1_ALLOWED );
 
     ArrEditableItem[INDEX_OF_LOP_SHUTDOWN_EN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_SHUTDOWN_EN), strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_SHUTDOWN], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_LOP_SHUTDOWN_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_SHUTDOWN_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_SHUTDOWN_THRESH], "Bar", "%f", (float)0, (float)5.0 , CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_LOP_SHUTDOWN_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_SHUTDOWN_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_SHUTDOWN_THRESH], "Bar", "%f", (float)0.0, (float)9.8 , CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_LOP_WARNING_EN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_WARNING_EN), strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_WARNING], "", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_PIN2_ALLOWED );
-    ArrEditableItem[INDEX_OF_LOP_WARNING_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_WARNING_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_WARNING_THRESH], "Bar", "%f", (float)0, (float)5.0 , CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_LOP_WARNING_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_LOP_WARNING_THRESH),strLeafNode[_u8LanguageArrayIndex][SID_LOP_SENS_ECU_WARNING_THRESH], "Bar", "%f", (float)0.2, (float)10.0 , CEditableItem::PIN1_ALLOWED );
 
     ArrEditableItem[INDEX_OF_HWT_SHUTDOWN_EN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_SHUTDOWN_EN),strLeafNode[_u8LanguageArrayIndex][SID_CLNT_TEMP_SHUTDOWN_EN], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE],2, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_HWT_SHUTDOWN_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CLNT_TEMP_SHUTDOWN_THRESH), strLeafNode[_u8LanguageArrayIndex][SID_CLNT_TEMP_SHUTDOWN_THRESH], arrUnit[ID_DEG_C], "%.0f", (float)26, (float)200, (float)1, CEditableItem::PIN1_ALLOWED);
@@ -1612,6 +1622,11 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_HIGH_OIL_TEMP_SHUTDOWN_THRESH_FROM_ECU] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_HIGH_OIL_TEMP_FROM_ECU_SHUTDOWN_THRESH), strLeafNode[_u8LanguageArrayIndex][SID_OIL_TEMP_SHUTDOWN_THRESH], arrUnit[ID_DEG_C], "%.0f", (float)26, (float)200, (float)1, CEditableItem::PIN1_ALLOWED);
     ArrEditableItem[INDEX_OF_HIGH_OIL_TEMP_WARNING_EN_FROM_ECU] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU_WARNING_EN),strLeafNode[_u8LanguageArrayIndex][SID_OIL_TEMP_WARNING_EN], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE],2, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_HIGH_OIL_TEMP_WARNING_THRESH_FROM_ECU] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_HIGH_OIL_TEMP_FROM_ECU_WARNING_THRESH), strLeafNode[_u8LanguageArrayIndex][SID_OIL_TEMP_WARNING_THRESH], arrUnit[ID_DEG_C], "%.0f", (float)25, (float)199, (float)1, CEditableItem::PIN1_ALLOWED);
+    
+    ArrEditableItem[INDEX_OF_ENABLE_EGR_TIMERS] = CEditableItem((uint32_t)_objcfgz.GetProductSpecificData(CFGZ::PS_EGR_TIMERS_ENABLE),strLeafNode[_u8LanguageArrayIndex][SID_ENABLE_EGR_TIMERS], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO], 2, CEditableItem::PIN3_ALLOWED );
+    ArrEditableItem[INDEX_OF_FAULT_SHUTDOWN_TIMER] = CEditableItem((uint16_t)_objcfgz.GetProductSpecificData(CFGZ::PS_EGR_CONFIGURED_SHUTDOWN_TIMER), strLeafNode[_u8LanguageArrayIndex][SID_FAULT_SHUTDOWN_TIMER], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)FAULT_PRESENT_MONITORING_TIME_MINUTES, CEditableItem::PIN3_ALLOWED);
+    ArrEditableItem[INDEX_OF_FAULT_WARNING_TIMER] = CEditableItem((uint16_t)_objcfgz.GetProductSpecificData(CFGZ::PS_EGR_CONFIGURED_WARNING_TIMER), strLeafNode[_u8LanguageArrayIndex][SID_FAULT_WARNING_TIMER], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)EGR_WARNING_INDUCEMENT_LEVEL_TIME, CEditableItem::PIN3_ALLOWED);
+    ArrEditableItem[INDEX_OF_HEAL_TIMER] = CEditableItem((uint16_t)_objcfgz.GetProductSpecificData(CFGZ::PS_EGR_CONFIGURED_HEAL_TIMER), strLeafNode[_u8LanguageArrayIndex][SID_HEAL_TIMER], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)FAULT_RESET_MONITORING_TIME_MINUTES, CEditableItem::PIN3_ALLOWED);
 
     ArrEditableItem[INDEX_OF_MAINT_ALARM_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MAINT_ALARM_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_MAINT_ALARM_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NW], 2, CEditableItem::PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_MAINT_ALARM_DUE_AT_ENGINE_HOURS] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MAINT_ALARM_DUE_AT_ENGINE_HOURS),strLeafNode[_u8LanguageArrayIndex][SID_MAINT_ALARM_DUE_AT_ENGINE_HOURS], arrUnit[ID_HRS], "%u", (uint16_t)10, (uint16_t)65000, CEditableItem::PIN2_ALLOWED );
@@ -1742,6 +1757,8 @@ void UI::SaveConfigFile()
     uint16_t u16PIN2;
 
     CFGZ::CFGZ_PARAMS_t AllParam;
+    CFGZ::LATEST_PRODUCT_SPECIFIC_DATA_t ProductParam ={};
+    _objcfgz.GetProductSpecificData(&ProductParam);
     if(CEditableItem::IsAnyConfigValueEdited())
     {
         _objDisplay.ClearScreen();
@@ -1762,6 +1779,10 @@ void UI::SaveConfigFile()
             uint16_t id_uint8 = (CFGZ::ID_GENERAL_PROFILE_NAME);
             for (uint16_t i = 0 ; i<=INDEX_OF_MAINT_ALARM_DUE_AT_ENGINE_HOURS ; i++)
             {
+                if( (i>=INDEX_OF_ENABLE_EGR_TIMERS) && (i<=INDEX_OF_HEAL_TIMER) )
+                {
+                    continue;
+                }
                 if(ArrEditableItem[i].dataType == CEditableItem::DT_FLOAT)
                 {
                     AllParam.f32ArrParam[id_float] = (float)ArrEditableItem[i].value.fVal;
@@ -1782,6 +1803,11 @@ void UI::SaveConfigFile()
                     //The conditions that comes to this point of execution are not present.
                 }
             }
+
+            ProductParam.u16ProductParam[CFGZ:: PS_EGR_CONFIGURED_SHUTDOWN_TIMER] = (uint16_t)ArrEditableItem[INDEX_OF_FAULT_SHUTDOWN_TIMER].value.u16Val;
+            ProductParam.u16ProductParam[CFGZ:: PS_EGR_CONFIGURED_WARNING_TIMER] = (uint16_t)ArrEditableItem[INDEX_OF_FAULT_WARNING_TIMER].value.u16Val;
+            ProductParam.u16ProductParam[CFGZ:: PS_EGR_CONFIGURED_HEAL_TIMER] = (uint16_t)ArrEditableItem[INDEX_OF_HEAL_TIMER].value.u16Val;
+            ProductParam.u8ProductParam[CFGZ:: PS_EGR_TIMERS_ENABLE] = (uint8_t)ArrEditableItem[INDEX_OF_ENABLE_EGR_TIMERS].value.u8Val;
 
             u8Month = (uint8_t)ArrEditableItem[INDEX_OF_ALARM_DUE_DATE_SERVICE_DATE].value.stDate.u8Month;
             u16Year = (uint16_t)ArrEditableItem[INDEX_OF_ALARM_DUE_DATE_SERVICE_DATE].value.stDate.u16Year;
@@ -1871,7 +1897,7 @@ void UI::SaveConfigFile()
         _objcfgz.WriteActiveProfile(&AllParam);
 
     }
-
+    _objcfgz.WriteProductSpecificData(&ProductParam);
     _objcfgz.ApplyConfigChanges();
     uiState = UI_STATE_INITIALIZING;
 }

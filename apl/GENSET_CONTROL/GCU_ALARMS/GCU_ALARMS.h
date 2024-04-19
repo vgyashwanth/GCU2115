@@ -151,8 +151,7 @@ public:
         DIG_IN_N,
         DIG_IN_O,
         DIG_IN_P,
-        DIG_IN_Q,
-        DIG_IN_R,
+
         REMOTE_SS,
         FAIL_TO_STOP,
         FAIL_TO_START,
@@ -231,8 +230,7 @@ public:
         Auxilary_Input_N_id,
         Auxilary_Input_O_id,
         Auxilary_Input_P_id,
-        Auxilary_Input_Q_id,
-        Auxilary_Input_R_id,
+
         Fail_To_Stop_id,
         Fuel_Theft_id,
         Load_Unbalance_id,
@@ -621,8 +619,7 @@ private:
         DIG_INPUT_N,
         DIG_INPUT_O,
         DIG_INPUT_P,
-        DIG_INPUT_Q,
-        DIG_INPUT_R,
+
         LOW_FUEL_LVL_SWITCH_STATUS,
         LLOP_SWITCH_STATUS,
         HWT_SWITCH_STATUS,

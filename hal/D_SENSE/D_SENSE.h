@@ -43,8 +43,6 @@ public:
          DI_N_USER_CONFIGURED           ,
          DI_O_USER_CONFIGURED           ,
          DI_P_USER_CONFIGURED           ,
-         DI_Q_USER_CONFIGURED           ,
-         DI_R_USER_CONFIGURED           ,
          DI_LOW_FUEL_LEVEL_SWITCH       ,
          DI_LOW_LUBE_OIL_PRESSURE_SWITCH,
          DI_HIGH_ENGINE_TEMP_SWITCH     ,
@@ -175,8 +173,6 @@ public:
         DI_N,
         DI_O,
         DI_P,
-        DI_Q,
-        DI_R,
         DI_END
     } INPUTS_t;
 

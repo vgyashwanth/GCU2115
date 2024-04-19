@@ -373,8 +373,9 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
                                         uint8_t u8Activation, uint8_t u8ActivationDelay,
                                         uint8_t u8AlarmAction, uint8_t u8LoggingID)
 {
-    if((u8InputIndex >= DIG_IN_A )&&(u8InputIndex <= DIG_IN_R )
-               &&(u8InputSource != CFGZ:: CFGZ_USER_CONFIGURED_SENSOR))
+    if((u8InputIndex >= DIG_IN_A )&&(u8InputIndex <= DIG_IN_P)
+               &&(u8InputSource != CFGZ:: CFGZ_USER_CONFIGURED_SENSOR)
+               &&(u8InputSource != CFGZ:: CFGZ_NOT_CONFIGURED))
        {
              ArrAlarmMonitoring[u8InputIndex].bEnableMonitoring = true;
              ArrAlarmMonitoring[u8InputIndex].u8LoggingID = NoAlarm_id;
@@ -1051,7 +1052,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         break;
         case VBAT_OV:
         {
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_HIGH_VOLT_ACTION));
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true; // (_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_HIGH_VOLT_ACTION));
             prvSetAlarmAction_NoWESN(u8AlarmIndex,_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_HIGH_VOLT_ACTION));
             ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
             ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
@@ -1064,7 +1065,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         break;
         case VBAT_UV:
         {
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_LOW_VOLT_ACTION));
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true; // (_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_LOW_VOLT_ACTION));
             prvSetAlarmAction_NoWESN(u8AlarmIndex,_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_LOW_VOLT_ACTION));
             ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
             ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = false;
@@ -1674,26 +1675,6 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
                 }
             }
             break;
-        case DIG_IN_Q:
-        {
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTION), GCU_ALARMS::Auxilary_Input_Q_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_Q];
-                prvSetAlarmAction_NoWESN(DIG_IN_Q, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_Q_ACTION));
-            }
-        }
-        break;
-        case DIG_IN_R:
-        {
-            prvAssignInputSettings(u8AlarmIndex, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_SOURCE), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTIVATION), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTIVATION_DELAY), _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTION), GCU_ALARMS::Auxilary_Input_R_id);
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_SOURCE) == CFGZ::CFGZ_USER_CONFIGURED_SENSOR)
-            {
-                ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DIG_INPUT_R];
-                prvSetAlarmAction_NoWESN(DIG_IN_R, _cfgz.GetCFGZ_Param(CFGZ::ID_DIG_IN_R_ACTION));
-            }
-        }
-        break;
         case REMOTE_SS:
         {
             //Implemented Completely in prvAssignInputSettings func.
@@ -2117,9 +2098,6 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[DIG_INPUT_N].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_N_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
     _ArrAlarmValue[DIG_INPUT_O].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_O_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
     _ArrAlarmValue[DIG_INPUT_P].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_P_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
-    _ArrAlarmValue[DIG_INPUT_Q].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_Q_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
-    _ArrAlarmValue[DIG_INPUT_R].u8Value = _hal.DigitalSensors.GetDigitalSensorState(DigitalSensor::DI_R_USER_CONFIGURED) == DigitalSensor::SENSOR_LATCHED;
-
 
     /*
      * By SuryaPranayTeja.BVV
@@ -2346,12 +2324,6 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
         case Auxilary_Input_P_id:
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_P].bAlarmActive;
             break;
-        case Auxilary_Input_Q_id:
-            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_Q].bAlarmActive;
-            break;
-        case Auxilary_Input_R_id:
-            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DIG_IN_R].bAlarmActive;
-            break;        
         case Fail_To_Stop_id :
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[FAIL_TO_STOP].bAlarmActive;
             break;
@@ -3151,11 +3123,12 @@ void GCU_ALARMS::prvActDeactOutput(bool bOutputCondition, ACTUATOR::ACTUATOR_TYP
     }
 }
 
+//bsp_io_level_t eDOJState = BSP_IO_LEVEL_LOW;
 void GCU_ALARMS::prvUpdateOutputs()
 {
     prvActDeactOutput(_bOPSounderAlarm, ACTUATOR::ACT_AUDIBLE_ALARM);
-    prvActDeactOutput(ArrAlarmMonitoring[VBAT_OV].bResultInstant, ACTUATOR::ACT_VBAT_OV);
-    prvActDeactOutput(ArrAlarmMonitoring[VBAT_UV].bResultInstant, ACTUATOR::ACT_VBAT_UV);
+    prvActDeactOutput(ArrAlarmMonitoring[VBAT_OV].bResultInstant && (_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_HIGH_VOLT_ACTION) != CFGZ::CFGZ_ACTION_NONE_NoWESN) , ACTUATOR::ACT_VBAT_OV);
+    prvActDeactOutput(ArrAlarmMonitoring[VBAT_UV].bResultInstant && (_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_LOW_VOLT_ACTION) != CFGZ::CFGZ_ACTION_NONE_NoWESN), ACTUATOR::ACT_VBAT_UV);
     prvActDeactOutput(ArrAlarmMonitoring[CA_FAIL].bShutdownLatched, ACTUATOR::ACT_CA_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[CA_FAIL].bWarningLatched, ACTUATOR::ACT_CA_WARNING);
     //Activate and Deactivate of ACT_CLOSE_GEN_CONTACTOR is done in BASE_MODES
@@ -3182,8 +3155,6 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_N].bResultInstant, ACTUATOR::ACT_DIG_IN_N);
     prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_O].bResultInstant, ACTUATOR::ACT_DIG_IN_O);
     prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_P].bResultInstant, ACTUATOR::ACT_DIG_IN_P);
-    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_Q].bResultInstant, ACTUATOR::ACT_DIG_IN_Q);
-    prvActDeactOutput(ArrAlarmMonitoring[DIG_IN_R].bResultInstant, ACTUATOR::ACT_DIG_IN_R);
     prvActDeactOutput(ArrAlarmMonitoring[ESTOP].bResultLatched, ACTUATOR::ACT_E_STOP);
     //Activate and Deactivate of ACT_STOP_SOLENOID is done in START_STOP
     prvActDeactOutput(ArrAlarmMonitoring[FAIL_TO_START].bResultLatched, ACTUATOR::ACT_FAIL_TO_START);
@@ -3230,6 +3201,21 @@ void GCU_ALARMS::prvUpdateOutputs()
     //Activate and Deactivate of ACT_PREHEAT is done in START_STOP
 //           ACT_ECU_START,
     prvActDeactOutput(ArrAlarmMonitoring[ALARM_MIL_LAMP].bResultInstant, ACTUATOR::ACT_MIL);
+
+
+    /* Below code was used for HW testing. Commenting it to use
+     * later if necessary. Can be removed once HW is finalized. */
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_06_PIN_01, eDOJState);
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_07_PIN_11, eDOJState);
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_04_PIN_13, eDOJState);
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_02_PIN_14, eDOJState);
+//
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_06_PIN_03, eDOJState);
+//    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_06_PIN_02, eDOJState);
+
+    prvActDeactOutput(ArrAlarmMonitoring[VBAT_OV].bResultInstant || ArrAlarmMonitoring[VBAT_UV].bResultInstant, ACTUATOR::ACT_BATTERY_UNHEALTHY);
+    prvActDeactOutput(_bAutomaticModeSwitchStatus, ACTUATOR::ACT_AUTO_MODE_SW_OUTPUT);
+    prvActDeactOutput(prvIsEgrFaultPresent(), ACTUATOR::ACT_EGR);
 }
 
 

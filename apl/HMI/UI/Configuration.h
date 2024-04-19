@@ -28,8 +28,8 @@
 
 //#define SUBMENUS_IN_MODULE                  6
 #define SUBMENUS_IN_MODULE                  7
-#define SUBMENUS_IN_INPUTS                 18
-#define SUBMENUS_IN_OUTPUTS                 9
+#define SUBMENUS_IN_INPUTS                 16
+#define SUBMENUS_IN_OUTPUTS                16
 #define SUBMENUS_IN_TIMERS                  2
 #define SUBMENUS_IN_GENERATOR               6
 #define SUBMENUS_IN_MAINS                   5
@@ -63,8 +63,7 @@
 #define LEAFNODES_IN_AUX_S2_RES_DIG_N      30
 #define LEAFNODES_IN_AUX_S3_DIG_O          27
 #define LEAFNODES_IN_AUX_S4_DIG_P          22
-#define LEAFNODES_IN_DIG_IN_Q               5
-#define LEAFNODES_IN_DIG_IN_R               5
+
  /*Outputs*/
 #define LEAFNODES_IN_OUT_A                  2
 #define LEAFNODES_IN_OUT_B                  2
@@ -73,8 +72,17 @@
 #define LEAFNODES_IN_OUT_E                  2
 #define LEAFNODES_IN_OUT_F                  2
 #define LEAFNODES_IN_OUT_G                  2
+
 #define LEAFNODES_IN_OUT_H                  2
 #define LEAFNODES_IN_OUT_I                  2
+
+#define LEAFNODES_IN_OUT_J                  2
+#define LEAFNODES_IN_OUT_K                  2
+#define LEAFNODES_IN_OUT_L                  2
+#define LEAFNODES_IN_OUT_M                  2
+#define LEAFNODES_IN_OUT_N                  2
+#define LEAFNODES_IN_OUT_O                  2
+#define LEAFNODES_IN_OUT_P                  2
  /*Timer*/
 #define LEAFNODES_IN_CRANKING_TIMER         4
 #define LEAFNODES_IN_GENERAL_TIMER         13
@@ -426,18 +434,6 @@
        SID_AUX_S4_DIG_P_TANK_LENGTH_2,
        SID_AUX_S4_DIG_P_TANK_HEIGHT_2,
 
-       SID_DIG_IN_Q_SOURCE,
-       SID_DIG_IN_Q_POLARITY,
-       SID_DIG_IN_Q_ACTION,
-       SID_DIG_IN_Q_ACTIVATION,
-       SID_DIG_IN_Q_ACTIVATION_DELAY,
-
-       SID_DIG_IN_R_SOURCE,
-       SID_DIG_IN_R_POLARITY,
-       SID_DIG_IN_R_ACTION,
-       SID_DIG_IN_R_ACTIVATION,
-       SID_DIG_IN_R_ACTIVATION_DELAY,
-
        SID_OUT_A_SOURCE,
        SID_OUT_A_ON_ACTIVATION,
        SID_OUT_B_SOURCE,
@@ -456,6 +452,21 @@
        SID_OUT_H_ON_ACTIVATION,
        SID_OUT_I_SOURCE,
        SID_OUT_I_ON_ACTIVATION,
+
+       SID_OUT_J_SOURCE,
+       SID_OUT_J_ON_ACTIVATION,
+       SID_OUT_K_SOURCE,
+       SID_OUT_K_ON_ACTIVATION,
+       SID_OUT_L_SOURCE,
+       SID_OUT_L_ON_ACTIVATION,
+       SID_OUT_M_SOURCE,
+       SID_OUT_M_ON_ACTIVATION,
+       SID_OUT_N_SOURCE,
+       SID_OUT_N_ON_ACTIVATION,
+       SID_OUT_O_SOURCE,
+       SID_OUT_O_ON_ACTIVATION,
+       SID_OUT_P_SOURCE,
+       SID_OUT_P_ON_ACTIVATION,
 
        SID_CRANKING_TIMER_CRANK_HOLD_TIME,
        SID_CRANKING_TIMER_CRANK_REST_TIME,
@@ -678,8 +689,7 @@
        ID_AUX_S2_RES_DIG_N,
        ID_AUX_S3_DIG_O_S,
        ID_AUX_S4_DIG_P_S,
-       ID_DIG_IN_Q_S,
-       ID_DIG_IN_R_S,
+
        /*Outputs*/
        ID_OUT_A_S,
        ID_OUT_B_S,
@@ -690,6 +700,14 @@
        ID_OUT_G_S,
        ID_OUT_H_S,
        ID_OUT_I_S,
+
+       ID_OUT_J_S,
+       ID_OUT_K_S,
+       ID_OUT_L_S,
+       ID_OUT_M_S,
+       ID_OUT_N_S,
+       ID_OUT_O_S,
+       ID_OUT_P_S,
        /*Timer*/
        ID_CRANKING_TIMER_S,
        ID_GENERAL_TIMER_S,
@@ -1046,17 +1064,6 @@ enum
     INDEX_OF_AUX_S4_DIG_P_TANK_LENGTH_2,
     INDEX_OF_AUX_S4_DIG_P_TANK_HEIGHT_2,
 
-    INDEX_OF_DIG_IN_Q_SOURCE,
-    INDEX_OF_DIG_IN_Q_POLARITY,
-    INDEX_OF_DIG_IN_Q_ACTION,
-    INDEX_OF_DIG_IN_Q_ACTIVATION,
-    INDEX_OF_DIG_IN_Q_ACTIVATION_DELAY,
-
-    INDEX_OF_DIG_IN_R_SOURCE,
-    INDEX_OF_DIG_IN_R_POLARITY,
-    INDEX_OF_DIG_IN_R_ACTION,
-    INDEX_OF_DIG_IN_R_ACTIVATION,
-    INDEX_OF_DIG_IN_R_ACTIVATION_DELAY,
     /*Outputs menu*/
     INDEX_OF_OUT_A_SOURCE,
     INDEX_OF_OUT_A_ON_ACTIVATION,
@@ -1084,6 +1091,22 @@ enum
 
     INDEX_OF_OUT_I_SOURCE,
     INDEX_OF_OUT_I_ON_ACTIVATION,
+
+    INDEX_OF_OUT_J_SOURCE,
+    INDEX_OF_OUT_J_ON_ACTIVATION,
+    INDEX_OF_OUT_K_SOURCE,
+    INDEX_OF_OUT_K_ON_ACTIVATION,
+    INDEX_OF_OUT_L_SOURCE,
+    INDEX_OF_OUT_L_ON_ACTIVATION,
+    INDEX_OF_OUT_M_SOURCE,
+    INDEX_OF_OUT_M_ON_ACTIVATION,
+    INDEX_OF_OUT_N_SOURCE,
+    INDEX_OF_OUT_N_ON_ACTIVATION,
+    INDEX_OF_OUT_O_SOURCE,
+    INDEX_OF_OUT_O_ON_ACTIVATION,
+    INDEX_OF_OUT_P_SOURCE,
+    INDEX_OF_OUT_P_ON_ACTIVATION,
+
     /*Timers menu*/
     INDEX_OF_CRANKING_TIMER_CRANK_HOLD_TIME,
     INDEX_OF_CRANKING_TIMER_CRANK_REST_TIME,

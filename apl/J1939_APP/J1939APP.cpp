@@ -617,7 +617,9 @@ void J1939APP::prvUpdatePGN65280Data(void)
     f32PGN_65280Data[4] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_H_SOURCE))
                 == ACT_Manager::ACT_LATCHED));
 
-    for(uint8_t u8Index = 13 ,u8Local=GCU_ALARMS::DIG_IN_J; u8Local <= GCU_ALARMS::DIG_IN_R; u8Local++)
+    f32PGN_65280Data[5] = 0x1F;  //Reserved
+    f32PGN_65280Data[6] = 0x1F;  //Reserved
+    for(uint8_t u8Index = 13 ,u8Local=GCU_ALARMS::DIG_IN_J; u8Local <= GCU_ALARMS::DIG_IN_P; u8Local++)
     {
         f32PGN_65280Data[u8Index] = ((uint8_t)_gcuAlarm.AlarmResultLatched((GCU_ALARMS::ALARM_LIST_t)u8Local));
         u8Index--;
@@ -1174,9 +1176,8 @@ void J1939APP::prvUpdatePGN65294Data(void)
     UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_N, ALARM_BYTE_7, (float*)&f32PGN_65294Data[0]);
     UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_O, ALARM_BYTE_6, (float*)&f32PGN_65294Data[0]);
     UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_P, ALARM_BYTE_5, (float*)&f32PGN_65294Data[0]);
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_Q, ALARM_BYTE_4, (float*)&f32PGN_65294Data[0]);
-
-    UpdateAlarmRegValue(GCU_ALARMS::DIG_IN_R, ALARM_BYTE_11, (float*)&f32PGN_65294Data[0]);
+    f32PGN_65294Data[ALARM_BYTE_4] = F32_Null; /* reserved */
+    f32PGN_65294Data[ALARM_BYTE_11] = F32_Null; /* reserved */
     f32PGN_65294Data[ALARM_BYTE_10] = F32_Null; /* reserved */
     f32PGN_65294Data[ALARM_BYTE_9] = F32_Null; /* reserved */
     f32PGN_65294Data[ALARM_BYTE_8] = F32_Null; /* reserved */
@@ -1596,6 +1597,8 @@ void J1939APP::Update(bool bDeviceInconfig)
 
     ExtractReadFrame();
     UpdateEngineStartStopDecisions();
+    UpdateInducementFlags();
+    UpdateDEFInducementStrategy();
 
     if((!_bDeviceInConfigMode)&&(_cfgz.GetEngType() != CFGZ::CFGZ_CONVENTIONAL))
     {

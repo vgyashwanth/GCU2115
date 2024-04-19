@@ -2343,6 +2343,15 @@ void J1939APP::UpdateDEFInducementStrategy()
      }
 }
 
+bool J1939APP::IsEGRWarningPresent()
+{
+    return _bIsEGRInducementWarning;
+}
+bool J1939APP::IsEGRShutdownPresent()
+{
+    return _bIsEGRInducementShutdown;
+}
+
 void J1939APP::ResetDEFInducementStatus()
 {
     _bIsDEFLevelLow = false;

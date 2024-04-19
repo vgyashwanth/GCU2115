@@ -158,8 +158,8 @@ public:
     void UpdateInducementFlags(void);
     uint16_t GetSPNIndexFromStartBit(DATABASE_RX_PGN_LIST_t eRxPGN , uint16_t u16StartPos);
     uint16_t GetGenStatusRegister(void);
-
-
+    bool IsEGRWarningPresent();
+    bool IsEGRShutdownPresent();
 
 private:
     #define DM1_DTC_SIZE    4U

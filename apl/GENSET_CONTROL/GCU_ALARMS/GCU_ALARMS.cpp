@@ -4292,7 +4292,10 @@ void GCU_ALARMS::EgrFaultDetection()
                         /* Fault : Temperature Sensor Keep it Outside from the Exhaust Pipe ( 20 to 70 Deg c)-
                                     more than 4 min ECU trigger Error  */
 
-                        _bEgrShutdownLatched = true;
+                        /*
+                         * As per modification request commented following code
+                         * to avoid raising shutdown alarm for EGR_TEMP_SENSOR_OUT_OF_EX_PIPE */
+                        //_bEgrShutdownLatched = true;
                     }
                     else if(u16PulseDetectionCount == 2)
                     {

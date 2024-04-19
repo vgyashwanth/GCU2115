@@ -111,7 +111,8 @@ _ePrvGenSysType(PHASE_3_SYSTEM),
 _u16EarthCurrentDCOffsetSampleCount(0),
 _u16LatchedECurrentOffsetValue(DC_VOLTAGE_OFFSET*V_TO_ADC_SAMPLE),
 _u32ECurrentOffsetAccumulator(0),
-_u16EarthCurrentDCOffsetWindowSize(INIT_DC_OFFSET_WINDOW_SIZE)
+_u16EarthCurrentDCOffsetWindowSize(INIT_DC_OFFSET_WINDOW_SIZE),
+_f32LatchedECurrentOffsetValue(0.0F)
 #if (SUPPORT_CALIBRATION == YES)
 ,_eeprom(Eeprom),
 _stCalibrationData{}

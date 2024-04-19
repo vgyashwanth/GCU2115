@@ -1377,21 +1377,31 @@ void MB_APP::prvUpdateEGRrelatedRegisters(void)
     u16Temp = (uint16_t)_gcuAlarm.GetFaultReset40HrsTimeInMin();
     SetReadRegisterValue(MB_EGR_HEAL_TIME, u16Temp);
 
-    /* Lowe Nibble is used to indicate shutdown info
-       0000B -> No shutdown form EGR
+    /* Lower Nibble is used to indicate EGR alarms info
+       0000B -> No alarm from EGR
+       0001B -> Notification from EGR
+       0010B -> Warning from EGR
        0011B -> Shutdown from EGR
        Upper 3 nibbles reserved
     */
     u16Temp = 0U;
-    if(_gcuAlarm.ShutdownFromEGR())
+    if(gpJ1939 -> IsEGRShutdownPresent())
     {
         u16Temp |= 3U; /* 0011B for shutdown from EGR */
+    }
+    else if(gpJ1939->IsEGRWarningPresent())
+    {
+        u16Temp |= 2U; /* 0010B for warning from EGR */
+    }
+    else if(_gcuAlarm.IsAlarmActive(GCU_ALARMS::EGR_FAULT_NOTIFICATION))
+    {
+        u16Temp |= 1U; /* 0001B for notification from EGR */
     }
     else
     {
         /* 0000B for no shutdown from EGR*/
     }
-    SetReadRegisterValue(MB_EGR_SHUTDOWN_INFO, u16Temp);
+    SetReadRegisterValue(MB_EGR_ALARMS_INFO, u16Temp);
 
 }
 

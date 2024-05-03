@@ -37,10 +37,9 @@
 
 extern J1939APP *gpJ1939;
 MB_APP::KEY_MB_CAN_EVENT_t MB_APP::stMBEvent={};
-MB_APP::MISC_EEPROM_t MB_APP::stEepromMisc = {};
+CFGZ::LATEST_PRODUCT_SPECIFIC_DATA_t ProductData={};
 uint64_t MB_APP::Curr_MB_Valid_Count = 0;
 
-uint16_t MB_APP::MB_Count = 0;
 MB_APP::MB_APP(HAL_Manager &hal, CFGZ &cfgz, GCU_ALARMS &gcuAlarm,
         ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode):
 MODBUS(hal.ObjRS485, _AddressGrpLst),
@@ -69,7 +68,7 @@ _aAddressGrp{
 _AddressGrpLst{_aAddressGrp, MODBUS_ADDRESS_GROUPS},
 _u16TempAlarmVal(0)
 {
-    prvGetMiscParams();
+
 }
 
 void MB_APP::Update()
@@ -692,15 +691,9 @@ void MB_APP::prvUpdateModbusParamInEventLog()
         Curr_MB_Valid_Count = MODBUS::MB_Valid_Count;
         if( Prev_MB_Valid_Count!= Curr_MB_Valid_Count)
         {
-
-            MB_Count++;
-            stEepromMisc.u16Mbcount++;
-            stEepromMisc.u32CRC =(uint16_t) CRC16::ComputeCRCGeneric((uint8_t *)&stEepromMisc,
-                                                         sizeof(MISC_EEPROM_t) - sizeof(uint32_t)
-                                                         , CRC_MEMORY_SEED);
-
-            _hal.Objeeprom.RequestWrite( EXT_EEPROM_MISC_PARAM_START ,
-                                         (uint8_t*)&stEepromMisc, sizeof(MISC_EEPROM_t), NULL);
+            _cfgz.GetProductSpecificData(&ProductData);
+            ProductData.u16ProductParam[CFGZ::PS_MB_COUNT]++;
+            _cfgz.WriteProductSpecificData(&ProductData);
         }
         Prev_MB_Valid_Count = Curr_MB_Valid_Count;
     }
@@ -1220,24 +1213,6 @@ void MB_APP::prvUpdateAlarmRegStatus(uint8_t u8AlarmID, uint8_t u8Offset)
     else if(_gcuAlarm.ArrAlarmMonitoring[u8AlarmID].bEnableNotification)
     {
         _u16TempAlarmVal |= (uint16_t)(ALARM_NOTIFICATION << u8Offset);
-    }
-}
-/*
- * TODO: The function is used to get the Misc params at the time of power on reset.
- * As of 09-11-2022, such misc param was required only in MB_APP.
- * As time progresses, there could be such params in other modules.
- * So need to shift the complete structure and functions to MAIN_UI.
- */
-void MB_APP::prvGetMiscParams()
-{
-    _hal.Objeeprom.BlockingRead( EXT_EEPROM_MISC_PARAM_START ,
-                                           (uint8_t*)&stEepromMisc, sizeof(MISC_EEPROM_t));
-
-    uint32_t u32CRC= CRC16::ComputeCRCGeneric((uint8_t *)&stEepromMisc, sizeof(MISC_EEPROM_t) -sizeof(uint32_t)
-                                                  , CRC_MEMORY_SEED);
-    if(u32CRC != stEepromMisc.u32CRC)
-    {
-        stEepromMisc.u16Mbcount = 0;
     }
 }
 

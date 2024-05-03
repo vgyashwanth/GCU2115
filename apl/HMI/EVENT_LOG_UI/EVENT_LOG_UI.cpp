@@ -203,7 +203,7 @@ void EVENT_LOG_UI::prvDisplayEventScreen()
     // The below is to print the MB count feature available in GC2111.
     // This statements are out of the if condition, so it will be get updated as the count gets updated
     _Disp.gotoxy(GLCD_X(80),GLCD_Y(51));
-    sprintf(arrTemp,"MB: %d",MB_APP::stEepromMisc.u16Mbcount);
+    sprintf(arrTemp,"MB: %d",_cfgz.GetProductSpecificData(CFGZ::PS_EGR_FAULT_TIMER));
     _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
 }
 

@@ -325,6 +325,7 @@ void ALARM_UI::prvDisplayDMScreen()
 
     char arrTemp[32];
     J1939APP::J1939_DM_MSG_DECODE stDmMsg = {};
+    static uint8_t u8PrevAlarmCount = 0;
 
     _Disp.ClearScreen();
     _Disp.drawRectangle();
@@ -344,6 +345,20 @@ void ALARM_UI::prvDisplayDMScreen()
     else
     {
         /* nothing */
+    }
+
+    if(u8PrevAlarmCount != _u8NumberOfAlarms)
+    {
+        if(_u8NumberOfAlarms)
+        {
+            u8AlarmScreenNum = (uint8_t)(_u8NumberOfAlarms - 1U);
+        }
+    }
+    u8PrevAlarmCount = _u8NumberOfAlarms;
+
+    if(_u8NumberOfAlarms == 0U)
+    {
+        u8AlarmScreenNum = 0U;
     }
 
     if(!_u8NumberOfAlarms)

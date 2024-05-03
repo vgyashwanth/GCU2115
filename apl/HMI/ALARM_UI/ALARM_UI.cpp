@@ -64,8 +64,10 @@ void ALARM_UI::Update(bool bRefresh)
                 prvDisplayAlarmScreen();
             break;
             case DM1:
+                prvDisplayDMScreen(_eAlarmType);
+                break;
             case DM2:
-                prvDisplayDMScreen();
+                prvDisplayDMScreen(_eAlarmType);
                 break;
             default:
                 break;
@@ -320,18 +322,40 @@ void ALARM_UI::ChangeAlarmScreenType(ALARM_st eType)
     _eAlarmType = eType;
 }
 
-void ALARM_UI::prvDisplayDMScreen()
+void ALARM_UI::prvDisplayDMScreen(uint8_t u8DMNum)
 {
-
+    uint8_t u8index = 0;
+    if(u8DMNum == DM1)
+    {
+        u8index = 0;
+    }
+    else if(u8DMNum == DM2)
+    {
+        u8index = 1;
+    }
     char arrTemp[32];
-    J1939APP::J1939_DM_MSG_DECODE stDmMsg = {};
-    static uint8_t u8PrevAlarmCount = 0;
+    J1939APP::J1939_DM_MSG_DECODE stDmMsg = {}; 
+    static uint8_t u8PrevAlarmCount[2] = {0};
 
     _Disp.ClearScreen();
     _Disp.drawRectangle();
     _Disp.drawHorizontalLine(0, 11, 127);
     _Disp.gotoxy(64, 1);
 
+    if(u8PrevAlarmCount[u8index] != _u8NumberOfAlarms)
+    {
+        if(_u8NumberOfAlarms)
+        {
+            u8AlarmScreenNum = (uint8_t)(_u8NumberOfAlarms - 1U);
+        }
+    }
+    u8PrevAlarmCount[u8index] = _u8NumberOfAlarms;
+
+    if(_u8NumberOfAlarms == 0U)
+    {
+        u8AlarmScreenNum = 0U;
+    }
+    
     if( _eAlarmType == DM1)
     {
         _Disp.printStringCenterAligned((char *)"DM1",FONT_ARIAL);
@@ -347,21 +371,7 @@ void ALARM_UI::prvDisplayDMScreen()
         /* nothing */
     }
 
-    if(u8PrevAlarmCount != _u8NumberOfAlarms)
-    {
-        if(_u8NumberOfAlarms)
-        {
-            u8AlarmScreenNum = (uint8_t)(_u8NumberOfAlarms - 1U);
-        }
-    }
-    u8PrevAlarmCount = _u8NumberOfAlarms;
-
-    if(_u8NumberOfAlarms == 0U)
-    {
-        u8AlarmScreenNum = 0U;
-    }
-
-    if(!_u8NumberOfAlarms)
+    if((_u8NumberOfAlarms==0U) || _J1939.IsCommunicationFail() )
     {
 
          sprintf(arrTemp," %d/%d", u8AlarmScreenNum, _u8NumberOfAlarms);

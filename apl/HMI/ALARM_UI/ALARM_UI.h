@@ -79,7 +79,7 @@ private:
      * @return None
      */
     void prvDisplayAlarmScreen();
-    void prvDisplayDMScreen();
+    void prvDisplayDMScreen(uint8_t u8DMNum);
 
 };
 

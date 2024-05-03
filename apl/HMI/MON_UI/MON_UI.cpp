@@ -1726,11 +1726,11 @@ void MON_UI::prvNormalMonScreens()
             _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
 
             _Disp.gotoxy(GLCD_X(3),GLCD_Y(36));
-            sprintf(arrTemp, "Fault Time: %dMin" , (uint16_t)_GCUAlarms.GetFaultPreset72HrsTimeInMin());
+            sprintf(arrTemp, "Fault Time: %dMin" , _GCUAlarms.GetFaultPreset72HrsTimeInMin());
             _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
 
             _Disp.gotoxy(GLCD_X(3),GLCD_Y(51));
-            sprintf(arrTemp, "Heal Time : %dMin", (uint16_t)_GCUAlarms.GetFaultReset40HrsTimeInMin());
+            sprintf(arrTemp, "Heal Time : %dMin", _GCUAlarms.GetFaultReset40HrsTimeInMin());
             _Disp.printStringLeftAligned(arrTemp,FONT_VERDANA);
 
          }

@@ -168,7 +168,6 @@ void START_STOP::Update()
                 {
                     bPreheatTempLimitReached = false;
                     prvTurnOffPreheatStartCranking();
-                    _GCUAlarms.StartEgrFaultDetection();
                 }
                 break;
 
@@ -203,7 +202,6 @@ void START_STOP::Update()
                     else
                     {
                         prvSkipPreheatStartCranking();
-                        _GCUAlarms.StartEgrFaultDetection();
                     }
                 }
                 break;

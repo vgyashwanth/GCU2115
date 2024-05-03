@@ -637,10 +637,10 @@ void J1939APP::prvUpdatePGN65280Data(void)
     f32PGN_65280Data[10] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_P_SOURCE))
                 == ACT_Manager::ACT_LATCHED));
 
-    for(uint8_t u8Index = 17 ,u8Local=GCU_ALARMS::DIG_IN_J; u8Local <= GCU_ALARMS::DIG_IN_P; u8Local++)
+    for(uint16_t u16Index = 17 ,u16Local=GCU_ALARMS::DIG_IN_J; u16Local <= GCU_ALARMS::DIG_IN_P; u16Local++)
     {
-        f32PGN_65280Data[u8Index] = ((uint8_t)_gcuAlarm.AlarmResultLatched((GCU_ALARMS::ALARM_LIST_t)u8Local));
-        u8Index--;
+        f32PGN_65280Data[u16Index] = ((uint8_t)_gcuAlarm.AlarmResultLatched((GCU_ALARMS::ALARM_LIST_t)u16Local));
+        u16Index--;
     }
 
     f32PGN_65280Data[18] = _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_FREQ);

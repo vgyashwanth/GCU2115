@@ -270,7 +270,7 @@ const PGNS_t gstPGNs =
      {500,6,0,0,21,8,0,255,0},
      {0,2,1,0,3,        // 0 sedemac mode
       2,6,1,0,63,       // 1 reserved
-      8,1,1,0,31,       // 2 dig o/p o
+      8,1,1,0,1,       // 2 dig o/p o
       9,1,1,0,1,        // 3 dig o/p n
       10,1,1,0,1,       // 4 dig o/p m
       11,1,1,0,1,       // 5 dig o/p l

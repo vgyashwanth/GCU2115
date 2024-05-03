@@ -33,7 +33,7 @@
 #define SUBMENUS_IN_TIMERS                  2
 #define SUBMENUS_IN_GENERATOR               6
 #define SUBMENUS_IN_MAINS                   5
-#define SUBMENUS_IN_ENGINE                  9
+#define SUBMENUS_IN_ENGINE                  10
 #define SUBMENUS_IN_MAINTENANCE             2
 #define SUBMENUS_IN_ID                      3
 #define SUBMENUS_IN_MISC                    1

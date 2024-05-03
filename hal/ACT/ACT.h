@@ -101,7 +101,8 @@ public:
         ACT_INDUCEMENT_BUZZER,
         ACT_EGR,
         ACT_AUTO_MODE_SW_OUTPUT,
-        ACT_BATTERY_UNHEALTHY
+        ACT_BATTERY_UNHEALTHY,
+        ACT_SUPERCAP_UNHEALTHY
     } ACTUATOR_TYPS_t;
 
     /* Two possibilities for activation*/

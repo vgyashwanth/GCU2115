@@ -201,7 +201,6 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
             UTILS_ResetTimer(&_Modbus10minTimer);
             _bUpdateModbusCountCalc = true;
         }
-        UpdateEgrDetections();
         if((UTILS_GetElapsedTimeInMs(&_UpdateAlarmMonTimer) >= FIFTY_MSEC) && (bAlarmUpdate))
         {
             if(_EventQueue.Peek(&_stLog) && bEventWrittenSuccessfully)
@@ -226,7 +225,7 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
 
                 prvMainsHighLowOutputs();
                 FillDisplayAlarmArray();
-
+                UpdateEgrDetections();
                 prvUpdateDTCEventLog();
             }
         }
@@ -2803,6 +2802,14 @@ void GCU_ALARMS::ClearAllAlarms()
 
     _u8BPhaseUnderVoltAlarm = 0;
 
+    if (_hal.AnlgIp.GetPIN21SensorMode() == ANLG_IP::BSP_MODE_CURRENT)
+    {
+        _hal.AnlgIp.ResetSTBDetectCnt(ANLG_IP::ANLG_CURR_SENS_PIN21);
+    }
+    if (_hal.AnlgIp.GetPIN23SensorMode() == ANLG_IP::BSP_MODE_CURRENT)
+    {
+        _hal.AnlgIp.ResetSTBDetectCnt(ANLG_IP::ANLG_CURR_SENS_PIN23);
+    }
 
     gpJ1939->ResetLampsStatus();
     gpJ1939->RequestDM11PGN();
@@ -3191,9 +3198,8 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(ArrAlarmMonitoring[OPEN_ENG_TEMP_CKT].bResultLatched, ACTUATOR::ACT_TEMP_CKT_OPEN);
     prvActDeactOutput(ArrAlarmMonitoring[UNDERFREQ_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_UF_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[UNDERSPEED].bShutdownLatched, ACTUATOR::ACT_US_SHUTDOWN);
-#if (!EGR_TEST)
     prvActDeactOutput(ArrAlarmMonitoring[FILT_MAINTENANCE].bAlarmActive || ArrAlarmMonitoring[FILT_MAINTENANCE_BY_DATE].bAlarmActive, ACTUATOR::ACT_FILT_MAINT);
-#endif
+
     //Activate and Deactivate of ACT_MODE_STOP is done in BASE_MODES
     //Activate and Deactivate of ACT_MODE_AUTO is done in BASE_MODES
     //Activate and Deactivate of ACT_MODE_MANUAL is done in BASE_MODES
@@ -3216,6 +3222,7 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(ArrAlarmMonitoring[VBAT_OV].bResultInstant || ArrAlarmMonitoring[VBAT_UV].bResultInstant, ACTUATOR::ACT_BATTERY_UNHEALTHY);
     prvActDeactOutput(_bAutomaticModeSwitchStatus, ACTUATOR::ACT_AUTO_MODE_SW_OUTPUT);
     prvActDeactOutput(prvIsEgrFaultPresent(), ACTUATOR::ACT_EGR);
+    prvActDeactOutput(ArrAlarmMonitoring[SUPERCAP_FAIL].bResultInstant, ACTUATOR::ACT_SUPERCAP_UNHEALTHY);
 }
 
 
@@ -4079,12 +4086,12 @@ void GCU_ALARMS::prvEGR_TimeLog_WriteToNV(void)
 
 }
 
-uint32_t GCU_ALARMS::GetFaultPreset72HrsTimeInMin()
+uint16_t GCU_ALARMS::GetFaultPreset72HrsTimeInMin()
 {
     return _u16EgrFaultMonTime_min;
 }
 
-uint32_t GCU_ALARMS::GetFaultReset40HrsTimeInMin()
+uint16_t GCU_ALARMS::GetFaultReset40HrsTimeInMin()
 {
     return  _u16EgrFaultHealTime_min;
 }

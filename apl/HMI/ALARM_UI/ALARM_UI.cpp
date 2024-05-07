@@ -64,8 +64,6 @@ void ALARM_UI::Update(bool bRefresh)
                 prvDisplayAlarmScreen();
             break;
             case DM1:
-                prvDisplayDMScreen(_eAlarmType);
-                break;
             case DM2:
                 prvDisplayDMScreen(_eAlarmType);
                 break;
@@ -335,7 +333,7 @@ void ALARM_UI::prvDisplayDMScreen(uint8_t u8DMNum)
     }
     char arrTemp[32];
     J1939APP::J1939_DM_MSG_DECODE stDmMsg = {}; 
-    static uint8_t u8PrevAlarmCount[2] = {0};
+    static uint8_t u8PrevAlarmCount[2] = {0}; //size of array =  2, total types of DM messages
 
     _Disp.ClearScreen();
     _Disp.drawRectangle();

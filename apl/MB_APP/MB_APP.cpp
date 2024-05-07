@@ -36,7 +36,7 @@
 #include "../HMI/MAIN_UI/MAIN_UI.h"
 
 extern J1939APP *gpJ1939;
-MB_APP::KEY_MB_CAN_EVENT_t MB_APP::stMBEvent={};;
+MB_APP::KEY_MB_CAN_EVENT_t MB_APP::stMBEvent={};
 uint64_t MB_APP::Curr_MB_Valid_Count = 0;
 
 MB_APP::MB_APP(HAL_Manager &hal, CFGZ &cfgz, GCU_ALARMS &gcuAlarm,
@@ -734,9 +734,9 @@ void MB_APP::prvUpdateGCUAlarms()
     _u16TempAlarmVal |= (uint16_t)(1 << 11U); /* Reserved*/
     _u16TempAlarmVal |= (uint16_t)(1 << 12U); /* Reserved */
 
-    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::RWL_SWITCH].bAlarmActive << 13); /* Low water level */
+    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::RWL_SWITCH].bAlarmActive << 13U); /* Low water level */
 
-    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SUPERCAP_FAIL].bAlarmActive << 14); /* Supercapacitor failure */
+    _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SUPERCAP_FAIL].bAlarmActive << 14U); /* Supercapacitor failure */
 
     _u16TempAlarmVal |= (uint16_t)(1 << 15U); /* Reserved */
 
@@ -1131,9 +1131,9 @@ void MB_APP::prvUpadateDIGInOut()
     /* DIG in A to H*/
     uint8_t u8LocalCnt = 7;
 
-    for(uint8_t u8Local= CFGZ::ID_OUT_A_SOURCE; u8Local <= CFGZ::ID_OUT_H_SOURCE; u8Local=u8Local+2)
+    for(uint16_t u16Local= CFGZ::ID_OUT_A_SOURCE; u16Local <= CFGZ::ID_OUT_H_SOURCE; u16Local=u16Local+2)
     {
-        if(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u8Local))
+        if(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u16Local))
                 == ACT_Manager::ACT_LATCHED)
         {
             _u16TempAlarmVal |= (uint16_t)(1U << u8LocalCnt);

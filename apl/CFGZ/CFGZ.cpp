@@ -117,6 +117,7 @@ void CFGZ::prvLoadProductSpecificData()
             _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_SHUTDOWN_TIMER] =FAULT_PRESENT_MONITORING_TIME_MINUTES;
             _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_WARNING_TIMER] = EGR_WARNING_INDUCEMENT_LEVEL_TIME;
             _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_HEAL_TIMER] = FAULT_RESET_MONITORING_TIME_MINUTES;
+            _stProductSpecificData.u16ProductParam[PS_MB_COUNT] = 0U;
             _stProductSpecificData.u8ProductParam[PS_EGR_TIMERS_ENABLE] = CFGZ_DISABLE;
 
         }
@@ -133,6 +134,7 @@ void CFGZ::prvLoadProductSpecificData()
         _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_SHUTDOWN_TIMER] =FAULT_PRESENT_MONITORING_TIME_MINUTES;
         _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_WARNING_TIMER] = EGR_WARNING_INDUCEMENT_LEVEL_TIME;
         _stProductSpecificData.u16ProductParam[PS_EGR_CONFIGURED_HEAL_TIMER] = FAULT_RESET_MONITORING_TIME_MINUTES;
+        _stProductSpecificData.u16ProductParam[PS_MB_COUNT] = 0U;
         _stProductSpecificData.u8ProductParam[PS_EGR_TIMERS_ENABLE] = CFGZ_DISABLE;
 
     }
@@ -787,6 +789,7 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
      { CFGZ_EGR                               , ACTUATOR::ACT_EGR                        },
      { CFGZ_AUTO_MODE_SW_OUTPUT               , ACTUATOR::ACT_AUTO_MODE_SW_OUTPUT        },
      { CFGZ_BATTERY_UNHEALTHY                 , ACTUATOR::ACT_BATTERY_UNHEALTHY          },
+     { CFGZ_SUPERCAP_UNHEALTHY                , ACTUATOR::ACT_SUPERCAP_UNHEALTHY         },
     };
 
     for(uint8_t i=0;i<(sizeof(dsenseMap)/sizeof(ACTUATOR_MAP_ROW_t));i++)

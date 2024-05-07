@@ -17,7 +17,6 @@
 #include "productSelection.h"
 
 #define MAX_DTC_ALLOWED (106U)
-#define EGR_TEST (0U)
 
 class GCU_ALARMS
 {
@@ -562,8 +561,8 @@ public:
     void EgrFaultDetection();
     EGR_FAULT_LIST_t GetEgrEcuFaultStatus();
     uint16_t GetPulseCount();
-    uint32_t GetFaultPreset72HrsTimeInMin();
-    uint32_t GetFaultReset40HrsTimeInMin();
+    uint16_t GetFaultPreset72HrsTimeInMin();
+    uint16_t GetFaultReset40HrsTimeInMin();
     void ClearEgrFaultTimingInfo(void);
     bool IsEgrInputConfigured(void);
     bool ShutdownFromEGR(void);
@@ -873,8 +872,5 @@ private:
     void prvEGR_TimeLog_WriteToNV(void);
     bool prvIsEgrFaultPresent();
 
-#if (EGR_TEST)
-    void GenerateEgrTestSignal();
-#endif
 };
 #endif

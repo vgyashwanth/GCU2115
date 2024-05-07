@@ -219,7 +219,7 @@ void J1939APP::ClearAllPGNsDataBuffs(void)
         f32PGN_64911Data[u8Local] = F32_Null;
     }
 
-    for(u8Local=0; u8Local<17; u8Local++)
+    for(u8Local=0; u8Local<21; u8Local++)
     {
         f32PGN_65280Data[u8Local] = F32_Null;
     }
@@ -609,25 +609,43 @@ void J1939APP::prvUpdatePGN65280Data(void)
 
 
     f32PGN_65280Data[1] = 0x3F;  //Reserved
-    f32PGN_65280Data[2] = 0x1F;  //Reserved
 
-    f32PGN_65280Data[3] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_I_SOURCE))
+    f32PGN_65280Data[2] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_O_SOURCE))
                 == ACT_Manager::ACT_LATCHED));
 
-    f32PGN_65280Data[4] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_H_SOURCE))
+    f32PGN_65280Data[3] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_N_SOURCE))
                 == ACT_Manager::ACT_LATCHED));
 
-    f32PGN_65280Data[5] = 0x1F;  //Reserved
-    f32PGN_65280Data[6] = 0x1F;  //Reserved
-    for(uint8_t u8Index = 13 ,u8Local=GCU_ALARMS::DIG_IN_J; u8Local <= GCU_ALARMS::DIG_IN_P; u8Local++)
+    f32PGN_65280Data[4] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_M_SOURCE))
+                == ACT_Manager::ACT_LATCHED));
+
+    f32PGN_65280Data[5] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_L_SOURCE))
+                == ACT_Manager::ACT_LATCHED));
+
+    f32PGN_65280Data[6] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_K_SOURCE))
+                == ACT_Manager::ACT_LATCHED));
+
+    f32PGN_65280Data[7] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_J_SOURCE))
+                == ACT_Manager::ACT_LATCHED));
+    
+    f32PGN_65280Data[8] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_I_SOURCE))
+                == ACT_Manager::ACT_LATCHED));
+
+    f32PGN_65280Data[9] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_H_SOURCE))
+                == ACT_Manager::ACT_LATCHED));
+
+    f32PGN_65280Data[10] = ((uint8_t)(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param(CFGZ::ID_OUT_P_SOURCE))
+                == ACT_Manager::ACT_LATCHED));
+
+    for(uint16_t u16Index = 17 ,u16Local=GCU_ALARMS::DIG_IN_J; u16Local <= GCU_ALARMS::DIG_IN_P; u16Local++)
     {
-        f32PGN_65280Data[u8Index] = ((uint8_t)_gcuAlarm.AlarmResultLatched((GCU_ALARMS::ALARM_LIST_t)u8Local));
-        u8Index--;
+        f32PGN_65280Data[u16Index] = ((uint8_t)_gcuAlarm.AlarmResultLatched((GCU_ALARMS::ALARM_LIST_t)u16Local));
+        u16Index--;
     }
 
-    f32PGN_65280Data[14] = _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_FREQ);
-    f32PGN_65280Data[15] = _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_VOLT);
-    f32PGN_65280Data[16] = 0xFFFF;
+    f32PGN_65280Data[18] = _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_FREQ);
+    f32PGN_65280Data[19] = _cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_MIN_HEALTHY_VOLT);
+    f32PGN_65280Data[20] = 0xFFFF;
 }
 void J1939APP::prvUpdatePGN65289Data(void)
 {

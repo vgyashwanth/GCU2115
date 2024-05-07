@@ -262,7 +262,7 @@ typedef struct __attribute__((packed))
 typedef struct __attribute__((packed))
 {
     J1939DRIVER::J1939_PGN_DB_t PGNinfo;
-    J1939DRIVER::J1939_SPN_DB_t arrSPNinfo[17];
+    J1939DRIVER::J1939_SPN_DB_t arrSPNinfo[21];
 } PGN_65280_t ;
 
 

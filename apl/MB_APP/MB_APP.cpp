@@ -745,7 +745,7 @@ void MB_APP::prvUpdateGCUAlarms()
     /* DIG ALARM 2 */
     _u16TempAlarmVal =0;
 
-    _u16TempAlarmVal |=   (uint16_t)(1 << 0U); /* Reserved */
+    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bResultInstant << 0);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::OVERLOAD].bAlarmActive << 1U);
     _u16TempAlarmVal |=   (uint16_t)((_Automode.GetMainsStatus() != BASE_MODES::MAINS_HELATHY)<< 2U);
     _u16TempAlarmVal |=   (uint16_t)(1 << 3U);

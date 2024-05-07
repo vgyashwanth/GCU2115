@@ -758,7 +758,7 @@ void MB_APP::prvUpdateGCUAlarms()
     //For Remote_SS bresultInstant is applicable and not bAlarmActive because not action is enabled.
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::REMOTE_SS].bResultInstant << 10U);
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_G].bAlarmActive << 11U);
-    _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::CA_FAIL].bAlarmActive) << 12);
+    _u16TempAlarmVal |=   (uint16_t)((_gcuAlarm.IsRPhaseOverVoltAlarmActive() || _gcuAlarm.IsYPhaseOverVoltAlarmActive() || _gcuAlarm.IsBPhaseOverVoltAlarmActive() || _gcuAlarm.IsRPhaseUnderVoltAlarmActive() || _gcuAlarm.IsYPhaseUnderVoltAlarmActive() || _gcuAlarm.IsBPhaseUnderVoltAlarmActive()) <<12U);
     _u16TempAlarmVal |=   (uint16_t)(1 << 13); /* Reserved */
     _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::BATT_CHG_FAIL].bAlarmActive << 14);
     _u16TempAlarmVal |=   (uint16_t)(1 << 15); /* Reserved */

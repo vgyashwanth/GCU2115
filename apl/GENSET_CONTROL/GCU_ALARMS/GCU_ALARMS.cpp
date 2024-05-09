@@ -114,9 +114,9 @@ _stEventLog{},
 prvPreviousDTC_OC{0,0,0},
 _StartEgrDetection(0),
 _eEgrMonState(EGR_MON_IDLE_STATE),
-_u16EgrFaultMonTime_min(0),
-_u16EgrFaultHealTime_min(0),
-_stGeneralTimer1Minute{0, false},
+_u32EgrFaultMonTime_sec(0),
+_u32EgrFaultHealTime_sec(0),
+_stGeneralTimer1Second{0, false},
 eEgrFault(EGR_NO_FAULT),
 egrInState(EGR_DETECTION_HOLD),
 _ecuFaultTimer{0, false},
@@ -130,8 +130,8 @@ u16PulseDetectionCount(0U)
     _hal.Objeeprom.RequestRead(EXT_EEPROM_CURRENT_EVENT_NO_ADDRESS,(uint8_t*) &_u32EventNumber, 4, ReadEventNumber);
     _hal.Objeeprom.RequestRead(EXT_EEPROM_ROLLED_OVER_ADDRESS,(uint8_t*) &_u32RolledOverByte, 4, ReadRollOver);
 
-    _u16EgrFaultMonTime_min = _cfgz.GetProductSpecificData(CFGZ::PS_EGR_FAULT_TIMER);
-    _u16EgrFaultHealTime_min = _cfgz.GetProductSpecificData(CFGZ::PS_EGR_HEAL_TIMER);
+    _u32EgrFaultMonTime_sec = _cfgz.GetProductSpecificData(CFGZ::PS_EGR_FAULT_TIMER)*60U;
+    _u32EgrFaultHealTime_sec = _cfgz.GetProductSpecificData(CFGZ::PS_EGR_HEAL_TIMER)*60U;
 }
 
 void GCU_ALARMS::Update(bool bDeviceInConfigMode)
@@ -3913,7 +3913,6 @@ void GCU_ALARMS::StartEgrFaultDetection()
         UTILS_ResetTimer(&_ecuFaultTimer);
         egrInState  = EGR_DETECTION_INIT;
         _bEgrShutdownLatched = false;
-        ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bEnableNotification = true; /* Initially, the alarm action will be Notification  */
         _StartEgrDetection = 1U;
     }
 }
@@ -3924,30 +3923,38 @@ void GCU_ALARMS::DisableEGRDetection()
        {
            _StartEgrDetection = 0U;
             egrInState = EGR_DETECTION_HOLD;
+            UTILS_DisableTimer(&_ecuFaultTimer);
        }
 }
 
 void GCU_ALARMS::UpdateEgrDetections()
 {
-    EgrFaultDetection();
-
-    if(_StartEgrDetection)
+    if (IS_EGR_CONFIGURED())
     {
-        prvMonitorEgrFaultStatus();
+        EgrFaultDetection();
+        if (_StartEgrDetection)
+        {
+            prvMonitorEgrFaultStatus();
+        }
     }
 }
 
 /* EGR monitoring config */
 
-#define EGR_LOG_NV_WRITE_CYCLE_IN_MINUTES     (1)
-#define IS_ONE_MINUTE_TIME_ELAPSED()          (UTILS_GetElapsedTimeInSec(&_stGeneralTimer1Minute) > 60U)
-#define KICK_ONE_MINUTE_TIMER()               (UTILS_ResetTimer(&_stGeneralTimer1Minute))
+#define EGR_LOG_NV_WRITE_CYCLE_IN_SECONDS     (60U)
+#define IS_ONE_SECOND_TIME_ELAPSED()          (UTILS_GetElapsedTimeInSec(&_stGeneralTimer1Second) >= 1U)
+#define KICK_ONE_SECOND_TIMER()               (UTILS_ResetTimer(&_stGeneralTimer1Second))
 
 void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
 {
 
-    static uint8_t u8CntInMinute = 0U;
+    static uint16_t u16CntInSeconds = 0U;
 
+    if(!_u8EngineOn)
+    {
+        _eEgrMonState = EGR_MON_IDLE_STATE;
+    }
+    
     switch(_eEgrMonState)
     {
         case EGR_MON_IDLE_STATE :
@@ -3956,12 +3963,13 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
             {
                 if(prvIsEgrFaultPresent())
                 {
-                    KICK_ONE_MINUTE_TIMER();
+                    _u32EgrFaultHealTime_sec = 0;
+                    KICK_ONE_SECOND_TIMER();
                     _eEgrMonState = EGR_MON_72_HRS_FAULT_CONFIRM_OPERATION;
                 }
-                else if(_u16EgrFaultMonTime_min > 0U)
+                else if(_u32EgrFaultMonTime_sec > 0U)
                 {
-                    KICK_ONE_MINUTE_TIMER();
+                    KICK_ONE_SECOND_TIMER();
                     _eEgrMonState = EGR_MON_40_HRS_FAULT_RESET_OPERATION;
                 }
                 else
@@ -3978,9 +3986,9 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
 
         case EGR_MON_72_HRS_FAULT_CONFIRM_OPERATION :
         {
-            if((IS_ONE_MINUTE_TIME_ELAPSED())  && (_u8EngineOn))
+            if((IS_ONE_SECOND_TIME_ELAPSED())  && (_u8EngineOn))
             {
-                _u16EgrFaultMonTime_min++;
+                _u32EgrFaultMonTime_sec++;
             }
             else
             {
@@ -3991,7 +3999,7 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
             {
                 _eEgrMonState = EGR_MON_40_HRS_FAULT_RESET_OPERATION;
             }
-            else if(_u16EgrFaultMonTime_min >= _cfgz.GetEGRShutdownTimer()) /* 72 Hrs */
+            else if(_u32EgrFaultMonTime_sec >= (_cfgz.GetEGRShutdownTimer()*60U) ) /* 72 Hrs */
             {
                 /* change the action of EGR alarms to shutdown &&
                    shutdown engine at any cost */
@@ -4007,9 +4015,9 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
 
         case EGR_MON_40_HRS_FAULT_RESET_OPERATION :
         {
-            if((IS_ONE_MINUTE_TIME_ELAPSED())  && (_u8EngineOn))
+            if((IS_ONE_SECOND_TIME_ELAPSED())  && (_u8EngineOn))
             {
-                _u16EgrFaultHealTime_min++;
+                _u32EgrFaultHealTime_sec++;
             }
             else
             {
@@ -4018,10 +4026,10 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
 
             if(prvIsEgrFaultPresent())
             {
-                _u16EgrFaultHealTime_min = 0U; /* reset 40 Hrs counter */
+                _u32EgrFaultHealTime_sec = 0U; /* reset 40 Hrs counter */
                 _eEgrMonState = EGR_MON_72_HRS_FAULT_CONFIRM_OPERATION;
             }
-            else if(_u16EgrFaultHealTime_min >= _cfgz.GetEGRHealTimer()) /* 40 Hrs */
+            else if(_u32EgrFaultHealTime_sec >= (_cfgz.GetEGRHealTimer() * 60U)) /* 40 Hrs */
             {
                 _eEgrMonState = EGR_MON_RESET_ALL_COUNTERS;
             }
@@ -4034,11 +4042,10 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
 
         case EGR_MON_RESET_ALL_COUNTERS :
         {
-            _u16EgrFaultMonTime_min = 0U;
-            _u16EgrFaultHealTime_min = 0U;
+            _u32EgrFaultMonTime_sec = 0U;
+            _u32EgrFaultHealTime_sec = 0U;
 
             _bEgrShutdownLatched = false;
-            ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bEnableNotification = true;
 
             prvEGR_TimeLog_WriteToNV();
             _eEgrMonState = EGR_MON_IDLE_STATE;
@@ -4050,15 +4057,15 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
         break;
     }
 
-    if(IS_ONE_MINUTE_TIME_ELAPSED())
+    if(IS_ONE_SECOND_TIME_ELAPSED())
     {
-        u8CntInMinute++;
-        KICK_ONE_MINUTE_TIMER();
+        u16CntInSeconds++;
+        KICK_ONE_SECOND_TIMER();
     }
 
-    if(u8CntInMinute > EGR_LOG_NV_WRITE_CYCLE_IN_MINUTES)
+    if(u16CntInSeconds >= EGR_LOG_NV_WRITE_CYCLE_IN_SECONDS)
     {
-        u8CntInMinute = 0U;
+        u16CntInSeconds = 0U;
         prvEGR_TimeLog_WriteToNV();
     }
 
@@ -4079,8 +4086,8 @@ void GCU_ALARMS::prvEGR_TimeLog_WriteToNV(void)
 {
     CFGZ::LATEST_PRODUCT_SPECIFIC_DATA_t ProductData={};
     _cfgz.GetProductSpecificData(&ProductData);
-    ProductData.u16ProductParam[CFGZ::PS_EGR_FAULT_TIMER] = _u16EgrFaultMonTime_min;
-    ProductData.u16ProductParam[CFGZ::PS_EGR_HEAL_TIMER] = _u16EgrFaultHealTime_min;
+    ProductData.u16ProductParam[CFGZ::PS_EGR_FAULT_TIMER] = (uint16_t)((_u32EgrFaultMonTime_sec + 59U)/60U);
+    ProductData.u16ProductParam[CFGZ::PS_EGR_HEAL_TIMER] = (uint16_t)((_u32EgrFaultHealTime_sec + 59U)/60U);
 
     _cfgz.WriteProductSpecificData(&ProductData);
 
@@ -4088,18 +4095,40 @@ void GCU_ALARMS::prvEGR_TimeLog_WriteToNV(void)
 
 uint16_t GCU_ALARMS::GetFaultPreset72HrsTimeInMin()
 {
-    return _u16EgrFaultMonTime_min;
+    uint16_t u16Fault_min = 0U;
+
+    if(_u32EgrFaultMonTime_sec > (_cfgz.GetEGRShutdownTimer() * 60U))
+    {
+        u16Fault_min = _cfgz.GetEGRShutdownTimer();
+    }
+    else
+    {
+        u16Fault_min = (uint16_t)((_u32EgrFaultMonTime_sec + 59U)/60U);
+    }
+
+    return u16Fault_min;
 }
 
 uint16_t GCU_ALARMS::GetFaultReset40HrsTimeInMin()
 {
-    return  _u16EgrFaultHealTime_min;
+    uint16_t u16Heal_min = 0U;
+    
+    if(_u32EgrFaultHealTime_sec > (_cfgz.GetEGRHealTimer() * 60U))
+    {
+        u16Heal_min = _cfgz.GetEGRHealTimer();
+    }
+    else
+    {
+        u16Heal_min = (uint16_t)((_u32EgrFaultHealTime_sec + 59U)/60U);
+    }
+
+    return u16Heal_min;
 }
 
 void GCU_ALARMS::ClearEgrFaultTimingInfo(void)
 {
-    _u16EgrFaultMonTime_min = 0U;
-    _u16EgrFaultHealTime_min = 0U;
+    _u32EgrFaultMonTime_sec = 0U;
+    _u32EgrFaultHealTime_sec = 0U;
 }
 bool GCU_ALARMS::IsEgrInputConfigured(void)
 {
@@ -4114,7 +4143,6 @@ void GCU_ALARMS::clearEgrFaults()
 {
     eEgrFault = EGR_NO_FAULT;
     _bEgrShutdownLatched = false;
-    ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bEnableNotification = true;
 }
 
 GCU_ALARMS::EGR_FAULT_LIST_t GCU_ALARMS::GetEgrEcuFaultStatus()

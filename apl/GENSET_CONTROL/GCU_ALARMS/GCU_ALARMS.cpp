@@ -3943,7 +3943,7 @@ void GCU_ALARMS::UpdateEgrDetections()
 
 #define EGR_LOG_NV_WRITE_CYCLE_IN_SECONDS     (60U)
 #define IS_ONE_SECOND_TIME_ELAPSED()          (UTILS_GetElapsedTimeInSec(&_stGeneralTimer1Second) > 1U)
-#define KICK_ONE_MINUTE_TIMER()               (UTILS_ResetTimer(&_stGeneralTimer1Second))
+#define KICK_ONE_SECOND_TIMER()               (UTILS_ResetTimer(&_stGeneralTimer1Second))
 
 void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
 {
@@ -3964,12 +3964,12 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
                 if(prvIsEgrFaultPresent())
                 {
                     _u32EgrFaultHealTime_sec = 0;
-                    KICK_ONE_MINUTE_TIMER();
+                    KICK_ONE_SECOND_TIMER();
                     _eEgrMonState = EGR_MON_72_HRS_FAULT_CONFIRM_OPERATION;
                 }
                 else if(_u32EgrFaultMonTime_sec > 0U)
                 {
-                    KICK_ONE_MINUTE_TIMER();
+                    KICK_ONE_SECOND_TIMER();
                     _eEgrMonState = EGR_MON_40_HRS_FAULT_RESET_OPERATION;
                 }
                 else
@@ -4060,7 +4060,7 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
     if(IS_ONE_SECOND_TIME_ELAPSED())
     {
         u16CntInSeconds++;
-        KICK_ONE_MINUTE_TIMER();
+        KICK_ONE_SECOND_TIMER();
     }
 
     if(u16CntInSeconds >= EGR_LOG_NV_WRITE_CYCLE_IN_SECONDS)

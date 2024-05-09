@@ -785,8 +785,8 @@ private:
     uint8_t _StartEgrDetection;
 
     EGR_MON_STATE_t _eEgrMonState;
-    uint16_t _u32EgrFaultMonTime_sec;
-    uint16_t _u32EgrFaultHealTime_sec;
+    uint32_t _u32EgrFaultMonTime_sec;
+    uint32_t _u32EgrFaultHealTime_sec;
     stTimer _stGeneralTimer1Second;
     EGR_FAULT_LIST_t eEgrFault;
     EGR_FAULT_DETECT_STATE_t egrInState;

@@ -1155,10 +1155,10 @@ void MB_APP::prvUpadateDIGInOut()
 
 #if (TEST_AUTOMATION == YES)
 
-    uint8_t u8LocalCnt=15,u8Local = 0;
+    u8LocalCnt=15;
     _u16TempAlarmVal =0;
 
-    for(u8Local=D_SENSE::DI_A; u8Local <=D_SENSE::DI_P; u8Local++)
+    for(uint8_t u8Local=D_SENSE::DI_A; u8Local <=D_SENSE::DI_P; u8Local++)
     {
         if(_hal.DigitalSensors.GetDigInputState(u8Local)==DigitalSensor::SENSOR_LATCHED)
         {
@@ -1172,17 +1172,20 @@ void MB_APP::prvUpadateDIGInOut()
     _u16TempAlarmVal =0;
     u8LocalCnt = 15;
 
-    for(u8Local=CFGZ::ID_OUT_A_SOURCE; u8Local <=CFGZ::ID_OUT_I_SOURCE; u8Local=u8Local+2)
+    for(uint16_t u16Local=CFGZ::ID_OUT_A_SOURCE; u16Local <=CFGZ::ID_OUT_P_SOURCE; u16Local=u16Local+2)
     {
-        if(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u8Local))
+        if(_hal.actuators.GetActStatus((ACTUATOR::ACTUATOR_TYPS_t)_cfgz.GetCFGZ_Param((CFGZ::UINT8_PARAMS_t)u16Local))
                 == ACT_Manager::ACT_LATCHED)
         {
             _u16TempAlarmVal |= (uint16_t)(1U << u8LocalCnt);
         }
         u8LocalCnt--;
     }
-    _u16TempAlarmVal |= (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SHELTER_TEMP_START_DG].bAlarmActive)  << 0U);
     SetReadRegisterValue(MB_DIG_OP_STATUS, _u16TempAlarmVal);
+
+    _u16TempAlarmVal =0;
+    _u16TempAlarmVal |= (uint16_t)((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SHELTER_TEMP_START_DG].bAlarmActive)  << 0U);
+    SetReadRegisterValue(MB_SHELT_TEMP, _u16TempAlarmVal);
 
 #endif
 }

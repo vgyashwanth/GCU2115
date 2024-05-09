@@ -119,7 +119,8 @@ public:
         MB_SPN_VALUE_2,
         MB_SPN_VALUE_3,
         MB_SPN_VALUE_4,
-        MB_SPN_STATUS,     
+        MB_SPN_STATUS,
+        MB_SHELT_TEMP,     
         MB_AUTOMATION_READ_REG_LAST
     }MODBUS_FOR_AUTOMATION_READ;
 #endif

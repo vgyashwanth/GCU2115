@@ -3942,7 +3942,7 @@ void GCU_ALARMS::UpdateEgrDetections()
 /* EGR monitoring config */
 
 #define EGR_LOG_NV_WRITE_CYCLE_IN_SECONDS     (60U)
-#define IS_ONE_SECOND_TIME_ELAPSED()          (UTILS_GetElapsedTimeInSec(&_stGeneralTimer1Second) > 1U)
+#define IS_ONE_SECOND_TIME_ELAPSED()          (UTILS_GetElapsedTimeInSec(&_stGeneralTimer1Second) >= 1U)
 #define KICK_ONE_SECOND_TIMER()               (UTILS_ResetTimer(&_stGeneralTimer1Second))
 
 void GCU_ALARMS::prvMonitorEgrFaultStatus(void)

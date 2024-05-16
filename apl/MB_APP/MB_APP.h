@@ -48,17 +48,31 @@
 
 #if (TEST_AUTOMATION == YES)
 /*Defines the number of discontinuous address groups*/
-#define MODBUS_ADDRESS_GROUPS   (4U)
+#define MODBUS_ADDRESS_GROUPS   (5U)
 #define MODBUS_GRP3_REG_CNT     (MB_AUTOMATION_READ_REG_LAST - MB_AUX_S1)
 #define MODBUS_GRP4_REG_CNT     (MB_AUTOMATION_WRITE_REG_LAST - MB_AUTOMATION_WRITE_COMMAND)
 #else
 /*Defines the number of discontinuous address groups*/
-#define MODBUS_ADDRESS_GROUPS   (2U)
+#define MODBUS_ADDRESS_GROUPS   (3U)
 #endif
+
+/*Number of address groups for reading/writing discrete inputs and/or coils*/
+#define MODBUS_INPUTS_COIL_GROUPS  (2U)
+
 /*Number of entries in the first address group*/
 #define MODBUS_GRP1_REG_CNT     (MB_READ_REG_LAST -DIG_ALARM_1_REG)
 /*Number of entries in the second address group*/
 #define MODBUS_GRP2_REG_CNT     (2U)
+
+/*Number of array items in ADDRESS_GRP_t occupied by fifth address group*/
+#define MODBUS_GRP5_INPUT_REG_CNT    (MB_INPUT_REG_LAST)
+
+/*Number of array items in ADDRESS_GRP_t occupied by sixth address group*/
+#define MODBUS_GRP6_DISCRETE_INPUT_CNT    ( ((MB_DISCRETE_INPUT_LAST)+7)/8 )
+
+/*Number of array items in ADDRESS_GRP_t occupied by seventh address group*/
+#define MODBUS_GRP7_COIL_CNT    ( ((MB_COIL_LAST)+7)/8 )
+
 #define MODBUS_PROTOCOL_VERSION (1U)
 
 
@@ -247,6 +261,33 @@ offset 14.
 //        MB_DATE_TIME5,
     }MODBUS_WRITE_REGISTERS_t;
 
+    typedef enum {
+            MB_DISCRETE_INPUT_0,
+            MB_DISCRETE_INPUT_1,
+            MB_DISCRETE_INPUT_2,
+            MB_DISCRETE_INPUT_3,
+            MB_DISCRETE_INPUT_4,
+            MB_DISCRETE_INPUT_5,
+            MB_DISCRETE_INPUT_6,
+            MB_DISCRETE_INPUT_7,
+            MB_DISCRETE_INPUT_LAST
+        }MODBUS_DISCRETE_INPUTS_t;
+
+        typedef enum {
+            MB_COIL_0,
+            MB_COIL_1,
+            MB_COIL_2,
+            MB_COIL_3,
+            MB_COIL_LAST
+        }MODBUS_COILS_t;
+
+        typedef enum {
+            MB_INPUT_REG_0,
+            MB_INPUT_REG_1,
+            MB_INPUT_REG_2,
+            MB_INPUT_REG_LAST
+        }MODBUS_INPUT_REGISTERS_t;
+
 #if (TEST_AUTOMATION == YES)
     typedef enum {
         MB_AUTOMATION_WRITE_COMMAND = 350,
@@ -274,23 +315,44 @@ offset 14.
         MB_AUTOMATION_WRITE_REG_LAST
     }MODBUS_FOR_AUTOMATION_WRITE;
 
+    typedef enum
+    {
+        MB_REG_BIT_POS_0 = 0,
+        MB_REG_BIT_POS_1,
+        MB_REG_BIT_POS_2,
+        MB_REG_BIT_POS_3,
+        MB_REG_BIT_POS_4,
+        MB_REG_BIT_POS_5,
+        MB_REG_BIT_POS_6,
+        MB_REG_BIT_POS_7,
+        MB_REG_BIT_POS_8,
+        MB_REG_BIT_POS_9,
+        MB_REG_BIT_POS_10,
+        MB_REG_BIT_POS_11,
+        MB_REG_BIT_POS_12,
+        MB_REG_BIT_POS_13,
+        MB_REG_BIT_POS_14,
+        MB_REG_BIT_POS_15,
+        MB_REG_BIT_POS_LAST
+    }MODBUS_READ_REG_BIT_POS_t;
+
     typedef struct{
-            uint16_t EngineRunTime:1;
-            uint16_t MainsRunTime:1;
-            uint16_t BTSRunTime:1;
-            uint16_t RTC:1;
-            uint16_t ActiveEnergy:1;
-            uint16_t ApparentEnergy:1;
-            uint16_t ReactiveEnergy:1;
-            uint16_t NumberOfStarts:1;
-            uint16_t NumberOfTrips:1;
-            uint16_t Reserved1:1;
-            uint16_t Reserved2:1;
-            uint16_t Reserved3:1;
-            uint16_t Reserved4:1;
-            uint16_t Reserved5:1;
-            uint16_t Reserved6:1;
-            uint16_t Reserved7:1;
+        uint16_t EngineRunTime:1;
+        uint16_t MainsRunTime:1;
+        uint16_t BTSRunTime:1;
+        uint16_t RTC:1;
+        uint16_t ActiveEnergy:1;
+        uint16_t ApparentEnergy:1;
+        uint16_t ReactiveEnergy:1;
+        uint16_t NumberOfStarts:1;
+        uint16_t NumberOfTrips:1;
+        uint16_t Reserved1:1;
+        uint16_t Reserved2:1;
+        uint16_t Reserved3:1;
+        uint16_t Reserved4:1;
+        uint16_t Reserved5:1;
+        uint16_t Reserved6:1;
+        uint16_t Reserved7:1;
     }stMBAutomationSetCommand;
 
     typedef union
@@ -335,6 +397,32 @@ offset 14.
      */
     void SetReadRegisterValue(MODBUS_READ_REGISTERS_t eRegister, uint16_t u16Value);
 
+    /**
+     * Sets the value of a modbus discrete inputs with read access.
+     * @param eRegister - The address of discrete input whose value needs to be set.
+     * @param bSetDiscreteInput  - The value to be set .
+     * @return
+     * None
+     */
+    void SetReadDiscreteInputValue(MODBUS_DISCRETE_INPUTS_t eRegister, bool bSetDiscreteInput);
+
+    /**
+     * Sets the value of a modbus input registers with read access.
+     * @param eRegister - The address of input whose value needs to be set.
+     * @param bSetDiscreteInput  - The value to be set .
+     * @return
+     * None
+     */
+    void SetReadInputRegisterValue(MODBUS_INPUT_REGISTERS_t eRegister, uint16_t u16Value);
+
+    /**
+     * Sets the value of a modbus input registers with read access.
+     * @param eRegister - The address of input whose value needs to be set.
+     * @param bSetDiscreteInput  - The value to be set .
+     * @return
+     * None
+     */
+    void SetReadCoilValue(MODBUS_COILS_t eRegister , bool bSetDiscreteInput);
 
 #if (TEST_AUTOMATION == YES)
 
@@ -431,9 +519,22 @@ private:
     uint16_t _au16Grp4Registers[MODBUS_GRP4_REG_CNT];
 #endif
 
+    /*Address group 5 buffer*/
+    uint16_t _au16Grp5Registers[MODBUS_GRP5_INPUT_REG_CNT];
+
+    /*Address group 6 buffer*/
+    uint8_t  _au8Grp1StatusBytes[MODBUS_GRP6_DISCRETE_INPUT_CNT];
+
+    /*Address group 7 buffer*/
+    uint8_t  _au8Grp2StatusBytes[MODBUS_GRP7_COIL_CNT];
+
     /*List to store address groups*/
     MODBUS::ADDRESS_GROUP_t   _aAddressGrp[MODBUS_ADDRESS_GROUPS];
     MODBUS::ADDRESS_GRP_LST_t _AddressGrpLst;
+    /*List to store address groups for discrete inputs and coils.
+    A differnet structure is used as they can be stored in a single bit*/
+    MODBUS::INPUTS_STATUS_GROUP_t   _aInputStatusGrp[MODBUS_INPUTS_COIL_GROUPS];
+    MODBUS::INPUTS_STATUS_GRP_LST_t  _InputStatusGroupLst;
     uint16_t _u16TempAlarmVal;
     /**
      * Determines the register group index from the register enum. The returned
@@ -445,7 +546,15 @@ private:
      * index of the register group.
      */
     uint8_t prvIdentifyRegisterGroup(uint16_t u16RegisterAddress,
-                                                bool bReadAccess, bool bWriteAccess);
+                                                bool bReadAccess, bool bWriteAccess, MODBUS_REG_TYPES eRegType);
+    uint8_t prvIdentifyInputStatusGroup(uint16_t u16DiscreteInputAddress,
+                                                bool bReadAccess, bool bWriteAccess, MODBUS_REG_TYPES eRegType);
+
+
+    void prvUpdateHoldingRegisters();
+    void prvUpdateInputRegisters();
+    void prvUpdateDiscreteInputRegisters();
+    void prvUpdateCoils();
 
     /**
      * Updates the appropriate registers with the value of electrical parameters.

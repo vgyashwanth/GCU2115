@@ -61,11 +61,13 @@ const uint8_t SilenceMsArray[]=
  2
 };
 
-MODBUS::MODBUS(RS485 &rs485, ADDRESS_GRP_LST_t &addressGrp):
+MODBUS::MODBUS(RS485 &rs485, ADDRESS_GRP_LST_t &addressGrp, INPUTS_STATUS_GRP_LST_t &InputCoilGrp):
 _rs485(rs485),
 _u8SlaveID(0x00),
 _AddressGrp(addressGrp),
+_InputStatusGroup(InputCoilGrp),
 _CurrentAddressGroup(0),
+_CurrentCoilByteGroup(0),
 _eParserState(MB_WAIT_FOR_DATA),
 _ParseComplete(false),
 _ParseStatus(MB_VALID_PACKET),
@@ -153,7 +155,7 @@ void MODBUS::HandleIncomingData(uint8_t u8Byte)
                                                 sizeof(uint8_t), su16CalculateCRC);
                     su16ReceivedCRC  = 0;
                     /*Clear packet*/
-                    _pkt.u16NoOfRegisters = 0;
+                    _pkt.u16NoOfRegistersOrInputs = 0;
                     _pkt.u16StartAddress  = 0;
                 }
             }
@@ -163,10 +165,12 @@ void MODBUS::HandleIncomingData(uint8_t u8Byte)
         {
             _pkt.u8FunctionCode = u8Byte;
             /*Check weather the function code is supported*/
-            if( (_pkt.u8FunctionCode == MB_READ_INPUT_REGISTERS) ||
+            if( (_pkt.u8FunctionCode == MB_READ_COILS) ||
+                (_pkt.u8FunctionCode == MB_READ_DISCRETE_INPUTS) ||
+                (_pkt.u8FunctionCode == MB_READ_INPUT_REGISTERS) ||
                 (_pkt.u8FunctionCode == MB_READ_HOLDING_REGISTERS) ||
                 (_pkt.u8FunctionCode == MB_WRITE_HOLDING_REGISTERS)||
-                (_pkt.u8FunctionCode == MB_WRITE_HOLGING_SINGLE_REG))
+                (_pkt.u8FunctionCode == MB_WRITE_HOLDING_SINGLE_REG))
             {
                 _eParserState = MB_REG_ADDRESS_WAIT;
             }
@@ -191,7 +195,7 @@ void MODBUS::HandleIncomingData(uint8_t u8Byte)
             if(su8Cnt >= sizeof(uint16_t))
             {
                 su8Cnt = 0;
-                if(_pkt.u8FunctionCode == MB_WRITE_HOLGING_SINGLE_REG )
+                if(_pkt.u8FunctionCode == MB_WRITE_HOLDING_SINGLE_REG )
                 {
                     _eParserState = MB_DATA_ACCUMULATE;
                 }
@@ -207,8 +211,8 @@ void MODBUS::HandleIncomingData(uint8_t u8Byte)
             /*The register count is 2 byte, hence this state will be run 2 times for a
               packet. Shift the first received byte and then receive the second byte.
              */
-            _pkt.u16NoOfRegisters = (uint16_t)(_pkt.u16NoOfRegisters << (uint8_t)(BITS_PER_BYTE*su8Cnt));
-            _pkt.u16NoOfRegisters = (uint16_t)(_pkt.u16NoOfRegisters| (uint16_t)u8Byte);
+            _pkt.u16NoOfRegistersOrInputs = (uint16_t)(_pkt.u16NoOfRegistersOrInputs << (uint8_t)(BITS_PER_BYTE*su8Cnt));
+            _pkt.u16NoOfRegistersOrInputs = (uint16_t)(_pkt.u16NoOfRegistersOrInputs| (uint16_t)u8Byte);
             su8Cnt++;
             if(su8Cnt >= sizeof(uint16_t))
             {
@@ -243,10 +247,10 @@ void MODBUS::HandleIncomingData(uint8_t u8Byte)
             su8Cnt++;
 
             /*Check whether we have received all registers*/
-            if( (((su8Cnt/sizeof(uint16_t)) >= _pkt.u16NoOfRegisters)
+            if( (((su8Cnt/sizeof(uint16_t)) >= _pkt.u16NoOfRegistersOrInputs)
                     &&(_pkt.u8FunctionCode == MB_WRITE_HOLDING_REGISTERS))
 
-                    ||((_pkt.u8FunctionCode == MB_WRITE_HOLGING_SINGLE_REG) && (su8Cnt==2)))
+                    ||((_pkt.u8FunctionCode == MB_WRITE_HOLDING_SINGLE_REG) && (su8Cnt==2)))
             {
                 su8Cnt = 0;
                  _eParserState = MB_VALIDATE_CRC;
@@ -287,34 +291,73 @@ void MODBUS::HandleIncomingData(uint8_t u8Byte)
 
 bool MODBUS::prvValidatePacket()
 {
-    /* Iterate over all address groups to find a address and length match corresponding
-       to the current modbus request.
-     */
-    for(uint8_t i=0; i<_AddressGrp.u8NoOfRegisterGroups; i++)
+    bool bValidPacket = false;
+    switch(_pkt.u8FunctionCode)
     {
-        ADDRESS_GROUP_t &_addrGrp = _AddressGrp.pau8Registers[i];
-
-        /*Check weather the group matches*/
-        if( (_pkt.u16StartAddress >= _addrGrp.u16StartAddress) &&
-            ( (_pkt.u16StartAddress+_pkt.u16NoOfRegisters) <=
-                (_addrGrp.u16StartAddress+_addrGrp.u16length) ) )
-        {
-            /*Check the validity of function code for this group*/
-            if( (_addrGrp.isReadSupported  && (_pkt.u8FunctionCode==MB_READ_INPUT_REGISTERS)) ||
-                (_addrGrp.isReadSupported  && (_pkt.u8FunctionCode==MB_READ_HOLDING_REGISTERS)) ||
-                (_addrGrp.isWriteSupported && (_pkt.u8FunctionCode==MB_WRITE_HOLDING_REGISTERS)) ||
-                (_addrGrp.isWriteSupported && (_pkt.u8FunctionCode==MB_WRITE_HOLGING_SINGLE_REG)))
+        case MB_READ_INPUT_REGISTERS:
+        case MB_READ_HOLDING_REGISTERS:
+        case MB_WRITE_HOLDING_REGISTERS:
+        case MB_WRITE_HOLDING_SINGLE_REG:
+            /* Iterate over all address groups to find a address and length match corresponding
+               to the current modbus request.
+             */
+            for(uint8_t i=0; i<_AddressGrp.u8NoOfRegisterGroups; i++)
             {
-                /*Record the index of the address group to be used by further operations
-                  involved in processing the modbus packet
-                 */
-                _CurrentAddressGroup = i;
-                return true;
+                ADDRESS_GROUP_t &_addrGrp = _AddressGrp.pau8Registers[i];
+                
+                /*Check the validity of function code for this address group, and verify if the address group is of correct register type*/
+                if( (_addrGrp.isReadSupported  && (_pkt.u8FunctionCode==MB_READ_INPUT_REGISTERS) && (_addrGrp.eRegType == MODBUS_REG_INPUT)) ||
+                    (_addrGrp.isReadSupported  && (_pkt.u8FunctionCode==MB_READ_HOLDING_REGISTERS) && (_addrGrp.eRegType == MODBUS_REG_HOLDING)) ||
+                    (_addrGrp.isWriteSupported && (_pkt.u8FunctionCode==MB_WRITE_HOLDING_REGISTERS) && (_addrGrp.eRegType == MODBUS_REG_HOLDING)) ||
+                    (_addrGrp.isWriteSupported && (_pkt.u8FunctionCode==MB_WRITE_HOLDING_SINGLE_REG) && (_addrGrp.eRegType == MODBUS_REG_HOLDING)) )
+                {
+                    /*Check weather the group matches*/
+                    if( (_pkt.u16StartAddress >= _addrGrp.u16StartAddress) &&
+                            ( (_pkt.u16StartAddress+_pkt.u16NoOfRegistersOrInputs) <=
+                                    (_addrGrp.u16StartAddress+_addrGrp.u16length) ) )
+                    {
+                        /*Record the index of the address group to be used by further operations
+                          involved in processing the modbus packet
+                         */
+                        _CurrentAddressGroup = i;
+                        bValidPacket =  true;
+                    }
+                }
             }
-        }
+            break;
+        case MB_READ_COILS:
+        case MB_READ_DISCRETE_INPUTS:
+            for(uint8_t i=0; i<_InputStatusGroup.u8NoOfStatusByteGroups; i++)
+            {
+                INPUTS_STATUS_GROUP_t &_InputStatusGrp = _InputStatusGroup.pau8Registers[i];
+                
+                /*Check the validity of function code for this group, and verify if the address group is of correct register type*/
+                if((_InputStatusGrp.isReadSupported  && (_pkt.u8FunctionCode == (MB_READ_DISCRETE_INPUTS)) && (_InputStatusGrp.eRegType == MODBUS_REG_DISCRETE_INPUT))||
+                   (_InputStatusGrp.isReadSupported  && (_pkt.u8FunctionCode == (MB_READ_COILS)) && (_InputStatusGrp.eRegType == MODBUS_REG_COIL)) )
+                {
+                    /*Check whether the group matches*/
+                    if( (_pkt.u16StartAddress >= _InputStatusGrp.u16StartAddress) &&
+                            ( (_pkt.u16StartAddress+_pkt.u16NoOfRegistersOrInputs - 1) <=
+                                    (_InputStatusGrp.u16EndAddress)) )
+                    {
+                        /*Record the index of the address group to be used by further operations
+                                      involved in processing the modbus packet
+                         */
+                        _CurrentCoilByteGroup = i;
+                        bValidPacket =  true;
+                    }
+                }
+            }
+            break;
+
+        default:
+            /* Do Nothing */
+            break;
     }
-    return false;
+    return bValidPacket;
+
 }
+volatile uint8_t u8Test;
 void MODBUS::prvProcessRequest()
 {
     /*Array used to frame the response*/
@@ -329,10 +372,33 @@ void MODBUS::prvProcessRequest()
 
     switch(_pkt.u8FunctionCode)
     {
+        case MB_READ_COILS:
+        case MB_READ_DISCRETE_INPUTS:
+        {
+            uint8_t u8ByteCount = 0;
+            /*For function code 02(read discrete inputs we fill the byte count in the response packet.
+             *  The Byte Count field specifies the quantity of complete bytes of data.
+             * Byte count = Quantity of Inputs / 8 if the remainder is different of 0 ⇒ N = N+1
+             * where N is the Byte Count
+             * */
+            if((_pkt.u16NoOfRegistersOrInputs%8)==0)
+            {
+                u8ByteCount =  (uint8_t)((_pkt.u16NoOfRegistersOrInputs)/8);
+            }
+            else
+            {
+                u8ByteCount =  (uint8_t)((_pkt.u16NoOfRegistersOrInputs/8) + 1);
+            }
+            au8TempBuffer[u8BuffLen] = u8ByteCount;
+            u8BuffLen++;
+            u8BuffLen = (uint8_t)(u8BuffLen+prvProcessReadReqForDiscreteInput((uint8_t*)(au8TempBuffer+u8BuffLen),
+                                           (uint8_t)(MB_MAX_BUFFER_LENGTH-u8BuffLen) , u8ByteCount) );
+            break;
+        }
         case MB_READ_INPUT_REGISTERS:
         case MB_READ_HOLDING_REGISTERS:
         {
-            au8TempBuffer[u8BuffLen] = (uint8_t)(_pkt.u16NoOfRegisters*sizeof(uint16_t));
+            au8TempBuffer[u8BuffLen] = (uint8_t)(_pkt.u16NoOfRegistersOrInputs*sizeof(uint16_t));
             u8BuffLen++;
             u8BuffLen = (uint8_t)(u8BuffLen+prvProcessReadReq((uint8_t*)(au8TempBuffer+u8BuffLen),
                                            (uint8_t)(MB_MAX_BUFFER_LENGTH-u8BuffLen) ));
@@ -351,11 +417,11 @@ void MODBUS::prvProcessRequest()
             PUT_U16_IN_U8ARR_BE(au8TempBuffer,u8BuffLen, _pkt.u16StartAddress);
             u8BuffLen = u8BuffLen + 2;
             /*Append number of written  registers*/
-            PUT_U16_IN_U8ARR_BE(au8TempBuffer,u8BuffLen, _pkt.u16NoOfRegisters);
+            PUT_U16_IN_U8ARR_BE(au8TempBuffer,u8BuffLen, _pkt.u16NoOfRegistersOrInputs);
             u8BuffLen = u8BuffLen + 2;
             break;
         }
-        case MB_WRITE_HOLGING_SINGLE_REG:
+        case MB_WRITE_HOLDING_SINGLE_REG:
         {
             ADDRESS_GROUP_t &_addrGrp = _AddressGrp.pau8Registers[1];
             uint16_t u16RegisterIdx = _pkt.u16StartAddress-_addrGrp.u16StartAddress;
@@ -390,6 +456,7 @@ void MODBUS::prvProcessRequest()
         u16CRC = UTILS_SWAP_UINT16(u16CRC);
         PUT_U16_IN_U8ARR_BE(au8TempBuffer,u8BuffLen, u16CRC);
         u8BuffLen = u8BuffLen + 2;
+        u8Test = u8BuffLen;
         _rs485.SendData(au8TempBuffer, u8BuffLen);
     }
 }
@@ -397,7 +464,7 @@ void MODBUS::prvProcessRequest()
 void MODBUS::prvProcessWriteReq()
 {
     ADDRESS_GROUP_t &_addrGrp = _AddressGrp.pau8Registers[_CurrentAddressGroup];
-    for(uint8_t j=0;j<_pkt.u16NoOfRegisters;j++)
+    for(uint8_t j=0;j<_pkt.u16NoOfRegistersOrInputs;j++)
     {
         /*Determine the register index within this group*/
         uint16_t u16RegisterIdx = _pkt.u16StartAddress-_addrGrp.u16StartAddress;
@@ -405,16 +472,80 @@ void MODBUS::prvProcessWriteReq()
     }
 }
 
+uint8_t MODBUS::prvProcessReadReqForDiscreteInput(uint8_t *pu8Resp, uint8_t u8BuffLen , uint8_t u8ByteCount)
+{
+    uint8_t *puTmpBuffPointer = pu8Resp;
+
+    INPUTS_STATUS_GROUP_t &_InputStatusGrp = _InputStatusGroup.pau8Registers[_CurrentCoilByteGroup];
+
+    /*Check whether buffer length is enough*/
+    if(u8BuffLen < u8ByteCount)
+    {
+        return 0;
+    }
+
+    uint16_t u16DiscreteInputAddress = _pkt.u16StartAddress;
+
+    /*
+     * The response to function code 2 consists of function code ,
+     * byte count , followed by the data in bytes.
+     * which indicate the status of discrete inputs.
+     * If GCU has a map starting from 22500 and ending at 22510,
+     * and suppose the Master requests for 2 discrete inputs from
+     * 22500 address. Then response format will have 1 data byte
+     * in which the first 2 bits will indicate the status of the
+     * requested discrete inputs .Please note that here the remaining part
+     * of data byte will not represent the status of 22502 and onward inputs.
+     * the remaining part of data byte is not considered by the Master(confirmed in MODBUS poll).
+     * If the master would have requested for 9 inputs then
+     * GCU will send 2 bytes. The following logic copies the state of
+     * inputs from the StatusByte array and fills each bit of the response
+     * data byte accordingly.
+     * */
+    for(uint8_t i = 0; i< u8ByteCount; i++)
+    {
+        uint8_t u8ResponseByteValue = 0;
+        uint8_t u8BitPosition = 0;
+
+        for(uint8_t j=0; j<8; j++)
+        {
+            //Iterate over all the bits of the
+            uint16_t u16ByteIndex = (uint16_t)((u16DiscreteInputAddress-_InputStatusGrp.u16StartAddress)/8);
+            u8BitPosition = (uint8_t)(u16DiscreteInputAddress-_InputStatusGrp.u16StartAddress)%8;
+
+            /*Set the values for One status byte. Each status byte has status of 8 Discrete Inputs*/
+            if(_InputStatusGrp.pu8InputsStatusByte[u16ByteIndex] & (1<<u8BitPosition))
+            {
+                u8ResponseByteValue|= (uint8_t)(1<<j);
+            }
+
+            u16DiscreteInputAddress++;
+            if((u16DiscreteInputAddress >= (_pkt.u16StartAddress +_pkt.u16NoOfRegistersOrInputs)))
+            {
+                /*Suppose the number of inputs required is < 8 and we should skip iterating
+                 * through all 8 bits of the data as the remaining bits should be padded with 0*/
+
+                break;
+            }
+        }
+        //One byte of response updated
+        (*puTmpBuffPointer) = (uint8_t)(u8ResponseByteValue);
+        puTmpBuffPointer++;
+    }
+
+    return (uint8_t)(puTmpBuffPointer-pu8Resp);
+}
+
 uint8_t MODBUS::prvProcessReadReq(uint8_t *pu8Resp, uint8_t u8BuffLen)
 {
     uint8_t *puTmpBuffPointer = pu8Resp;
     /*Check weather buffer length is enough*/
-    if(u8BuffLen < (_pkt.u16NoOfRegisters*sizeof(uint16_t)) )
+    if(u8BuffLen < (_pkt.u16NoOfRegistersOrInputs*sizeof(uint16_t)) )
     {
         return 0;
     }
     ADDRESS_GROUP_t &_addrGrp = _AddressGrp.pau8Registers[_CurrentAddressGroup];
-    for(uint8_t j=0; j<_pkt.u16NoOfRegisters; j++)
+    for(uint8_t j=0; j<_pkt.u16NoOfRegistersOrInputs; j++)
     {
         /*Determine the register index within this group*/
         uint16_t u16RegisterIdx = _pkt.u16StartAddress-_addrGrp.u16StartAddress;

@@ -258,7 +258,7 @@ void MB_APP::SetReadCoilValue(MODBUS_COILS_t eRegister , bool bSetDiscreteInput)
 
 void MB_APP::prvUpdateInputRegisters()
 {
-    SetReadInputRegisterValue(MB_INPUT_REG_1 , true);
+    SetReadInputRegisterValue(MB_INPUT_REG_1 , 27);
 }
 
 void MB_APP::prvUpdateDiscreteInputRegisters()
@@ -844,7 +844,7 @@ void MB_APP::prvUpdateGCUAlarms()
 
     _u16TempAlarmVal |= (uint16_t)(1 << 15U); /* Reserved */
 
-    SetReadRegisterValue(DIG_ALARM_1_REG, 24/*_u16TempAlarmVal*/);
+    SetReadRegisterValue(DIG_ALARM_1_REG, _u16TempAlarmVal);
 
     /* DIG ALARM 2 */
     _u16TempAlarmVal =0;

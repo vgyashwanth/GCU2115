@@ -357,7 +357,6 @@ bool MODBUS::prvValidatePacket()
     return bValidPacket;
 
 }
-volatile uint8_t u8Test;
 void MODBUS::prvProcessRequest()
 {
     /*Array used to frame the response*/
@@ -456,7 +455,6 @@ void MODBUS::prvProcessRequest()
         u16CRC = UTILS_SWAP_UINT16(u16CRC);
         PUT_U16_IN_U8ARR_BE(au8TempBuffer,u8BuffLen, u16CRC);
         u8BuffLen = u8BuffLen + 2;
-        u8Test = u8BuffLen;
         _rs485.SendData(au8TempBuffer, u8BuffLen);
     }
 }

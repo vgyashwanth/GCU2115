@@ -305,8 +305,9 @@ bool MODBUS::prvValidatePacket()
             {
                 ADDRESS_GROUP_t &_addrGrp = _AddressGrp.pau8Registers[i];
                 
+                bool bModbusTypeAny = (!isModbusConfigRegSpecific()) && (_addrGrp.eRegType == MODBUS_REG_ANY)
                 /*Check the validity of function code for this address group, and verify if the address group is of correct register type*/
-                if( (_addrGrp.isReadSupported  && (_pkt.u8FunctionCode==MB_READ_INPUT_REGISTERS) && (_addrGrp.eRegType == MODBUS_REG_INPUT)) ||
+                if( (_addrGrp.isReadSupported  && (_pkt.u8FunctionCode==MB_READ_INPUT_REGISTERS) && (((_addrGrp.eRegType == MODBUS_REG_INPUT) && isModbusConfigRegSpecific()) ||  ) ||
                     (_addrGrp.isReadSupported  && (_pkt.u8FunctionCode==MB_READ_HOLDING_REGISTERS) && (_addrGrp.eRegType == MODBUS_REG_HOLDING)) ||
                     (_addrGrp.isWriteSupported && (_pkt.u8FunctionCode==MB_WRITE_HOLDING_REGISTERS) && (_addrGrp.eRegType == MODBUS_REG_HOLDING)) ||
                     (_addrGrp.isWriteSupported && (_pkt.u8FunctionCode==MB_WRITE_HOLDING_SINGLE_REG) && (_addrGrp.eRegType == MODBUS_REG_HOLDING)) )

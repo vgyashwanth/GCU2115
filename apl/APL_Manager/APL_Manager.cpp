@@ -7,7 +7,7 @@ BASE_MODES::GCU_MODE_VARS_t _vars = {BASE_MODES::ENGINE_OFF_READY, BASE_MODES::N
 
 APL_Manager::APL_Manager():
  bDeviceInConfigMode(false),
-_MbApp(*this, _cfgz, _gcuAlarms, _engineMonitoring, _AutoMode),
+_MbApp(*this, _cfgz, _gcuAlarms, _engineMonitoring, _AutoMode, _startStop, _stFirmwareInfo.u8Revision),
 _cfgc(*this),
 _cfgz(*this, _MbApp, _cfgc),
 _sleep(*this, _cfgz),

@@ -849,6 +849,12 @@ class CFGZ
 
     typedef enum
     {
+        RJIO_MODBUS,
+        INDUS_MODBUS
+    }MODBUS_CONFIG_t;
+
+    typedef enum
+    {
         CFGZ_ALT_FREQUENCY
     }SPEED_SOURCE_t;
 
@@ -1129,6 +1135,18 @@ class CFGZ
     * @return  : Value of the EGR Heal Timer
     */
    uint16_t GetEGRHealTimer();
+
+   /**
+    * This function is used to get the value of EGR Fault
+    * Timer. If the enable timers parameter is yes/true then GCU
+    * returns the value of Timers which is stored in Product specific region
+    * or the configured values. If the enable timers is disabled then
+    * default values are considered.
+    * @return  : Value of the EGR Heal Timer
+    */
+   uint16_t GetEGRFaultTimer();
+
+   MODBUS_CONFIG_t GetModbusConfig();
 
 private:
     /**

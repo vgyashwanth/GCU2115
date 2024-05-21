@@ -133,6 +133,8 @@ public:
      */
     void HandleIncomingData(uint8_t u8Byte);
 
+    static void SetModbusConfigRegSpecific(bool isRegSpecific);
+
     static uint64_t MB_Valid_Count;
 
 private:
@@ -202,6 +204,10 @@ private:
     MODBUS_PKT_t       _pkt;
     /*Determines weather modbus is enabled/disabled*/
     bool               _isModbusEnabled;
+
+    /*Flag to indicate if the modbus config will store different address
+     groups for different register types. Set by function called in MB_APP*/
+    static bool _isModbusConfigRegSpecific;
     /**
      * A helper function to validate the incoming packet
      * @param - None
@@ -257,6 +263,8 @@ private:
      * None
      */
     void    prvSendErrorResponse();
+
+
 };
 
 #endif

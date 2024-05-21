@@ -43,6 +43,8 @@
 
 #define MAX_ERROR_RESPONSE_SIZE    (10)
 
+bool MODBUS::_isModbusConfigRegSpecific = true;
+
 static MODBUS *pMb;
 
 static void RS485Cb(uint8_t *pu8Data, uint16_t u16Len);
@@ -289,9 +291,15 @@ void MODBUS::HandleIncomingData(uint8_t u8Byte)
     UTILS_ResetTimer(&_tmr);
 }
 
+void MODBUS::SetModbusConfigRegSpecific(bool isRegSpecific)
+{
+    _isModbusConfigRegSpecific = isRegSpecific;
+}
+
 bool MODBUS::prvValidatePacket()
 {
     bool bValidPacket = false;
+    bool bModbusTypeAny;
     switch(_pkt.u8FunctionCode)
     {
         case MB_READ_INPUT_REGISTERS:
@@ -304,13 +312,16 @@ bool MODBUS::prvValidatePacket()
             for(uint8_t i=0; i<_AddressGrp.u8NoOfRegisterGroups; i++)
             {
                 ADDRESS_GROUP_t &_addrGrp = _AddressGrp.pau8Registers[i];
-                
-                bool bModbusTypeAny = (!isModbusConfigRegSpecific()) && (_addrGrp.eRegType == MODBUS_REG_ANY)
+                bModbusTypeAny = ((!_isModbusConfigRegSpecific) && (_addrGrp.eRegType == MODBUS_REG_ANY));
+                bool bReadInputRegCond = ((_addrGrp.eRegType == MODBUS_REG_INPUT) && _isModbusConfigRegSpecific) || bModbusTypeAny;
+                bool bReadHoldingRegCond = ((_addrGrp.eRegType == MODBUS_REG_HOLDING) && _isModbusConfigRegSpecific) || bModbusTypeAny;
+                bool bWriteHoldingRegCond = ((_addrGrp.eRegType == MODBUS_REG_HOLDING) && _isModbusConfigRegSpecific) || bModbusTypeAny;
+                bool bWriteSingleHoldingRegCond = ((_addrGrp.eRegType == MODBUS_REG_HOLDING) && _isModbusConfigRegSpecific) || bModbusTypeAny;
                 /*Check the validity of function code for this address group, and verify if the address group is of correct register type*/
-                if( (_addrGrp.isReadSupported  && (_pkt.u8FunctionCode==MB_READ_INPUT_REGISTERS) && (((_addrGrp.eRegType == MODBUS_REG_INPUT) && isModbusConfigRegSpecific()) ||  ) ||
-                    (_addrGrp.isReadSupported  && (_pkt.u8FunctionCode==MB_READ_HOLDING_REGISTERS) && (_addrGrp.eRegType == MODBUS_REG_HOLDING)) ||
-                    (_addrGrp.isWriteSupported && (_pkt.u8FunctionCode==MB_WRITE_HOLDING_REGISTERS) && (_addrGrp.eRegType == MODBUS_REG_HOLDING)) ||
-                    (_addrGrp.isWriteSupported && (_pkt.u8FunctionCode==MB_WRITE_HOLDING_SINGLE_REG) && (_addrGrp.eRegType == MODBUS_REG_HOLDING)) )
+                if( (_addrGrp.isReadSupported && (_pkt.u8FunctionCode==MB_READ_INPUT_REGISTERS) && bReadInputRegCond) ||
+                    (_addrGrp.isReadSupported  && (_pkt.u8FunctionCode==MB_READ_HOLDING_REGISTERS) && bReadHoldingRegCond) ||
+                    (_addrGrp.isWriteSupported && (_pkt.u8FunctionCode==MB_WRITE_HOLDING_REGISTERS) && bWriteHoldingRegCond) ||
+                    (_addrGrp.isWriteSupported && (_pkt.u8FunctionCode==MB_WRITE_HOLDING_SINGLE_REG) && bWriteSingleHoldingRegCond) )
                 {
                     /*Check weather the group matches*/
                     if( (_pkt.u16StartAddress >= _addrGrp.u16StartAddress) &&
@@ -331,10 +342,12 @@ bool MODBUS::prvValidatePacket()
             for(uint8_t i=0; i<_InputStatusGroup.u8NoOfStatusByteGroups; i++)
             {
                 INPUTS_STATUS_GROUP_t &_InputStatusGrp = _InputStatusGroup.pau8Registers[i];
-                
+                bModbusTypeAny = (!_isModbusConfigRegSpecific) && (_InputStatusGrp.eRegType == MODBUS_REG_ANY);
+                bool bReadDiscreteInputCond = ((_InputStatusGrp.eRegType == MODBUS_REG_DISCRETE_INPUT) && _isModbusConfigRegSpecific) || bModbusTypeAny;
+                bool bReadCoilCond = ((_InputStatusGrp.eRegType == MODBUS_REG_COIL) && _isModbusConfigRegSpecific) || bModbusTypeAny;
                 /*Check the validity of function code for this group, and verify if the address group is of correct register type*/
-                if((_InputStatusGrp.isReadSupported  && (_pkt.u8FunctionCode == (MB_READ_DISCRETE_INPUTS)) && (_InputStatusGrp.eRegType == MODBUS_REG_DISCRETE_INPUT))||
-                   (_InputStatusGrp.isReadSupported  && (_pkt.u8FunctionCode == (MB_READ_COILS)) && (_InputStatusGrp.eRegType == MODBUS_REG_COIL)) )
+                if((_InputStatusGrp.isReadSupported  && (_pkt.u8FunctionCode == (MB_READ_DISCRETE_INPUTS)) && bReadDiscreteInputCond)||
+                   (_InputStatusGrp.isReadSupported  && (_pkt.u8FunctionCode == (MB_READ_COILS)) && bReadCoilCond))
                 {
                     /*Check whether the group matches*/
                     if( (_pkt.u16StartAddress >= _InputStatusGrp.u16StartAddress) &&

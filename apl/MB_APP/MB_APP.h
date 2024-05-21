@@ -48,12 +48,12 @@
 
 #if (TEST_AUTOMATION == YES)
 /*Defines the number of discontinuous address groups*/
-#define MODBUS_ADDRESS_GROUPS   (5U)
+#define MODBUS_ADDRESS_GROUPS   (6U)
 #define MODBUS_GRP3_REG_CNT     (MB_AUTOMATION_READ_REG_LAST - MB_AUX_S1)
 #define MODBUS_GRP4_REG_CNT     (MB_AUTOMATION_WRITE_REG_LAST - MB_AUTOMATION_WRITE_COMMAND)
 #else
 /*Defines the number of discontinuous address groups*/
-#define MODBUS_ADDRESS_GROUPS   (3U)
+#define MODBUS_ADDRESS_GROUPS   (4U)
 #endif
 
 /*Number of address groups for reading/writing discrete inputs and/or coils*/
@@ -395,9 +395,9 @@ offset 14.
             MB_HOLDING_REG_DG_OP_VOLTAGE_LOW_CUTOFF,
             MB_HOLDING_REG_DG_OP_VOLTAGE_HIGH_CUTOFF,
             MB_HOLDING_REG_START_FIRST_CRANK_SET,
-            MB_INPUT_REG_ALWAYS0xFFFF_3_2,
+            MB_HOLDING_REG_ALWAYS0xFFFF_3_2,
             MB_HOLDING_REG_REST_AFTER_FIRST_CRANK,
-            MB_INPUT_REG_ALWAYS0xFFFF_6_1,
+            MB_HOLDING_REG_ALWAYS0xFFFF_6_1,
             MB_HOLDING_REG_DG_OVERLOAD_TRIP,
             MB_HOLDING_REG_LAST
     }MODBUS_HOLDING_REGISTERS_t;
@@ -511,6 +511,14 @@ offset 14.
      */
     void SetReadRegisterValue(MODBUS_READ_REGISTERS_t eRegister, uint16_t u16Value);
 
+    /* Sets the value of a modbus holding register with read access.
+        * @param eRegister - The register whose value needs to be set.
+        * @param u16Value  - The value to be set
+        * @return
+        * None
+        */
+    void SetReadRegisterValue(MODBUS_HOLDING_REGISTERS_t eRegister, uint16_t u16Value);
+
     /**
      * Sets the value of a modbus discrete inputs with read access.
      * @param eRegister - The address of discrete input whose value needs to be set.
@@ -527,7 +535,7 @@ offset 14.
      * @return
      * None
      */
-    void SetReadInputRegisterValue(MODBUS_INPUT_REGISTERS_t eRegister, uint16_t u16Value);
+    void SetReadRegisterValue(MODBUS_INPUT_REGISTERS_t eRegister, uint16_t u16Value);
 
     /**
      * Sets the value of a modbus input registers with read access.
@@ -537,6 +545,8 @@ offset 14.
      * None
      */
     void SetReadCoilValue(MODBUS_COILS_t eRegister , bool bSetDiscreteInput);
+
+
 
 #if (TEST_AUTOMATION == YES)
 
@@ -568,6 +578,9 @@ offset 14.
      * @param u16Value - value to be written in register.
      */
     void SetReadRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister, uint16_t u16Value);
+
+    void SetAutomationRegTypeToAny();
+    void SetAutomationRegTypeToInput();
 #endif
 
 
@@ -592,6 +605,8 @@ offset 14.
 
     static void GetMBEventStatus(KEY_MB_CAN_EVENT_t *stEvent);
 
+    void SetMBConfigType(bool isRegSpecific);
+
 private:
     #define MODBUS_GEN_START_CMD        (0x01)
     #define MODBUS_GEN_STOP_CMD         (0x02)
@@ -611,8 +626,11 @@ private:
     GCU_ALARMS          &_gcuAlarm;
     ENGINE_MONITORING   &_engineMonitoring;
     AUTO_MODE           &_Automode;
+    START_STOP          &_StartStop;
+    uint8_t              _u8FwRevision;
     uint16_t             _u16MODBUSCommand;
     uint16_t             _u16MODBUSOperModeCMD;
+
 
   //  static MODBUS_CMD_STATUS_t _eMBCmdStatus;
     static KEY_MB_CAN_EVENT_t stMBEvent ;
@@ -736,6 +754,8 @@ private:
     void prvUpdateLatestDM1Messages(void);
     void prvUpdateEGRrelatedRegisters(void);
     void prvUpdateDm01FaultCodesOnModbus(void);
+
+    
 #if (TEST_AUTOMATION == YES)
     /**
      * This function updates the automation test support related modbus read registers.

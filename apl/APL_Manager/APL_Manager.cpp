@@ -21,7 +21,7 @@ _BTSMode(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
 _CyclicMode(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
 _display(this->ObjGlcd),
 _MainUI(*this,_cfgz, _gcuAlarms,_engineMonitoring, _startStop,
-         _ManualMode, _display, _cfgc, _sleep,_J1939,_BTSMode,_CyclicMode, _EngineStartValidity),
+         _ManualMode, _display, _cfgc, _sleep,_J1939,_BTSMode,_CyclicMode, _EngineStartValidity, _MbApp),
 _J1939(*this, _cfgc, _cfgz, _engineMonitoring,_gcuAlarms,_AutoMode ),
 _EngineStartValidity(_cfgz, _gcuAlarms),
 _PowerOnUpdateTimer{0, false}

@@ -26,6 +26,7 @@
 #include "CFGC/CFGC.h"
 #include <HMI/UI_DS.h>
 #include "productSelection.h"
+#include "../../MB_APP/MB_APP.h"
 
 /*extern char* arrMonth[12];*/
 
@@ -56,7 +57,7 @@ public:
         bool bPIN2Changed;
     }PASSWORD_EDIT_FLAGS_t;
 
-    UI(HAL_Manager &hal, PASSWORD_ENTRY_UI &Password, CFGZ &cfgz, Display &Disp,ENGINE_MONITORING &engMon);
+    UI(HAL_Manager &hal, PASSWORD_ENTRY_UI &Password, CFGZ &cfgz, Display &Disp,ENGINE_MONITORING &engMon, MB_APP &MbApp);
     static PASSWORD_EDIT_FLAGS_t stPassEdit;
     void Handler(int keyCode);
     void ClearScreen();
@@ -96,6 +97,7 @@ private:
     CFGZ &_objcfgz;
     Display &_objDisplay;
     ENGINE_MONITORING &_engMon;
+    MB_APP &_mbApp;
     uint16_t _u16MenuSp;
 //     menu stack pointer (actually index into menuStack)
     CMenu* _menuStack[MENU_STACK_DEPTH];
@@ -115,5 +117,6 @@ private:
     void prvUpdateEngineParam(void);
     void prvUpdateEngineTypeDependency(void);
     void prvSetPasswordAccessLevel(uint16_t u16Index, uint8_t u8PasswordLevel);
+    void prvInitModbusMap();
 };
 #endif /* _UI_H_ */

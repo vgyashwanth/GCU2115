@@ -117,6 +117,7 @@ enum
     ID_MODBUS,
     ID_BAUDRATE,
     ID_PARITY,
+    ID_MODBUS_MAP,
     ID_YES_NO,
 
     ID_EVENT_OCCURENCE,
@@ -317,6 +318,7 @@ static const char* strOptions[1][ID_LAST][8]=
   {"None", "MODBUS-SEDEMAC"},
   {"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"},
   {"None", "Even", "Odd"},
+  {"Map A", "Map B"},
   {"No", "Yes"},
   {"Daily","Weekly","Monthly"},
   {"Close To Activate", "Open To Activate"},
@@ -476,6 +478,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "MODBUS SLAVE ID",
         "MODBUS BAUDRATE",
         "PARITY",
+        "MODBUS MAP",
         //"BTS CONFIG",
         "BATTERY MON",
         "LOW BATT THRESHOLD",
@@ -1014,12 +1017,13 @@ UI::PASSWORD_EDIT_FLAGS_t UI::stPassEdit={false,false};
 
 /*char* arrMonth[12];*/
 
-UI::UI(HAL_Manager &hal,  PASSWORD_ENTRY_UI &Password, CFGZ &cfgz, Display &Disp, ENGINE_MONITORING &engMon):
+UI::UI(HAL_Manager &hal,  PASSWORD_ENTRY_UI &Password, CFGZ &cfgz, Display &Disp, ENGINE_MONITORING &engMon, MB_APP &MbApp):
 _objHal(hal),
 _objPassword(Password),
 _objcfgz(cfgz),
 _objDisplay(Disp),
 _engMon(engMon),
+_mbApp(MbApp),
 _u16MenuSp(0),
 _menuStack{NULL},
 _MiscParam{},
@@ -1101,6 +1105,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_MODBUS_COMM_MODBUS_SLAVE_ID] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_MODBUS_SLAVE_ID), strLeafNode[_u8LanguageArrayIndex][SID_MODBUS_COMM_MODBUS_SLAVE_ID], "", "%u", (uint8_t)1, (uint8_t)247, CEditableItem::PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_MODBUS_COMM_MODBUS_BAUDRATE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_MODBUS_BAUDRATE),strLeafNode[_u8LanguageArrayIndex][SID_MODBUS_COMM_MODBUS_BAUDRATE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_BAUDRATE], 8, CEditableItem::PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_MODBUS_COMM_PARITY] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_PARITY),strLeafNode[_u8LanguageArrayIndex][SID_MODBUS_COMM_PARITY], "", "%s", strOptions[_u8LanguageArrayIndex][ID_PARITY], 3, CEditableItem::PIN2_ALLOWED );
+    ArrEditableItem[INDEX_OF_MODBUS_COMM_MAP] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_MODBUS_COMM_MAP),strLeafNode[_u8LanguageArrayIndex][SID_MODBUS_COMM_MAP], "", "%s", strOptions[_u8LanguageArrayIndex][ID_MODBUS_MAP], 2, CEditableItem::NOT_ALLOWED );
 
     ArrEditableItem[INDEX_OF_BTS_CONFIG_BATTERY_MON] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON),strLeafNode[_u8LanguageArrayIndex][SID_BTS_CONFIG_BATTERY_MON], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO], 2, CEditableItem::PIN2_ALLOWED );
     ArrEditableItem[INDEX_OF_BTS_CONFIG_LOW_BATT_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_LOW_BATT_THRESHOLD),strLeafNode[_u8LanguageArrayIndex][SID_BTS_CONFIG_LOW_BATT_THRESHOLD], arrUnit[ID_V], "%f", (float)40.0,(float) 55.0,(float)0.1, CEditableItem::PIN1_ALLOWED );
@@ -1746,6 +1751,8 @@ void UI::Initialize()
     InitialiseCustomSensor();
     HandleMenuVisibility();
     prvInitialiseECUParam();
+    prvInitModbusMap();
+
 }
 
 UI_STATES_t uiState = UI_STATE_INITIALIZING;
@@ -2047,7 +2054,7 @@ void UI::HandleMenuVisibility(void)
     menuItemsMidLevel[ID_PREHEAT_S].isEnabled =true;
     /*................................Module Menu........................................................................................................*/
     if(ArrEditableItem[INDEX_OF_MODBUS_COMM_COMM_MODE].value.u8Val == CFGZ::CFGZ_DISABLE)
-        LowestLevelMenuEnDis(INDEX_OF_MODBUS_COMM_MODBUS_SLAVE_ID,INDEX_OF_MODBUS_COMM_PARITY,false);
+        LowestLevelMenuEnDis(INDEX_OF_MODBUS_COMM_MODBUS_SLAVE_ID,INDEX_OF_MODBUS_COMM_MAP,false);
 
     if(ArrEditableItem[INDEX_OF_BTS_CONFIG_BATTERY_MON].value.u8Val == CFGZ::CFGZ_DISABLE)
         LowestLevelMenuEnDis(INDEX_OF_BTS_CONFIG_LOW_BATT_THRESHOLD,INDEX_OF_BTS_CONFIG_DG_RUN_DURATION,false);
@@ -2669,6 +2676,7 @@ void UI::Handler(int keyCode)
                 }
                 InitialiseCustomSensor();
                 _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].saveTempValue();
+                prvInitModbusMap();
                 HandleMenuVisibility();
                 UpdateMaxNumberOfItem();
                 pCurMenu->show();
@@ -2722,6 +2730,28 @@ volatile float table_x_4_20mA_Sens[10] = {4,  6,  7,  9,  10, 12, 14, 15, 17, 20
 volatile float table_x_0to5V_Sens[10] = {0.5f ,0.9f ,1.3f ,1.7f ,2.1f ,2.5f ,2.9f ,3.3f ,3.7f ,4.5f};
 
 volatile float table_LOP_Bar[10] = {0.0f, 1.0f,2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 10.0f};
+
+
+void UI::prvInitModbusMap()
+{
+    if(ArrEditableItem[INDEX_OF_MODBUS_COMM_MAP].value.u8Val == CFGZ::CFGZ_MODBUS_MAP_A_RJIO)
+    {
+#if (TEST_AUTOMATION == 1)
+        /*Changing to rjio map. Change rgister type of automation register groups to 'MODBUS_REG_ANY'*/
+        _mbApp.SetAutomationRegTypeToAny();
+#endif
+        _mbApp.SetMBConfigType(false); /*modbus data not register specific*/   
+    }
+    else
+    {
+#if (TEST_AUTOMATION == 1)
+        /*Changing to indus map. Change rgister type of automation register groups to 'MODBUS_REG_INPUT'*/
+        _mbApp.SetAutomationRegTypeToInput();
+#endif
+        _mbApp.SetMBConfigType(true); /*modbus data register specific*/
+    }  
+}
+
 
 void UI::InitialiseCustomSensor()
 {

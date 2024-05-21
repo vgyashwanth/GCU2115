@@ -376,18 +376,18 @@ void MB_APP::prvUpdateInputRegisters()
     SetReadRegisterValue(MB_INPUT_REG_GEN_BR_LINE_VOLTAGE, u16Tmp);
 
     /*Store generator frequency, resolution 0.01*/
-    u16Tmp = (uint16_t)(ac.GENSET_GetApproxFreq(R_PHASE)*100);
+    u16Tmp = (uint16_t)(_gcuAlarm.GetMinGenFreq()*100);
     SetReadRegisterValue(MB_INPUT_REG_GEN_FREQ, u16Tmp);
     
     u16Tmp = 0;
     SetReadRegisterValue(MB_INPUT_REG_ALWAYS0_77, u16Tmp);
 
     /*Store load current*/
-    u16Tmp = (uint16_t)(ac.GENSET_GetRYVolts()*100);
+    u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(R_PHASE)*100);
     SetReadRegisterValue(MB_INPUT_REG_GEN_RY_LINE_VOLTAGE, u16Tmp);
-    u16Tmp = (uint16_t)(ac.GENSET_GetYBVolts()*100);
+    u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(Y_PHASE)*100);
     SetReadRegisterValue(MB_INPUT_REG_GEN_YB_LINE_VOLTAGE, u16Tmp);
-    u16Tmp = (uint16_t)(ac.GENSET_GetRBVolts()*100);
+    u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(B_PHASE)*100);
     SetReadRegisterValue(MB_INPUT_REG_GEN_BR_LINE_VOLTAGE, u16Tmp);
 
     uint16_t u16TotalLoadCurr = 0U;
@@ -634,12 +634,12 @@ void MB_APP::prvUpdateInputRegisters()
     }
 
     /*Store NCD error hours*/
-    //u32Tmp = (uint32_t)(_cfgz.GetEGRFaultTimer()/60);
-    u32Tmp = 0xFFFFFFFFU;
+    u32Tmp = (uint32_t)(_cfgz.GetEGRFaultTimer()/60);
+    //u32Tmp = 0xFFFFFFFFU;
     prvSetMultipleInputRegisters(MB_INPUT_REG_NCD_ERR_HRS_2, (uint8_t*)(&u32Tmp), 4);
 
     /*Store NCD heal hours*/
-    //u32Tmp = (uint32_t)(_cfgz.GetEGRHealTimer()/60);
+    u32Tmp = (uint32_t)(_cfgz.GetEGRHealTimer()/60);
     prvSetMultipleInputRegisters(MB_INPUT_REG_NCD_HEAL_HRS_2, (uint8_t*)(&u32Tmp), 4);
     
 }

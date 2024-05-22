@@ -39,9 +39,10 @@ extern J1939APP *gpJ1939;
 MB_APP::KEY_MB_CAN_EVENT_t MB_APP::stMBEvent={};
 uint64_t MB_APP::Curr_MB_Valid_Count = 0;
 bool MB_APP::bFuelPctBelow15Pct = false;
+uint8_t MB_APP::_u8FwRev = 0;
 
 MB_APP::MB_APP(HAL_Manager &hal, CFGZ &cfgz, GCU_ALARMS &gcuAlarm,
-        ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode, START_STOP &StartStop, uint8_t u8FwRevision):
+        ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode, START_STOP &StartStop):
 MODBUS(hal.ObjRS485, _AddressGrpLst, _InputStatusGroupLst),
 _hal(hal),
 _cfgz(cfgz),
@@ -49,7 +50,6 @@ _gcuAlarm(gcuAlarm),
 _engineMonitoring(engineMonitoring),
 _Automode(Automode),
 _StartStop(StartStop),
-_u8FwRevision(u8FwRevision),
 _u16MODBUSCommand(0),
 _u16MODBUSOperModeCMD(0),
 _au16Grp1Registers{0},
@@ -112,6 +112,11 @@ void MB_APP::Update()
     prvUpdatePGNNumber();
     prvUpdateMBWriteRegisterForAutomation();
 #endif
+}
+
+void MB_APP::SetFwRevision(uint8_t uRevNo)
+{
+    _u8FwRev = uRevNo;
 }
 
 void MB_APP::SetMBConfigType(bool isRegSpecific)
@@ -316,12 +321,13 @@ void MB_APP::prvUpdateInputRegisters()
 
     SetReadRegisterValue(MB_INPUT_REG_FUEL_TYPE, 1); //Diesel Gen
 
-    uint32_t u32ProductRating = 0xFFFFFFFFU;
+    uint32_t u32ProductRating = (uint32_t)((_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_GEN_RATING)*10)/(0.8));
     prvSetMultipleInputRegisters(MB_INPUT_REG_PRODUCT_RATING_2, (uint8_t*) (&u32ProductRating), 4);
 
-    SetReadRegisterValue(MB_INPUT_REG_FW_VER, _u8FwRevision);
+    /*Firmware revision. Scale 0.01*/
+    SetReadRegisterValue(MB_INPUT_REG_FW_VER, (uint16_t)(_u8FwRev*100));
 
-    SetReadRegisterValue(MB_INPUT_REG_PROTOCOL_VER, 1);
+    SetReadRegisterValue(MB_INPUT_REG_PROTOCOL_VER, 23);
 
     //char strGensetSerialNo[20] = "AAAAAAAAAABBBBBBBBBB"
     uint8_t strGensetSerialNo[20] = {0xFF};
@@ -348,14 +354,14 @@ void MB_APP::prvUpdateInputRegisters()
     prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) strSiteId, 10);
 
     /*Get the current time*/
-    RTC::TIME_t* currentTime;
-    _hal.ObjRTC.GetTime(currentTime);
-    SetReadRegisterValue(MB_INPUT_REG_DATE, (uint16_t)currentTime->u8Day);
-    SetReadRegisterValue(MB_INPUT_REG_HOUR, (uint16_t)currentTime->u8Hour);
-    SetReadRegisterValue(MB_INPUT_REG_MINUTES, (uint16_t)currentTime->u8Minute);
-    SetReadRegisterValue(MB_INPUT_REG_SECONDS, (uint16_t)currentTime->u8Second);
-    SetReadRegisterValue(MB_INPUT_REG_MONTH, (uint16_t)currentTime->u8Month);
-    SetReadRegisterValue(MB_INPUT_REG_YEAR, currentTime->u16Year);
+    RTC::TIME_t currentTime;
+    _hal.ObjRTC.GetTime(&currentTime);
+    SetReadRegisterValue(MB_INPUT_REG_DATE, (uint16_t)currentTime.u8Day);
+    SetReadRegisterValue(MB_INPUT_REG_HOUR, (uint16_t)currentTime.u8Hour);
+    SetReadRegisterValue(MB_INPUT_REG_MINUTES, (uint16_t)currentTime.u8Minute);
+    SetReadRegisterValue(MB_INPUT_REG_SECONDS, (uint16_t)currentTime.u8Second);
+    SetReadRegisterValue(MB_INPUT_REG_MONTH, (uint16_t)currentTime.u8Month);
+    SetReadRegisterValue(MB_INPUT_REG_YEAR, currentTime.u16Year);
     
     /*Store generator voltage, resolution 0.01*/
     uint16_t u16Tmp;
@@ -381,14 +387,6 @@ void MB_APP::prvUpdateInputRegisters()
     
     u16Tmp = 0;
     SetReadRegisterValue(MB_INPUT_REG_ALWAYS0_77, u16Tmp);
-
-    /*Store load current*/
-    u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(R_PHASE)*100);
-    SetReadRegisterValue(MB_INPUT_REG_GEN_RY_LINE_VOLTAGE, u16Tmp);
-    u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(Y_PHASE)*100);
-    SetReadRegisterValue(MB_INPUT_REG_GEN_YB_LINE_VOLTAGE, u16Tmp);
-    u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(B_PHASE)*100);
-    SetReadRegisterValue(MB_INPUT_REG_GEN_BR_LINE_VOLTAGE, u16Tmp);
 
     uint16_t u16TotalLoadCurr = 0U;
     /*Store load current values*/

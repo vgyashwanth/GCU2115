@@ -492,7 +492,7 @@ offset 14.
      * None
      */
     MB_APP(HAL_Manager &hal,  CFGZ &cfgz, GCU_ALARMS &gcuAlarm,
-            ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode, START_STOP &StartStop, uint8_t u8FwRevision);
+            ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode, START_STOP &StartStop);
 
     /**
      * Fetches the value of a modbus register with write access(address group 2).
@@ -606,6 +606,7 @@ offset 14.
     static void GetMBEventStatus(KEY_MB_CAN_EVENT_t *stEvent);
 
     void SetMBConfigType(bool isRegSpecific);
+    void SetFwRevision(uint8_t uRevNo);
 
 private:
     #define MODBUS_GEN_START_CMD        (0x01)
@@ -627,9 +628,9 @@ private:
     ENGINE_MONITORING   &_engineMonitoring;
     AUTO_MODE           &_Automode;
     START_STOP          &_StartStop;
-    uint8_t              _u8FwRevision;
     uint16_t             _u16MODBUSCommand;
     uint16_t             _u16MODBUSOperModeCMD;
+    static uint8_t       _u8FwRev;
 
 
   //  static MODBUS_CMD_STATUS_t _eMBCmdStatus;

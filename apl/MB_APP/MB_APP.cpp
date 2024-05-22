@@ -448,20 +448,28 @@ void MB_APP::prvUpdateInputRegisters()
     SetReadRegisterValue(MB_INPUT_REG_PF_B_PHASE, u16Tmp);
 
     /*Store engine speed*/
-    uint32_t u32Tmp = (uint16_t)(_gcuAlarm.GetSpeedValue());
+    uint32_t u32Tmp = (uint32_t)(_gcuAlarm.GetSpeedValue());
     prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SPEED_2, (uint8_t*)(&u32Tmp), 4);
 
-    /*Store generator run hours*/
+    /*Store generator run hours, scale 0.1*/
     u32Tmp = ((_gcuAlarm.GetSelectedEngRunMin()/60)*10);
     prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_TOTAL_2, (uint8_t*)u32Tmp, 4);
 
-    /*Store remote run hours*/
+    /*Store remote run hours, scale 0.1*/
+    u32Tmp = (((_engineMonitoring.GetRemoteRunTimeMin())/60)*10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_REMOTE_2, (uint8_t*)u32Tmp, 4);
+    
+    /*Store manual run hours, scale 0.1*/
+    u32Tmp = (((_engineMonitoring.GetManualRunTimeMin())/60)*10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_MANUAL_2, (uint8_t*)u32Tmp, 4);
 
-    /*Store manual run hours*/
+    /*Store no load run hours, scale 0.1*/
+    u32Tmp = (((_engineMonitoring.GetNoLoadRunTimeMin())/60)*10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_NOLOAD_2, (uint8_t*)u32Tmp, 4);
 
-    /*Store no load run hours*/
-
-    /*Store on load run hours*/
+    /*Store on load run hours, scale 0.1*/
+    u32Tmp = (((_engineMonitoring.GetOnLoadRunTimeMin())/60)*10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_ONLOAD_2, (uint8_t*)u32Tmp, 4);
 
     /*Store real gen power*/
     /*Resolution of 0.01 KW , i.e 100/1000=> 1/10 */
@@ -591,9 +599,12 @@ void MB_APP::prvUpdateInputRegisters()
         SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_ALWAYS0xFFFF_121_4 + i), 0xFFFFU);
     }
 
-    /*Store total stored cranks*/
-
+    /*Store total stored cranks. scaling 0.01*/
+    u32Tmp = _engineMonitoring.GetCumCrankCnt()*100;
+    SetReadRegisterValue(MB_INPUT_REG_TOTAL_NO_OF_CRANKS_2, u32Tmp);
     /*Store total failed cranks*/
+    u32Tmp = _engineMonitoring.GetCumFailedCrankCnt()*100;
+    SetReadRegisterValue(MB_INPUT_REG_NO_OF_FAILED_CRANKS_2, u32Tmp);
 
     for(uint8_t i = 0; i < 6; i++)
     {

@@ -66,7 +66,9 @@ _u8StartStopSMState(0),
 _u8ActiveSectorForCummulative(0),
 _stTampEnergyRegister{},
 _stEnergyRegister{},
-_stMainsEnergyRegister{}
+_stMainsEnergyRegister{},
+_bCrankStateLatched(false),
+_bFailedCrankStateLatched(false)
 #if (TEST_AUTOMATION == YES)
 ,_bFromAutomation(false)
 #endif
@@ -95,6 +97,30 @@ void ENGINE_MONITORING::Update()
         prvUpdateEngineRunHrs();
         prvUpdateMainsRunHrs();
         prvUpdateBTSRunHrs();
+        prvUpdateCumCrankCnts();
+    }
+}
+
+void ENGINE_MONITORING::prvUpdateCumCrankCnts()
+{
+    if((_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANKING) && !_bCrankStateLatched)
+    {
+        _stCummulativeCnt.u32GenNumberOfCranks++;
+        _bCrankStateLatched = true;
+    }
+    else if(_u8StartStopSMState != START_STOP::ID_STATE_SS_CRANKING)
+    {
+        _bCrankStateLatched = false;
+    }
+
+    if((_GCUAlarms.IsFailToStart() || (_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANK_REST)) && !_bFailedCrankStateLatched)
+    {
+        _stCummulativeCnt.u32GenNumberOfFailedCranks++;
+        _bFailedCrankStateLatched = true;
+    }
+    else if(_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANKING)
+    {
+        _bFailedCrankStateLatched = false;
     }
 }
 
@@ -528,6 +554,36 @@ uint32_t ENGINE_MONITORING::GetTamperedRunTimeMin()
     return  _stCummulativeCnt.u32TamperedRunTime_min;
 }
 
+uint32_t ENGINE_MONITORING::GetRemoteRunTimeMin()
+{
+    return  _stCummulativeCnt.u32GenRemoteRunTime_min;
+}
+
+uint32_t ENGINE_MONITORING::GetManualRunTimeMin()
+{
+    return  _stCummulativeCnt.u32GenManualRunTime_min;
+}
+
+uint32_t ENGINE_MONITORING::GetNoLoadRunTimeMin()
+{
+    return  _stCummulativeCnt.u32GenNoLoadRunTime_min;
+}
+
+uint32_t ENGINE_MONITORING::GetOnLoadRunTimeMin()
+{
+    return  _stCummulativeCnt.u32GenOnLoadRunTime_min;
+}
+
+uint32_t ENGINE_MONITORING::GetCumCrankCnt()
+{
+    return  _stCummulativeCnt.u32GenNumberOfCranks;
+}
+
+uint32_t ENGINE_MONITORING::GetCumFailedCrankCnt()
+{
+    return  _stCummulativeCnt.u32GenNumberOfFailedCranks;
+}
+
 float ENGINE_MONITORING::GetTamprEEPromCummEnergy()
 {
     return _stCummulativeCnt.f32TamprGenKWH;
@@ -739,6 +795,23 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
             (_GCUAlarms.GetSpeedValue() > _cfgz.GetCFGZ_Param(CFGZ::ID_CRANK_DISCONN_ENGINE_SPEED)))
         {
             _stCummulativeCnt.u32EngineRunTime_min++;
+            if(BASE_MODES::GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)
+            {
+                _stCummulativeCnt.u32GenManualRunTime_min++;
+            }
+            else
+            {
+                _stCummulativeCnt.u32GenRemoteRunTime_min++;
+            }
+
+            if(GetContactorLoadStatus() == LOAD_ON_GEN)
+            {
+                _stCummulativeCnt.u32GenOnLoadRunTime_min++;
+            }
+            else
+            {
+                _stCummulativeCnt.u32GenNoLoadRunTime_min++;
+            }
 
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32EngineRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerGenUpdateCumulative) >= u16TimeSlot)

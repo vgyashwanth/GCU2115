@@ -677,15 +677,15 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_FAIL_TO_START , bStatus);
 
     /*Store gen fail to stop*/
-    bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FAIL_TO_START].bEnableMonitoring) &&
-                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FAIL_TO_START].bResultInstant);
+    bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FAIL_TO_STOP].bEnableMonitoring) &&
+                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FAIL_TO_STOP].bResultInstant);
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_FAIL_TO_STOP , bStatus);
 
     /*Store common alarm*/
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_COMMON_FAULT , _gcuAlarm.IsCommonAlarm());
 
     /*Store LLOP fault*/
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_COMMON_FAULT , _gcuAlarm.IsLowOilPresAlarmActive());
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_LLOP_FAULT , _gcuAlarm.IsLowOilPresAlarmActive());
 
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_ALWAYS0_7 , false); /*Always 0*/
 
@@ -717,24 +717,11 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
     }
 
     uint64_t u64Temp = (_gcuAlarm.GetSelectedEngRunMin())/60;
-    uint16_t u16Tmp = _cfgz.GetCFGZ_Param(CFGZ::ID_MAINT_ALARM_DUE_AT_ENGINE_HOURS);
-    if(u64Temp > (uint64_t)u16Tmp)
-    {
-        u64Temp = u64Temp - (uint64_t)u16Tmp;
-        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_50HRS, (u64Temp >= 50));
-        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_100HRS, (u64Temp >= 100));
-        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_500HRS, (u64Temp >= 500));
-        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_1000HRS, (u64Temp >= 1000));
-        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_2000HRS, (u64Temp >= 2000));
-    }
-    else
-    {
-        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_50HRS,  false);
-        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_100HRS, false);
-        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_500HRS, false);
-        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_1000HRS, false);
-        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_2000HRS, false);
-    }
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_50HRS, (u64Temp >= 50));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_100HRS, (u64Temp >= 100));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_500HRS, (u64Temp >= 500));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_1000HRS, (u64Temp >= 1000));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_2000HRS, (u64Temp >= 2000));
 
     for(uint8_t i = 0; i < 5; i++)
     {
@@ -2308,8 +2295,16 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation(void)
 
 uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister)
 {
+    uint8_t u8Grp;
     /*Determine the group*/
-    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_HOLDING);
+    if(MODBUS::_isModbusConfigRegSpecific)
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_HOLDING);
+    }
+    else
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_ANY);
+    }
     /*Determine the start address for the group*/
     uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
     return _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress];
@@ -2318,8 +2313,16 @@ uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister)
 
 void MB_APP::SetWriteRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister, uint16_t u16Value)
 {
+    uint8_t u8Grp;
     /*Determine the group*/
-    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_HOLDING);
+    if(MODBUS::_isModbusConfigRegSpecific)
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_HOLDING);
+    }
+    else
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_ANY);
+    }
     /*Determine the start address for the group*/
     uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
     _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
@@ -2327,8 +2330,16 @@ void MB_APP::SetWriteRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister, uint16
 
 uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister)
 {
+    uint8_t u8Grp;
     /*Determine the group*/
-    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_HOLDING);
+    if(MODBUS::_isModbusConfigRegSpecific)
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_INPUT);
+    }
+    else
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_ANY);
+    }
     /*Determine the start address for the group*/
     uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
     return _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress];
@@ -2336,8 +2347,16 @@ uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister)
 
 void MB_APP::SetReadRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister, uint16_t u16Value)
 {
+    uint8_t u8Grp;
     /*Determine the group*/
-    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_HOLDING);
+    if(MODBUS::_isModbusConfigRegSpecific)
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_INPUT);
+    }
+    else
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_ANY);
+    }
     /*Determine the start address for the group*/
     uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
     _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
@@ -2352,7 +2371,7 @@ void MB_APP::SetAutomationRegTypeToAny()
 void MB_APP::SetAutomationRegTypeToInput()
 {
     _aAddressGrp[2].eRegType = MODBUS::MODBUS_REG_INPUT;
-    _aAddressGrp[3].eRegType = MODBUS::MODBUS_REG_INPUT;
+    _aAddressGrp[3].eRegType = MODBUS::MODBUS_REG_HOLDING;
 }
 
 

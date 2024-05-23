@@ -331,27 +331,27 @@ void MB_APP::prvUpdateInputRegisters()
 
     //char strGensetSerialNo[20] = "AAAAAAAAAABBBBBBBBBB"
     uint8_t strGensetSerialNo[20] = {0xFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*) strGensetSerialNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
 
     //char strEngineSerialNo[20] = "AAAAAAAAAACCCCCCCCCC"
     uint8_t strEngineSerialNo[20] = {0xFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*) strEngineSerialNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*) &strEngineSerialNo, 20);
 
     //char strAltSerialNo[20] = "AAAAAAAAAADDDDDDDDDD"
     uint8_t strAltSerialNo[20] = {0xFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*) strAltSerialNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*) &strAltSerialNo, 20);
 
     //char strMainControllerNo[20] = "AAAAAAAAAAEEEEEEEEEE"
     uint8_t strMainControllerNo[20] = {0xFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*) strMainControllerNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strMainControllerNo, 20);
 
     //char strEngineControllerNo[20] = "AAAAAAAAAAFFFFFFFFFF"
     uint8_t strEngineControllerNo[20] = {0xFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) strEngineControllerNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strEngineControllerNo, 20);
 
     //char strSiteId[10] = "AAAAAGGGGG"
     uint8_t strSiteId[10] = {0xFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) strSiteId, 10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strSiteId, 10);
 
     /*Get the current time*/
     RTC::TIME_t currentTime;
@@ -450,24 +450,24 @@ void MB_APP::prvUpdateInputRegisters()
     prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SPEED_2, (uint8_t*)(&u32Tmp), 4);
 
     /*Store generator run hours, scale 0.1*/
-    u32Tmp = ((_gcuAlarm.GetSelectedEngRunMin()/60)*10);
-    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_TOTAL_2, (uint8_t*)u32Tmp, 4);
+    u32Tmp = (uint32_t)((_gcuAlarm.GetSelectedEngRunMin()/60)*10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_TOTAL_2, (uint8_t*)(&u32Tmp), 4);
 
     /*Store remote run hours, scale 0.1*/
     u32Tmp = (((_engineMonitoring.GetRemoteRunTimeMin())/60)*10);
-    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_REMOTE_2, (uint8_t*)u32Tmp, 4);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_REMOTE_2, (uint8_t*)(&u32Tmp), 4);
     
     /*Store manual run hours, scale 0.1*/
     u32Tmp = (((_engineMonitoring.GetManualRunTimeMin())/60)*10);
-    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_MANUAL_2, (uint8_t*)u32Tmp, 4);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_MANUAL_2, (uint8_t*)(&u32Tmp), 4);
 
     /*Store no load run hours, scale 0.1*/
     u32Tmp = (((_engineMonitoring.GetNoLoadRunTimeMin())/60)*10);
-    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_NOLOAD_2, (uint8_t*)u32Tmp, 4);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_NOLOAD_2, (uint8_t*)(&u32Tmp), 4);
 
     /*Store on load run hours, scale 0.1*/
     u32Tmp = (((_engineMonitoring.GetOnLoadRunTimeMin())/60)*10);
-    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_ONLOAD_2, (uint8_t*)u32Tmp, 4);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_ONLOAD_2, (uint8_t*)(&u32Tmp), 4);
 
     /*Store real gen power*/
     /*Resolution of 0.01 KW , i.e 100/1000=> 1/10 */
@@ -487,15 +487,17 @@ void MB_APP::prvUpdateInputRegisters()
     /*Total generator energy*/
     /*Resolution of 0.01 KWH, i.e 100/1000=> 1/10 */
     u32Tmp = (uint32_t)(ac.GENSET_GetTotalActiveEnergySinceInitWH()/10);
-    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_ENERGY_TOTAL_2, (uint8_t*)&u32Tmp, 4);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_ENERGY_TOTAL_2, (uint8_t*)(&u32Tmp), 4);
 
     SetReadRegisterValue(MB_INPUT_REG_ALWAYS0xFFFF_102, 0xFFFF);
 
     /*Store canopy temp at far side of engine*/
     SetReadRegisterValue(MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR, 0xFFFF); /*Input not added yet*/
 
-    uint16_t u16TempArr[6] = {0xFFFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ALWAYS0xFFFF_104_6, (uint8_t*)u16TempArr, sizeof(u16TempArr)*2);
+    for(uint8_t i = 0U; i < 6; i++)
+    {
+        SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_ALWAYS0xFFFF_104_6 + i), 0xFFFF);
+    }
     
 
     A_SENSE::SENSOR_RET_t sensorVal;
@@ -523,7 +525,10 @@ void MB_APP::prvUpdateInputRegisters()
         }
     }
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ALWAYS0xFFFF_112_6, (uint8_t*)u16TempArr, sizeof(u16TempArr)*2);
+    for(uint8_t i = 0U; i < 6; i++)
+    {
+        SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_ALWAYS0xFFFF_112_6 + i), 0xFFFF);
+    }
 
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
         && (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
@@ -599,10 +604,11 @@ void MB_APP::prvUpdateInputRegisters()
 
     /*Store total stored cranks. scaling 0.01*/
     u32Tmp = _engineMonitoring.GetCumCrankCnt()*100;
-    SetReadRegisterValue(MB_INPUT_REG_TOTAL_NO_OF_CRANKS_2, u32Tmp);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_TOTAL_NO_OF_CRANKS_2, (uint8_t*)(&u32Tmp), 4);
+
     /*Store total failed cranks*/
     u32Tmp = _engineMonitoring.GetCumFailedCrankCnt()*100;
-    SetReadRegisterValue(MB_INPUT_REG_NO_OF_FAILED_CRANKS_2, u32Tmp);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_NO_OF_FAILED_CRANKS_2, (uint8_t*)(&u32Tmp), 4);
 
     for(uint8_t i = 0; i < 6; i++)
     {

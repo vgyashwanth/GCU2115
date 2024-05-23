@@ -2583,7 +2583,7 @@ void UI::Handler(int keyCode)
                 _pCurEditableItemsScreen->initTempValues();
                 _pCurEditableItemsScreen->show(true);    // i.e. show tempValue(s) rather than Value(s)
 #if(CONFIG_EDIT == YES)
-                if(1)
+                if(_objPassword.GetEnteredPassword() != 0U) //Check if config is in write mode
 #else
                 if(((_pCurEditableItemsScreen->pEditableItems->u8PasswordLevel & _objPassword.GetEnteredPassword()) //If accessible through entered password
                         || (_objPassword.GetEnteredPassword()== PASSWORD_ENTRY_UI::MASTER_PIN))

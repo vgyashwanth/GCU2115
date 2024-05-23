@@ -2495,7 +2495,7 @@ uint16_t J1939APP::GetGenStatusRegister(void)
     }
 
     /* Bit-14 for Mains healthy/unhealthy*/
-    if((_Automode.GetMainsStatus()==BASE_MODES::MAINS_HELATHY)
+    if((_Automode.GetMainsStatus()==BASE_MODES::MAINS_UNHELATHY)
             && (_cfgz.GetCFGZ_Param(CFGZ::ID_MAINS_CONFIG_MAINS_MONITORING) == CFGZ::CFGZ_ENABLE))
     {
         u16GenStatus|= 1<<14;

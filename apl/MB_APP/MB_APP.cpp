@@ -578,7 +578,7 @@ void MB_APP::prvUpdateInputRegisters()
     {
         /*Scale factor is 0.01*/
         u16Tmp = (uint16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal*100));
-        SetReadRegisterValue(MD_FUEL_PERCENTAGE, u16Tmp);
+        SetReadRegisterValue(MB_INPUT_REG_FUEL_LVL_PCT, u16Tmp);
     }
     else
     {
@@ -589,11 +589,11 @@ void MB_APP::prvUpdateInputRegisters()
         {
             /*Scale factor is 0.01*/
             u16Tmp = (uint16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal*100));
-            SetReadRegisterValue(MD_FUEL_PERCENTAGE, u16Tmp);
+            SetReadRegisterValue(MB_INPUT_REG_FUEL_LVL_PCT, u16Tmp);
         }
         else
         {
-            SetReadRegisterValue(MD_FUEL_PERCENTAGE, 0xFFFFU);
+            SetReadRegisterValue(MB_INPUT_REG_FUEL_LVL_PCT, 0xFFFFU);
         }
     }
 

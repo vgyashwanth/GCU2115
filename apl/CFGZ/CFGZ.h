@@ -1153,8 +1153,6 @@ class CFGZ
     */
    uint16_t GetEGRFaultTimer();
 
-   MODBUS_CONFIG_t GetModbusConfig();
-
 private:
     /**
     * Reference object of DFLASH class.

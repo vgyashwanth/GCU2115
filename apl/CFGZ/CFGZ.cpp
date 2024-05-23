@@ -47,11 +47,6 @@ _stMiscParam{}
     ReadMiscParam(&_stMiscParam);
 }
 
-CFGZ::MODBUS_CONFIG_t CFGZ::GetModbusConfig()
-{
-    
-}
-
 void CFGZ::prvLoadProductSpecificData()
 {
     bool bDefaultInitialize = false;

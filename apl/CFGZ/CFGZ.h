@@ -856,12 +856,6 @@ class CFGZ
 
     typedef enum
     {
-        RJIO_MODBUS,
-        INDUS_MODBUS
-    }MODBUS_CONFIG_t;
-
-    typedef enum
-    {
         CFGZ_ALT_FREQUENCY
     }SPEED_SOURCE_t;
 

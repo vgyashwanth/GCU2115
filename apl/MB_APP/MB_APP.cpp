@@ -331,27 +331,23 @@ void MB_APP::prvUpdateInputRegisters()
 
     //char strGensetSerialNo[20] = "AAAAAAAAAABBBBBBBBBB"
     uint8_t strGensetSerialNo[20] = {0xFF};
+    memset(strGensetSerialNo,0xFF,20);
     prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
 
     //char strEngineSerialNo[20] = "AAAAAAAAAACCCCCCCCCC"
-    uint8_t strEngineSerialNo[20] = {0xFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*) &strEngineSerialNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
 
     //char strAltSerialNo[20] = "AAAAAAAAAADDDDDDDDDD"
-    uint8_t strAltSerialNo[20] = {0xFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*) &strAltSerialNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
 
     //char strMainControllerNo[20] = "AAAAAAAAAAEEEEEEEEEE"
-    uint8_t strMainControllerNo[20] = {0xFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strMainControllerNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
 
     //char strEngineControllerNo[20] = "AAAAAAAAAAFFFFFFFFFF"
-    uint8_t strEngineControllerNo[20] = {0xFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strEngineControllerNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
 
     //char strSiteId[10] = "AAAAAGGGGG"
-    uint8_t strSiteId[10] = {0xFF};
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strSiteId, 10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 10);
 
     /*Get the current time*/
     RTC::TIME_t currentTime;
@@ -584,6 +580,7 @@ void MB_APP::prvUpdateInputRegisters()
     {
         sensorVal = sensor.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
 
+        bFuelPctBelow15Pct = (sensorVal.stValAndStatus.f32InstSensorVal <= 15.0F);
         if((sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
             (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
         {
@@ -746,19 +743,18 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
 
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_RESERVED_46, false);
 
-    bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::EGR_FAULT_NOTIFICATION].bEnableMonitoring) &&
-                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::EGR_FAULT_NOTIFICATION].bResultInstant);
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_WARNING , bStatus);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_WARNING , (gpJ1939->IsEGRWarningPresent()));
     
-    bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::EGR_FAULT_SHUTDOWN].bEnableMonitoring) &&
-                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::EGR_FAULT_SHUTDOWN].bResultInstant);
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_FAULT , bStatus);
+    
 
     bStatus = false;
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_WARNING , bStatus);
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_FAULT , bStatus);
 
     GCU_ALARMS::EGR_FAULT_LIST_t eEgrFault = _gcuAlarm.GetEgrEcuFaultStatus();
+
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_FAULT, (eEgrFault > GCU_ALARMS::EGR_NO_FAULT));
+
     if(eEgrFault == GCU_ALARMS::EGR_ECU_FAULT)
     {
         SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_ECU_UNHEALTHY , true);
@@ -768,7 +764,7 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
         SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_ECU_UNHEALTHY , false);
     }
 
-    if(eEgrFault == GCU_ALARMS::EGR_TEMP_SENSOR_OUT_OF_EX_PIPE)
+    if(eEgrFault == GCU_ALARMS::EGR_TEMP_SENSOR_FAULTY)
     {
         SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_TEMP_SENS_OPEN_WARNING , true);
     }
@@ -777,7 +773,7 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
         SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_TEMP_SENS_OPEN_WARNING , false);
     }
 
-    if(eEgrFault == GCU_ALARMS::EGR_TEMP_SENSOR_FAULTY)
+    if(eEgrFault == GCU_ALARMS::EGR_TEMP_SENSOR_OUT_OF_EX_PIPE)
     {
         SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_TEMP_SENS_FAULTY_WARNING , true);
     }
@@ -2285,7 +2281,7 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation(void)
 
     if(bStoreInEeprom)
     {
-        _engineMonitoring.StoreCummulativeCnt();
+        _engineMonitoring.StoreCummulativeCnt(false);
         _engineMonitoring.ReadEnergySetEnergyOffset(true);
         bStoreInEeprom = false;
     }

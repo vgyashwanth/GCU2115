@@ -43,6 +43,7 @@ ENGINE_MONITORING::LOAD_CONT_STATUS_t ENGINE_MONITORING::_eLoadStatusCurrent = L
     todo:  Why we are making _stCummulativeCnt static? If we want to use those outside class then why to keep it
     private ? C++ property misuse . Either need to make it public to access anywhere or restrict access. */
 ENGINE_MONITORING::CUMULATIVE_t ENGINE_MONITORING::_stCummulativeCnt={};
+ENGINE_MONITORING::CUMULATIVE_t ENGINE_MONITORING::_stStoredCummulativeCnt = {};
 
 bool ENGINE_MONITORING::_bEngineCranked = false;
 
@@ -107,6 +108,7 @@ void ENGINE_MONITORING::prvUpdateCumCrankCnts()
     {
         _stCummulativeCnt.u32GenNumberOfCranks++;
         _bCrankStateLatched = true;
+        StoreCummulativeCnt(true);
     }
     else if(_u8StartStopSMState != START_STOP::ID_STATE_SS_CRANKING)
     {
@@ -117,6 +119,7 @@ void ENGINE_MONITORING::prvUpdateCumCrankCnts()
     {
         _stCummulativeCnt.u32GenNumberOfFailedCranks++;
         _bFailedCrankStateLatched = true;
+        StoreCummulativeCnt(true);
     }
     else if(_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANKING)
     {
@@ -378,7 +381,7 @@ void ENGINE_MONITORING::prvUpdateGenReady()
             {
                 /* do nothing */
             }
-            StoreCummulativeCnt();
+            StoreCummulativeCnt(false);
             UTILS_ResetTimer(&_GenWarmUpTimer);
         }
     }
@@ -452,7 +455,7 @@ void ENGINE_MONITORING::prvCheckTrips()
         {
             /* do nothing */
         }
-        StoreCummulativeCnt();  /* store cumm data if trip arises */
+        StoreCummulativeCnt(false);  /* store cumm data if trip arises */
         _bTripLatched = true;
     }
     else
@@ -510,39 +513,53 @@ void ENGINE_MONITORING::prvUpdateCumulativeTamperedEnergyCounts()
 }
 
 
-void ENGINE_MONITORING::StoreCummulativeCnt()
+void ENGINE_MONITORING::StoreCummulativeCnt(bool isForCrankCnt)
 {
     static CUMULATIVE_t stStoredCummulative0,stStoredCummulative1;
-#if (TEST_AUTOMATION == YES)
-    if(_bFromAutomation)
+    CUMULATIVE_t stCummulativeCntToStore;
+    if(!isForCrankCnt)
     {
-        _bFromAutomation = false;
+#if (TEST_AUTOMATION == YES)
+        if(_bFromAutomation)
+        {
+            _bFromAutomation = false;
+        }
+        else
+#endif
+        {
+            prvUpdateCumulativeEnergyCounts();
+            prvUpdateCumulativeTamperedEnergyCounts();
+        }
+        stCummulativeCntToStore = _stCummulativeCnt;
     }
     else
-#endif
     {
-        prvUpdateCumulativeEnergyCounts();
-        prvUpdateCumulativeTamperedEnergyCounts();
+        stCummulativeCntToStore = _stStoredCummulativeCnt;
+        stCummulativeCntToStore.u32GenNumberOfCranks = _stCummulativeCnt.u32GenNumberOfCranks;
+        stCummulativeCntToStore.u32GenNumberOfFailedCranks = _stCummulativeCnt.u32GenNumberOfFailedCranks;
     }
     _stCummulativeCnt.u64Header++;
-    _stCummulativeCnt.u32CRC =(uint16_t) CRC16::ComputeCRCGeneric((uint8_t *)&_stCummulativeCnt,
+    stCummulativeCntToStore.u64Header++;
+    stCummulativeCntToStore.u32CRC =(uint16_t) CRC16::ComputeCRCGeneric((uint8_t *)&stCummulativeCntToStore,
                                               sizeof(CUMULATIVE_t) - sizeof(uint32_t)
                                               , CRC_MEMORY_SEED);
+    _stStoredCummulativeCnt = stCummulativeCntToStore;
     if(_u8ActiveSectorForCummulative == 0)
     {
-        stStoredCummulative0 = _stCummulativeCnt;
+        stStoredCummulative0 = stCummulativeCntToStore;
        _hal.Objeeprom.RequestWrite(EXT_EEPROM_CUMMULATIVE_START_ADD_SECT0, (uint8_t*)&stStoredCummulative0,
                                    sizeof(CUMULATIVE_t), NULL);
        _u8ActiveSectorForCummulative = 1;
     }
     else
     {
-        stStoredCummulative1 = _stCummulativeCnt;
+        stStoredCummulative1 = stCummulativeCntToStore;
        _hal.Objeeprom.RequestWrite(EXT_EEPROM_CUMMULATIVE_START_ADD_SECT1, (uint8_t*)&stStoredCummulative1,
                                                           sizeof(CUMULATIVE_t), NULL);
        _u8ActiveSectorForCummulative =0;
     }
 }
+
 
 uint32_t ENGINE_MONITORING::GetEngineRunTimeMin()
 {
@@ -752,6 +769,10 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _stCummulativeCnt.u32TamperedRunTime_min =0;
         _stCummulativeCnt.u32MainsRunTime_min =0;
         _stCummulativeCnt.u32BTSRunTime_min =0;
+        _stCummulativeCnt.u32GenRemoteRunTime_min =0;
+        _stCummulativeCnt.u32GenManualRunTime_min =0;
+        _stCummulativeCnt.u32GenNoLoadRunTime_min =0;
+        _stCummulativeCnt.u32GenOnLoadRunTime_min =0;
         _stCummulativeCnt.f32GenKWH =0.0;
         _stCummulativeCnt.f32GenKVAH =0.0;
         _stCummulativeCnt.f32GenKVARH =0.0;
@@ -763,9 +784,12 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _stCummulativeCnt.f32TamprGenKWH = 0.0;
         _stCummulativeCnt.f32TamprGenKVAH = 0.0;
         _stCummulativeCnt.f32TamprGenKVARH = 0.0;
+        _stCummulativeCnt.u32GenNumberOfCranks =0;
+        _stCummulativeCnt.u32GenNumberOfFailedCranks =0;
 
         _u8ActiveSectorForCummulative =0;
     }
+    _stStoredCummulativeCnt = _stCummulativeCnt;
 }
 
 void ENGINE_MONITORING::prvUpdateEngineONstatus(void)
@@ -816,7 +840,7 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32EngineRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerGenUpdateCumulative) >= u16TimeSlot)
             {
-                StoreCummulativeCnt();
+                StoreCummulativeCnt(false);
                 UTILS_ResetTimer(&_TimerGenUpdateCumulative);
             }
         }
@@ -827,7 +851,7 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32TamperedRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerUpdateTamperedCumulative) >= u16TimeSlot)
             {
-                StoreCummulativeCnt();
+                StoreCummulativeCnt(false);
                 UTILS_ResetTimer(&_TimerUpdateTamperedCumulative);
             }
         }
@@ -865,7 +889,7 @@ void ENGINE_MONITORING::prvUpdateMainsRunHrs()
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32MainsRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerMainsUpdateCumulative) >= u16TimeSlot)
             {
-               StoreCummulativeCnt();
+               StoreCummulativeCnt(false);
                UTILS_ResetTimer(&_TimerMainsUpdateCumulative);
             }
             UTILS_ResetTimer(&_MainsRunTimeBaseTimer);
@@ -898,7 +922,7 @@ void ENGINE_MONITORING::prvUpdateBTSRunHrs()
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32BTSRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerBTSUpdateCumulative) >= u16TimeSlot)
             {
-               StoreCummulativeCnt();
+               StoreCummulativeCnt(false);
                UTILS_ResetTimer(&_TimerBTSUpdateCumulative);
             }
             UTILS_ResetTimer(&_BTSRunTimeBaseTimer);

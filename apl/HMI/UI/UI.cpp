@@ -2736,7 +2736,7 @@ void UI::prvInitModbusMap()
 {
     if(ArrEditableItem[INDEX_OF_MODBUS_COMM_MAP].value.u8Val == CFGZ::CFGZ_MODBUS_MAP_A_RJIO)
     {
-#if (TEST_AUTOMATION == 1)
+#if (TEST_AUTOMATION == YES)
         /*Changing to rjio map. Change rgister type of automation register groups to 'MODBUS_REG_ANY'*/
         _mbApp.SetAutomationRegTypeToAny();
 #endif
@@ -2744,7 +2744,7 @@ void UI::prvInitModbusMap()
     }
     else
     {
-#if (TEST_AUTOMATION == 1)
+#if (TEST_AUTOMATION == YES)
         /*Changing to indus map. Change rgister type of automation register groups to 'MODBUS_REG_INPUT'*/
         _mbApp.SetAutomationRegTypeToInput();
 #endif
@@ -2857,7 +2857,7 @@ void UI::InitialiseCustomSensor()
                ||((uint16_t)(1000*ArrEditableItem[INDEX_OF_CURRENT_MONITOR_CT_CORRECTION_FACTOR].tempValue.fVal)!= (uint16_t)(1000* ArrEditableItem[INDEX_OF_CURRENT_MONITOR_CT_CORRECTION_FACTOR].value.fVal)))
     {
         _engMon.ReadEnergySetEnergyOffset(false);
-        _engMon.StoreCummulativeCnt();
+        _engMon.StoreCummulativeCnt(false);
     }
 }
 

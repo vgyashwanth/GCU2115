@@ -111,7 +111,7 @@ public:
     void UpdateStartStopState(uint8_t u8StartStopState);
 
 /* store cumulative counts data to external eeprom */
-    void StoreCummulativeCnt();
+    void StoreCummulativeCnt(bool isForCrankCnt);
 
 /* Updation prototypes */
     void ReadEnergySetEnergyOffset(bool bFromEeprom);
@@ -295,6 +295,7 @@ private:
     static uint8_t              _u8GenReady;
     static uint8_t              _u8GenAvailable;
     static CUMULATIVE_t         _stCummulativeCnt;
+    static CUMULATIVE_t         _stStoredCummulativeCnt; /*This variable will hold the last _stCummulativeCnt stored in EEprom*/
     static LOAD_CONT_STATUS_t   _eLoadStatusCurrent;
 
     uint8_t                     _u8StartStopSMState;
@@ -346,6 +347,7 @@ private:
      */
     void prvUpdateGenReady();
     void prvGetCumulativeCnt();
+
     uint16_t prvCheckTimeSlot(uint32_t u32RunTime);
 
     void prvUpdateLOPSensor();

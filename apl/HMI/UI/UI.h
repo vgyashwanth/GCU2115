@@ -117,6 +117,6 @@ private:
     void prvUpdateEngineParam(void);
     void prvUpdateEngineTypeDependency(void);
     void prvSetPasswordAccessLevel(uint16_t u16Index, uint8_t u8PasswordLevel);
-    void prvInitModbusMap();
+    void prvUpdateAutomationModbusMap();
 };
 #endif /* _UI_H_ */

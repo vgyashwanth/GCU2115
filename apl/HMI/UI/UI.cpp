@@ -1751,7 +1751,7 @@ void UI::Initialize()
     InitialiseCustomSensor();
     HandleMenuVisibility();
     prvInitialiseECUParam();
-    prvInitModbusMap();
+    prvUpdateAutomationModbusMap();
 
 }
 
@@ -1903,7 +1903,7 @@ void UI::SaveConfigFile()
 
         _objHal.Objeeprom.RequestWrite(EXT_EEPROM_PASWORD_START_ADDRESS,(uint8_t*)&_MiscParam, sizeof(MISC_PARAM_t) , NULL) ;
         _objcfgz.WriteActiveProfile(&AllParam);
-
+        prvUpdateAutomationModbusMap();
     }
     _objcfgz.WriteProductSpecificData(&ProductParam);
     _objcfgz.ApplyConfigChanges();
@@ -2676,7 +2676,6 @@ void UI::Handler(int keyCode)
                 }
                 InitialiseCustomSensor();
                 _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].saveTempValue();
-                prvInitModbusMap();
                 HandleMenuVisibility();
                 UpdateMaxNumberOfItem();
                 pCurMenu->show();
@@ -2732,24 +2731,20 @@ volatile float table_x_0to5V_Sens[10] = {0.5f ,0.9f ,1.3f ,1.7f ,2.1f ,2.5f ,2.9
 volatile float table_LOP_Bar[10] = {0.0f, 1.0f,2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 10.0f};
 
 
-void UI::prvInitModbusMap()
+void UI::prvUpdateAutomationModbusMap()
 {
+#if (TEST_AUTOMATION == YES)
     if(ArrEditableItem[INDEX_OF_MODBUS_COMM_MAP].value.u8Val == CFGZ::CFGZ_MODBUS_MAP_A_RJIO)
     {
-#if (TEST_AUTOMATION == YES)
         /*Changing to rjio map. Change rgister type of automation register groups to 'MODBUS_REG_ANY'*/
         _mbApp.SetAutomationRegTypeToAny();
-#endif
-        MODBUS::SetModbusConfigRegSpecific(false); /*modbus data not register specific*/   
     }
     else
     {
-#if (TEST_AUTOMATION == YES)
         /*Changing to indus map. Change rgister type of automation register groups to 'MODBUS_REG_INPUT'*/
         _mbApp.SetAutomationRegTypeToInput();
-#endif
-        MODBUS::SetModbusConfigRegSpecific(true); /*modbus data register specific*/
     }  
+#endif
 }
 
 

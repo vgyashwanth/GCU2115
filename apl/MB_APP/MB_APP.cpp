@@ -521,38 +521,19 @@ void MB_APP::prvUpdateInputRegisters()
         SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_ALWAYS0xFFFF_112_6 + i), 0xFFFF);
     }
 
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
-        && (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
-    { 
-        u16Tmp =(uint16_t)((round(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263, 0)*10) * 0.01)*(PSI_CONVERSION)*100);
+    sensorVal = _gcuAlarm.GetLOPSensorVal();
+
+    if( (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
+        (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+    {
+        u16Tmp = (uint16_t)((sensorVal.stValAndStatus.f32InstSensorVal)*(PSI_CONVERSION)*100);
         SetReadRegisterValue(MB_INPUT_REG_LLOP, u16Tmp);
     }
     else
     {
-        sensorVal = _gcuAlarm.GetLOPSensorVal();
-
-        if((_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S3_DIG_O_SENSOR_SELECTION) >= CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
-                && (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS)
-                && (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL))
-        {
-            /*Scale factor is 0.01*/
-            u16Tmp = (uint16_t)((sensorVal.stValAndStatus.f32InstSensorVal)*(PSI_CONVERSION)*100);
-            SetReadRegisterValue(MB_INPUT_REG_LLOP, u16Tmp);
-        }
-        else if((_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_RES_DIG_J_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1) &&
-            (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
-            (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
-        {
-            /*Scale factor is 0.01*/
-            u16Tmp = (uint16_t)((sensorVal.stValAndStatus.f32InstSensorVal)*(PSI_CONVERSION)*100);
-            SetReadRegisterValue(MB_INPUT_REG_LLOP, u16Tmp);
-        }
-        else
-        {
-            SetReadRegisterValue(MB_INPUT_REG_LLOP, 0xFFFFU);
-        }
-
+        SetReadRegisterValue(MB_INPUT_REG_LLOP, 0xFFFFU);
     }
+
 
     /*Store battery voltage*/
     /*Scale factor 0.01*/
@@ -617,21 +598,15 @@ void MB_APP::prvUpdateInputRegisters()
 
     /*Store the start mode*/
     BASE_MODES::GCU_OPERATING_MODE_t eOpMode = BASE_MODES::GetGCUOperatingMode();
-    if( _StartStop.IsGenStarted() )
+    if(eOpMode == BASE_MODES::MANUAL_MODE)
     {
-        if(eOpMode == BASE_MODES::MANUAL_MODE)
-        {
-            SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 0);
-        }
-        else
-        {
-            SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 1);
-        }
+        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 0);
     }
     else
     {
-        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 0xFFFF);
+        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 1);
     }
+
 
     SetReadRegisterValue(MB_INPUT_REG_ALWAYS0xFFFF_142, 0xFFFF);
 
@@ -640,13 +615,13 @@ void MB_APP::prvUpdateInputRegisters()
         SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_RESERVED_START_19 + i), 0xFFFFU);
     }
 
-    /*Store NCD error hours*/
-    u32Tmp = (uint32_t)(_cfgz.GetEGRFaultTimer()/60);
+    /*Store NCD error hours, scaling 0.1*/
+    u32Tmp = (uint32_t)((_cfgz.GetEGRFaultTimer()*10)/60);
     //u32Tmp = 0xFFFFFFFFU;
     prvSetMultipleInputRegisters(MB_INPUT_REG_NCD_ERR_HRS_2, (uint8_t*)(&u32Tmp), 4);
 
-    /*Store NCD heal hours*/
-    u32Tmp = (uint32_t)(_cfgz.GetEGRHealTimer()/60);
+    /*Store NCD heal hours, scaling 0.1*/
+    u32Tmp = (uint32_t)((_cfgz.GetEGRHealTimer()*10)/60);
     prvSetMultipleInputRegisters(MB_INPUT_REG_NCD_HEAL_HRS_2, (uint8_t*)(&u32Tmp), 4);
     
 }

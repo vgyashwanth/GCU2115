@@ -272,6 +272,7 @@ offset 14.
 //        MB_DATE_TIME5,
     }MODBUS_WRITE_REGISTERS_t;
 
+/*Modbus map for Indus*/
     typedef enum {
             MB_DISCRETE_INPUT_SMOKE_FIRE,
             MB_DISCRETE_INPUT_CANOPY_DOOR_OPEN,

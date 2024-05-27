@@ -135,11 +135,9 @@ public:
 
     static void SetModbusConfigRegSpecific(bool isRegSpecific);
 
-    static uint64_t MB_Valid_Count;
+    static bool GetModbusConfigRegSpecific();
 
-    /*Flag to indicate if the modbus config will store different address
-     groups for different register types. Set by function called in MB_APP*/
-    static bool _isModbusConfigRegSpecific;
+    static uint64_t MB_Valid_Count;
 
 private:
 
@@ -209,6 +207,10 @@ private:
     /*Determines weather modbus is enabled/disabled*/
     bool               _isModbusEnabled;
 
+    /*Flag to indicate if the modbus config will store different address
+     groups for different register types. Set by function called in MB_APP*/
+    static bool _isModbusConfigRegSpecific;
+
     /**
      * A helper function to validate the incoming packet
      * @param - None
@@ -264,7 +266,6 @@ private:
      * None
      */
     void    prvSendErrorResponse();
-
 
 };
 

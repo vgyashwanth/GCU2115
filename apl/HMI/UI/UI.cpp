@@ -2740,7 +2740,7 @@ void UI::prvInitModbusMap()
         /*Changing to rjio map. Change rgister type of automation register groups to 'MODBUS_REG_ANY'*/
         _mbApp.SetAutomationRegTypeToAny();
 #endif
-        _mbApp.SetMBConfigType(false); /*modbus data not register specific*/   
+        MODBUS::SetModbusConfigRegSpecific(false); /*modbus data not register specific*/   
     }
     else
     {
@@ -2748,7 +2748,7 @@ void UI::prvInitModbusMap()
         /*Changing to indus map. Change rgister type of automation register groups to 'MODBUS_REG_INPUT'*/
         _mbApp.SetAutomationRegTypeToInput();
 #endif
-        _mbApp.SetMBConfigType(true); /*modbus data register specific*/
+        MODBUS::SetModbusConfigRegSpecific(true); /*modbus data register specific*/
     }  
 }
 

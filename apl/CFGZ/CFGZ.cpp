@@ -1070,11 +1070,5 @@ uint16_t CFGZ::GetEGRHealTimer()
 
 uint16_t CFGZ::GetEGRFaultTimer()
 {
-    uint16_t u16EGRFaultTimer = FAULT_RESET_MONITORING_TIME_MINUTES;
-    if(_stProductSpecificData.u8ProductParam[PS_EGR_TIMERS_ENABLE] == CFGZ::CFGZ_ENABLE)
-    {
-        u16EGRFaultTimer = _stProductSpecificData.u16ProductParam[PS_EGR_FAULT_TIMER];
-    }
-
-    return u16EGRFaultTimer;
+    return _stProductSpecificData.u16ProductParam[PS_EGR_FAULT_TIMER];
 }

@@ -605,7 +605,6 @@ offset 14.
 
     static void GetMBEventStatus(KEY_MB_CAN_EVENT_t *stEvent);
 
-    void SetMBConfigType(bool isRegSpecific);
     void SetFwRevision(uint8_t uRevNo);
 
 private:

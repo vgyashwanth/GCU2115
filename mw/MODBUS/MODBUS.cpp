@@ -296,6 +296,11 @@ void MODBUS::SetModbusConfigRegSpecific(bool isRegSpecific)
     _isModbusConfigRegSpecific = isRegSpecific;
 }
 
+bool MODBUS::GetModbusConfigRegSpecific()
+{
+    return _isModbusConfigRegSpecific;
+}
+
 bool MODBUS::prvValidatePacket()
 {
     bool bValidPacket = false;

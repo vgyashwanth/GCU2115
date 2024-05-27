@@ -119,11 +119,6 @@ void MB_APP::SetFwRevision(uint8_t uRevNo)
     _u8FwRev = uRevNo;
 }
 
-void MB_APP::SetMBConfigType(bool isRegSpecific)
-{
-    MODBUS::SetModbusConfigRegSpecific(isRegSpecific);
-}
-
 uint16_t MB_APP::GetRegisterValue(MODBUS_WRITE_REGISTERS_t eRegister)
 {
     /*Determine the group*/
@@ -2293,7 +2288,7 @@ uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister)
 {
     uint8_t u8Grp;
     /*Determine the group*/
-    if(MODBUS::_isModbusConfigRegSpecific)
+    if(MODBUS::GetModbusConfigRegSpecific())
     {
         u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_HOLDING);
     }
@@ -2311,7 +2306,7 @@ void MB_APP::SetWriteRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister, uint16
 {
     uint8_t u8Grp;
     /*Determine the group*/
-    if(MODBUS::_isModbusConfigRegSpecific)
+    if(MODBUS::GetModbusConfigRegSpecific())
     {
         u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_HOLDING);
     }
@@ -2328,7 +2323,7 @@ uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister)
 {
     uint8_t u8Grp;
     /*Determine the group*/
-    if(MODBUS::_isModbusConfigRegSpecific)
+    if(MODBUS::GetModbusConfigRegSpecific())
     {
         u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_INPUT);
     }
@@ -2345,7 +2340,7 @@ void MB_APP::SetReadRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister, uint16_t
 {
     uint8_t u8Grp;
     /*Determine the group*/
-    if(MODBUS::_isModbusConfigRegSpecific)
+    if(MODBUS::GetModbusConfigRegSpecific())
     {
         u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_INPUT);
     }

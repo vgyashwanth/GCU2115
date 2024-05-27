@@ -7,7 +7,7 @@ BASE_MODES::GCU_MODE_VARS_t _vars = {BASE_MODES::ENGINE_OFF_READY, BASE_MODES::N
 
 APL_Manager::APL_Manager():
  bDeviceInConfigMode(false),
-_MbApp(*this, _cfgz, _gcuAlarms, _engineMonitoring, _AutoMode),
+_MbApp(*this, _cfgz, _gcuAlarms, _engineMonitoring, _AutoMode, _startStop),
 _cfgc(*this),
 _cfgz(*this, _MbApp, _cfgc),
 _sleep(*this, _cfgz),
@@ -21,7 +21,7 @@ _BTSMode(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
 _CyclicMode(*this, _engineMonitoring, _cfgz, _gcuAlarms, _startStop, _vars),
 _display(this->ObjGlcd),
 _MainUI(*this,_cfgz, _gcuAlarms,_engineMonitoring, _startStop,
-         _ManualMode, _display, _cfgc, _sleep,_J1939,_BTSMode,_CyclicMode, _EngineStartValidity),
+         _ManualMode, _display, _cfgc, _sleep,_J1939,_BTSMode,_CyclicMode, _EngineStartValidity, _MbApp),
 _J1939(*this, _cfgc, _cfgz, _engineMonitoring,_gcuAlarms,_AutoMode ),
 _EngineStartValidity(_cfgz, _gcuAlarms),
 _PowerOnUpdateTimer{0, false}
@@ -50,6 +50,7 @@ _PowerOnUpdateTimer{0, false}
     }
 
     prvCheckFirmwareInfo();
+    prvSetFwVerInMb();
 }
 
 void APL_Manager::Update()
@@ -84,6 +85,11 @@ void APL_Manager::Update()
             _chrgAlt.Update();
         }
     }
+}
+
+void APL_Manager::prvSetFwVerInMb()
+{
+    _MbApp.SetFwRevision(_stFirmwareInfo.u8Revision);
 }
 
 void APL_Manager::prvCheckFirmwareInfo()

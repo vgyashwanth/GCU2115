@@ -822,6 +822,16 @@ void CFGZ::prvConfigureMODBUS()
     /*Baud is needed by MODBUS module to configure silence period*/
     _modbus.Configure((uint8_t)_All_Param.u8ArrParam[ID_MODBUS_COMM_MODBUS_BAUDRATE], u8MBSlaveID, bModbusEnable);
     _hal.ObjRS485.ConfigureBaudParity(eBaud, eParity);
+
+
+    if( _All_Param.u8ArrParam[ID_MODBUS_COMM_MAP] == CFGZ::CFGZ_MODBUS_MAP_A_RJIO)
+    {
+        MODBUS::SetModbusConfigRegSpecific(false); /*modbus data not register specific*/   
+    }
+    else
+    {
+        MODBUS::SetModbusConfigRegSpecific(true); /*modbus data register specific*/
+    }  
 }
 
 RS485::BAUD_t CFGZ::prvGetRS485Baud()
@@ -1066,4 +1076,9 @@ uint16_t CFGZ::GetEGRHealTimer()
     }
 
     return u16EGRHealTimer;
+}
+
+uint16_t CFGZ::GetEGRFaultTimer()
+{
+    return _stProductSpecificData.u16ProductParam[PS_EGR_FAULT_TIMER];
 }

@@ -43,7 +43,8 @@ public:
             ENGINE_MONITORING  &EngMon, START_STOP &StartStop,
             MANUAL_MODE &ManualMode,
             Display &Disp, CFGC &CFGC, SLEEP_Handler &sleep,
-            J1939APP &j1939 , BTS_MODE &BTSMode , CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity);
+            J1939APP &j1939 , BTS_MODE &BTSMode , CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity,
+            MB_APP &MbApp);
 
     static bool _sbKeyEventAvailable;
     static bool _bEnteredPowerSave;
@@ -96,7 +97,6 @@ private:
     EVENT_LOG_UI        _DispEventLog;
     PASSWORD_ENTRY_UI   _PasswordEntry;
     UI                  _objUI;
-
 
     bool                 _bRefresh;
     bool                 _bEventLogEntry;

@@ -111,7 +111,7 @@ public:
     void UpdateStartStopState(uint8_t u8StartStopState);
 
 /* store cumulative counts data to external eeprom */
-    void StoreCummulativeCnt();
+    void StoreCummulativeCnt(bool isForCrankCnt);
 
 /* Updation prototypes */
     void ReadEnergySetEnergyOffset(bool bFromEeprom);
@@ -132,6 +132,12 @@ public:
     void UpdateContactorLoadStatus();
     static LOAD_CONT_STATUS_t GetContactorLoadStatus();
     static bool GetAndClearIsLoadStatusChanged();
+    uint32_t GetRemoteRunTimeMin();
+    uint32_t GetManualRunTimeMin();
+    uint32_t GetNoLoadRunTimeMin();
+    uint32_t GetOnLoadRunTimeMin();
+    uint32_t GetCumCrankCnt();
+    uint32_t GetCumFailedCrankCnt();
 
 #if (TEST_AUTOMATION == YES)
     /**
@@ -226,6 +232,11 @@ private:
         uint32_t u32EngineRunTime_min;
         uint32_t u32MainsRunTime_min;
         uint32_t u32BTSRunTime_min;
+        uint32_t u32GenRemoteRunTime_min;
+        uint32_t u32GenManualRunTime_min;
+        uint32_t u32GenNoLoadRunTime_min;
+        uint32_t u32GenOnLoadRunTime_min;
+
         uint32_t u32TamperedRunTime_min;
         float f32GenKWH;
         float f32GenKVAH;
@@ -241,6 +252,8 @@ private:
 
         uint32_t u32GenNumberOfTrips;
         uint32_t u32GenNumberOfStarts;
+        uint32_t u32GenNumberOfCranks;
+        uint32_t u32GenNumberOfFailedCranks;
         uint32_t u32CRC;
     }CUMULATIVE_t;
 
@@ -282,6 +295,7 @@ private:
     static uint8_t              _u8GenReady;
     static uint8_t              _u8GenAvailable;
     static CUMULATIVE_t         _stCummulativeCnt;
+    static CUMULATIVE_t         _stStoredCummulativeCnt; /*This variable will hold the last _stCummulativeCnt stored in EEprom*/
     static LOAD_CONT_STATUS_t   _eLoadStatusCurrent;
 
     uint8_t                     _u8StartStopSMState;
@@ -289,6 +303,9 @@ private:
     AC_SENSE::ENERGY_REGISTER_t _stTampEnergyRegister,_stEnergyRegister, _stMainsEnergyRegister;
 
     A_SENSE::SENSOR_RET_t       _stLOP;  /* Lop sensor structure */
+
+    bool                        _bCrankStateLatched;
+    bool                        _bFailedCrankStateLatched;
 
 #if(TEST_AUTOMATION == YES)
     /**
@@ -330,6 +347,7 @@ private:
      */
     void prvUpdateGenReady();
     void prvGetCumulativeCnt();
+
     uint16_t prvCheckTimeSlot(uint32_t u32RunTime);
 
     void prvUpdateLOPSensor();
@@ -345,7 +363,7 @@ private:
     bool prvDisconnectCranckByLOPSensor();
     bool prvDisconnectCranckByLOPSwitch();
    
-
+    void prvUpdateCumCrankCnts();
 };
 
 #endif

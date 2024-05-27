@@ -332,6 +332,8 @@ class CFGZ
         ID_MODBUS_COMM_MODBUS_SLAVE_ID,
         ID_MODBUS_COMM_MODBUS_BAUDRATE,
         ID_MODBUS_COMM_PARITY,
+        ID_MODBUS_COMM_MAP,
+
         ID_BTS_CONFIG_BATTERY_MON,
         ID_CYCLIC_CONFIG_CYCLIC_MODE,
         ID_NIGHT_MODE_CONFG_NIGHT_MODE,
@@ -703,6 +705,11 @@ class CFGZ
         CFGZ_ANLG_CUSTOM_SENSOR2,
         CFGZ_ANLG_CUSTOM_SENSOR3,
     } CFGZ_ANLG_SENSORS_t;
+
+    typedef enum{
+        CFGZ_MODBUS_MAP_A_RJIO,
+        CFGZ_MODBUS_MAP_B_INDUS
+    }CFGZ_MODBUS_MAP_t;
 
     /*An helper type to define mapping of sensors between CFGZ and A_SENSE*/
     typedef struct
@@ -1129,6 +1136,16 @@ class CFGZ
     * @return  : Value of the EGR Heal Timer
     */
    uint16_t GetEGRHealTimer();
+
+   /**
+    * This function is used to get the value of EGR Fault
+    * Timer. If the enable timers parameter is yes/true then GCU
+    * returns the value of Timers which is stored in Product specific region
+    * or the configured values. If the enable timers is disabled then
+    * default values are considered.
+    * @return  : Value of the EGR Heal Timer
+    */
+   uint16_t GetEGRFaultTimer();
 
 private:
     /**

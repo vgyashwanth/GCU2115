@@ -48,19 +48,37 @@
 
 #if (TEST_AUTOMATION == YES)
 /*Defines the number of discontinuous address groups*/
-#define MODBUS_ADDRESS_GROUPS   (4U)
+#define MODBUS_ADDRESS_GROUPS   (6U)
 #define MODBUS_GRP3_REG_CNT     (MB_AUTOMATION_READ_REG_LAST - MB_AUX_S1)
 #define MODBUS_GRP4_REG_CNT     (MB_AUTOMATION_WRITE_REG_LAST - MB_AUTOMATION_WRITE_COMMAND)
 #else
 /*Defines the number of discontinuous address groups*/
-#define MODBUS_ADDRESS_GROUPS   (2U)
+#define MODBUS_ADDRESS_GROUPS   (4U)
 #endif
+
+/*Number of address groups for reading/writing discrete inputs and/or coils*/
+#define MODBUS_INPUTS_COIL_GROUPS  (2U)
+
 /*Number of entries in the first address group*/
 #define MODBUS_GRP1_REG_CNT     (MB_READ_REG_LAST -DIG_ALARM_1_REG)
 /*Number of entries in the second address group*/
 #define MODBUS_GRP2_REG_CNT     (2U)
+
+/*Number of array items in ADDRESS_GRP_t occupied by fifth address group*/
+#define MODBUS_GRP5_INPUT_REG_CNT    (MB_INPUT_REG_LAST)
+
+/*Number of array items in ADDRESS_GRP_t occupied by sixth address group*/
+#define MODBUS_GRP6_INPUT_REG_CNT    (MB_HOLDING_REG_LAST)
+
+/*Number of array items in ADDRESS_GRP_t occupied by sixth address group*/
+#define MODBUS_STATUSGRP1_DISCRETE_INPUT_CNT    ( ((MB_DISCRETE_INPUT_LAST)+7)/8 )
+
+/*Number of array items in ADDRESS_GRP_t occupied by seventh address group*/
+#define MODBUS_STATUSGRP2_COIL_CNT    ( ((MB_COIL_LAST)+7)/8 )
+
 #define MODBUS_PROTOCOL_VERSION (1U)
 
+#define CPCB4_GEN               (20)
 
 #define FOURTH_NIBBLE 12
 #define THIRD_NIBBLE 8
@@ -124,7 +142,14 @@ public:
         MB_AUTOMATION_READ_REG_LAST
     }MODBUS_FOR_AUTOMATION_READ;
 #endif
-        typedef enum {
+
+    typedef enum {
+        TMTL = 100,
+        MNM = 110,
+        PROCOM = 0
+    }MODBUS_PRODUCT_MAKE_t;
+
+    typedef enum {
         DIG_ALARM_1_REG = 16384,
         DIG_ALARM_2_REG,
         SOLID_STATE_OP_REG,
@@ -247,6 +272,137 @@ offset 14.
 //        MB_DATE_TIME5,
     }MODBUS_WRITE_REGISTERS_t;
 
+/*Modbus map for Indus*/
+    typedef enum {
+            MB_DISCRETE_INPUT_SMOKE_FIRE,
+            MB_DISCRETE_INPUT_CANOPY_DOOR_OPEN,
+            MB_DISCRETE_INPUT_LOAD_ON_GEN,
+            MB_DISCRETE_INPUT_FAIL_TO_START,
+            MB_DISCRETE_INPUT_FAIL_TO_STOP,
+            MB_DISCRETE_INPUT_GEN_COMMON_FAULT,
+            MB_DISCRETE_INPUT_GEN_LLOP_FAULT,
+            MB_DISCRETE_INPUT_ALWAYS0_7,
+            MB_DISCRETE_INPUT_LOW_FUEL_LVL_AT_15PCT,
+            MB_DISCRETE_INPUT_CANOPY_TEMP_HIGH,
+            MB_DISCRETE_INPUT_ENGINE_COOLANT_TEMP_HIGH,
+            MB_DISCRETE_INPUT_ALWAYS0_11_3,
+            MB_DISCRETE_INPUT_DG_IDLE_RUN = MB_DISCRETE_INPUT_ALWAYS0_11_3 + 3,
+            MB_DISCRETE_INPUT_DG_OVERLOAD,
+            MB_DISCRETE_INPUT_DG_BATT_LOW,
+            MB_DISCRETE_INPUT_ALWAYS0_17_10,
+            MB_DISCRETE_INPUT_GEN_MAINT_ALARM_50HRS = MB_DISCRETE_INPUT_ALWAYS0_17_10 + 10,
+            MB_DISCRETE_INPUT_GEN_MAINT_ALARM_100HRS,
+            MB_DISCRETE_INPUT_GEN_MAINT_ALARM_500HRS,
+            MB_DISCRETE_INPUT_GEN_MAINT_ALARM_1000HRS,
+            MB_DISCRETE_INPUT_GEN_MAINT_ALARM_2000HRS,
+            MB_DISCRETE_INPUT_ALWAYS0_32_5,
+            MB_DISCRETE_INPUT_MAIN_CONTROLLER_FAIL_ALARM = MB_DISCRETE_INPUT_ALWAYS0_32_5 + 5,
+            MB_DISCRETE_INPUT_ALWAYS0_38_3,
+            MB_DISCRETE_INPUT_OVER_SPD_ALARM = MB_DISCRETE_INPUT_ALWAYS0_38_3 + 3,
+            MB_DISCRETE_INPUT_ALWAYS0_42_4,
+            MB_DISCRETE_INPUT_RESERVED_46 = MB_DISCRETE_INPUT_ALWAYS0_42_4 + 4,
+            MB_DISCRETE_INPUT_EGR_WARNING,
+            MB_DISCRETE_INPUT_EGR_FAULT,
+            MB_DISCRETE_INPUT_NCD_WARNING,
+            MB_DISCRETE_INPUT_NCD_FAULT,
+            MB_DISCRETE_INPUT_EGR_ECU_UNHEALTHY,
+            MB_DISCRETE_INPUT_EGR_TEMP_SENS_OPEN_WARNING,
+            MB_DISCRETE_INPUT_EGR_TEMP_SENS_FAULTY_WARNING,
+            MB_DISCRETE_INPUT_EGR_VALVE_OPEN_WARNING,
+            MB_DISCRETE_INPUT_EGR_VALVE_SENS_FAULTY_WARNING,
+            MB_DISCRETE_INPUT_EGR_VALVE_NOT_LIFTING_WARNING,
+            MB_DISCRETE_INPUT_EGR_VALVE_NOT_CLOSING_WARNING,
+            MB_DISCRETE_INPUT_LAST
+        }MODBUS_DISCRETE_INPUTS_t;
+
+        typedef enum {
+            MB_COIL_DG_STOP_CMD_OR_OFF,
+            MB_COIL_DG_START_CMD_OR_ON,
+            MB_COIL_REMOTE_MODE,
+            MB_COIL_MANUAL_MODE,
+            MB_COIL_FUTURE_USE_4_5,
+            MB_COIL_LAST = MB_COIL_FUTURE_USE_4_5 + 5
+        }MODBUS_COILS_t;
+
+        typedef enum {
+            MB_INPUT_REG_PRODUCT_TYPE,
+            MB_INPUT_REG_PRODUCT_MAKE,
+            MB_INPUT_REG_GEN_PHASE,
+            MB_INPUT_REG_FUEL_TYPE,
+            MB_INPUT_REG_PRODUCT_RATING_2,
+            MB_INPUT_REG_FW_VER = (MB_INPUT_REG_PRODUCT_RATING_2 + 2),
+            MB_INPUT_REG_PROTOCOL_VER,
+            MB_INPUT_REG_GEN_SERIAL_NO_10,
+            MB_INPUT_REG_ENGINE_SERIAL_NO_10 = MB_INPUT_REG_GEN_SERIAL_NO_10 + 10,
+            MB_INPUT_REG_ALT_SERIAL_NO_10 = MB_INPUT_REG_ENGINE_SERIAL_NO_10 + 10,
+            MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10 = MB_INPUT_REG_ALT_SERIAL_NO_10 + 11,
+            MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10 = MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10 + 10,
+            MB_INPUT_REG_SITE_ID_5 = MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10 + 10,
+            MB_INPUT_REG_DATE = MB_INPUT_REG_SITE_ID_5 + 5,
+            MB_INPUT_REG_HOUR,
+            MB_INPUT_REG_MINUTES,
+            MB_INPUT_REG_SECONDS,
+            MB_INPUT_REG_MONTH,
+            MB_INPUT_REG_YEAR,
+            MB_INPUT_REG_GEN_R_VOLTAGE,
+            MB_INPUT_REG_GEN_Y_VOLTAGE,
+            MB_INPUT_REG_GEN_B_VOLTAGE,
+            MB_INPUT_REG_GEN_RY_LINE_VOLTAGE,
+            MB_INPUT_REG_GEN_YB_LINE_VOLTAGE,
+            MB_INPUT_REG_GEN_BR_LINE_VOLTAGE,
+            MB_INPUT_REG_GEN_FREQ,
+            MB_INPUT_REG_ALWAYS0_77,
+            MB_INPUT_REG_LOAD_CURR_R_PHASE,
+            MB_INPUT_REG_LOAD_CURR_Y_PHASE,
+            MB_INPUT_REG_LOAD_CURR_B_PHASE,
+            MB_INPUT_REG_LOAD_CURR_TOTAL,
+            MB_INPUT_REG_PF_R_PHASE,
+            MB_INPUT_REG_PF_Y_PHASE,
+            MB_INPUT_REG_PF_B_PHASE,
+            MB_INPUT_REG_ENGINE_SPEED_2,
+            MB_INPUT_REG_GEN_RUN_HRS_TOTAL_2 = MB_INPUT_REG_ENGINE_SPEED_2 + 2,
+            MB_INPUT_REG_GEN_RUN_HRS_REMOTE_2 = MB_INPUT_REG_GEN_RUN_HRS_TOTAL_2 + 2,
+            MB_INPUT_REG_GEN_RUN_HRS_MANUAL_2 = MB_INPUT_REG_GEN_RUN_HRS_REMOTE_2 + 2,
+            MB_INPUT_REG_GEN_RUN_HRS_NOLOAD_2 = MB_INPUT_REG_GEN_RUN_HRS_MANUAL_2 + 2,
+            MB_INPUT_REG_GEN_RUN_HRS_ONLOAD_2 = MB_INPUT_REG_GEN_RUN_HRS_NOLOAD_2 + 2,
+            MB_INPUT_REG_GEN_REAL_OUTPUT_POWER = MB_INPUT_REG_GEN_RUN_HRS_ONLOAD_2 + 2,
+            MB_INPUT_REG_GEN_APPARENT_OUTPUT_POWER,
+            MB_INPUT_REG_GEN_REACTIVE_OUTPUT_POWER,
+            MB_INPUT_REG_GEN_ENERGY_TOTAL_2,
+            MB_INPUT_REG_ALWAYS0xFFFF_102 = MB_INPUT_REG_GEN_ENERGY_TOTAL_2 + 2,
+            MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR,
+            MB_INPUT_REG_ALWAYS0xFFFF_104_6,
+            MB_INPUT_REG_ENGINE_COOLANT_TEMP_2 = MB_INPUT_REG_ALWAYS0xFFFF_104_6 + 6,
+            MB_INPUT_REG_ALWAYS0xFFFF_112_6 = MB_INPUT_REG_ENGINE_COOLANT_TEMP_2 + 2,
+            MB_INPUT_REG_LLOP = MB_INPUT_REG_ALWAYS0xFFFF_112_6 + 6,
+            MB_INPUT_REG_GEN_BATTERY_VOLTAGE,
+            MB_INPUT_REG_FUEL_LVL_PCT,
+            MB_INPUT_REG_ALWAYS0xFFFF_121_4,
+            MB_INPUT_REG_TOTAL_NO_OF_CRANKS_2 = MB_INPUT_REG_ALWAYS0xFFFF_121_4 + 4,
+            MB_INPUT_REG_NO_OF_FAILED_CRANKS_2 = MB_INPUT_REG_TOTAL_NO_OF_CRANKS_2 + 2,
+            MB_INPUT_REG_ALWAYS0xFFFF_129_6 = MB_INPUT_REG_NO_OF_FAILED_CRANKS_2 + 2,
+            MB_INPUT_REG_ENGINE_DIESEL_GAS = MB_INPUT_REG_ALWAYS0xFFFF_129_6 + 6,
+            MB_INPUT_REG_ALWAYS0xFFFF_136_5,
+            MB_INPUT_STARTED_ON_REMOTE_MANUAL = MB_INPUT_REG_ALWAYS0xFFFF_136_5 + 5,
+            MB_INPUT_REG_ALWAYS0xFFFF_142,
+            MB_INPUT_REG_RESERVED_START_19,
+            MB_INPUT_REG_NCD_ERR_HRS_2 = MB_INPUT_REG_RESERVED_START_19 + 19,
+            MB_INPUT_REG_NCD_HEAL_HRS_2 = MB_INPUT_REG_NCD_ERR_HRS_2 + 2,
+            MB_INPUT_REG_LAST = MB_INPUT_REG_NCD_HEAL_HRS_2 + 2
+        }MODBUS_INPUT_REGISTERS_t;
+
+
+    typedef enum {
+            MB_HOLDING_REG_DG_OP_VOLTAGE_LOW_CUTOFF,
+            MB_HOLDING_REG_DG_OP_VOLTAGE_HIGH_CUTOFF,
+            MB_HOLDING_REG_START_FIRST_CRANK_SET,
+            MB_HOLDING_REG_ALWAYS0xFFFF_3_2,
+            MB_HOLDING_REG_REST_AFTER_FIRST_CRANK = MB_HOLDING_REG_ALWAYS0xFFFF_3_2 + 2,
+            MB_HOLDING_REG_ALWAYS0xFFFF_6_1,
+            MB_HOLDING_REG_DG_OVERLOAD_TRIP,
+            MB_HOLDING_REG_LAST
+    }MODBUS_HOLDING_REGISTERS_t;
+
 #if (TEST_AUTOMATION == YES)
     typedef enum {
         MB_AUTOMATION_WRITE_COMMAND = 350,
@@ -274,23 +430,44 @@ offset 14.
         MB_AUTOMATION_WRITE_REG_LAST
     }MODBUS_FOR_AUTOMATION_WRITE;
 
+    typedef enum
+    {
+        MB_REG_BIT_POS_0 = 0,
+        MB_REG_BIT_POS_1,
+        MB_REG_BIT_POS_2,
+        MB_REG_BIT_POS_3,
+        MB_REG_BIT_POS_4,
+        MB_REG_BIT_POS_5,
+        MB_REG_BIT_POS_6,
+        MB_REG_BIT_POS_7,
+        MB_REG_BIT_POS_8,
+        MB_REG_BIT_POS_9,
+        MB_REG_BIT_POS_10,
+        MB_REG_BIT_POS_11,
+        MB_REG_BIT_POS_12,
+        MB_REG_BIT_POS_13,
+        MB_REG_BIT_POS_14,
+        MB_REG_BIT_POS_15,
+        MB_REG_BIT_POS_LAST
+    }MODBUS_READ_REG_BIT_POS_t;
+
     typedef struct{
-            uint16_t EngineRunTime:1;
-            uint16_t MainsRunTime:1;
-            uint16_t BTSRunTime:1;
-            uint16_t RTC:1;
-            uint16_t ActiveEnergy:1;
-            uint16_t ApparentEnergy:1;
-            uint16_t ReactiveEnergy:1;
-            uint16_t NumberOfStarts:1;
-            uint16_t NumberOfTrips:1;
-            uint16_t Reserved1:1;
-            uint16_t Reserved2:1;
-            uint16_t Reserved3:1;
-            uint16_t Reserved4:1;
-            uint16_t Reserved5:1;
-            uint16_t Reserved6:1;
-            uint16_t Reserved7:1;
+        uint16_t EngineRunTime:1;
+        uint16_t MainsRunTime:1;
+        uint16_t BTSRunTime:1;
+        uint16_t RTC:1;
+        uint16_t ActiveEnergy:1;
+        uint16_t ApparentEnergy:1;
+        uint16_t ReactiveEnergy:1;
+        uint16_t NumberOfStarts:1;
+        uint16_t NumberOfTrips:1;
+        uint16_t Reserved1:1;
+        uint16_t Reserved2:1;
+        uint16_t Reserved3:1;
+        uint16_t Reserved4:1;
+        uint16_t Reserved5:1;
+        uint16_t Reserved6:1;
+        uint16_t Reserved7:1;
     }stMBAutomationSetCommand;
 
     typedef union
@@ -316,7 +493,7 @@ offset 14.
      * None
      */
     MB_APP(HAL_Manager &hal,  CFGZ &cfgz, GCU_ALARMS &gcuAlarm,
-            ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode);
+            ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode, START_STOP &StartStop);
 
     /**
      * Fetches the value of a modbus register with write access(address group 2).
@@ -334,6 +511,42 @@ offset 14.
      * None
      */
     void SetReadRegisterValue(MODBUS_READ_REGISTERS_t eRegister, uint16_t u16Value);
+
+    /* Sets the value of a modbus holding register with read access.
+        * @param eRegister - The register whose value needs to be set.
+        * @param u16Value  - The value to be set
+        * @return
+        * None
+        */
+    void SetReadRegisterValue(MODBUS_HOLDING_REGISTERS_t eRegister, uint16_t u16Value);
+
+    /**
+     * Sets the value of a modbus discrete inputs with read access.
+     * @param eRegister - The address of discrete input whose value needs to be set.
+     * @param bSetDiscreteInput  - The value to be set .
+     * @return
+     * None
+     */
+    void SetReadDiscreteInputValue(MODBUS_DISCRETE_INPUTS_t eRegister, bool bSetDiscreteInput);
+
+    /**
+     * Sets the value of a modbus input registers with read access.
+     * @param eRegister - The address of input whose value needs to be set.
+     * @param bSetDiscreteInput  - The value to be set .
+     * @return
+     * None
+     */
+    void SetReadRegisterValue(MODBUS_INPUT_REGISTERS_t eRegister, uint16_t u16Value);
+
+    /**
+     * Sets the value of a modbus input registers with read access.
+     * @param eRegister - The address of input whose value needs to be set.
+     * @param bSetDiscreteInput  - The value to be set .
+     * @return
+     * None
+     */
+    void SetReadCoilValue(MODBUS_COILS_t eRegister , bool bSetDiscreteInput);
+
 
 
 #if (TEST_AUTOMATION == YES)
@@ -366,6 +579,9 @@ offset 14.
      * @param u16Value - value to be written in register.
      */
     void SetReadRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister, uint16_t u16Value);
+
+    void SetAutomationRegTypeToAny();
+    void SetAutomationRegTypeToInput();
 #endif
 
 
@@ -390,6 +606,8 @@ offset 14.
 
     static void GetMBEventStatus(KEY_MB_CAN_EVENT_t *stEvent);
 
+    void SetFwRevision(uint8_t uRevNo);
+
 private:
     #define MODBUS_GEN_START_CMD        (0x01)
     #define MODBUS_GEN_STOP_CMD         (0x02)
@@ -409,8 +627,11 @@ private:
     GCU_ALARMS          &_gcuAlarm;
     ENGINE_MONITORING   &_engineMonitoring;
     AUTO_MODE           &_Automode;
+    START_STOP          &_StartStop;
     uint16_t             _u16MODBUSCommand;
     uint16_t             _u16MODBUSOperModeCMD;
+    static uint8_t       _u8FwRev;
+
 
   //  static MODBUS_CMD_STATUS_t _eMBCmdStatus;
     static KEY_MB_CAN_EVENT_t stMBEvent ;
@@ -431,10 +652,28 @@ private:
     uint16_t _au16Grp4Registers[MODBUS_GRP4_REG_CNT];
 #endif
 
+    /*Address group 5 buffer*/
+    uint16_t _au16Grp5Registers[MODBUS_GRP5_INPUT_REG_CNT];
+
+    /*Address group 5 buffer*/
+    uint16_t _au16Grp6Registers[MODBUS_GRP6_INPUT_REG_CNT];
+
+    /*Address status group 1 buffer*/
+    uint8_t  _au8Grp1StatusBytes[MODBUS_STATUSGRP1_DISCRETE_INPUT_CNT];
+
+    /*Address status group 2 buffer*/
+    uint8_t  _au8Grp2StatusBytes[MODBUS_STATUSGRP2_COIL_CNT];
+
     /*List to store address groups*/
     MODBUS::ADDRESS_GROUP_t   _aAddressGrp[MODBUS_ADDRESS_GROUPS];
     MODBUS::ADDRESS_GRP_LST_t _AddressGrpLst;
+    /*List to store address groups for discrete inputs and coils.
+    A differnet structure is used as they can be stored in a single bit*/
+    MODBUS::INPUTS_STATUS_GROUP_t   _aInputStatusGrp[MODBUS_INPUTS_COIL_GROUPS];
+    MODBUS::INPUTS_STATUS_GRP_LST_t  _InputStatusGroupLst;
     uint16_t _u16TempAlarmVal;
+
+    static bool bFuelPctBelow15Pct;
     /**
      * Determines the register group index from the register enum. The returned
      * value is used to index _aAddressGrp.
@@ -445,7 +684,15 @@ private:
      * index of the register group.
      */
     uint8_t prvIdentifyRegisterGroup(uint16_t u16RegisterAddress,
-                                                bool bReadAccess, bool bWriteAccess);
+                                                bool bReadAccess, bool bWriteAccess, MODBUS_REG_TYPES eRegType);
+    uint8_t prvIdentifyInputStatusGroup(uint16_t u16DiscreteInputAddress,
+                                                bool bReadAccess, bool bWriteAccess, MODBUS_REG_TYPES eRegType);
+
+    void prvUpdateInputRegisters();
+    void prvUpdateDiscreteInputRegisters();
+    void prvUpdateCoils();
+    void prvUpdateHoldingRegisters();
+    bool prvSetMultipleInputRegisters(MODBUS_INPUT_REGISTERS_t eStartRegister, uint8_t* pu8DataStart, uint8_t u8DataLen);
 
     /**
      * Updates the appropriate registers with the value of electrical parameters.
@@ -508,6 +755,8 @@ private:
     void prvUpdateLatestDM1Messages(void);
     void prvUpdateEGRrelatedRegisters(void);
     void prvUpdateDm01FaultCodesOnModbus(void);
+
+    
 #if (TEST_AUTOMATION == YES)
     /**
      * This function updates the automation test support related modbus read registers.

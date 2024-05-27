@@ -25,7 +25,7 @@ bool MAIN_UI::_bEnteredPowerSave = false;
 MAIN_UI::MAIN_UI(HAL_Manager &hal, CFGZ &pcfgz, GCU_ALARMS &GCUAlarms,
         ENGINE_MONITORING  &EngMon, START_STOP &StartStop,MANUAL_MODE &ManualMode,
         Display &Disp, CFGC &CFGC, SLEEP_Handler &sleep,
-        J1939APP &j1939 , BTS_MODE &BTSMode , CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity):
+        J1939APP &j1939 , BTS_MODE &BTSMode , CYCLIC_MODE &CyclicMode, ENGINE_START_VALIDITY &EngineStartValidity, MB_APP &MbApp):
 _hal(hal),
 _cfgz(pcfgz),
 _sleep(sleep),
@@ -41,7 +41,7 @@ _MonUI(hal, ManualMode, EngMon, pcfgz, StartStop, GCUAlarms, Disp, CFGC, j1939 ,
 _DispAlarm(GCUAlarms, Disp,pcfgz, j1939,hal),
 _DispEventLog(hal, Disp, CFGC, GCUAlarms, pcfgz),
 _PasswordEntry(hal, CFGC, pcfgz, Disp),
-_objUI(hal,_PasswordEntry,pcfgz,Disp ,EngMon),
+_objUI(hal,_PasswordEntry,pcfgz,Disp ,EngMon, MbApp),
 _bRefresh(true),
 _bEventLogEntry(false),
 _u16ScreenChangeTime(_cfgz.GetCFGZ_Param(CFGZ::ID_GENERAL_TIMER_SCRN_CHNGOVER_TIME))

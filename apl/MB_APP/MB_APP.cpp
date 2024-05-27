@@ -38,15 +38,18 @@
 extern J1939APP *gpJ1939;
 MB_APP::KEY_MB_CAN_EVENT_t MB_APP::stMBEvent={};
 uint64_t MB_APP::Curr_MB_Valid_Count = 0;
+bool MB_APP::bFuelPctBelow15Pct = false;
+uint8_t MB_APP::_u8FwRev = 0;
 
 MB_APP::MB_APP(HAL_Manager &hal, CFGZ &cfgz, GCU_ALARMS &gcuAlarm,
-        ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode):
-MODBUS(hal.ObjRS485, _AddressGrpLst),
+        ENGINE_MONITORING &engineMonitoring, AUTO_MODE &Automode, START_STOP &StartStop):
+MODBUS(hal.ObjRS485, _AddressGrpLst, _InputStatusGroupLst),
 _hal(hal),
 _cfgz(cfgz),
 _gcuAlarm(gcuAlarm),
 _engineMonitoring(engineMonitoring),
 _Automode(Automode),
+_StartStop(StartStop),
 _u16MODBUSCommand(0),
 _u16MODBUSOperModeCMD(0),
 _au16Grp1Registers{0},
@@ -55,15 +58,24 @@ _au16Grp2Registers{0},
 _au16Grp3Registers{0},
 _au16Grp4Registers{0},
 #endif
+_au16Grp5Registers{0},
+_au8Grp1StatusBytes{0},
+_au8Grp2StatusBytes{0},
 _aAddressGrp{
-
-    {DIG_ALARM_1_REG, MODBUS_GRP1_REG_CNT, _au16Grp1Registers, true , false},
-    {MB_COMMAND, MODBUS_GRP2_REG_CNT, _au16Grp2Registers, false, true}
+    {DIG_ALARM_1_REG, MODBUS_GRP1_REG_CNT, _au16Grp1Registers, true , false, MODBUS_REG_ANY},
+    {MB_COMMAND, MODBUS_GRP2_REG_CNT, _au16Grp2Registers, false, true, MODBUS_REG_ANY}
 #if (TEST_AUTOMATION == YES)
-    ,{MB_AUX_S1, MB_AUTOMATION_READ_REG_LAST, _au16Grp3Registers, true , false},
-    {MB_AUTOMATION_WRITE_COMMAND, MB_AUTOMATION_WRITE_REG_LAST, _au16Grp4Registers, false, true}
+    ,{MB_AUX_S1, MB_AUTOMATION_READ_REG_LAST, _au16Grp3Registers, true , false, MODBUS_REG_ANY},
+    {MB_AUTOMATION_WRITE_COMMAND, MB_AUTOMATION_WRITE_REG_LAST, _au16Grp4Registers, false, true, MODBUS_REG_ANY}
 #endif
+    ,{MB_INPUT_REG_PRODUCT_TYPE, MB_INPUT_REG_LAST, _au16Grp5Registers, true, false, MODBUS_REG_INPUT},
+    {MB_HOLDING_REG_DG_OP_VOLTAGE_LOW_CUTOFF, MB_HOLDING_REG_LAST, _au16Grp6Registers, true, false, MODBUS_REG_HOLDING}
 },
+_aInputStatusGrp{
+    {MB_DISCRETE_INPUT_SMOKE_FIRE, MB_DISCRETE_INPUT_LAST , _au8Grp1StatusBytes, true, false, MODBUS_REG_DISCRETE_INPUT},
+    {MB_COIL_DG_STOP_CMD_OR_OFF, MB_COIL_LAST , _au8Grp2StatusBytes, true, false, MODBUS_REG_COIL},
+},
+_InputStatusGroupLst{_aInputStatusGrp , MODBUS_INPUTS_COIL_GROUPS},
 _AddressGrpLst{_aAddressGrp, MODBUS_ADDRESS_GROUPS},
 _u16TempAlarmVal(0)
 {
@@ -72,6 +84,11 @@ _u16TempAlarmVal(0)
 
 void MB_APP::Update()
 {
+    prvUpdateInputRegisters();
+    prvUpdateDiscreteInputRegisters();
+    prvUpdateCoils();
+    prvUpdateHoldingRegisters();
+
     prvUpdateElectricalParams();
     prvUpdateAnalogParams();
     prvUpdateStartTripsRunHours();
@@ -97,10 +114,15 @@ void MB_APP::Update()
 #endif
 }
 
+void MB_APP::SetFwRevision(uint8_t uRevNo)
+{
+    _u8FwRev = uRevNo;
+}
+
 uint16_t MB_APP::GetRegisterValue(MODBUS_WRITE_REGISTERS_t eRegister)
 {
     /*Determine the group*/
-    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, false, true);
+    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_ANY);
     /*Determine the start address for the group*/
     uint16_t u16StartAddress =  _aAddressGrp[u8Grp].u16StartAddress;
     return _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress];
@@ -109,7 +131,16 @@ uint16_t MB_APP::GetRegisterValue(MODBUS_WRITE_REGISTERS_t eRegister)
 void MB_APP::SetReadRegisterValue(MODBUS_READ_REGISTERS_t eRegister, uint16_t u16Value)
 {
     /*Determine the group*/
-    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false);
+    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_ANY);
+    /*Determine the start address for the group*/
+    uint16_t u16StartAddress =  _aAddressGrp[u8Grp].u16StartAddress;
+    _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
+}
+
+void MB_APP::SetReadRegisterValue(MODBUS_HOLDING_REGISTERS_t eRegister, uint16_t u16Value)
+{
+    /*Determine the group*/
+    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_HOLDING);
     /*Determine the start address for the group*/
     uint16_t u16StartAddress =  _aAddressGrp[u8Grp].u16StartAddress;
     _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
@@ -118,10 +149,78 @@ void MB_APP::SetReadRegisterValue(MODBUS_READ_REGISTERS_t eRegister, uint16_t u1
 void MB_APP::SetWriteRegisterValue(MODBUS_WRITE_REGISTERS_t eRegister, uint16_t u16Value)
 {
     /*Determine the group*/
-    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, false, true);
+    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_ANY);
     /*Determine the start address for the group*/
     uint16_t u16StartAddress =  _aAddressGrp[u8Grp].u16StartAddress;
     _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
+}
+
+bool MB_APP::prvSetMultipleInputRegisters(MODBUS_INPUT_REGISTERS_t eStartRegister, uint8_t* pu8DataStart, uint8_t u8DataLen)
+{
+    uint8_t u8RegCnt = (uint8_t)((u8DataLen + 1)/2);
+    if((eStartRegister + u8RegCnt - 1) > MB_INPUT_REG_LAST)
+    {
+        return false;
+    }
+    else
+    {
+        uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eStartRegister, true, false, MODBUS_REG_INPUT);
+        if(u8Grp != prvIdentifyRegisterGroup((uint16_t)(eStartRegister + u8RegCnt - 1), true, false, MODBUS_REG_INPUT))
+        {
+            return false;
+        }
+        /*Determine the start address for the group*/
+        uint16_t u16StartAddress =  _aAddressGrp[u8Grp].u16StartAddress;
+        memcpy((uint8_t*)&_aAddressGrp[u8Grp].pu16Registers[eStartRegister-u16StartAddress], pu8DataStart, u8DataLen);
+        return true;
+    }
+}
+
+void MB_APP::SetReadRegisterValue(MODBUS_INPUT_REGISTERS_t eRegister, uint16_t u16Value)
+{
+    /*Determine the group*/
+    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_INPUT);
+    /*Determine the start address for the group*/
+    uint16_t u16StartAddress =  _aAddressGrp[u8Grp].u16StartAddress;
+    _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
+}
+
+void MB_APP::SetReadDiscreteInputValue(MODBUS_DISCRETE_INPUTS_t eRegister , bool bSetDiscreteInput)
+{
+    /*Determine the group*/
+    uint8_t u8Grp = prvIdentifyInputStatusGroup((uint16_t)eRegister , true , false, MODBUS_REG_DISCRETE_INPUT);
+    /*Determine the input status byte index for the discrete input*/
+    uint16_t u16InputStatusByteIndex =  (uint16_t)(((uint16_t)eRegister - _aInputStatusGrp[u8Grp].u16StartAddress)/8U);
+
+    if(bSetDiscreteInput)
+    {
+        //Set the discrete input
+        _aInputStatusGrp[u8Grp].pu8InputsStatusByte[u16InputStatusByteIndex] |= (uint8_t)(1U << (((uint8_t)(eRegister-_aInputStatusGrp[u8Grp].u16StartAddress))%8U));
+    }
+    else
+    {
+        //Clear the discrete input
+        _aInputStatusGrp[u8Grp].pu8InputsStatusByte[u16InputStatusByteIndex] &= (uint8_t)(~(1U << (((uint8_t)(eRegister-_aInputStatusGrp[u8Grp].u16StartAddress))%8U)));
+    }
+}
+
+void MB_APP::SetReadCoilValue(MODBUS_COILS_t eRegister , bool bSetDiscreteInput)
+{
+    /*Determine the group*/
+    uint8_t u8Grp = prvIdentifyInputStatusGroup((uint16_t)eRegister , true , false, MODBUS_REG_COIL);
+    /*Determine the input status byte index for the discrete input*/
+    uint16_t u16InputStatusByteIndex =  (uint16_t)(((uint16_t)eRegister - _aInputStatusGrp[u8Grp].u16StartAddress)/8U);
+
+    if(bSetDiscreteInput)
+    {
+        //Set the discrete input
+        _aInputStatusGrp[u8Grp].pu8InputsStatusByte[u16InputStatusByteIndex] |= (uint8_t)(1U << (((uint8_t)(eRegister-_aInputStatusGrp[u8Grp].u16StartAddress))%8U));
+    }
+    else
+    {
+        //Clear the discrete input
+        _aInputStatusGrp[u8Grp].pu8InputsStatusByte[u16InputStatusByteIndex] &= (uint8_t)(~(1U << (((uint8_t)(eRegister-_aInputStatusGrp[u8Grp].u16StartAddress))%8U)));
+    }
 }
 
 
@@ -146,26 +245,604 @@ void MB_APP::GetMBEventStatus(KEY_MB_CAN_EVENT_t *stEvent)
     memcpy(&oldMbEvent, &stMBEvent, sizeof(MB_APP::KEY_MB_CAN_EVENT_t)) ;
 }
 
+
 uint8_t MB_APP::prvIdentifyRegisterGroup(uint16_t u16RegisterAddress,
-                                                        bool bReadAccess, bool bWriteAccess)
+                                                        bool bReadAccess, bool bWriteAccess, MODBUS_REG_TYPES eRegType)
 {
     uint8_t u8RegGrp = 0;
     /*Iterate over all groups*/
     for(uint8_t i=0; i<MODBUS_ADDRESS_GROUPS; i++)
     {
-        /*Check weather this register is within this group*/
-        if( (u16RegisterAddress >= _aAddressGrp[i].u16StartAddress) &&
-            (u16RegisterAddress < (_aAddressGrp[i].u16StartAddress+_aAddressGrp[i].u16length)) )
+        /*Check if register type is correct for the address group*/
+        if(eRegType == _aAddressGrp[i].eRegType)
         {
-            if( (bReadAccess == _aAddressGrp[i].isReadSupported) &&
-                (bWriteAccess == _aAddressGrp[i].isWriteSupported) )
+            /*Check weather this register is within this group*/
+            if( (u16RegisterAddress >= _aAddressGrp[i].u16StartAddress) &&
+                (u16RegisterAddress < (_aAddressGrp[i].u16StartAddress+_aAddressGrp[i].u16length)) )
             {
-                u8RegGrp = i;
-                break;
+                if( (bReadAccess == _aAddressGrp[i].isReadSupported) &&
+                    (bWriteAccess == _aAddressGrp[i].isWriteSupported) )
+                {
+                    u8RegGrp = i;
+                    break;
+                }
             }
         }
     }
     return u8RegGrp;
+}
+
+uint8_t MB_APP::prvIdentifyInputStatusGroup(uint16_t u16DiscreteInputAddress,bool bReadAccess, bool bWriteAccess, MODBUS_REG_TYPES eRegType)
+{
+    uint8_t u8InputStatusGrp = 0U;
+    /*Iterate over all groups*/
+    for(uint8_t i=0U; i<MODBUS_INPUTS_COIL_GROUPS; i++)
+    {
+        /*Check if register type is correct for the address group*/
+        if(eRegType == _aInputStatusGrp[i].eRegType)
+        {
+            /*Check weather this register is within this group*/
+            if( (u16DiscreteInputAddress >= _aInputStatusGrp[i].u16StartAddress) &&
+                    (u16DiscreteInputAddress <= (_aInputStatusGrp[i].u16EndAddress)) )
+            {
+                if( (bReadAccess == _aInputStatusGrp[i].isReadSupported) &&
+                        (bWriteAccess == _aInputStatusGrp[i].isWriteSupported) )
+                {
+                    u8InputStatusGrp = i;
+                    break;
+                }
+            }
+        }
+    }
+    return u8InputStatusGrp;
+}
+
+void MB_APP::prvUpdateInputRegisters()
+{
+    //SetReadRegisterValue(MB_INPUT_REG_1 , 27);
+    SetReadRegisterValue(MB_INPUT_REG_PRODUCT_TYPE , CPCB4_GEN);
+    SetReadRegisterValue(MB_INPUT_REG_PRODUCT_MAKE , MNM);
+
+    uint8_t u8AcSys = 0;
+    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) == CFGZ::CFGZ_1_PHASE_SYSTEM)
+    {
+        u8AcSys = 1;
+    }
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
+    {
+        u8AcSys = 3;
+    }
+    SetReadRegisterValue(MB_INPUT_REG_GEN_PHASE, u8AcSys);
+
+    SetReadRegisterValue(MB_INPUT_REG_FUEL_TYPE, 1); //Diesel Gen
+
+    uint32_t u32ProductRating = (uint32_t)((_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_GEN_RATING)*10)/(0.8));
+    prvSetMultipleInputRegisters(MB_INPUT_REG_PRODUCT_RATING_2, (uint8_t*) (&u32ProductRating), 4);
+
+    /*Firmware revision. Scale 0.01*/
+    SetReadRegisterValue(MB_INPUT_REG_FW_VER, (uint16_t)(_u8FwRev*100));
+
+    SetReadRegisterValue(MB_INPUT_REG_PROTOCOL_VER, 23);
+
+    //char strGensetSerialNo[20] = "AAAAAAAAAABBBBBBBBBB"
+    uint8_t strGensetSerialNo[20] = {0xFF};
+    memset(strGensetSerialNo,0xFF,20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+
+    //char strEngineSerialNo[20] = "AAAAAAAAAACCCCCCCCCC"
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+
+    //char strAltSerialNo[20] = "AAAAAAAAAADDDDDDDDDD"
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+
+    //char strMainControllerNo[20] = "AAAAAAAAAAEEEEEEEEEE"
+    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+
+    //char strEngineControllerNo[20] = "AAAAAAAAAAFFFFFFFFFF"
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+
+    //char strSiteId[10] = "AAAAAGGGGG"
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 10);
+
+    /*Get the current time*/
+    RTC::TIME_t currentTime;
+    _hal.ObjRTC.GetTime(&currentTime);
+    SetReadRegisterValue(MB_INPUT_REG_DATE, (uint16_t)currentTime.u8Day);
+    SetReadRegisterValue(MB_INPUT_REG_HOUR, (uint16_t)currentTime.u8Hour);
+    SetReadRegisterValue(MB_INPUT_REG_MINUTES, (uint16_t)currentTime.u8Minute);
+    SetReadRegisterValue(MB_INPUT_REG_SECONDS, (uint16_t)currentTime.u8Second);
+    SetReadRegisterValue(MB_INPUT_REG_MONTH, (uint16_t)currentTime.u8Month);
+    SetReadRegisterValue(MB_INPUT_REG_YEAR, currentTime.u16Year);
+    
+    /*Store generator voltage, resolution 0.01*/
+    uint16_t u16Tmp;
+    AC_SENSE ac = _hal.AcSensors;
+    u16Tmp = (uint16_t)(ac.GENSET_GetVoltageVolts(R_PHASE)*100);
+    SetReadRegisterValue(MB_INPUT_REG_GEN_R_VOLTAGE, u16Tmp);
+    u16Tmp = (uint16_t)(ac.GENSET_GetVoltageVolts(Y_PHASE)*100);
+    SetReadRegisterValue(MB_INPUT_REG_GEN_Y_VOLTAGE, u16Tmp);
+    u16Tmp = (uint16_t)(ac.GENSET_GetVoltageVolts(B_PHASE)*100);
+    SetReadRegisterValue(MB_INPUT_REG_GEN_B_VOLTAGE, u16Tmp);
+
+    /*Store generator line voltage, resolution 0.01*/
+    u16Tmp = (uint16_t)(ac.GENSET_GetRYVolts()*100);
+    SetReadRegisterValue(MB_INPUT_REG_GEN_RY_LINE_VOLTAGE, u16Tmp);
+    u16Tmp = (uint16_t)(ac.GENSET_GetYBVolts()*100);
+    SetReadRegisterValue(MB_INPUT_REG_GEN_YB_LINE_VOLTAGE, u16Tmp);
+    u16Tmp = (uint16_t)(ac.GENSET_GetRBVolts()*100);
+    SetReadRegisterValue(MB_INPUT_REG_GEN_BR_LINE_VOLTAGE, u16Tmp);
+
+    /*Store generator frequency, resolution 0.01*/
+    u16Tmp = (uint16_t)(_gcuAlarm.GetMinGenFreq()*100);
+    SetReadRegisterValue(MB_INPUT_REG_GEN_FREQ, u16Tmp);
+    
+    u16Tmp = 0;
+    SetReadRegisterValue(MB_INPUT_REG_ALWAYS0_77, u16Tmp);
+
+    uint16_t u16TotalLoadCurr = 0U;
+    /*Store load current values*/
+    if(((_Automode.IsMainsContactorClosed()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE) && (_Automode.IsMainsContactorConfigured()) && (_Automode.GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE)) ||
+       ((_Automode.IsMainsContactorClosed()) && (_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE) && (_Automode.IsMainsContactorConfigured()) && (!_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring)) ||
+       ((_cfgz.GetCFGZ_Param(CFGZ::ID_CURRENT_MONITOR_CT_LOCATION) == CFGZ::ON_LOAD_CABLE) && (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring) && (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bResultInstant) && (_Automode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)))
+    {
+
+        u16Tmp = (uint16_t)(ac.MAINS_GetCurrentAmps(R_PHASE)*100);
+        u16TotalLoadCurr += u16Tmp;
+        SetReadRegisterValue(MB_INPUT_REG_LOAD_CURR_R_PHASE, u16Tmp);
+        u16Tmp = (uint16_t)(ac.MAINS_GetCurrentAmps(Y_PHASE)*100);
+        u16TotalLoadCurr += u16Tmp;
+        SetReadRegisterValue(MB_INPUT_REG_LOAD_CURR_Y_PHASE, u16Tmp);
+        u16Tmp = (uint16_t)(ac.MAINS_GetCurrentAmps(B_PHASE)*100);
+        u16TotalLoadCurr += u16Tmp;
+        SetReadRegisterValue(MB_INPUT_REG_LOAD_CURR_B_PHASE, u16Tmp);
+
+    }
+    else if(((!_Automode.IsGenContactorConfigured()) && (!_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring)
+             && (!(((_Automode.IsMainsContactorClosed()) && (_Automode.IsMainsContactorConfigured()) && (!_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring))
+                   || ((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bEnableMonitoring) && (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::MAINS_CONTACTOR_LATCHED].bResultInstant) && (_Automode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)))))
+            || ((_Automode.IsGenContactorClosed()) && (_Automode.IsGenContactorConfigured()) && (_Automode.GetGCUOperatingMode() != BASE_MODES::MANUAL_MODE))
+            || ((_Automode.IsGenContactorClosed()) && (_Automode.IsGenContactorConfigured()) && (!_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring))
+            || ((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bEnableMonitoring) && (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DG_CONTACTOR_LATCHED].bResultInstant) && (_Automode.GetGCUOperatingMode() == BASE_MODES::MANUAL_MODE)))
+    {
+
+        u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(R_PHASE)*100);
+        u16TotalLoadCurr += u16Tmp;
+        SetReadRegisterValue(MB_INPUT_REG_LOAD_CURR_R_PHASE, u16Tmp);
+        u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(Y_PHASE)*100);
+        u16TotalLoadCurr += u16Tmp;
+        SetReadRegisterValue(MB_INPUT_REG_LOAD_CURR_Y_PHASE, u16Tmp);
+        u16Tmp = (uint16_t)(ac.GENSET_GetCurrentAmps(B_PHASE)*100);
+        u16TotalLoadCurr += u16Tmp;
+        SetReadRegisterValue(MB_INPUT_REG_LOAD_CURR_B_PHASE, u16Tmp);
+    }
+    else
+    {
+        u16Tmp = (uint16_t)(0);
+        u16TotalLoadCurr = 0U;
+        SetReadRegisterValue(MB_INPUT_REG_LOAD_CURR_R_PHASE, u16Tmp);
+        SetReadRegisterValue(MB_INPUT_REG_LOAD_CURR_Y_PHASE, u16Tmp);
+        SetReadRegisterValue(MB_INPUT_REG_LOAD_CURR_B_PHASE, u16Tmp);
+    }
+
+    /*Store the total load current*/
+    SetReadRegisterValue(MB_INPUT_REG_LOAD_CURR_TOTAL, u16TotalLoadCurr);
+
+    /*Store power factor*/
+    /*Resolution 0.01*/
+    u16Tmp = (uint16_t)(abs(ac.GENSET_GetDispPowerFactor(R_PHASE)*100));
+    SetReadRegisterValue(MB_INPUT_REG_PF_R_PHASE, u16Tmp);
+    u16Tmp = (uint16_t)(abs(ac.GENSET_GetDispPowerFactor(Y_PHASE)*100));
+    SetReadRegisterValue(MB_INPUT_REG_PF_Y_PHASE, u16Tmp);
+    u16Tmp = (uint16_t)(abs(ac.GENSET_GetDispPowerFactor(B_PHASE)*100));
+    SetReadRegisterValue(MB_INPUT_REG_PF_B_PHASE, u16Tmp);
+
+    /*Store engine speed*/
+    uint32_t u32Tmp = (uint32_t)(_gcuAlarm.GetSpeedValue());
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SPEED_2, (uint8_t*)(&u32Tmp), 4);
+
+    /*Store generator run hours, scale 0.1*/
+    u32Tmp = (uint32_t)((_gcuAlarm.GetSelectedEngRunMin()/60)*10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_TOTAL_2, (uint8_t*)(&u32Tmp), 4);
+
+    /*Store remote run hours, scale 0.1*/
+    u32Tmp = (((_engineMonitoring.GetRemoteRunTimeMin())/60)*10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_REMOTE_2, (uint8_t*)(&u32Tmp), 4);
+    
+    /*Store manual run hours, scale 0.1*/
+    u32Tmp = (((_engineMonitoring.GetManualRunTimeMin())/60)*10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_MANUAL_2, (uint8_t*)(&u32Tmp), 4);
+
+    /*Store no load run hours, scale 0.1*/
+    u32Tmp = (((_engineMonitoring.GetNoLoadRunTimeMin())/60)*10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_NOLOAD_2, (uint8_t*)(&u32Tmp), 4);
+
+    /*Store on load run hours, scale 0.1*/
+    u32Tmp = (((_engineMonitoring.GetOnLoadRunTimeMin())/60)*10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_RUN_HRS_ONLOAD_2, (uint8_t*)(&u32Tmp), 4);
+
+    /*Store real gen power*/
+    /*Resolution of 0.01 KW , i.e 100/1000=> 1/10 */
+    u16Tmp = (uint16_t)(ac.GENSET_GetTotalActivePowerWatts()/10);
+    SetReadRegisterValue(MB_INPUT_REG_GEN_REAL_OUTPUT_POWER, u16Tmp);
+
+    /*Store apparent gen power*/
+    /*Resolution of 0.01 KVA , i.e 100/1000=> 1/10 */
+    u16Tmp = (uint16_t)(ac.GENSET_GetTotalApparentPowerVA()/10);
+    SetReadRegisterValue(MB_INPUT_REG_GEN_APPARENT_OUTPUT_POWER, u16Tmp);
+
+    /*Store reactive gen power*/
+    /*Resolution of 0.01 KVA , i.e 100/1000=> 1/10 */
+    u16Tmp = (uint16_t)(ac.GENSET_GetTotalReactivePowerVAR()/10);
+    SetReadRegisterValue(MB_INPUT_REG_GEN_REACTIVE_OUTPUT_POWER, u16Tmp);
+
+    /*Total generator energy*/
+    /*Resolution of 0.01 KWH, i.e 100/1000=> 1/10 */
+    u32Tmp = (uint32_t)(ac.GENSET_GetTotalActiveEnergySinceInitWH()/10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_ENERGY_TOTAL_2, (uint8_t*)(&u32Tmp), 4);
+
+    SetReadRegisterValue(MB_INPUT_REG_ALWAYS0xFFFF_102, 0xFFFF);
+
+    /*Store canopy temp at far side of engine*/
+    SetReadRegisterValue(MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR, 0xFFFF); /*Input not added yet*/
+
+    for(uint8_t i = 0U; i < 6; i++)
+    {
+        SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_ALWAYS0xFFFF_104_6 + i), 0xFFFF);
+    }
+    
+
+    A_SENSE::SENSOR_RET_t sensorVal;
+    /*Store engine coolant temperature*/
+    if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
+            && (_cfgz.GetCFGZ_Param(CFGZ::ID_CLNT_TEMP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
+    {
+        u32Tmp = (int16_t)gpJ1939->GetReadData(RX_PGN_ET1_65262,0)*10;
+        prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_COOLANT_TEMP_2, (uint8_t*)&u32Tmp, 4);
+    }
+    else
+    {
+        sensorVal = _gcuAlarm.GetSelectedTempSensVal();
+
+        if((sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
+            (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+        {
+            u32Tmp = (int16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal)*10);
+            prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_COOLANT_TEMP_2, (uint8_t*)&u32Tmp, 4);
+        }
+        else
+        {
+            u32Tmp = 0xFFFFFFFFU;
+            prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_COOLANT_TEMP_2, (uint8_t*)&u32Tmp, 4);
+        }
+    }
+
+    for(uint8_t i = 0U; i < 6; i++)
+    {
+        SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_ALWAYS0xFFFF_112_6 + i), 0xFFFF);
+    }
+
+    sensorVal = _gcuAlarm.GetLOPSensorVal();
+
+    if( (sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
+        (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+    {
+        u16Tmp = (uint16_t)((sensorVal.stValAndStatus.f32InstSensorVal)*(PSI_CONVERSION)*100);
+        SetReadRegisterValue(MB_INPUT_REG_LLOP, u16Tmp);
+    }
+    else
+    {
+        SetReadRegisterValue(MB_INPUT_REG_LLOP, 0xFFFFU);
+    }
+
+
+    /*Store battery voltage*/
+    /*Scale factor 0.01*/
+    u16Tmp = (uint16_t)(_gcuAlarm.GetSelectedBatteryVtg()*100);
+    SetReadRegisterValue(MB_INPUT_REG_GEN_BATTERY_VOLTAGE, u16Tmp);
+
+    /*Store fuel pct*/
+    A_SENSE &sensor = _hal.AnalogSensors;
+    sensorVal = sensor.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_RESISTIVE);
+
+    bFuelPctBelow15Pct = (sensorVal.stValAndStatus.f32InstSensorVal <= 15.0F);
+    if((sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
+        (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+    {
+        /*Scale factor is 0.01*/
+        u16Tmp = (uint16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal*100));
+        SetReadRegisterValue(MB_INPUT_REG_FUEL_LVL_PCT, u16Tmp);
+    }
+    else
+    {
+        sensorVal = sensor.GetSensorValue(AnalogSensor::A_SENSE_FUEL_LEVEL_0_TO_5V);
+
+        bFuelPctBelow15Pct = (sensorVal.stValAndStatus.f32InstSensorVal <= 15.0F);
+        if((sensorVal.eStatus == A_SENSE::SENSOR_READ_SUCCESS) &&
+            (sensorVal.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+        {
+            /*Scale factor is 0.01*/
+            u16Tmp = (uint16_t)(round(sensorVal.stValAndStatus.f32InstSensorVal*100));
+            SetReadRegisterValue(MB_INPUT_REG_FUEL_LVL_PCT, u16Tmp);
+        }
+        else
+        {
+            SetReadRegisterValue(MB_INPUT_REG_FUEL_LVL_PCT, 0xFFFFU);
+        }
+    }
+
+    for(uint8_t i = 0; i < 4; i++)
+    {
+        SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_ALWAYS0xFFFF_121_4 + i), 0xFFFFU);
+    }
+
+    /*Store total stored cranks. scaling 0.01*/
+    u32Tmp = _engineMonitoring.GetCumCrankCnt()*100;
+    prvSetMultipleInputRegisters(MB_INPUT_REG_TOTAL_NO_OF_CRANKS_2, (uint8_t*)(&u32Tmp), 4);
+
+    /*Store total failed cranks*/
+    u32Tmp = _engineMonitoring.GetCumFailedCrankCnt()*100;
+    prvSetMultipleInputRegisters(MB_INPUT_REG_NO_OF_FAILED_CRANKS_2, (uint8_t*)(&u32Tmp), 4);
+
+    for(uint8_t i = 0; i < 6; i++)
+    {
+        SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_ALWAYS0xFFFF_129_6 + i), 0xFFFFU);
+    }
+    
+    /*Set fuel type*/
+    SetReadRegisterValue(MB_INPUT_REG_ENGINE_DIESEL_GAS, 1); /*1-> Diesel, 2-> Gas*/
+
+    for(uint8_t i = 0; i < 5; i++)
+    {
+        SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_ALWAYS0xFFFF_136_5 + i), 0xFFFFU);
+    }
+
+    /*Store the start mode*/
+    BASE_MODES::GCU_OPERATING_MODE_t eOpMode = BASE_MODES::GetGCUOperatingMode();
+    if(eOpMode == BASE_MODES::MANUAL_MODE)
+    {
+        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 0);
+    }
+    else
+    {
+        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 1);
+    }
+
+
+    SetReadRegisterValue(MB_INPUT_REG_ALWAYS0xFFFF_142, 0xFFFF);
+
+    for(uint8_t i = 0; i < 19; i++)
+    {
+        SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_RESERVED_START_19 + i), 0xFFFFU);
+    }
+
+    /*Store NCD error hours, scaling 0.1*/
+    u32Tmp = (uint32_t)((_cfgz.GetEGRFaultTimer()*10)/60);
+    //u32Tmp = 0xFFFFFFFFU;
+    prvSetMultipleInputRegisters(MB_INPUT_REG_NCD_ERR_HRS_2, (uint8_t*)(&u32Tmp), 4);
+
+    /*Store NCD heal hours, scaling 0.1*/
+    u32Tmp = (uint32_t)((_cfgz.GetEGRHealTimer()*10)/60);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_NCD_HEAL_HRS_2, (uint8_t*)(&u32Tmp), 4);
+    
+}
+
+void MB_APP::prvUpdateDiscreteInputRegisters()
+{
+    bool bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SMOKE_FIRE].bEnableMonitoring) &&
+                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SMOKE_FIRE].bResultInstant);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_SMOKE_FIRE , bStatus);
+
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_CANOPY_DOOR_OPEN , false); /*Not an available alarm. Input not added yet*/
+
+    /*Store load on gen*/
+    bStatus = (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR) == ACT_Manager::ACT_LATCHED);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_LOAD_ON_GEN , bStatus);
+
+    /*Store gen fail to start*/
+    bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FAIL_TO_START].bEnableMonitoring) &&
+                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FAIL_TO_START].bResultInstant);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_FAIL_TO_START , bStatus);
+
+    /*Store gen fail to stop*/
+    bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FAIL_TO_STOP].bEnableMonitoring) &&
+                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::FAIL_TO_STOP].bResultInstant);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_FAIL_TO_STOP , bStatus);
+
+    /*Store common alarm*/
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_COMMON_FAULT , _gcuAlarm.IsCommonAlarm());
+
+    /*Store LLOP fault*/
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_LLOP_FAULT , _gcuAlarm.IsLowOilPresAlarmActive());
+
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_ALWAYS0_7 , false); /*Always 0*/
+
+    /*Store Fuel level below 15 pct alarm*/
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_LOW_FUEL_LVL_AT_15PCT , bFuelPctBelow15Pct);
+
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_CANOPY_TEMP_HIGH , false); /*Input not added yet*/
+
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_ENGINE_COOLANT_TEMP_HIGH , _gcuAlarm.IsHighEngTempAlarmActive());
+
+    for(uint8_t i = 0; i < 3; i++)
+    {
+        SetReadDiscreteInputValue((MODBUS_DISCRETE_INPUTS_t)(MB_DISCRETE_INPUT_ALWAYS0_11_3 + i), false);
+    }
+
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_DG_IDLE_RUN , START_STOP::IsMonitorDGIdleRunTrue());
+
+    bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::OVERLOAD].bEnableMonitoring) &&
+                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::OVERLOAD].bResultInstant);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_DG_OVERLOAD , bStatus);
+
+    bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::VBAT_UV].bEnableMonitoring) &&
+                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::VBAT_UV].bResultInstant);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_DG_BATT_LOW , bStatus);
+
+    for(uint8_t i = 0; i < 10; i++)
+    {
+        SetReadDiscreteInputValue((MODBUS_DISCRETE_INPUTS_t)(MB_DISCRETE_INPUT_ALWAYS0_17_10 + i) , false);
+    }
+
+    uint64_t u64Temp = (_gcuAlarm.GetSelectedEngRunMin())/60;
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_50HRS, (u64Temp >= 50));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_100HRS, (u64Temp >= 100));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_500HRS, (u64Temp >= 500));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_1000HRS, (u64Temp >= 1000));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_MAINT_ALARM_2000HRS, (u64Temp >= 2000));
+
+    for(uint8_t i = 0; i < 5; i++)
+    {
+        SetReadDiscreteInputValue((MODBUS_DISCRETE_INPUTS_t)(MB_DISCRETE_INPUT_ALWAYS0_32_5 + i) , false);
+    }
+
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_MAIN_CONTROLLER_FAIL_ALARM, false);
+
+    for(uint8_t i = 0; i < 3; i++)
+    {
+        SetReadDiscreteInputValue((MODBUS_DISCRETE_INPUTS_t)(MB_DISCRETE_INPUT_ALWAYS0_38_3 + i) , false);
+    }
+
+    bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::OVERSPEED_L1].bEnableMonitoring) &&
+                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::OVERSPEED_L1].bResultInstant);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_OVER_SPD_ALARM , bStatus);
+    
+    for(uint8_t i = 0; i < 4; i++)
+    {
+        SetReadDiscreteInputValue((MODBUS_DISCRETE_INPUTS_t)(MB_DISCRETE_INPUT_ALWAYS0_42_4 + i) , false);
+    }
+
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_RESERVED_46, false);
+
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_WARNING , (gpJ1939->IsEGRWarningPresent()));
+    
+    
+
+    bStatus = false;
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_WARNING , bStatus);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_FAULT , bStatus);
+
+    GCU_ALARMS::EGR_FAULT_LIST_t eEgrFault = _gcuAlarm.GetEgrEcuFaultStatus();
+
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_FAULT, (eEgrFault > GCU_ALARMS::EGR_NO_FAULT));
+
+    if(eEgrFault == GCU_ALARMS::EGR_ECU_FAULT)
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_ECU_UNHEALTHY , true);
+    }
+    else
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_ECU_UNHEALTHY , false);
+    }
+
+    if(eEgrFault == GCU_ALARMS::EGR_TEMP_SENSOR_FAULTY)
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_TEMP_SENS_OPEN_WARNING , true);
+    }
+    else
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_TEMP_SENS_OPEN_WARNING , false);
+    }
+
+    if(eEgrFault == GCU_ALARMS::EGR_TEMP_SENSOR_OUT_OF_EX_PIPE)
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_TEMP_SENS_FAULTY_WARNING , true);
+    }
+    else
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_TEMP_SENS_FAULTY_WARNING , false);
+    }
+
+    if(eEgrFault == GCU_ALARMS::EGR_VALVE_WIRE_OPEN)
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_VALVE_OPEN_WARNING , true);
+    }
+    else
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_VALVE_OPEN_WARNING , false);
+    }
+
+    if(eEgrFault == GCU_ALARMS::EGR_SENSOR_FAULTY)
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_VALVE_SENS_FAULTY_WARNING , true);
+    }
+    else
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_VALVE_SENS_FAULTY_WARNING , false);
+    }
+
+    if(eEgrFault == GCU_ALARMS::EGR_ECU_VALVE_SHORT)
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_VALVE_NOT_LIFTING_WARNING , true);
+    }
+    else
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_VALVE_NOT_LIFTING_WARNING , false);
+    }
+    
+    if(eEgrFault == GCU_ALARMS::EGR_VALVE_NOT_CLOSING)
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_VALVE_NOT_CLOSING_WARNING , true);
+    }
+    else
+    {
+        SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_VALVE_NOT_CLOSING_WARNING , false);
+    }
+}
+
+void MB_APP::prvUpdateCoils()
+{
+    START_STOP::SS_STATE_t eSsState = START_STOP::GetStartStopSMDState();
+    if( (eSsState == START_STOP::ID_STATE_SS_STOPPING) || (eSsState == START_STOP::ID_STATE_SS_STOP_HOLD)
+        || (ENGINE_MONITORING::IsEngineOff()) || (START_STOP::IsStopCommand()))
+    {
+        SetReadCoilValue(MB_COIL_DG_STOP_CMD_OR_OFF, true);
+    }
+    else
+    {
+        SetReadCoilValue(MB_COIL_DG_STOP_CMD_OR_OFF, false);
+    }
+    
+    if( (eSsState == START_STOP::ID_STATE_SS_PREHEAT) || (eSsState == START_STOP::ID_STATE_SS_START_WAIT)||
+        (eSsState == START_STOP::ID_STATE_SS_CRANKING)|| (eSsState == START_STOP::ID_STATE_SS_CRANK_REST)|| (eSsState == START_STOP::ID_STATE_SS_ENG_ON)||
+        (ENGINE_MONITORING::IsEngineOn()) )
+    {
+        SetReadCoilValue(MB_COIL_DG_START_CMD_OR_ON, true);
+    }
+    else
+    {
+        SetReadCoilValue(MB_COIL_DG_START_CMD_OR_ON, false);
+    } 
+    
+    BASE_MODES::GCU_OPERATING_MODE_t eOpMode = BASE_MODES::GetGCUOperatingMode();
+    if(eOpMode == BASE_MODES::MANUAL_MODE)
+    {
+        SetReadCoilValue(MB_COIL_MANUAL_MODE ,true);
+        SetReadCoilValue(MB_COIL_REMOTE_MODE ,false);
+    }
+    else
+    {
+        SetReadCoilValue(MB_COIL_MANUAL_MODE ,false);
+        SetReadCoilValue(MB_COIL_REMOTE_MODE ,true);
+    }
+
+    for(uint8_t i = 0; i < 5; i++)
+    {
+        SetReadCoilValue((MODBUS_COILS_t)(MB_COIL_FUTURE_USE_4_5 + i),false);
+    }
+}
+
+void MB_APP::prvUpdateHoldingRegisters()
+{
+    SetReadRegisterValue(MB_HOLDING_REG_DG_OP_VOLTAGE_LOW_CUTOFF, _cfgz.GetCFGZ_Param(CFGZ::ID_VOLT_MONITOR_UV_SHUTDOWN_THRESHOLD));
+    SetReadRegisterValue(MB_HOLDING_REG_DG_OP_VOLTAGE_HIGH_CUTOFF, _cfgz.GetCFGZ_Param(CFGZ::ID_VOLT_MONITOR_OV_SHUTDOWN_THRESHOLD));
+    SetReadRegisterValue(MB_HOLDING_REG_START_FIRST_CRANK_SET, _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_HOLD_TIME));
+    for(uint8_t i = 0; i < 2; i++)
+    {
+        SetReadRegisterValue((MODBUS_HOLDING_REGISTERS_t)(MB_HOLDING_REG_ALWAYS0xFFFF_3_2 + i), 0xFFFF);
+    }
+    SetReadRegisterValue(MB_HOLDING_REG_REST_AFTER_FIRST_CRANK, _cfgz.GetCFGZ_Param(CFGZ::ID_CRANKING_TIMER_CRANK_REST_TIME));
+    SetReadRegisterValue(MB_HOLDING_REG_ALWAYS0xFFFF_6_1, 0xFFFF);
+    SetReadRegisterValue(MB_HOLDING_REG_DG_OVERLOAD_TRIP, _cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_OVERLOAD_MON_DELAY));
 }
 
 void MB_APP::prvUpdateTimeStamp()
@@ -1574,7 +2251,7 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation(void)
 
     if(bStoreInEeprom)
     {
-        _engineMonitoring.StoreCummulativeCnt();
+        _engineMonitoring.StoreCummulativeCnt(false);
         _engineMonitoring.ReadEnergySetEnergyOffset(true);
         bStoreInEeprom = false;
     }
@@ -1584,8 +2261,16 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation(void)
 
 uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister)
 {
+    uint8_t u8Grp;
     /*Determine the group*/
-    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, false, true);
+    if(MODBUS::GetModbusConfigRegSpecific())
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_HOLDING);
+    }
+    else
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_ANY);
+    }
     /*Determine the start address for the group*/
     uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
     return _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress];
@@ -1594,8 +2279,16 @@ uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister)
 
 void MB_APP::SetWriteRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister, uint16_t u16Value)
 {
+    uint8_t u8Grp;
     /*Determine the group*/
-    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, false, true);
+    if(MODBUS::GetModbusConfigRegSpecific())
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_HOLDING);
+    }
+    else
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, false, true, MODBUS_REG_ANY);
+    }
     /*Determine the start address for the group*/
     uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
     _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
@@ -1603,8 +2296,16 @@ void MB_APP::SetWriteRegisterValue(MODBUS_FOR_AUTOMATION_WRITE eRegister, uint16
 
 uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister)
 {
+    uint8_t u8Grp;
     /*Determine the group*/
-    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false);
+    if(MODBUS::GetModbusConfigRegSpecific())
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_INPUT);
+    }
+    else
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_ANY);
+    }
     /*Determine the start address for the group*/
     uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
     return _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress];
@@ -1612,11 +2313,31 @@ uint16_t MB_APP::GetRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister)
 
 void MB_APP::SetReadRegisterValue(MODBUS_FOR_AUTOMATION_READ eRegister, uint16_t u16Value)
 {
+    uint8_t u8Grp;
     /*Determine the group*/
-    uint8_t u8Grp =  prvIdentifyRegisterGroup((uint16_t)eRegister, true, false);
+    if(MODBUS::GetModbusConfigRegSpecific())
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_INPUT);
+    }
+    else
+    {
+        u8Grp = prvIdentifyRegisterGroup((uint16_t)eRegister, true, false, MODBUS_REG_ANY);
+    }
     /*Determine the start address for the group*/
     uint16_t u16StartAddress = _aAddressGrp[u8Grp].u16StartAddress;
     _aAddressGrp[u8Grp].pu16Registers[eRegister-u16StartAddress] = u16Value;
+}
+
+void MB_APP::SetAutomationRegTypeToAny()
+{
+    _aAddressGrp[2].eRegType = MODBUS::MODBUS_REG_ANY;
+    _aAddressGrp[3].eRegType = MODBUS::MODBUS_REG_ANY;
+}
+
+void MB_APP::SetAutomationRegTypeToInput()
+{
+    _aAddressGrp[2].eRegType = MODBUS::MODBUS_REG_INPUT;
+    _aAddressGrp[3].eRegType = MODBUS::MODBUS_REG_HOLDING;
 }
 
 

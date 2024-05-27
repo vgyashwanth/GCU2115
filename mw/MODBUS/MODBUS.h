@@ -38,6 +38,16 @@
 class MODBUS {
 
 public:
+    /*Types of modbus registers*/
+    typedef enum{
+        MODBUS_REG_COIL = 0,
+        MODBUS_REG_DISCRETE_INPUT,
+        MODBUS_REG_HOLDING,
+        MODBUS_REG_INPUT,
+        MODBUS_REG_ANY,
+        MODBUS_REG_TYP_LAST
+    } MODBUS_REG_TYPES;
+
     /*Represents information of a consecutive group of MODBUS registers*/
     typedef struct ADDRESS_GROUP_t {
         /*Modbus start address of this address group*/
@@ -50,7 +60,27 @@ public:
         bool     isReadSupported;
         /*true if write is supported in this address group*/
         bool     isWriteSupported;
+        /*Value indicates type of register supported. Refer to MODBUS_REG_TYPES*/
+        MODBUS_REG_TYPES  eRegType;
     } ADDRESS_GROUP_t;
+
+    /*Represents information of a consecutive group of MODBUS inputs status bytes*/
+    typedef struct INPUTS_STATUS_GROUP_t {
+        /*Modbus start address of this address group*/
+        uint16_t u16StartAddress;
+        /*Modbus end address of this address group*/
+        uint16_t u16EndAddress;
+        /*Pointer to Inputs Status byte.
+         * The discrete inputs in the message are packed
+         * as one input per bit of the Status byte*/
+        uint8_t *pu8InputsStatusByte;
+        /*true if read is supported in this address group*/
+        bool     isReadSupported;
+        /*true if write is supported in this address group*/
+        bool     isWriteSupported;
+        /*Value indicates type of register supported. Refer to MODBUS_REG_TYPES*/
+        MODBUS_REG_TYPES  eRegType;
+    } INPUTS_STATUS_GROUP_t;
 
     /*Represents list of ADDRESS_GROUP_t*/
     typedef struct ADDRESS_GRP_LST_t {
@@ -58,6 +88,11 @@ public:
         uint8_t         u8NoOfRegisterGroups;
     } ADDRESS_GRP_LST_t;
 
+    /*Represents list of INPUTS_STATUS_GRP_LST_t*/
+    typedef struct INPUTS_STATUS_GRP_LST_t {
+        INPUTS_STATUS_GROUP_t *pau8Registers;
+        uint8_t         u8NoOfStatusByteGroups;
+    } INPUTS_STATUS_GRP_LST_t;
 
     /**
      * Constructs the modbus class.
@@ -66,7 +101,7 @@ public:
      * @return
      * None
      */
-    MODBUS(RS485 &rs485, ADDRESS_GRP_LST_t &addressGrp);
+    MODBUS(RS485 &rs485, ADDRESS_GRP_LST_t &addressGrp, INPUTS_STATUS_GRP_LST_t &InputCoilGrp);
 
     /**
      * Configures the station address and silence period. Silence is determined
@@ -98,15 +133,23 @@ public:
      */
     void HandleIncomingData(uint8_t u8Byte);
 
+    static void SetModbusConfigRegSpecific(bool isRegSpecific);
+
+    static bool GetModbusConfigRegSpecific();
+
     static uint64_t MB_Valid_Count;
 
 private:
 
     /*MODBUS function codes*/
-    #define MB_READ_INPUT_REGISTERS     (4U)
-    #define MB_READ_HOLDING_REGISTERS   (3U)
-    #define MB_WRITE_HOLDING_REGISTERS  (16U)
-    #define MB_WRITE_HOLGING_SINGLE_REG  (6U)
+    #define MB_READ_COILS                (1U)
+    #define MB_READ_DISCRETE_INPUTS      (2U)
+
+    
+    #define MB_READ_INPUT_REGISTERS      (4U)
+    #define MB_READ_HOLDING_REGISTERS    (3U)
+    #define MB_WRITE_HOLDING_REGISTERS   (16U)
+    #define MB_WRITE_HOLDING_SINGLE_REG  (6U)
 
     #define MB_MAX_BUFFER_LENGTH        (256U)
 
@@ -135,7 +178,7 @@ private:
         uint8_t  u8FunctionCode;
         uint16_t u16StartAddress;
         uint16_t au16Registers[MB_MAX_BUFFER_LENGTH];
-        uint16_t u16NoOfRegisters;
+        uint16_t u16NoOfRegistersOrInputs;
     } MODBUS_PKT_t;
 
     /*Reference to the RS485 driver*/
@@ -144,8 +187,11 @@ private:
     uint8_t            _u8SlaveID;
     /*Stores the information of the registers.*/
     ADDRESS_GRP_LST_t  &_AddressGrp; 
+
+    INPUTS_STATUS_GRP_LST_t &_InputStatusGroup;
     /*Index of the register address group for which a command has been received*/
     uint8_t            _CurrentAddressGroup;
+    uint8_t            _CurrentCoilByteGroup;
     /*State of the incoming data parser state machine*/
     MB_PARSER_STATES_t _eParserState;
     /*Status of parsing*/
@@ -160,6 +206,11 @@ private:
     MODBUS_PKT_t       _pkt;
     /*Determines weather modbus is enabled/disabled*/
     bool               _isModbusEnabled;
+
+    /*Flag to indicate if the modbus config will store different address
+     groups for different register types. Set by function called in MB_APP*/
+    static bool _isModbusConfigRegSpecific;
+
     /**
      * A helper function to validate the incoming packet
      * @param - None
@@ -178,6 +229,18 @@ private:
      * Number of bytes of data populated into the buffer.
      */
     uint8_t prvProcessReadReq(uint8_t *pu8Resp, uint8_t u8BuffLen);
+
+    /**
+     * Function processes an incoming read request(i.e function code 0x02)
+     *  It also populates the read registers into pu8Resp as defined by
+     * modbus RTU.
+     * @param pu8Resp   - The buffer onto which the read data needs to be populated.
+     * @param u8BuffLen - Buffer size.
+     * @param u8ByteCount - The Byte Count field specifies the quantity of complete bytes of data..
+     * @return
+     * Number of bytes of data populated into the buffer.
+     */
+    uint8_t prvProcessReadReqForDiscreteInput(uint8_t *pu8Resp, uint8_t u8BuffLen , uint8_t u8ByteCount);
 
     /**
      * Function processes a write request(i.e function code 16). The data in the
@@ -203,6 +266,7 @@ private:
      * None
      */
     void    prvSendErrorResponse();
+
 };
 
 #endif

@@ -78,6 +78,9 @@ public:
         HIGH_WATER_TEMP_WARNING,
         HIGH_LUBE_OIL_TEMP_SHUTDOWN,
         HIGH_LUBE_OIL_TEMP_WARNING,
+        HIGH_CANOPY_TEMP_SHUTDOWN,
+        HIGH_CANOPY_TEMP_WARNING,
+        OPEN_CANOPY_TEMP_CKT,
 
         OVERSPEED_L1,
         OVERSPEED_L2,
@@ -194,6 +197,8 @@ public:
         fuel_level_id,
         High_Water_Temperature_id,
         High_Lube_Oil_Temp_id,
+        High_Canopy_Temp_id,
+        Canopy_Temp_Sen_Ckt_Open_id,
         Radiator_Water_Level_id,
         Over_Speed_l1_id,
         Over_Speed_l2_id,
@@ -576,6 +581,7 @@ private:
     {
         LUBE_OIL_PRESSURE,
         LUBE_OIL_TEMP,
+        CANOPY_TEMP,
         FUEL_LEVEL,
         ENGINE_TEMPERATURE,
         ENGINE_SPEED,
@@ -649,6 +655,7 @@ private:
         ANLG_SENS_S2_VAL,
         SHELTER_TEMP_VAL,
         SHELT_TEMP_OPEN_CKT,
+        CANOPY_TEMP_OPEN_CKT,
         EARTH_LEAKAGE_CURR_VAL,
         LOP_SENS_OVER_VAL,
         FUEL_OPEN_CKT_VAL,
@@ -720,6 +727,7 @@ private:
     uint8_t _u8HighEngTempAlarm;
     uint8_t _u8HighEngTempSwitch;
     uint8_t _u8HighLubeOilTempAlarm;
+    uint8_t _u8HighCanopyTempAlarm;
     uint8_t _u8AlarmIndex;
     uint8_t _u8DummyZero;
     uint8_t _u8DummyOne;

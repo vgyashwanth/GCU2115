@@ -550,7 +550,8 @@ void CFGZ::prvConfigureASENSE()
     {
      {CFGZ_ANLG_SENSOR_NOT_USED , AnalogSensor::A_SENSE_NOT_USED},
      {CFGZ_ANLG_DIG_IN          , AnalogSensor::A_SENSE_DIG_M   },
-     {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_SHELTER_TEMPERATURE}
+     {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_SHELTER_TEMPERATURE},
+     {CFGZ_ANLG_CUSTOM_SENSOR2  , AnalogSensor::A_SENSE_CANOPY_TEMPERATURE}
     };
 
     u8MapSize = sizeof(aPIN14MAP)/sizeof(ASENSOR_MAP_ROW_t);
@@ -638,7 +639,7 @@ void CFGZ::prvConfigureASENSE()
     _hal.AnalogSensors.ConfigureNumberOfPoles((uint8_t)((_All_Param.u8ArrParam[ID_ALT_CONFIG_NUMBER_OF_POLES] * 2) + 2));
 }
 
-AnalogSensor::TYPS_t CFGZ::prGetAnalogSensor(uint8_t u8CfgSensorIdx,
+AnalogSensor::TYPS_t CFGZ:: prGetAnalogSensor(uint8_t u8CfgSensorIdx,
                                         const ASENSOR_MAP_ROW_t *pMap, uint8_t u8MapSize)
 {
     for(int i=0; i<u8MapSize; i++)
@@ -994,6 +995,11 @@ bool CFGZ::IsOilTemperatureConfigured()
 {
     return ((GetEngType() != CFGZ::CFGZ_CONVENTIONAL)
             && (GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU) == CFGZ::CFGZ_ENABLE));
+}
+
+bool CFGZ::IsCanopyTemperatureConfigured()
+{
+    return (GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2);
 }
 
 float CFGZ::GetProductSpecificData(PRODUCT_SPECIFIC_PARAM_FLOAT32_t eProductData)

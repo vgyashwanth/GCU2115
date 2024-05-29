@@ -72,6 +72,7 @@ _u8AFTActivationTimeout(0),
 _u8HighEngTempAlarm(0),
 _u8HighEngTempSwitch(0),
 _u8HighLubeOilTempAlarm(0),
+_u8HighCanopyTempAlarm(0),
 _u8AlarmIndex(0),
 _u8DummyZero(0),
 _u8DummyOne(1),
@@ -775,6 +776,40 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             }
             ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[LUBE_OIL_TEMP];
             break;
+
+        case HIGH_CANOPY_TEMP_WARNING:
+            if(_cfgz.IsCanopyTemperatureConfigured())
+            {
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CANOPY_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = (_cfgz.GetCFGZ_Param(CFGZ::ID_CANOPY_TEMP_WARNING_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Canopy_Temp_id, _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CANOPY_TEMP_WARNING_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+            }
+            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[CANOPY_TEMP];
+            break;
+
+        case HIGH_CANOPY_TEMP_SHUTDOWN:
+            if(_cfgz.IsCanopyTemperatureConfigured())
+            {
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_CANOPY_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = (_cfgz.GetCFGZ_Param(CFGZ::ID_CANOPY_TEMP_SHUTDOWN_EN) == CFGZ::CFGZ_ENABLE);
+                prvUpdateMonParams(u8AlarmIndex, &_u8MonOn, true, GCU_ALARMS::High_Canopy_Temp_id, _cfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CANOPY_TEMP_SHUTDOWN_THRESH), NO_OF_50MSEC_TICKS_FOR_1SEC);
+            }
+            ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[CANOPY_TEMP];
+            break;
+
+        case OPEN_CANOPY_TEMP_CKT:
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = (_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2);
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableWarning = (_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION) == CFGZ::CFGZ_ENABLE);
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
+            ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Canopy_Temp_Sen_Ckt_Open_id;
+            ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20 * 30; //Monitor this for 30 sec.
+            ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
+        }
+        ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[CANOPY_TEMP_OPEN_CKT];
+        break;
         
         case OVERSPEED_L1:
         {
@@ -2004,6 +2039,11 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     A_SENSE::SENSOR_RET_t stLubeOilTemp = GetLubeOilTempSensVal();
     _ArrAlarmValue[LUBE_OIL_TEMP].f32Value = stLubeOilTemp.stValAndStatus.f32InstSensorVal;
 
+    A_SENSE::SENSOR_RET_t stCanopyTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_CANOPY_TEMPERATURE);
+    _ArrAlarmValue[CANOPY_TEMP].f32Value = stCanopyTemp.stValAndStatus.f32InstSensorVal;
+
+    _ArrAlarmValue[CANOPY_TEMP_OPEN_CKT].u8Value = (uint8_t)(stCanopyTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT);
+
     _ArrAlarmValue[ENGINE_SPEED].u16Value =(uint16_t) GetSpeedValue();
 
     _ArrAlarmValue[GENSET_FREQUENCY].f32Value = _hal.AcSensors.GENSET_GetMinFrq();
@@ -2217,7 +2257,13 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
             break;
         case High_Lube_Oil_Temp_id:
             _ArrAlarmStatus[u8LoggingID] = &_u8HighLubeOilTempAlarm;
-            break;            
+            break;     
+        case High_Canopy_Temp_id:
+            _ArrAlarmStatus[u8LoggingID] = &_u8HighCanopyTempAlarm;
+            break;
+        case Canopy_Temp_Sen_Ckt_Open_id:
+            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[OPEN_CANOPY_TEMP_CKT].bAlarmActive;
+            break;       
         case Radiator_Water_Level_id :
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[RWL_SWITCH].bAlarmActive;
             break;
@@ -2611,6 +2657,8 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
     _u8HighEngTempAlarm = ArrAlarmMonitoring[HIGH_WATER_TEMP_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[HIGH_WATER_TEMP_WARNING].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive;
 
     _u8HighLubeOilTempAlarm = ArrAlarmMonitoring[HIGH_LUBE_OIL_TEMP_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[HIGH_LUBE_OIL_TEMP_WARNING].bAlarmActive;
+
+    _u8HighCanopyTempAlarm = ArrAlarmMonitoring[HIGH_CANOPY_TEMP_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[HIGH_CANOPY_TEMP_WARNING].bAlarmActive;
 
     _u8AuxSensS1Alarm =  0;
     _u8AuxSensS2Alarm =  0;

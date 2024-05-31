@@ -784,7 +784,7 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _stCummulativeCnt.u32GenNoLoadRunTime_min =0;
         _stCummulativeCnt.u32GenOnLoadRunTime_min =0;
         _stCummulativeCnt.u32GenExtOverloadRunTime_min =0;
-        _stCummulativeCnt.ExtOvldStartTime ={0};
+        memset((uint8_t*)(&_stCummulativeCnt.ExtOvldStartTime), 0, sizeof(RTC::TIME_t));
         _stCummulativeCnt.u8ExtOvldStarted =false;
         _stCummulativeCnt.u8ExtOvldFault =false;
 

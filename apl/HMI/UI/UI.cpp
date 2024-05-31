@@ -276,7 +276,9 @@ static const char* strOutputSources[1][CFGZ::CFGZ_OUTPUT_LAST] =
   "EGR Output",
   "Buzzer 2",
   "Battery Unhealthy",
-  "Supercapacitor Unhealthy"
+  "Supercapacitor Unhealthy",
+  "Canopy Temperature Sensor",
+  "DG On Load"
  }
 };
 
@@ -307,7 +309,8 @@ static const char* strInputSources[1][CFGZ::CFGZ_INPUT_LAST]=
   "EGR Digital In",
   "EB MCCB On Feedback",
   "DG MCCB On Feedback",
-  "Supercapacitor Fail"
+  "Supercapacitor Fail",
+  "Canopy Door Open"
  }
 };
 
@@ -2888,7 +2891,7 @@ void UI::InitialiseCustomSensor()
                ||((uint16_t)(1000*ArrEditableItem[INDEX_OF_CURRENT_MONITOR_CT_CORRECTION_FACTOR].tempValue.fVal)!= (uint16_t)(1000* ArrEditableItem[INDEX_OF_CURRENT_MONITOR_CT_CORRECTION_FACTOR].value.fVal)))
     {
         _engMon.ReadEnergySetEnergyOffset(false);
-        _engMon.StoreCummulativeCnt(false);
+        _engMon.StoreCummulativeCnt(ENGINE_MONITORING::CUM_STORE_GENERAL);
     }
 }
 

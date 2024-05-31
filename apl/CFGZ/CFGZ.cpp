@@ -456,7 +456,8 @@ DigitalSensor::D_SENSOR_TYPS_t CFGZ::prvGetDigitalSensor(uint8_t u8CfgSensorIdx,
      { CFGZ_EGR_ECU_DIGITAL_IN                        , DigitalSensor::DI_EGR_ECU_DIGITAL_IN          },
      { CFGZ_EB_MCCB_ON_FEEDBACK                      , DigitalSensor:: DI_EB_MCCB_ON_FEEDBACK         },
      { CFGZ_DG_MCCB_ON_FEEDBACK                      , DigitalSensor:: DI_DG_MCCB_ON_FEEDBACK         },
-     { CFGZ_SUPERCAP_FAIL                            , DigitalSensor:: DI_SUPERCAP_FAIL               }
+     { CFGZ_SUPERCAP_FAIL                            , DigitalSensor:: DI_SUPERCAP_FAIL               },
+     { CFGZ_CANOPY_DOOR_OPEN                         , DigitalSensor:: DI_CANOPY_DOOR_OPEN            }
     };
 
     /*Configurable input types*/
@@ -791,7 +792,10 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
      { CFGZ_AUTO_MODE_SW_OUTPUT               , ACTUATOR::ACT_AUTO_MODE_SW_OUTPUT        },
      { CFGZ_BATTERY_UNHEALTHY                 , ACTUATOR::ACT_BATTERY_UNHEALTHY          },
      { CFGZ_SUPERCAP_UNHEALTHY                , ACTUATOR::ACT_SUPERCAP_UNHEALTHY         },
+     { CFGZ_CANOPY_TEMP_SENS_UNHEALTHY        , ACTUATOR::ACT_CANOPY_TEMP_UNHEALTHY      },
+     { CFGZ_DG_ON_LOAD                        , ACTUATOR::ACT_DG_ON_LOAD                 }
     };
+    
 
     for(uint8_t i=0;i<(sizeof(dsenseMap)/sizeof(ACTUATOR_MAP_ROW_t));i++)
     {

@@ -66,6 +66,7 @@ public:
          DI_EB_MCCB_ON_FEEDBACK,
          DI_DG_MCCB_ON_FEEDBACK,
          DI_SUPERCAP_FAIL,
+         DI_CANOPY_DOOR_OPEN,
          DI_SENSOR_END
     } D_SENSOR_TYPS_t;
 

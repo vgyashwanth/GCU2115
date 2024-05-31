@@ -108,7 +108,7 @@ void ENGINE_MONITORING::prvUpdateCumCrankCnts()
     {
         _stCummulativeCnt.u32GenNumberOfCranks++;
         _bCrankStateLatched = true;
-        StoreCummulativeCnt(true);
+        StoreCummulativeCnt(CUM_STORE_CRANK_CNTS);
     }
     else if(_u8StartStopSMState != START_STOP::ID_STATE_SS_CRANKING)
     {
@@ -119,7 +119,7 @@ void ENGINE_MONITORING::prvUpdateCumCrankCnts()
     {
         _stCummulativeCnt.u32GenNumberOfFailedCranks++;
         _bFailedCrankStateLatched = true;
-        StoreCummulativeCnt(true);
+        StoreCummulativeCnt(CUM_STORE_CRANK_CNTS);
     }
     else if(_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANKING)
     {
@@ -381,7 +381,7 @@ void ENGINE_MONITORING::prvUpdateGenReady()
             {
                 /* do nothing */
             }
-            StoreCummulativeCnt(false);
+            StoreCummulativeCnt(CUM_STORE_GENERAL);
             UTILS_ResetTimer(&_GenWarmUpTimer);
         }
     }
@@ -455,7 +455,7 @@ void ENGINE_MONITORING::prvCheckTrips()
         {
             /* do nothing */
         }
-        StoreCummulativeCnt(false);  /* store cumm data if trip arises */
+        StoreCummulativeCnt(CUM_STORE_GENERAL);  /* store cumm data if trip arises */
         _bTripLatched = true;
     }
     else
@@ -513,11 +513,12 @@ void ENGINE_MONITORING::prvUpdateCumulativeTamperedEnergyCounts()
 }
 
 
-void ENGINE_MONITORING::StoreCummulativeCnt(bool isForCrankCnt)
+void ENGINE_MONITORING::StoreCummulativeCnt(ENGINE_MONITORING::CUM_STORE_t eType)
 {
     static CUMULATIVE_t stStoredCummulative0,stStoredCummulative1;
     CUMULATIVE_t stCummulativeCntToStore;
-    if(!isForCrankCnt)
+
+    if(eType == CUM_STORE_GENERAL)
     {
 #if (TEST_AUTOMATION == YES)
         if(_bFromAutomation)
@@ -532,12 +533,19 @@ void ENGINE_MONITORING::StoreCummulativeCnt(bool isForCrankCnt)
         }
         stCummulativeCntToStore = _stCummulativeCnt;
     }
-    else
+    else if(eType == CUM_STORE_CRANK_CNTS)
     {
         stCummulativeCntToStore = _stStoredCummulativeCnt;
         stCummulativeCntToStore.u32GenNumberOfCranks = _stCummulativeCnt.u32GenNumberOfCranks;
         stCummulativeCntToStore.u32GenNumberOfFailedCranks = _stCummulativeCnt.u32GenNumberOfFailedCranks;
     }
+    else if(eType == CUM_STORE_OVLD_EXT_RUN_HRS)
+    {
+        stCummulativeCntToStore = _stStoredCummulativeCnt;
+        stCummulativeCntToStore.u32GenExtOverloadRunTime_min = _stCummulativeCnt.u32GenExtOverloadRunTime_min;
+        stCummulativeCntToStore.u32GenExtOverloadCycle_min = _stCummulativeCnt.u32GenExtOverloadCycle_min;
+    }
+
     _stCummulativeCnt.u64Header++;
     stCummulativeCntToStore.u64Header++;
     stCummulativeCntToStore.u32CRC =(uint16_t) CRC16::ComputeCRCGeneric((uint8_t *)&stCummulativeCntToStore,
@@ -773,6 +781,9 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _stCummulativeCnt.u32GenManualRunTime_min =0;
         _stCummulativeCnt.u32GenNoLoadRunTime_min =0;
         _stCummulativeCnt.u32GenOnLoadRunTime_min =0;
+        _stCummulativeCnt.u32GenExtOverloadRunTime_min =0;
+        _stCummulativeCnt.u32GenExtOverloadCycle_min =0;
+
         _stCummulativeCnt.f32GenKWH =0.0;
         _stCummulativeCnt.f32GenKVAH =0.0;
         _stCummulativeCnt.f32GenKVARH =0.0;
@@ -837,10 +848,12 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
                 _stCummulativeCnt.u32GenNoLoadRunTime_min++;
             }
 
+            prvUpdateExtOvldRunHrs();
+
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32EngineRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerGenUpdateCumulative) >= u16TimeSlot)
             {
-                StoreCummulativeCnt(false);
+                StoreCummulativeCnt(CUM_STORE_GENERAL);
                 UTILS_ResetTimer(&_TimerGenUpdateCumulative);
             }
         }
@@ -851,7 +864,7 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32TamperedRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerUpdateTamperedCumulative) >= u16TimeSlot)
             {
-                StoreCummulativeCnt(false);
+                StoreCummulativeCnt(CUM_STORE_GENERAL);
                 UTILS_ResetTimer(&_TimerUpdateTamperedCumulative);
             }
         }
@@ -863,6 +876,52 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
     else
     {
         /* do nothing */
+    }
+}
+
+void ENGINE_MONITORING::prvUpdateExtOvldRunHrs()
+{
+    /*NOTE: This function is only to be called inside prvUpdateEngineRunHrs() in the 1 min timeout*/
+    _stCummulativeCnt.u32GenExtOverloadCycle_min++; /*Total cycle time for extended overload is to be updated. After 12 hrs, it will reset*/
+    uint16_t u16OverloadPct = _GCUAlarms.GetOverloadPct();
+    if( (u16OverloadPct > 100) && (u16OverloadPct < (_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_OVERLOAD_THRESHOLD))) )
+    {
+        _stCummulativeCnt.u32GenExtOverloadRunTime_min++;
+        _u8OvldExtOneHrContCnt++;
+    }
+    else
+    {
+        _u8OvldExtOneHrContCnt = 0;
+    }
+
+    if(_u8OvldExtOneHrContCnt >= 60)
+    {
+        /*The continuous overload run time has passed 1 hour. Set extended overload alarm*/
+        _GCUAlarms.SetExtOverloadAlarm();
+        _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U; /*Will get stored automatically*/
+        _stCummulativeCnt.u32GenExtOverloadCycle_min = 0U;
+        _u8OvldExtOneHrContCnt = 0;
+    }
+    else if(_stCummulativeCnt.u32GenExtOverloadRunTime_min >= 60)
+    {
+        /*The discontinuous overload run time has passed 1 hour. Set extended overload alarm*/
+        _GCUAlarms.SetExtOverloadAlarm();
+        _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U; /*Will get stored automatically*/
+        _stCummulativeCnt.u32GenExtOverloadCycle_min = 0U;
+        _u8OvldExtOneHrContCnt = 0;
+    }
+    else if(_stCummulativeCnt.u32GenExtOverloadCycle_min >= TWELVE_HR_CNT)
+    {
+        /*Reset the cycle cnt*/
+        _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U; /*Will get stored automatically*/
+        _stCummulativeCnt.u32GenExtOverloadCycle_min = 0U;
+    }
+
+    _u8OvldExtMinCnt++;
+    if(_u8OvldExtMinCnt >= 2)
+    {
+        StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
+        _u8OvldExtMinCnt = 0;
     }
 }
 
@@ -889,7 +948,7 @@ void ENGINE_MONITORING::prvUpdateMainsRunHrs()
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32MainsRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerMainsUpdateCumulative) >= u16TimeSlot)
             {
-               StoreCummulativeCnt(false);
+               StoreCummulativeCnt(CUM_STORE_GENERAL);
                UTILS_ResetTimer(&_TimerMainsUpdateCumulative);
             }
             UTILS_ResetTimer(&_MainsRunTimeBaseTimer);
@@ -922,7 +981,7 @@ void ENGINE_MONITORING::prvUpdateBTSRunHrs()
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32BTSRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerBTSUpdateCumulative) >= u16TimeSlot)
             {
-               StoreCummulativeCnt(false);
+               StoreCummulativeCnt(CUM_STORE_GENERAL);
                UTILS_ResetTimer(&_TimerBTSUpdateCumulative);
             }
             UTILS_ResetTimer(&_BTSRunTimeBaseTimer);

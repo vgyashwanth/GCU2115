@@ -474,7 +474,7 @@ void START_STOP::prvStopCommandAction()
 
         case ID_STATE_SS_ENG_ON:
             _EngineMon.DisableGenWarmUpTimer();
-            _EngineMon.StoreCummulativeCnt(false);
+            _EngineMon.StoreCummulativeCnt(ENGINE_MONITORING::CUM_STORE_GENERAL);
             _GCUAlarms.UpdateFuelTheftCalculation();
             /* no break*/
             [[fallthrough]];

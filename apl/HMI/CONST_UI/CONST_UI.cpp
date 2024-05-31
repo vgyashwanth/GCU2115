@@ -98,7 +98,7 @@ const char *strHystogram[]=
 
 };
 char Mains_status[32] = "MAINS READING";
-const char *strMonScreens[1][50]=
+const char *strMonScreens[1][51]=
 {
     {
         "EXHAUST AFT TREAT",
@@ -137,6 +137,7 @@ const char *strMonScreens[1][50]=
         "ENG REM FUEL",
         //Sensor
         "SHELTER TEMP",
+        "CANOPY TEMP",
         //Engine
         (char *)&strAuxS2String,
         "ENG SPEED",
@@ -457,6 +458,8 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"EB MCCB Feedback ON",
       (char*)"DG MCCB Feedback ON",
       (char*)"Supercapacitor Fail",
+      (char*)"Canopy Door Open",
+      (char*)"Extended Over Load Trip",
  }
 };
 

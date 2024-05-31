@@ -2389,7 +2389,6 @@ bool J1939APP::IsFaultCodeReceived(uint32_t u32SPNNo , uint8_t u8FMI)
             return true;
         }
     }
-
     return false;
 }
 

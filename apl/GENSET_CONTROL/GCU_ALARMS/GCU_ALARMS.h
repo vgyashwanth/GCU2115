@@ -187,6 +187,8 @@ public:
         ALARM_MIL_LAMP,
         ALARM_PROTECT_LAMP,
         SUPERCAP_FAIL,
+        CANOPY_DOOR_OPEN,
+        EXTENDED_OVERLOAD,
         ALARM_LIST_LAST
     } ALARM_LIST_t;
 
@@ -275,6 +277,8 @@ public:
         EB_Mccb_On_Feedback_id,
         DG_Mccb_On_Feedback_id,
         SuperCap_Charge_Fail_id,
+        Canopy_Door_Open_id,
+        Extended_Overload_id,
         ID_ALL_ALARMS_LAST
     } ALARM_LOGGING_ID_t;
 
@@ -496,6 +500,7 @@ public:
 
     void UpdateFuelTheftCalculation();
     void ClearAutoModeSwitchAlarm();
+    uint16_t GetOverloadPct();
     static bool _bUpdateModbusCountCalc;
 
     /**
@@ -574,7 +579,10 @@ public:
 
     ANLG_IP::ANLG_IP_STATE_t GetSPNSensorState(uint8_t u8SPNErrorStatus);
     A_SENSE::SENSOR_RET_t GetLubeOilTempSensVal();
-
+    bool IsCanopyTempSensFault();
+    bool IsDgOnLoad();
+    void SetEgrSpnCommonFaults();
+    void SetExtOverloadAlarm();
 private:
 #define FUEL_THEFT_WAKEUP_TIMER (4U)
     typedef enum
@@ -672,6 +680,8 @@ private:
         J1939_MIL_LAMP_STATUS,
         J1939_PROTECT_LAMP_STATUS,
         SUPERCAP_FAIL_STATUS,
+        CANOPY_DOOR_OPEN_STATUS,
+        EXTENDED_OVERLOAD_STATUS,
         ALARM_VALUE_LAST
     } ALARM_VALUE_t;
 
@@ -706,6 +716,7 @@ private:
     bool _bHighShelterTemp;
     bool _bLowShelterTemp;
     bool _bUpdateFuelTheftCalc;
+    bool _bExtOverload;
     bool _bEgrShutdownLatched;
     uint8_t _u8UnderFreqAlarm;
     uint8_t _u8OverFreqAlarm;
@@ -753,6 +764,7 @@ private:
     uint8_t _u8MPULossAlarm;
     uint8_t _u8AlarmArrayIndex;
     uint8_t _u8MaintAlarm;
+    uint16_t _u16OverloadPct;
     float _f32FuelLevelOldValue;
     stTimer _FuelSettlingTimer;
     stTimer _SounderAlarmTimer;
@@ -879,6 +891,6 @@ private:
     void prvMonitorEgrFaultStatus(void);
     void prvEGR_TimeLog_WriteToNV(void);
     bool prvIsEgrFaultPresent();
-
+    bool prvIsEgrFaultRecvdFromECU();
 };
 #endif

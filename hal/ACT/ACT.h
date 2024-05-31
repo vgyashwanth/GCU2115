@@ -102,7 +102,9 @@ public:
         ACT_EGR,
         ACT_AUTO_MODE_SW_OUTPUT,
         ACT_BATTERY_UNHEALTHY,
-        ACT_SUPERCAP_UNHEALTHY
+        ACT_SUPERCAP_UNHEALTHY,
+        ACT_CANOPY_TEMP_UNHEALTHY,
+        ACT_DG_ON_LOAD
     } ACTUATOR_TYPS_t;
 
     /* Two possibilities for activation*/

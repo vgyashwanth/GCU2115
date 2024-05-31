@@ -483,8 +483,16 @@ void MB_APP::prvUpdateInputRegisters()
     SetReadRegisterValue(MB_INPUT_REG_ALWAYS0xFFFF_102, 0xFFFF);
 
     /*Store canopy temp at far side of engine*/
-    SetReadRegisterValue(MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR, 0xFFFF); /*Input not added yet*/
-
+    A_SENSE::SENSOR_RET_t stCanopyTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_CANOPY_TEMPERATURE);
+    if(stCanopyTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+    {
+        SetReadRegisterValue(MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR, (uint16_t)(stCanopyTemp.stValAndStatus.f32InstSensorVal*10));
+    }
+    else
+    {
+        SetReadRegisterValue(MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR, 0xFFFF);
+    }
+    
     for(uint8_t i = 0U; i < 6; i++)
     {
         SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_ALWAYS0xFFFF_104_6 + i), 0xFFFF);
@@ -598,7 +606,7 @@ void MB_APP::prvUpdateInputRegisters()
 
     /*Store the start mode*/
     BASE_MODES::GCU_OPERATING_MODE_t eOpMode = BASE_MODES::GetGCUOperatingMode();
-    if(eOpMode == BASE_MODES::MANUAL_MODE)
+    if((eOpMode != BASE_MODES::MANUAL_MODE) && _StartStop.IsGenStarted())
     {
         SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 0);
     }
@@ -652,14 +660,14 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_COMMON_FAULT , _gcuAlarm.IsCommonAlarm());
 
     /*Store LLOP fault*/
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_LLOP_FAULT , _gcuAlarm.IsLowOilPresAlarmActive());
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_LLOP_FAULT , _gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::LLOP_SWITCH].bResultInstant);
 
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_ALWAYS0_7 , false); /*Always 0*/
 
     /*Store Fuel level below 15 pct alarm*/
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_LOW_FUEL_LVL_AT_15PCT , bFuelPctBelow15Pct);
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_CANOPY_TEMP_HIGH , false); /*Input not added yet*/
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_CANOPY_TEMP_HIGH , _gcuAlarm.IsCanopyTempSensFault());
 
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_ENGINE_COOLANT_TEMP_HIGH , _gcuAlarm.IsHighEngTempAlarmActive());
 
@@ -695,7 +703,7 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
         SetReadDiscreteInputValue((MODBUS_DISCRETE_INPUTS_t)(MB_DISCRETE_INPUT_ALWAYS0_32_5 + i) , false);
     }
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_MAIN_CONTROLLER_FAIL_ALARM, false);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_MAIN_CONTROLLER_FAIL_ALARM, (_gcuAlarm.GetEgrEcuFaultStatus() > 0) || gpJ1939->IsCommunicationFail());
 
     for(uint8_t i = 0; i < 3; i++)
     {
@@ -713,17 +721,14 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
 
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_RESERVED_46, false);
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_WARNING , (gpJ1939->IsEGRWarningPresent()));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_WARNING , (_gcuAlarm.GetFaultPreset72HrsTimeInMin() >= 36*60)); //(gpJ1939->IsEGRWarningPresent())
     
-    
-
-    bStatus = false;
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_WARNING , bStatus);
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_FAULT , bStatus);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_WARNING , gpJ1939->IsFaultCodeReceived(5838, 2));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_FAULT , gpJ1939->IsFaultCodeReceived(5838, 3));
 
     GCU_ALARMS::EGR_FAULT_LIST_t eEgrFault = _gcuAlarm.GetEgrEcuFaultStatus();
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_FAULT, (eEgrFault > GCU_ALARMS::EGR_NO_FAULT));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_FAULT, (_gcuAlarm.GetFaultPreset72HrsTimeInMin() >= _cfgz.GetEGRShutdownTimer())); //(eEgrFault > GCU_ALARMS::EGR_NO_FAULT)
 
     if(eEgrFault == GCU_ALARMS::EGR_ECU_FAULT)
     {
@@ -2251,7 +2256,7 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation(void)
 
     if(bStoreInEeprom)
     {
-        _engineMonitoring.StoreCummulativeCnt(false);
+        _engineMonitoring.StoreCummulativeCnt(ENGINE_MONITORING::CUM_STORE_GENERAL);
         _engineMonitoring.ReadEnergySetEnergyOffset(true);
         bStoreInEeprom = false;
     }

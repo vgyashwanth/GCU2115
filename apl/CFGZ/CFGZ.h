@@ -527,6 +527,7 @@ class CFGZ
         ID_SPEED_MONITOR_SPEED_SENSE_SOURCE,
         /*ID_SPEED_MONITOR_RESERVED,*/
         ID_SPEED_MONITOR_UNDER_SPEED_SHUTDOWN,
+        ID_BATTERY_MONITOR_MON_SOURCE,
         ID_BATTERY_MONITOR_LOW_VOLT_ACTION,
         ID_BATTERY_MONITOR_HIGH_VOLT_ACTION,
         ID_CHARGE_ALT_MON_FAIL_ACTION,
@@ -715,6 +716,11 @@ class CFGZ
         CFGZ_MODBUS_MAP_A_RJIO,
         CFGZ_MODBUS_MAP_B_INDUS
     }CFGZ_MODBUS_MAP_t;
+
+    typedef enum{
+        CFGZ_MON_SRC_BATTERY,
+        CGFZ_MON_SRC_SUPERCAP
+    }CFGZ_MON_SRC_VOLT_t;
 
     /*An helper type to define mapping of sensors between CFGZ and A_SENSE*/
     typedef struct

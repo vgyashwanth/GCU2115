@@ -400,6 +400,8 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"Charge Fail",
       (char*)"Battery Over Voltage",
       (char*)"Battery Under Voltage",
+      (char*)"Supercap Over Voltage",
+      (char*)"Supercap Under Voltage",
       (char*)"Over Current",
       (char*)"Maintenance Due",
       (char*)"Over Load",

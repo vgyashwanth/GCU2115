@@ -542,8 +542,10 @@ void ENGINE_MONITORING::StoreCummulativeCnt(ENGINE_MONITORING::CUM_STORE_t eType
     else if(eType == CUM_STORE_OVLD_EXT_RUN_HRS)
     {
         stCummulativeCntToStore = _stStoredCummulativeCnt;
+        stCummulativeCntToStore.ExtOvldStartTime = _stCummulativeCnt.ExtOvldStartTime;
         stCummulativeCntToStore.u32GenExtOverloadRunTime_min = _stCummulativeCnt.u32GenExtOverloadRunTime_min;
-        stCummulativeCntToStore.u32GenExtOverloadCycle_min = _stCummulativeCnt.u32GenExtOverloadCycle_min;
+        stCummulativeCntToStore.u8ExtOvldStarted = _stCummulativeCnt.u8ExtOvldStarted;
+        stCummulativeCntToStore.u8ExtOvldFault = _stCummulativeCnt.u8ExtOvldFault;
     }
 
     _stCummulativeCnt.u64Header++;
@@ -782,7 +784,10 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _stCummulativeCnt.u32GenNoLoadRunTime_min =0;
         _stCummulativeCnt.u32GenOnLoadRunTime_min =0;
         _stCummulativeCnt.u32GenExtOverloadRunTime_min =0;
-        _stCummulativeCnt.u32GenExtOverloadCycle_min =0;
+        _stCummulativeCnt.ExtOvldStartTime ={0};
+        _stCummulativeCnt.u8ExtOvldStarted =false;
+        _stCummulativeCnt.u8ExtOvldFault =false;
+
 
         _stCummulativeCnt.f32GenKWH =0.0;
         _stCummulativeCnt.f32GenKVAH =0.0;
@@ -801,6 +806,7 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _u8ActiveSectorForCummulative =0;
     }
     _stStoredCummulativeCnt = _stCummulativeCnt;
+    _GCUAlarms.SetExtOverloadFault((bool)_stCummulativeCnt.u8ExtOvldFault);
 }
 
 void ENGINE_MONITORING::prvUpdateEngineONstatus(void)
@@ -881,49 +887,173 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
 
 void ENGINE_MONITORING::prvUpdateExtOvldRunHrs()
 {
+    static uint8_t u8StoreCnt = 0U;
     /*NOTE: This function is only to be called inside prvUpdateEngineRunHrs() in the 1 min timeout*/
-    _stCummulativeCnt.u32GenExtOverloadCycle_min++; /*Total cycle time for extended overload is to be updated. After 12 hrs, it will reset*/
-    uint16_t u16OverloadPct = _GCUAlarms.GetOverloadPct();
-    if( (u16OverloadPct > 100) && (u16OverloadPct < (_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_OVERLOAD_THRESHOLD))) )
+    if(_GCUAlarms.IsExtendedOverLoad())
     {
+        if(!_stCummulativeCnt.u8ExtOvldStarted)
+        {
+            /*extended overload condition is met for the first time. Set the flag and storenthe current time*/
+            _stCummulativeCnt.u8ExtOvldStarted = true;
+            _hal.ObjRTC.GetTime( &(_stCummulativeCnt.ExtOvldStartTime) );
+            _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
+        }
         _stCummulativeCnt.u32GenExtOverloadRunTime_min++;
-        _u8OvldExtOneHrContCnt++;
-    }
-    else
-    {
-        _u8OvldExtOneHrContCnt = 0;
     }
 
-    if(_u8OvldExtOneHrContCnt >= 60)
+    if((_stCummulativeCnt.u32GenExtOverloadRunTime_min >= 60) && _stCummulativeCnt.u8ExtOvldStarted)
     {
-        /*The continuous overload run time has passed 1 hour. Set extended overload alarm*/
-        _GCUAlarms.SetExtOverloadAlarm();
-        _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U; /*Will get stored automatically*/
-        _stCummulativeCnt.u32GenExtOverloadCycle_min = 0U;
-        _u8OvldExtOneHrContCnt = 0;
+        /*The overload run time has passed 1 hour. Set extended overload alarm*/
+        _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
+        _stCummulativeCnt.u8ExtOvldFault = true;
+        _GCUAlarms.SetExtOverloadFault((bool)_stCummulativeCnt.u8ExtOvldFault);
+        StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
     }
-    else if(_stCummulativeCnt.u32GenExtOverloadRunTime_min >= 60)
-    {
-        /*The discontinuous overload run time has passed 1 hour. Set extended overload alarm*/
-        _GCUAlarms.SetExtOverloadAlarm();
-        _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U; /*Will get stored automatically*/
-        _stCummulativeCnt.u32GenExtOverloadCycle_min = 0U;
-        _u8OvldExtOneHrContCnt = 0;
-    }
-    else if(_stCummulativeCnt.u32GenExtOverloadCycle_min >= TWELVE_HR_CNT)
+
+    if(IsDiffTwelveHr() && _stCummulativeCnt.u8ExtOvldStarted)
     {
         /*Reset the cycle cnt*/
-        _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U; /*Will get stored automatically*/
-        _stCummulativeCnt.u32GenExtOverloadCycle_min = 0U;
+        _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
+        _stCummulativeCnt.u8ExtOvldStarted = false;
+        _stCummulativeCnt.u8ExtOvldFault = false;
+        _GCUAlarms.SetExtOverloadFault((bool)_stCummulativeCnt.u8ExtOvldFault);
+        StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
     }
 
-    _u8OvldExtMinCnt++;
-    if(_u8OvldExtMinCnt >= 2)
+    u8StoreCnt++;
+    if(u8StoreCnt >= 2)
     {
         StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
-        _u8OvldExtMinCnt = 0;
+        u8StoreCnt = 0;
     }
 }
+
+bool ENGINE_MONITORING::IsDiffTwelveHr()
+{
+    uint8_t u8MonthDayCnt[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    bool bRet = true;
+    RTC::TIME_t CurrTime;
+    _hal.ObjRTC.GetTime(&CurrTime);
+
+    #define STORED_YEAR  (_stCummulativeCnt.ExtOvldStartTime.u16Year)
+    #define STORED_MONTH (_stCummulativeCnt.ExtOvldStartTime.u8Month)
+    #define STORED_DAY   (_stCummulativeCnt.ExtOvldStartTime.u8Day)
+    #define STORED_HOUR  (_stCummulativeCnt.ExtOvldStartTime.u8Hour)
+    #define STORED_MIN   (_stCummulativeCnt.ExtOvldStartTime.u8Minute)
+
+    #define CURR_YEAR  (CurrTime.u16Year)
+    #define CURR_MONTH (CurrTime.u8Month)
+    #define CURR_DAY   (CurrTime.u8Day)
+    #define CURR_HOUR  (CurrTime.u8Hour)
+    #define CURR_MIN   (CurrTime.u8Minute)
+
+    if((CURR_YEAR > STORED_YEAR) && ((CURR_YEAR - STORED_YEAR) >= 2))
+    {
+        bRet = true;
+    }
+    else if((CURR_YEAR == (STORED_YEAR + 1)))
+    {
+        uint32_t u32StoredYearMinCnt = 0;
+        if( (((STORED_YEAR)%4 == 0) && ((STORED_YEAR)%100 != 0)) || ((STORED_YEAR)%400 == 0) ) /*Check for leap years*/
+        {
+            u8MonthDayCnt[1] = 29;
+            u32StoredYearMinCnt = 366*24*60;
+        }
+        uint16_t u16DayCnt = 0;
+        for(uint8_t u8Idx = 0; u8Idx <= ((STORED_MONTH) - 1); u8Idx++ )
+        {
+            if(u8Idx == ((STORED_MONTH) - 1))
+            {
+                break;
+            }
+            u16DayCnt = u16DayCnt + u8MonthDayCnt[u8Idx];
+        }
+        u16DayCnt = u16DayCnt + STORED_DAY;
+        u32StoredYearMinCnt = u32StoredYearMinCnt - (u16DayCnt*24*60 + STORED_HOUR + STORED_MIN);
+
+        u8MonthDayCnt[1] = 29;
+        uint32_t u32CurrYearMinCnt = 0;
+        if( (((CURR_YEAR)%4 == 0) && ((CURR_YEAR)%100 != 0)) || ((CURR_YEAR)%400 == 0) ) /*Check for leap years*/
+        {
+            u8MonthDayCnt[1] = 29;
+        }
+        u16DayCnt = 0;
+        for(uint8_t u8Idx = 0; u8Idx <= ((CURR_MONTH) - 1); u8Idx++ )
+        {
+            if(u8Idx == ((CURR_MONTH) - 1))
+            {
+                break;
+            }
+            u16DayCnt = u16DayCnt + u8MonthDayCnt[u8Idx];
+        }
+        u16DayCnt = u16DayCnt + CURR_DAY;
+        u32CurrYearMinCnt = (u16DayCnt*24*60 + CURR_HOUR + CURR_MIN);
+
+        if((u32CurrYearMinCnt + u32StoredYearMinCnt) >= 720) /*Difference is greater than 12 hrs*/
+        {
+            bRet = true;
+        }
+        else
+        {
+            bRet = false;
+        }
+        
+    }
+    else if(CURR_YEAR == (STORED_YEAR))
+    {
+        uint32_t u32StoredYearMinCnt = 0;
+        if( (((STORED_YEAR)%4 == 0) && ((STORED_YEAR)%100 != 0)) || ((STORED_YEAR)%400 == 0) ) /*Check for leap years*/
+        {
+            u8MonthDayCnt[1] = 29;
+        }
+        uint16_t u16DayCnt = 0;
+        for(uint8_t u8Idx = 0; u8Idx <= ((STORED_MONTH) - 1); u8Idx++ )
+        {
+            if(u8Idx == ((STORED_MONTH) - 1))
+            {
+                break;
+            }
+            u16DayCnt = u16DayCnt + u8MonthDayCnt[u8Idx];
+        }
+        u16DayCnt = u16DayCnt + STORED_DAY;
+        u32StoredYearMinCnt = (u16DayCnt*24*60 + STORED_HOUR + STORED_MIN);
+
+        u16DayCnt = 0;
+        uint32_t u32CurrYearMinCnt = 0;
+        for(uint8_t u8Idx = 0; u8Idx <= ((CURR_MONTH) - 1); u8Idx++ )
+        {
+            if(u8Idx == ((CURR_MONTH) - 1))
+            {
+                break;
+            }
+            u16DayCnt = u16DayCnt + u8MonthDayCnt[u8Idx];
+        }
+        u16DayCnt = u16DayCnt + CURR_DAY;
+        u32CurrYearMinCnt = (u16DayCnt*24*60 + CURR_HOUR + CURR_MIN);
+
+        if(u32CurrYearMinCnt > u32StoredYearMinCnt)
+        {
+            if((u32CurrYearMinCnt - u32StoredYearMinCnt) >= 720) /*Difference is greater than 12 hrs*/
+            {
+                bRet = true;
+            }
+            else
+            {
+                bRet = false;
+            }
+        }
+        else
+        {
+            /*Curr time is less than stored time. \
+            As there is some mismatch, condition is assumed to be met to avoid further issues*/
+            bRet = true;
+        }
+    }
+
+    return bRet;
+
+}
+
 
 void ENGINE_MONITORING::prvUpdateMainsRunHrs()
 {

@@ -157,6 +157,8 @@ enum
     ID_ENGINE_TYPE,
     ID_ECU_ALARM_ACTION,
 
+    ID_BATT_MON_SRC,
+
     ID_LAST
 };
 enum
@@ -277,7 +279,7 @@ static const char* strOutputSources[1][CFGZ::CFGZ_OUTPUT_LAST] =
   "Buzzer 2",
   "Battery Unhealthy",
   "Supercapacitor Unhealthy",
-  "Canopy Temperature Sensor",
+  "Canopy Temp Sensor",
   "DG On Load"
  }
 };
@@ -357,7 +359,8 @@ static const char* strOptions[1][ID_LAST][8]=
    "Warning",
    "Electrical Trip",
    "Shutdown",
-   "Notification"}
+   "Notification"},
+  {"Battery", "Supercapacitor"}
  }
 };
 
@@ -946,6 +949,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "OVER SPEED DELAY",
         "GROSS OS THRESHOLD",
         //"BATTERY MON",
+        "MONITORING SOURCE",
         "LOW VOLT ACTION",
         "LOW VOLT THRESHOLD",
         "LOW VOLT DELAY",
@@ -1589,6 +1593,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_SPEED_MONITOR_OVER_SPEED_DELAY] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_OVER_SPEED_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_SPEED_MONITOR_OVER_SPEED_DELAY], arrUnit[ID_SEC], "%u",(uint16_t)1, (uint16_t)20,CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_SPEED_MONITOR_GROSS_OS_THRESHOLD] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SPEED_MONITOR_GROSS_OS_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_SPEED_MONITOR_GROSS_OS_THRESHOLD], arrUnit[ID_PERCENT], "%u",(uint16_t)100, (uint16_t)200,CEditableItem::NOT_ALLOWED );
 
+    ArrEditableItem[INDEX_OF_BATTERY_MONITOR_MON_SOURCE] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_MON_SOURCE),strLeafNode[_u8LanguageArrayIndex][SID_BATTERY_MONITOR_MON_SOURCE], "", "%s", strOptions[_u8LanguageArrayIndex][ID_BATT_MON_SRC], 2, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_BATTERY_MONITOR_LOW_VOLT_ACTION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_LOW_VOLT_ACTION),strLeafNode[_u8LanguageArrayIndex][SID_BATTERY_MONITOR_LOW_VOLT_ACTION], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ACTION_NoWESN], 5, CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_BATTERY_MONITOR_LOW_VOLT_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_LOW_VOLT_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_BATTERY_MONITOR_LOW_VOLT_THRESHOLD], arrUnit[ID_V], "%f", (float)8.0, (float)31.0, (float)0.1,CEditableItem::NOT_ALLOWED );
     ArrEditableItem[INDEX_OF_BATTERY_MONITOR_LOW_VOLT_DELAY] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_LOW_VOLT_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_BATTERY_MONITOR_LOW_VOLT_DELAY], arrUnit[ID_SEC], "%u",(uint16_t)5, (uint16_t)1800,CEditableItem::NOT_ALLOWED );

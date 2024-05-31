@@ -203,6 +203,8 @@ public:
      * @param u32NumberOfTrips - Desired no. of trips counts.
      */
     void SetGenNumberOfTrips(uint32_t u32NumberOfTrips);
+
+    bool IsDiffTwelveHr();
 #endif
 
 
@@ -246,7 +248,10 @@ private:
         uint32_t u32GenNoLoadRunTime_min;
         uint32_t u32GenOnLoadRunTime_min;
         uint32_t u32GenExtOverloadRunTime_min;
-        uint32_t u32GenExtOverloadCycle_min;
+        RTC::TIME_t ExtOvldStartTime;
+        uint8_t u8ExtOvldStarted;
+        uint8_t u8ExtOvldFault;
+        uint8_t u8Dummy[2];
 
         uint32_t u32TamperedRunTime_min;
         float f32GenKWH;

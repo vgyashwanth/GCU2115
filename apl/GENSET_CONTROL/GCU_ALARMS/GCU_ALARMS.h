@@ -217,6 +217,8 @@ public:
         Charge_Fail_id,
         Battery_Over_Voltage_id,
         Battery_Under_Voltage_id,
+        Supercap_Over_Voltage_id,
+        Supercap_Under_Voltage_id,
         Over_Current_id,
         Filter_maintenance_id,
         Over_Load_id,
@@ -500,7 +502,7 @@ public:
 
     void UpdateFuelTheftCalculation();
     void ClearAutoModeSwitchAlarm();
-    uint16_t GetOverloadPct();
+    bool IsExtendedOverLoad();
     static bool _bUpdateModbusCountCalc;
 
     /**
@@ -582,7 +584,7 @@ public:
     bool IsCanopyTempSensFault();
     bool IsDgOnLoad();
     void SetEgrSpnCommonFaults();
-    void SetExtOverloadAlarm();
+    void SetExtOverloadFault(bool bExtOverload);
 private:
 #define FUEL_THEFT_WAKEUP_TIMER (4U)
     typedef enum

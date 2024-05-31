@@ -640,7 +640,9 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
                    (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SMOKE_FIRE].bResultInstant);
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_SMOKE_FIRE , bStatus);
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_CANOPY_DOOR_OPEN , false); /*Not an available alarm. Input not added yet*/
+    bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::CANOPY_DOOR_OPEN].bEnableMonitoring) &&
+                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::CANOPY_DOOR_OPEN].bResultInstant);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_CANOPY_DOOR_OPEN , bStatus);
 
     /*Store load on gen*/
     bStatus = (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR) == ACT_Manager::ACT_LATCHED);

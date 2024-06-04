@@ -2315,15 +2315,17 @@ void MON_UI::prvNormalMonScreens()
             _Disp.gotoxy(GLCD_X(110),GLCD_Y(33));
 
             stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_SHELTER_TEMPERATURE);
-
             prvPrintSensorStatus(stTemp,(char*)"`C", INTEGER_TYPE);
-            if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+            if(stTemp.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED)
             {
-                sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
-                _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
-                _Disp.printStringLeftAligned((char*)"`F",FONT_VERDANA);
+                if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+                {
+                    sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
+                    _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
+                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                    _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
+                    _Disp.printStringLeftAligned((char*)"`F",FONT_VERDANA);
+                }
             }
         }
         break;
@@ -2334,15 +2336,17 @@ void MON_UI::prvNormalMonScreens()
             _Disp.gotoxy(GLCD_X(110),GLCD_Y(33));
 
             stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_CANOPY_TEMPERATURE);
-
             prvPrintSensorStatus(stTemp,(char*)"`C", INTEGER_TYPE);
-            if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+            if(stTemp.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED)
             {
-                sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
-                _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
-                _Disp.printStringLeftAligned((char*)"`F",FONT_VERDANA);
+                if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+                {
+                    sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
+                    _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
+                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                    _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
+                    _Disp.printStringLeftAligned((char*)"`F",FONT_VERDANA);
+                }  
             }
         }
         break;

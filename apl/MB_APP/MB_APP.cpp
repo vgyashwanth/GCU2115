@@ -484,7 +484,8 @@ void MB_APP::prvUpdateInputRegisters()
 
     /*Store canopy temp at far side of engine*/
     A_SENSE::SENSOR_RET_t stCanopyTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_CANOPY_TEMPERATURE);
-    if(stCanopyTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+    if((stCanopyTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+        &&(stCanopyTemp.eStatus == A_SENSE::SENSOR_NOT_CONFIGRUED))
     {
         SetReadRegisterValue(MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR, (uint16_t)(stCanopyTemp.stValAndStatus.f32InstSensorVal*10));
     }
@@ -706,7 +707,8 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
     }
 
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_MAIN_CONTROLLER_FAIL_ALARM, (_gcuAlarm.GetEgrEcuFaultStatus() > 0) 
-                                     || (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::ALARM_COM_FAIL].bResultInstant));
+                                     || ((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::ALARM_COM_FAIL].bEnableMonitoring == true) 
+                                        && (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::ALARM_COM_FAIL].bResultInstant)));
 
     for(uint8_t i = 0; i < 3; i++)
     {
@@ -724,7 +726,7 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
 
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_RESERVED_46, false);
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_WARNING , (_gcuAlarm.GetFaultPreset72HrsTimeInMin() >= 36*60)); //(gpJ1939->IsEGRWarningPresent())
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_WARNING , (_gcuAlarm.GetFaultPreset72HrsTimeInMin() >= EGR_WARNING_INDUCEMENT_LEVEL_TIME)); //(gpJ1939->IsEGRWarningPresent())
     
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_WARNING , gpJ1939->IsFaultCodeReceived(5838, 2));
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_FAULT , gpJ1939->IsFaultCodeReceived(5838, 3));

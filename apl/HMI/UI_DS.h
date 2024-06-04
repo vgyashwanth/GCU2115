@@ -35,27 +35,56 @@ typedef enum
 typedef enum
 {
     ID_ENG_CHAR0,
-    ID_ENG_CHAR1,
-    ID_ENG_CHAR2,
-    ID_ENG_CHAR3,
-    ID_ENG_CHAR4,
-    ID_ENG_CHAR5,
-    ID_ENG_CHAR6,
-    ID_ENG_CHAR7,
-    ID_ENG_CHAR8,
-    ID_ENG_CHAR9,
-    ID_ENG_CHAR10,
-    ID_ENG_CHAR11,
-    ENG_ID_CHAR_LAST
+    ENG_ID_CHAR_LAST = 19 // Size = 20
 }ENG_ID_t;
 
+typedef enum
+{
+    ID_GEN_SRNO_CHAR0,
+    ID_GEN_SRNO_CHAR_LAST = 19
+}GEN_SRNO_ID_t;
+
+typedef enum
+{
+    ID_ALT_SRNO_CHAR0,
+    ID_ALT_SRNO_CHAR_LAST = 19
+}ALT_SRNO_ID_t;
+
+typedef enum
+{
+    ID_MAIN_CONT_SRNO_CHAR0,
+    ID_MAIN_CONT_SRNO_CHAR_LAST = 19
+}MAIN_CONT_SRNO_ID_t;
+
+typedef enum
+{
+    ID_ENG_CONT_SRNO_CHAR0,
+    ID_ENG_CONT_SRNO_CHAR_LAST = 19
+}ENG_CONT_SRNO_ID_t;
+
+typedef enum
+{
+    ID_SITE_ID_CHAR0,
+    ID_SITE_ID_CHAR_LAST = 9
+}SITE_ID_ID_t;
+
+#define MISC_PARAM_DUMMY_BYTES    (4 - (((MISC_16_LAST)*2) + (MISC_8_LAST) + (ID_GEN_SRNO_CHAR_LAST) + (ENG_ID_CHAR_LAST) + (ID_ALT_SRNO_CHAR_LAST) + (ID_MAIN_CONT_SRNO_CHAR_LAST) +\
+                                  (ID_ENG_CONT_SRNO_CHAR_LAST) + (ID_SITE_ID_CHAR_LAST))%4)%4
+
 typedef struct
- {
-     uint16_t u16MiscParam[MISC_16_LAST];
-     uint8_t u8MiscParam[MISC_8_LAST];
-     uint8_t u8EngId[ENG_ID_CHAR_LAST];
-     // uint8_t u8Dummy[2];
-     uint16_t u16CRC;
+{
+    uint16_t u16MiscParam[MISC_16_LAST];
+    uint8_t u8MiscParam[MISC_8_LAST];
+    uint8_t u8GenSrNo[ID_GEN_SRNO_CHAR_LAST]; 
+    uint8_t u8EngId[ENG_ID_CHAR_LAST];
+    uint8_t u8AltSrNo[ID_ALT_SRNO_CHAR_LAST];
+    uint8_t u8MainContSrNo[ID_MAIN_CONT_SRNO_CHAR_LAST];
+    uint8_t u8EngContSrNo[ID_ENG_CONT_SRNO_CHAR_LAST];
+    uint8_t u8SiteId[ID_SITE_ID_CHAR_LAST];
+#if(MISC_PARAM_DUMMY_BYTES > 0)    
+    uint8_t u8Dummy[MISC_PARAM_DUMMY_BYTES];
+#endif
+    uint16_t u16CRC;
  }MISC_PARAM_t;
 
 

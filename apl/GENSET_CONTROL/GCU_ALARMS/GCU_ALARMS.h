@@ -18,6 +18,8 @@
 
 #define MAX_DTC_ALLOWED (106U)
 
+#define MUX_OUTPUT_CNT_POWERED_VIA_USB_ONLY   (4095U)
+
 class GCU_ALARMS
 {
 public:
@@ -281,6 +283,9 @@ public:
         SuperCap_Charge_Fail_id,
         Canopy_Door_Open_id,
         Extended_Overload_id,
+        /*Firmware_Flashing_id,*/
+        Active_Profile_flashing_id,
+        Factory_Profile_flashing_id,
         ID_ALL_ALARMS_LAST
     } ALARM_LOGGING_ID_t;
 

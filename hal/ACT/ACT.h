@@ -104,7 +104,8 @@ public:
         ACT_BATTERY_UNHEALTHY,
         ACT_SUPERCAP_UNHEALTHY,
         ACT_CANOPY_TEMP_UNHEALTHY,
-        ACT_DG_ON_LOAD
+        ACT_DG_ON_LOAD,
+        ACT_DG_OVERLOAD
     } ACTUATOR_TYPS_t;
 
     /* Two possibilities for activation*/

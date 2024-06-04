@@ -221,6 +221,9 @@ BSP_STATUS_t CFGZ::WriteActiveProfile(CFGZ_PARAMS_t* _pAllparams)
 
     _hal.Objeeprom.RequestWrite((EXT_EEPROM_ACTIVE_PROFILE_START_ADDRESS+ EXT_EEPROM_ACTIVE_PROFILE_LENGTH
             - sizeof(CFGZ_METADATA_t)) , (uint8_t*)&strCFGZMetadata, sizeof(CFGZ_METADATA_t),NULL);
+    
+    _hal.Objeeprom.RequestWrite(PREV_ACTIVE_CRC_ADDRESS, (uint8_t*)&u16CRC, sizeof(u16CRC), NULL); /*Store active profile CRC to check if it has been changed*/
+
     _eEvent = EEPROM::NO_STATUS;
     _hal.Objeeprom.RequestWrite(EXT_EEPROM_ACTIVE_PROFILE_START_ADDRESS, (uint8_t*)&_All_Param, sizeof(CFGZ_PARAMS_t),EEpromWritCB);
 
@@ -793,7 +796,8 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
      { CFGZ_BATTERY_UNHEALTHY                 , ACTUATOR::ACT_BATTERY_UNHEALTHY          },
      { CFGZ_SUPERCAP_UNHEALTHY                , ACTUATOR::ACT_SUPERCAP_UNHEALTHY         },
      { CFGZ_CANOPY_TEMP_SENS_UNHEALTHY        , ACTUATOR::ACT_CANOPY_TEMP_UNHEALTHY      },
-     { CFGZ_DG_ON_LOAD                        , ACTUATOR::ACT_DG_ON_LOAD                 }
+     { CFGZ_DG_ON_LOAD                        , ACTUATOR::ACT_DG_ON_LOAD                 },
+     { CFGZ_DG_OVERLOAD                       , ACTUATOR::ACT_DG_OVERLOAD                 }
     };
     
 
@@ -1091,4 +1095,49 @@ uint16_t CFGZ::GetEGRHealTimer()
 uint16_t CFGZ::GetEGRFaultTimer()
 {
     return _stProductSpecificData.u16ProductParam[PS_EGR_FAULT_TIMER];
+}
+
+bool CFGZ::CheckIfFactoryProfilesUpdatedViaBL()
+{
+    static uint16_t u16PreviousFactoryProfilesCRC;
+    uint16_t u16CurrentFactoryProfilesCRC;
+
+    bool bFactoryProfilesUpdated = false;
+    _hal.Objeeprom.BlockingRead(PREV_FACTORY_PROFILES_CRC_ADDRESS, (uint8_t*)&u16PreviousFactoryProfilesCRC,
+                                sizeof(u16PreviousFactoryProfilesCRC));
+    _hal.Objpflash.Read(FACTORY_PROFILES_META_DATA_ADDRESS, (uint8_t*)&u16CurrentFactoryProfilesCRC,
+                                sizeof(u16CurrentFactoryProfilesCRC));
+
+    if(u16PreviousFactoryProfilesCRC != u16CurrentFactoryProfilesCRC)
+    {
+        u16PreviousFactoryProfilesCRC = u16CurrentFactoryProfilesCRC;
+        _hal.Objeeprom.RequestWrite(PREV_FACTORY_PROFILES_CRC_ADDRESS,
+                                            (uint8_t*)&u16PreviousFactoryProfilesCRC, sizeof(u16PreviousFactoryProfilesCRC), NULL);
+        bFactoryProfilesUpdated = true;
+    }
+
+    return bFactoryProfilesUpdated;
+
+}
+
+bool CFGZ::CheckIfActiveProfileUpdatedViaBL()
+{
+    static uint16_t u16PreviousActiveProfileCRC;
+    uint16_t u16CurrentActiveProfilesCRC;
+    bool bActiveProfileUpdated = false;
+
+    _hal.Objeeprom.BlockingRead((EXT_EEPROM_ACTIVE_PROFILE_START_ADDRESS + EXT_EEPROM_ACTIVE_PROFILE_LENGTH
+            - sizeof(CFGZ_METADATA_t)), (uint8_t*)&u16CurrentActiveProfilesCRC, sizeof(u16CurrentActiveProfilesCRC));
+    _hal.Objeeprom.BlockingRead(PREV_ACTIVE_CRC_ADDRESS, (uint8_t*)&u16PreviousActiveProfileCRC,
+                                sizeof(u16PreviousActiveProfileCRC));
+
+    if(u16CurrentActiveProfilesCRC != u16PreviousActiveProfileCRC)
+    {
+        u16PreviousActiveProfileCRC = u16CurrentActiveProfilesCRC;
+        _hal.Objeeprom.RequestWrite(PREV_ACTIVE_CRC_ADDRESS,
+                                            (uint8_t*)&u16PreviousActiveProfileCRC, sizeof(u16PreviousActiveProfileCRC), NULL);
+        bActiveProfileUpdated = true;
+    }
+
+    return bActiveProfileUpdated;
 }

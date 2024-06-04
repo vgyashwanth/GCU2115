@@ -62,6 +62,11 @@
 #define EXT_EEPROM_CUMMULATIVE_LENGTH              512
 #define EXT_EEPROM_CUMMULATIVE_START_ADD_SECT1    (EXT_EEPROM_CUMMULATIVE_START_ADD_SECT0 +\
                                                    EXT_EEPROM_CUMMULATIVE_LENGTH)
+
+#define PREV_FACTORY_PROFILES_CRC_ADDRESS         (0x5234) /*Address to store previously stored active profile CRC to log active profile flashing*/
+#define PREV_ACTIVE_CRC_ADDRESS                   (0x5238) /*Address to store previously stored factory profile CRC to log factory profile flashing*/
+
+
 /*
  * SuryaPranayTeja.BVV 09-11-2022
  * The below address locations of EEPROM is used for the miscellaneous parameters
@@ -82,5 +87,13 @@
 
 #define MAX_NUMBER_OF_PROFILE   10
 #define MAX_DISP_CONST   100
+
+#define FW_AREA_END_ADDRESS                      (0xF7FFF)
+#define FACTORY_PROFILES_END_ADDRESS             (0xFFFFF)
+
+#define SIZE_OF_META_DATA_IN_BYTES               (16U)
+
+#define FIRMWARE_META_DATA_ADDRESS              (FW_AREA_END_ADDRESS + 1 - SIZE_OF_META_DATA_IN_BYTES)
+#define FACTORY_PROFILES_META_DATA_ADDRESS      (FACTORY_PROFILES_END_ADDRESS + 1 - SIZE_OF_META_DATA_IN_BYTES)
 
 #endif /* APL_CONFIG_H_ */

@@ -462,6 +462,9 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"Supercapacitor Fail",
       (char*)"Canopy Door Open",
       (char*)"Extended Over Load Trip",
+      /*(char*)"Extended Over Load Trip",*/
+      (char*)"Active Profile Flashed",
+      (char*)"Factory Profiles Flashed",
  }
 };
 

@@ -146,6 +146,7 @@ public:
     uint32_t GetOnLoadRunTimeMin();
     uint32_t GetCumCrankCnt();
     uint32_t GetCumFailedCrankCnt();
+    bool IsDiffTwelveHr();
 
 #if (TEST_AUTOMATION == YES)
     /**
@@ -204,7 +205,7 @@ public:
      */
     void SetGenNumberOfTrips(uint32_t u32NumberOfTrips);
 
-    bool IsDiffTwelveHr();
+
 #endif
 
 

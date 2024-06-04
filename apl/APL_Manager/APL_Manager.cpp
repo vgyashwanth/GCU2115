@@ -51,6 +51,7 @@ _PowerOnUpdateTimer{0, false}
 
     prvCheckFirmwareInfo();
     prvSetFwVerInMb();
+    prvCheckAndLogFlashingEvent();
 }
 
 void APL_Manager::Update()
@@ -104,5 +105,23 @@ void APL_Manager::prvCheckFirmwareInfo()
     {
         HAL_Manager::Objeeprom.RequestWrite(EXT_EEPROM_FIRMWARE_INFO_ADDRESS,
                                             (uint8_t*)&_stFirmwareInfo,  sizeof(INFO_t), NULL);
+    }
+}
+
+void APL_Manager::prvCheckAndLogFlashingEvent()
+{
+    /*if(prvCheckIfFirmwareUpdated())
+    {
+        _gcuAlarms.LogEvent(GCU_ALARMS::Firmware_Flashing_id,GCU_ALARMS::ALARM_NONE, GCU_ALARMS::EVENT_ADDN_INFO_NULL);
+    }*/
+
+    if(_cfgz.CheckIfFactoryProfilesUpdatedViaBL())
+    {
+        _gcuAlarms.LogEvent(GCU_ALARMS::Factory_Profile_flashing_id,(uint8_t)0);
+    }
+
+    if(_cfgz.CheckIfActiveProfileUpdatedViaBL())
+    {
+        _gcuAlarms.LogEvent(GCU_ALARMS::Active_Profile_flashing_id,(uint8_t)0);
     }
 }

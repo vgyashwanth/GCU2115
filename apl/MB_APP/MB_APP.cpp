@@ -342,7 +342,7 @@ void MB_APP::prvUpdateInputRegisters()
     prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
 
     //char strSiteId[10] = "AAAAAGGGGG"
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_SITE_ID_5, (uint8_t*) &strGensetSerialNo, 10);
 
     /*Get the current time*/
     RTC::TIME_t currentTime;
@@ -608,11 +608,11 @@ void MB_APP::prvUpdateInputRegisters()
     BASE_MODES::GCU_OPERATING_MODE_t eOpMode = BASE_MODES::GetGCUOperatingMode();
     if((eOpMode != BASE_MODES::MANUAL_MODE) && _StartStop.IsGenStarted())
     {
-        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 0);
+        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 1);
     }
     else
     {
-        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 1);
+        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 0);
     }
 
 
@@ -705,7 +705,8 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
         SetReadDiscreteInputValue((MODBUS_DISCRETE_INPUTS_t)(MB_DISCRETE_INPUT_ALWAYS0_32_5 + i) , false);
     }
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_MAIN_CONTROLLER_FAIL_ALARM, (_gcuAlarm.GetEgrEcuFaultStatus() > 0) || gpJ1939->IsCommunicationFail());
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_MAIN_CONTROLLER_FAIL_ALARM, (_gcuAlarm.GetEgrEcuFaultStatus() > 0) 
+                                     || (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::ALARM_COM_FAIL].bResultInstant));
 
     for(uint8_t i = 0; i < 3; i++)
     {
@@ -1342,6 +1343,15 @@ void MB_APP::prvUpdateAUXSensorVal()
     {
         // S1 as shelter temperature
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_SHELTER_TEMPERATURE);
+        if((stTemp.eStatus == A_SENSE::SENSOR_READ_SUCCESS) && (stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+        {
+            u16AuxSensorVal = (int16_t)(round(stTemp.stValAndStatus.f32InstSensorVal*10));
+        }
+    }
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    {
+        // S1 as shelter temperature
+        stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_CANOPY_TEMPERATURE);
         if((stTemp.eStatus == A_SENSE::SENSOR_READ_SUCCESS) && (stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
         {
             u16AuxSensorVal = (int16_t)(round(stTemp.stValAndStatus.f32InstSensorVal*10));

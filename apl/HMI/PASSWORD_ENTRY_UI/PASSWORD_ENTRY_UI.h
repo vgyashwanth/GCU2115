@@ -31,11 +31,13 @@
 class PASSWORD_ENTRY_UI
 {
 public:
+    /*The values of enums in PIN_TYPE_t are set in order to allow multi-pin access
+    Please refer to "PASS_t" struct in CEditableItem.h for further clarity*/
     typedef enum
     {
         PIN1 = 1,
         PIN2,
-        PIN3,
+        PIN3 = 4,
         MASTER_PIN
     }PIN_TYPE_t;
 

@@ -806,6 +806,7 @@ class CFGZ
         CFGZ_SUPERCAP_UNHEALTHY,
         CFGZ_CANOPY_TEMP_SENS_UNHEALTHY,
         CFGZ_DG_ON_LOAD,
+        CFGZ_DG_OVERLOAD,
         CFGZ_OUTPUT_LAST
     } CFGZ_ACT_TYPS_t;
 
@@ -1078,7 +1079,7 @@ class CFGZ
    uint8_t GetCustomerCodefromCFGC();
 
     bool IsCLNTTempJ1939Configured(void);
-    
+
     bool IsOilTemperatureConfigured(void);
 
     bool IsCanopyTemperatureConfigured(void);
@@ -1161,6 +1162,9 @@ class CFGZ
     * @return  : Value of the EGR Heal Timer
     */
    uint16_t GetEGRFaultTimer();
+
+   bool CheckIfFactoryProfilesUpdatedViaBL();
+   bool CheckIfActiveProfileUpdatedViaBL();
 
 private:
     /**

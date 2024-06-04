@@ -3080,6 +3080,28 @@ void GCU_ALARMS::LogEvent(uint8_t u8EventID, uint8_t u8EventType)
     EVENT_LOG_Q_t  stLogLocal;
     RTC::TIME_t currentTime;
 
+    /*
+     * Added to GC2115 04.06.2024
+     * Soujanya M. 13.02.2024
+     * When GCU is powered via USB only, the counts of
+     * ADC1 channel 0 which has MUX 2 connected are 4095U.
+     * False alarms are triggered by the GCU as
+     * the MUX output gives incorrect readings when powered via
+     * USB only. To avoid logging of false alarms in the event log,
+     * GCU will inhibit event logging feature when it detects that
+     * it is being powered by USB only.
+     * Config , Quick Flash and M-logic flashing are some events which
+     * will be still logged. */
+
+    if( /*&&(u8EventID!=Firmware_Flashing_id)&&*/
+        (u8EventID!= Config_Modified_By_User_id)
+        &&(u8EventID!=Active_Profile_flashing_id)
+        &&(u8EventID!=Factory_Profile_flashing_id)
+        &&(_hal.AnlgIp.GetADCcntOfSensor((ANLG_IP::MUX2_ADC_CH_t)ANLG_IP::DC_OFFSET)== MUX_OUTPUT_CNT_POWERED_VIA_USB_ONLY))
+    {
+        return;
+    }
+
     stLogLocal.stEventLog.u8EventId = u8EventID;
     stLogLocal.stEventLog.u8EventType = u8EventType;
 
@@ -3336,10 +3358,11 @@ void GCU_ALARMS::prvUpdateOutputs()
 
     prvActDeactOutput(ArrAlarmMonitoring[VBAT_OV].bResultInstant || ArrAlarmMonitoring[VBAT_UV].bResultInstant, ACTUATOR::ACT_BATTERY_UNHEALTHY);
     prvActDeactOutput(_bAutomaticModeSwitchStatus, ACTUATOR::ACT_AUTO_MODE_SW_OUTPUT);
-    prvActDeactOutput(/*prvIsEgrFaultPresent() || prvIsEgrFaultRecvdFromECU()*/1, ACTUATOR::ACT_EGR);
+    prvActDeactOutput(prvIsEgrFaultPresent() || prvIsEgrFaultRecvdFromECU(), ACTUATOR::ACT_EGR);
     prvActDeactOutput(ArrAlarmMonitoring[SUPERCAP_FAIL].bResultInstant, ACTUATOR::ACT_SUPERCAP_UNHEALTHY);
     prvActDeactOutput((_u8HighCanopyTempAlarm || ArrAlarmMonitoring[OPEN_CANOPY_TEMP_CKT].bAlarmActive), ACTUATOR::ACT_CANOPY_TEMP_UNHEALTHY);
     prvActDeactOutput(IsDgOnLoad(), ACTUATOR::ACT_DG_ON_LOAD);
+    prvActDeactOutput(ArrAlarmMonitoring[OVERLOAD].bAlarmActive, ACTUATOR::ACT_DG_OVERLOAD);
 }
 
 void GCU_ALARMS::SetEgrSpnCommonFaults()

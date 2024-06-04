@@ -58,6 +58,7 @@ private:
     INFO_t _stFirmwareInfo={0, 19, 13651, 0};
     void prvCheckFirmwareInfo();
     void prvSetFwVerInMb();
+    void prvCheckAndLogFlashingEvent();
 };
 
 #endif

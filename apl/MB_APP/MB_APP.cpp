@@ -485,7 +485,7 @@ void MB_APP::prvUpdateInputRegisters()
     /*Store canopy temp at far side of engine*/
     A_SENSE::SENSOR_RET_t stCanopyTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_CANOPY_TEMPERATURE);
     if((stCanopyTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
-        &&(stCanopyTemp.eStatus == A_SENSE::SENSOR_NOT_CONFIGRUED))
+        &&(stCanopyTemp.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED))
     {
         SetReadRegisterValue(MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR, (uint16_t)(stCanopyTemp.stValAndStatus.f32InstSensorVal*10));
     }

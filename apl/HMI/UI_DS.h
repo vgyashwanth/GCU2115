@@ -34,58 +34,69 @@ typedef enum
 
 typedef enum
 {
-    ID_ENG_CHAR0,
-    ENG_ID_CHAR_LAST = 19 // Size = 20
-}ENG_ID_t;
+    ID_ENG_SRNO_CHAR0,
+    ID_ENG_SRNO_CHAR_LAST = 20 // Size = 20
+}ENG_SRNO_ID_t;
 
 typedef enum
 {
     ID_GEN_SRNO_CHAR0,
-    ID_GEN_SRNO_CHAR_LAST = 19
+    ID_GEN_SRNO_CHAR_LAST = 20
 }GEN_SRNO_ID_t;
 
 typedef enum
 {
     ID_ALT_SRNO_CHAR0,
-    ID_ALT_SRNO_CHAR_LAST = 19
+    ID_ALT_SRNO_CHAR_LAST = 20
 }ALT_SRNO_ID_t;
 
 typedef enum
 {
     ID_MAIN_CONT_SRNO_CHAR0,
-    ID_MAIN_CONT_SRNO_CHAR_LAST = 19
+    ID_MAIN_CONT_SRNO_CHAR_LAST = 20
 }MAIN_CONT_SRNO_ID_t;
 
 typedef enum
 {
     ID_ENG_CONT_SRNO_CHAR0,
-    ID_ENG_CONT_SRNO_CHAR_LAST = 19
+    ID_ENG_CONT_SRNO_CHAR_LAST = 20
 }ENG_CONT_SRNO_ID_t;
 
 typedef enum
 {
     ID_SITE_ID_CHAR0,
-    ID_SITE_ID_CHAR_LAST = 9
+    ID_SITE_ID_CHAR_LAST = 10
 }SITE_ID_ID_t;
 
-#define MISC_PARAM_DUMMY_BYTES    (4 - (((MISC_16_LAST)*2) + (MISC_8_LAST) + (ID_GEN_SRNO_CHAR_LAST) + (ENG_ID_CHAR_LAST) + (ID_ALT_SRNO_CHAR_LAST) + (ID_MAIN_CONT_SRNO_CHAR_LAST) +\
-                                  (ID_ENG_CONT_SRNO_CHAR_LAST) + (ID_SITE_ID_CHAR_LAST))%4)%4
+#define MISC_PARAM_DUMMY_BYTES        ( 4 - ( ( (MISC_16_LAST)*2 ) + (MISC_8_LAST) )%4 )%4
 
 typedef struct
 {
     uint16_t u16MiscParam[MISC_16_LAST];
     uint8_t u8MiscParam[MISC_8_LAST];
-    uint8_t u8GenSrNo[ID_GEN_SRNO_CHAR_LAST]; 
-    uint8_t u8EngId[ENG_ID_CHAR_LAST];
-    uint8_t u8AltSrNo[ID_ALT_SRNO_CHAR_LAST];
-    uint8_t u8MainContSrNo[ID_MAIN_CONT_SRNO_CHAR_LAST];
-    uint8_t u8EngContSrNo[ID_ENG_CONT_SRNO_CHAR_LAST];
-    uint8_t u8SiteId[ID_SITE_ID_CHAR_LAST];
 #if(MISC_PARAM_DUMMY_BYTES > 0)    
     uint8_t u8Dummy[MISC_PARAM_DUMMY_BYTES];
 #endif
     uint16_t u16CRC;
  }MISC_PARAM_t;
+
+#define PRODUCT_SR_NOS_DUMMY_BYTES    ((4 - ((1 + (ID_GEN_SRNO_CHAR_LAST) + (ID_ENG_SRNO_CHAR_LAST) + (ID_ALT_SRNO_CHAR_LAST) + (ID_MAIN_CONT_SRNO_CHAR_LAST) +\
+                                      (ID_ENG_CONT_SRNO_CHAR_LAST) + (ID_SITE_ID_CHAR_LAST)) %4)) %4)
+
+typedef struct
+{
+    uint8_t u8ProdSrNoVer;
+    uint8_t u8GenSrNo[ID_GEN_SRNO_CHAR_LAST]; 
+    uint8_t u8EngSrNo[ID_ENG_SRNO_CHAR_LAST];
+    uint8_t u8AltSrNo[ID_ALT_SRNO_CHAR_LAST];
+    uint8_t u8MainContSrNo[ID_MAIN_CONT_SRNO_CHAR_LAST];
+    uint8_t u8EngContSrNo[ID_ENG_CONT_SRNO_CHAR_LAST];
+    uint8_t u8SiteId[ID_SITE_ID_CHAR_LAST];
+#if(PRODUCT_SR_NOS_DUMMY_BYTES > 0)    
+    uint8_t u8Dummy[PRODUCT_SR_NOS_DUMMY_BYTES];
+#endif
+    uint16_t u16CRC;
+}PRODUCT_SR_NOS_t;
 
 
 #define STOP_KEY_LONG_PRESS      KEYPAD::BSP_KEY_4_LONG_PRESS

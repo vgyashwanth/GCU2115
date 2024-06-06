@@ -50,7 +50,6 @@ class UI
 {
 
 public:
-
     typedef struct
     {
         bool bPIN1Changed;
@@ -59,6 +58,7 @@ public:
 
     UI(HAL_Manager &hal, PASSWORD_ENTRY_UI &Password, CFGZ &cfgz, Display &Disp,ENGINE_MONITORING &engMon, MB_APP &MbApp);
     static PASSWORD_EDIT_FLAGS_t stPassEdit;
+    static bool bSrNosEdited;
     void Handler(int keyCode);
     void ClearScreen();
     void SaveConfigFile();

@@ -117,7 +117,7 @@
 #define LEAFNODES_IN_MAINT_ALARM            2
 #define LEAFNODES_IN_ALARM_DUE_DATE         1
  /*ID*/
-#define LEAFNODES_IN_ENG_SR_NO              1
+#define LEAFNODES_IN_SR_NO_DATA             6
 #define LEAFNODES_IN_PASSWORD_1             1
 #define LEAFNODES_IN_PASSWORD_2             1
  /*Slect Profile*/
@@ -648,6 +648,13 @@
        SID_ALARM_DUE_DATE_SERVICE_DATE_2,
        SID_ALARM_DUE_DATE_SERVICE_DATE_3,
 
+       SID_GENSET_SR_NO,
+       SID_ENGINE_SR_NO,
+       SID_ALTERNATOR_SR_NO,
+       SID_MAIN_CONTROLLER_SR_NO,
+       SID_ENGINE_CONTROLLER_SR_NO,
+       SID_SITE_ID,
+
        SID_PROFILE_NAME,
 
        SID_LEAF_NODE_STRING
@@ -751,7 +758,7 @@
        ID_MAINT_ALARM_S,
        ID_ALARM_DUE_DATE_S,
        /*ID*/
-       ID_ENG_SR_NO,
+       ID_SR_NO_DATA,
        ID_PASSWORD_1,
        ID_PASSWORD_2,
        /*Slect Profile*/
@@ -1306,7 +1313,12 @@ enum
     INDEX_OF_ALARM_DUE_DATE_SERVICE_DATE,
 
     /*ID menu*/
-    INDEX_OF_ENG_SR_NO,
+    INDEX_OF_GENSET_SR_NO,
+    INDEX_OF_ENGINE_SR_NO,
+    INDEX_OF_ALTERNATOR_SR_NO,
+    INDEX_OF_MAIN_CONTROLLER_SR_NO,
+    INDEX_OF_ENGINE_CONTROLLER_SR_NO,
+    INDEX_OF_SITE_ID,
 
     INDEX_OF_PIN_1,
 

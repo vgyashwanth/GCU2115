@@ -89,7 +89,7 @@ uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] =
  LEAFNODES_IN_EGR_FAULT_MON,
  LEAFNODES_IN_MAINT_ALARM,
  LEAFNODES_IN_ALARM_DUE_DATE,
- LEAFNODES_IN_ENG_SR_NO,
+ LEAFNODES_IN_SR_NO_DATA,
  LEAFNODES_IN_PASSWORD_1,
  LEAFNODES_IN_PASSWORD_2,
  LEAFNODES_IN_SELECT_PROFILE,
@@ -463,7 +463,7 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "MAINT ALARM",
         "ALARM DUE DATE",
         //ID
-        "ENG SR NO",
+        "SERIAL NO DATA",
         "MASTER PIN",
         "USER PIN",
         //MISC
@@ -1021,6 +1021,15 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "SERVICE DATE #1",
         "SERVICE DATE #2",
         "SERVICE DATE #3",
+
+        //SR NO DATA
+        "GENSET SR NO",
+        "ENGINE SR NO",
+        "ALTERNATOR SR NO",
+        "MAIN CONTROLLER SR NO",
+        "ENG CONTROLLER SR NO",
+        "SITE ID",
+
         /*Select Profile*/
         "PROFILE"
     }
@@ -1029,6 +1038,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
 CMenu mainMenu;
 CMenu* pCurMenu = &mainMenu;
 UI::PASSWORD_EDIT_FLAGS_t UI::stPassEdit={false,false};
+bool UI::bSrNosEdited = false;
 
 /*char* arrMonth[12];*/
 
@@ -1055,8 +1065,6 @@ _pCurEditableItemsScreen(NULL)
 void UI::InitEditableItems()
 {
     CEditableItem::PASSWORD_t stPIN_1,stPIN_2;
-
-    CEditableItem::ENG_SR_NO_t stENG_SR_NO;
 
     _u8LanguageArrayIndex =  0;
 
@@ -1681,12 +1689,13 @@ void UI::InitEditableItems()
     stPIN_1 = {0,0,0,0};
     stPIN_2 = {0,0,0,0};
 
-    for(int i = ID_ENG_CHAR0; i<=(ID_ENG_CHAR0 + 11);i++)
-    {
-        stENG_SR_NO.u8EngSrNo[i] = _MiscParam.u8EngId[i];
-    }
-
-    ArrEditableItem[INDEX_OF_ENG_SR_NO]  = CEditableItem((CEditableItem::ENG_SR_NO_t)stENG_SR_NO,"", "", "%u", (CEditableItem::ENG_SR_NO_t){35,35,35,35,35,35,35,35,35,35,35,35}, (CEditableItem::ENG_SR_NO_t) {90,90,90,90,90,90,90,90,90,90,90,90}, CEditableItem::PIN1_ALLOWED );
+    //ArrEditableItem[INDEX_OF_ENG_SR_NO]  = CEditableItem((CEditableItem::SR_NO_t)stENG_SR_NO,"", "", "%u", (CEditableItem::ENG_SR_NO_t){35,35,35,35,35,35,35,35,35,35,35,35}, (CEditableItem::ENG_SR_NO_t) {90,90,90,90,90,90,90,90,90,90,90,90}, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_GENSET_SR_NO]  = CEditableItem((uint8_t*)_MiscParam.u8GenSrNo, strLeafNode[_u8LanguageArrayIndex][SID_GENSET_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_GENSET );
+    ArrEditableItem[INDEX_OF_ENGINE_SR_NO]  = CEditableItem((uint8_t*)_MiscParam.u8EngSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ENGINE_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ENGINE );
+    ArrEditableItem[INDEX_OF_ALTERNATOR_SR_NO]  = CEditableItem((uint8_t*)_MiscParam.u8AltSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ALTERNATOR_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ALT );
+    ArrEditableItem[INDEX_OF_MAIN_CONTROLLER_SR_NO]  = CEditableItem((uint8_t*)_MiscParam.u8MainContSrNo, strLeafNode[_u8LanguageArrayIndex][SID_MAIN_CONTROLLER_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_MAINCONT );
+    ArrEditableItem[INDEX_OF_ENGINE_CONTROLLER_SR_NO]  = CEditableItem((uint8_t*)_MiscParam.u8EngContSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ENGINE_CONTROLLER_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ENGCONT );
+    ArrEditableItem[INDEX_OF_SITE_ID]  = CEditableItem((uint8_t*)_MiscParam.u8SiteId, strLeafNode[_u8LanguageArrayIndex][SID_SITE_ID], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_SITEID );
     ArrEditableItem[INDEX_OF_PIN_1]  = CEditableItem((CEditableItem::PASSWORD_t)stPIN_1,"", "", "%u", (CEditableItem::PASSWORD_t){0,0,0,0}, (CEditableItem::PASSWORD_t){9,9,9,9}, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_PIN_2]  = CEditableItem((CEditableItem::PASSWORD_t)stPIN_2,"", "", "%u", (CEditableItem::PASSWORD_t){0,0,0,0},(CEditableItem::PASSWORD_t) {9,9,9,9}, CEditableItem::PIN1_PIN2_ALLOWED );
 
@@ -1721,7 +1730,14 @@ void UI::InitMenuItemsAndMenus()
         menuItemsLowestLevel[i] = CMenuItem( &ArrEditableItemScreen[i]);
     }
 
-    menuItemsLowestLevel[INDEX_OF_ENG_SR_NO] = CMenuItem(strSubMenu[_u8LanguageArrayIndex][ID_ENG_SR_NO], &ArrEditableItemScreen[INDEX_OF_ENG_SR_NO]);
+    //menuItemsLowestLevel[INDEX_OF_ENG_SR_NO] = CMenuItem(strSubMenu[_u8LanguageArrayIndex][ID_ENG_SR_NO], &ArrEditableItemScreen[INDEX_OF_ENG_SR_NO]);
+    menuItemsLowestLevel[INDEX_OF_GENSET_SR_NO] = CMenuItem(strSubMenu[_u8LanguageArrayIndex][ID_SR_NO_DATA], &ArrEditableItemScreen[INDEX_OF_GENSET_SR_NO]);
+    menuItemsLowestLevel[INDEX_OF_ENGINE_SR_NO] = CMenuItem(strSubMenu[_u8LanguageArrayIndex][ID_SR_NO_DATA], &ArrEditableItemScreen[INDEX_OF_ENGINE_SR_NO]);
+    menuItemsLowestLevel[INDEX_OF_ALTERNATOR_SR_NO] = CMenuItem(strSubMenu[_u8LanguageArrayIndex][ID_SR_NO_DATA], &ArrEditableItemScreen[INDEX_OF_ALTERNATOR_SR_NO]);
+    menuItemsLowestLevel[INDEX_OF_MAIN_CONTROLLER_SR_NO] = CMenuItem(strSubMenu[_u8LanguageArrayIndex][ID_SR_NO_DATA], &ArrEditableItemScreen[INDEX_OF_MAIN_CONTROLLER_SR_NO]);
+    menuItemsLowestLevel[INDEX_OF_ENGINE_CONTROLLER_SR_NO] = CMenuItem(strSubMenu[_u8LanguageArrayIndex][ID_SR_NO_DATA], &ArrEditableItemScreen[INDEX_OF_ENGINE_CONTROLLER_SR_NO]);
+    menuItemsLowestLevel[INDEX_OF_SITE_ID] = CMenuItem(strSubMenu[_u8LanguageArrayIndex][ID_SR_NO_DATA], &ArrEditableItemScreen[INDEX_OF_SITE_ID]);
+
     menuItemsLowestLevel[INDEX_OF_PIN_1] = CMenuItem(strSubMenu[_u8LanguageArrayIndex][ID_PASSWORD_1], &ArrEditableItemScreen[INDEX_OF_PIN_1]);
     menuItemsLowestLevel[INDEX_OF_PIN_2] = CMenuItem(strSubMenu[_u8LanguageArrayIndex][ID_PASSWORD_2], &ArrEditableItemScreen[INDEX_OF_PIN_2]);
 
@@ -1922,15 +1938,16 @@ void UI::SaveConfigFile()
             }
         }
 
-        for(int i = 0;i<12;i++)
-        {
-            _MiscParam.u8EngId[i] = ArrEditableItem[INDEX_OF_ENG_SR_NO].value.stEngSrNo.u8EngSrNo[i];
-        }
-
         _MiscParam.u16CRC = CRC16::ComputeCRCGeneric((uint8_t *)&_MiscParam, sizeof(MISC_PARAM_t) -sizeof(uint16_t), CRC_MEMORY_SEED);
 
         _objHal.Objeeprom.RequestWrite(EXT_EEPROM_PASWORD_START_ADDRESS,(uint8_t*)&_MiscParam, sizeof(MISC_PARAM_t) , NULL) ;
         _objcfgz.WriteActiveProfile(&AllParam);
+
+        if(bSrNosEdited)
+        {
+            /*Sr nos are edited. Copy updated values into SrNos structure, calculate CRC and write into Eeprom*/
+            
+        }
         prvUpdateAutomationModbusMap();
     }
     _objcfgz.WriteProductSpecificData(&ProductParam);
@@ -2525,15 +2542,14 @@ void UI::Handler(int keyCode)
         switch (keyCode)
         {
         case    CKeyCodes::DOWN:
-            if(_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].dataType == CEditableItem::DT_PASSWORD
-                    ||_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].dataType == CEditableItem::DT_ENG_SR_NO)
+            if(_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].dataType == CEditableItem::DT_PASSWORD)
             {
 
                 if(_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex <
                                        _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MaxOneScreenEditItems-1)
-               {
+                {
                     _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex++;
-               }
+                }
                 else
                 {
                     _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex =0;
@@ -2564,11 +2580,11 @@ void UI::Handler(int keyCode)
                     pCurMenu->indexOfSelectedMenuItem = 0;
                 }
             }
+            _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex = 0;
             pCurMenu->show();
             break;
         case    CKeyCodes::UP:
-            if(_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].dataType == CEditableItem::DT_PASSWORD
-                   || _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].dataType == CEditableItem::DT_ENG_SR_NO)
+            if(_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].dataType == CEditableItem::DT_PASSWORD)
             {
 
                 if(_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex >  0)
@@ -2605,6 +2621,7 @@ void UI::Handler(int keyCode)
                     u16IndexOfEditableItems = u16NumberofEditableItems;
                 }
             }
+            _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex = 0;
             pCurMenu->show();
             break;
         case    CKeyCodes::ENTER:

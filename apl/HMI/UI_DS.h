@@ -32,17 +32,31 @@ typedef enum
     MISC_8_LAST
 }MISC_PARAM_8_t;
 
-typedef enum
-{
-    ID_ENG_SRNO_CHAR0,
-    ID_ENG_SRNO_CHAR_LAST = 20 // Size = 20
-}ENG_SRNO_ID_t;
+#define MISC_PARAM_DUMMY_BYTES        ( 4 - ( ( (MISC_16_LAST)*2 ) + (MISC_8_LAST) )%4 )%4
 
+typedef struct
+{
+    uint16_t u16MiscParam[MISC_16_LAST];
+    uint8_t u8MiscParam[MISC_8_LAST];
+#if(MISC_PARAM_DUMMY_BYTES > 0)    
+    uint8_t u8Dummy[MISC_PARAM_DUMMY_BYTES];
+#endif
+    uint16_t u16CRC;
+ }MISC_PARAM_t;
+
+
+/*Sr no specifications*/
 typedef enum
 {
     ID_GEN_SRNO_CHAR0,
     ID_GEN_SRNO_CHAR_LAST = 20
 }GEN_SRNO_ID_t;
+
+typedef enum
+{
+    ID_ENG_SRNO_CHAR0,
+    ID_ENG_SRNO_CHAR_LAST = 20 // Size = 20
+}ENG_SRNO_ID_t;
 
 typedef enum
 {
@@ -68,34 +82,24 @@ typedef enum
     ID_SITE_ID_CHAR_LAST = 10
 }SITE_ID_ID_t;
 
-#define MISC_PARAM_DUMMY_BYTES        ( 4 - ( ( (MISC_16_LAST)*2 ) + (MISC_8_LAST) )%4 )%4
-
+#define SR_NO_DATA_SIGNATURE  (0x72344268)
+#define SR_NOS_DUMMY_BYTES    ((4 - (((ID_GEN_SRNO_CHAR_LAST) + (ID_ENG_SRNO_CHAR_LAST) + (ID_ALT_SRNO_CHAR_LAST) + (ID_MAIN_CONT_SRNO_CHAR_LAST) +\
+                                      (ID_ENG_CONT_SRNO_CHAR_LAST) + (ID_SITE_ID_CHAR_LAST)) %4) ) %4)
+#define SR_NOS_LATEST_VER       (0)
 typedef struct
 {
-    uint16_t u16MiscParam[MISC_16_LAST];
-    uint8_t u8MiscParam[MISC_8_LAST];
-#if(MISC_PARAM_DUMMY_BYTES > 0)    
-    uint8_t u8Dummy[MISC_PARAM_DUMMY_BYTES];
-#endif
-    uint16_t u16CRC;
- }MISC_PARAM_t;
-
-#define PRODUCT_SR_NOS_DUMMY_BYTES    ((4 - ((1 + (ID_GEN_SRNO_CHAR_LAST) + (ID_ENG_SRNO_CHAR_LAST) + (ID_ALT_SRNO_CHAR_LAST) + (ID_MAIN_CONT_SRNO_CHAR_LAST) +\
-                                      (ID_ENG_CONT_SRNO_CHAR_LAST) + (ID_SITE_ID_CHAR_LAST)) %4)) %4)
-
-typedef struct
-{
-    uint8_t u8ProdSrNoVer;
+    uint32_t u32Signature;
+    uint16_t u16ProdSrNoVer;
+    uint16_t u16Crc; 
     uint8_t u8GenSrNo[ID_GEN_SRNO_CHAR_LAST]; 
     uint8_t u8EngSrNo[ID_ENG_SRNO_CHAR_LAST];
     uint8_t u8AltSrNo[ID_ALT_SRNO_CHAR_LAST];
     uint8_t u8MainContSrNo[ID_MAIN_CONT_SRNO_CHAR_LAST];
     uint8_t u8EngContSrNo[ID_ENG_CONT_SRNO_CHAR_LAST];
     uint8_t u8SiteId[ID_SITE_ID_CHAR_LAST];
-#if(PRODUCT_SR_NOS_DUMMY_BYTES > 0)    
-    uint8_t u8Dummy[PRODUCT_SR_NOS_DUMMY_BYTES];
+#if(SR_NOS_DUMMY_BYTES > 0)    
+    uint8_t u8Dummy[SR_NOS_DUMMY_BYTES];
 #endif
-    uint16_t u16CRC;
 }PRODUCT_SR_NOS_t;
 
 

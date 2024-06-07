@@ -324,25 +324,17 @@ void MB_APP::prvUpdateInputRegisters()
 
     SetReadRegisterValue(MB_INPUT_REG_PROTOCOL_VER, 23);
 
-    //char strGensetSerialNo[20] = "AAAAAAAAAABBBBBBBBBB"
-    uint8_t strGensetSerialNo[20] = {0xFF};
-    memset(strGensetSerialNo,0xFF,20);
-    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8GenSrNo), 20);
 
-    //char strEngineSerialNo[20] = "AAAAAAAAAACCCCCCCCCC"
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8EngSrNo), 20);
 
-    //char strAltSerialNo[20] = "AAAAAAAAAADDDDDDDDDD"
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8AltSrNo), 20);
 
-    //char strMainControllerNo[20] = "AAAAAAAAAAEEEEEEEEEE"
-    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8MainContSrNo), 20);
 
-    //char strEngineControllerNo[20] = "AAAAAAAAAAFFFFFFFFFF"
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8EngContSrNo), 20);
 
-    //char strSiteId[10] = "AAAAAGGGGG"
-    prvSetMultipleInputRegisters(MB_INPUT_REG_SITE_ID_5, (uint8_t*) &strGensetSerialNo, 10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_SITE_ID_5, (uint8_t*)&(UI::_stSrNos.u8SiteId), 10);
 
     /*Get the current time*/
     RTC::TIME_t currentTime;

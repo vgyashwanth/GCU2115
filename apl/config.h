@@ -73,13 +73,15 @@
  * which need to be saved.
  * In GC2111 , One such parameter is Modbus Connection Count which is shown in the Event Log Screen.
  */
-#define EXT_EEPROM_MISC_PARAM_START                0x5400
-#define EXT_EEPROM_MISC_PARAM_LENGTH               256
+#define PRODUCT_SPECIFIC_AREA_START_ADDR          (0x5400)
+#define PRODUCT_SPECIFIC_AREA_MAX_LENGTH          (0x318)//(0x3E0)
+#define PRODUCT_SPECIFIC_DATA_VERSION_ADDR        (PRODUCT_SPECIFIC_AREA_START_ADDR + PRODUCT_SPECIFIC_AREA_MAX_LENGTH - 1 )
 
-#define  PRODUCT_SPECIFIC_AREA_START_ADDR     (0x5400)
-#define  PRODUCT_SPECIFIC_AREA_MAX_LENGTH    (0x3E0)
-
-#define PRODUCT_SPECIFIC_DATA_VERSION_ADDR     (PRODUCT_SPECIFIC_AREA_START_ADDR + PRODUCT_SPECIFIC_AREA_MAX_LENGTH - 1 )
+#define SERIAL_NOS_AREA_LENGTH                    (200)
+#define SERIAL_NOS_AREA_START_ADDRESS             (0x5718)
+#define SERIAL_NOS_SIGNATURE_LEN                  (4)
+#define SERIAL_NOS_VER_LEN                        (2)
+#define SERIAL_NOS_DATA_START_ADDRESS             (SERIAL_NOS_AREA_START_ADDRESS + SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN)
 
 /**********************************PFlash***********************************/
 #define FACTORY_CFGZ_ADDRESS_1_MB_MCU               0xF8000

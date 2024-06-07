@@ -55,7 +55,7 @@ public:
 
     typedef struct
     {
-        uint8_t u8Arr[19];
+        uint8_t u8Arr[20];
     }SR_NO_t;
 
     static SR_NO_t u8SrNoArr[6];
@@ -72,7 +72,7 @@ public:
         SRNO_ENGCONT,
         SRNO_SITEID,
         SRNO_TYPE_LAST
-    }PRODUCT_SRNO_TYPES_t;
+    }SRNO_TYPES_t;
 
     typedef enum
     {
@@ -107,7 +107,7 @@ public:
         uint32_t u32IndexIntoFixedOptions;  // useful only if type is DT_STRING_FIXED
     } EditableItemValue_t;
 
-    PRODUCT_SRNO_TYPES_t _eSrNoType;
+    SRNO_TYPES_t _eSrNoType;
     EditableItemValue_t value;
     EditableItemValue_t minVal, maxVal;
     float fValLC;  //Least Count of float variable
@@ -150,7 +150,7 @@ public:
     CEditableItem(float fVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, float minFVal = -999999999999.0f, float maxFVal = 999999999999.0f, float ValLC = 0.1f, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
     CEditableItem(float fVal, const char* promptMessage,const char* unitOfMeasurement, const char* formatString,float minFval, float maxFval, PASS_t  ePassLevel);
     CEditableItem(PASSWORD_t stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASSWORD_t stminval = {0,0,0,0} ,  PASSWORD_t stmaxval = {9,9,9,9} , PASS_t  ePassLevel  = PIN1_PIN2_PIN3_ALLOWED);
-    CEditableItem(uint8_t* stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASS_t ePassLevel = PIN1_PIN2_PIN3_ALLOWED, PRODUCT_SRNO_TYPES_t eSrNoType = SRNO_GENSET);
+    CEditableItem(uint8_t* stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASS_t ePassLevel = PIN1_PIN2_PIN3_ALLOWED, SRNO_TYPES_t eSrNoType = SRNO_GENSET);
     //CEditableItem(char *pStrVal, const char* promptMessage, const char* UnitOfMeasurement, const char* formatString, unsigned int minLength = 1, unsigned int maxLength = STRING_PARAM_MAX_LEN, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
     CEditableItem(uint32_t u32CurrentOption, const char* promptMessage, const char* UnitOfMeasurement, const char* FormatString, const char** StringFixedOptions, uint32_t NumOfStringFixedOptions, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
              // converts value to string and returns the string
@@ -184,6 +184,7 @@ private:
     const char* dt2str(EDITABLE_ITEMS_DATA_TYPE_t dt);
 
     void prvPrint_Password_Edit_Screen(EditableItemValue_t val);
+    uint8_t u8GetNextEngSrDigit(uint8_t u8Val, bool bIncrement);
     void DisplayEngSrChar(uint8_t val);
 };
 

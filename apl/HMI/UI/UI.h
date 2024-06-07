@@ -88,6 +88,7 @@ public:
     static CMenuItem menuItemsLowestLevel[INDEX_LAST];
     static CMenuItem menuItemsMidLevel[NUM_OF_MENU_ITEMS_AT_MID_LEVEL];
     static CMenuItem menuItemsTopLevel[NUM_OF_MENU_ITEMS_AT_TOP_LEVEL];
+    static PRODUCT_SR_NOS_t _stSrNos;
 
 private:
     #define IsLeapYear(Y) ((!((Y)%4)) && (((Y)%100) || (!((Y)%400))))
@@ -118,5 +119,6 @@ private:
     void prvUpdateEngineTypeDependency(void);
     void prvSetPasswordAccessLevel(uint16_t u16Index, uint8_t u8PasswordLevel);
     void prvUpdateAutomationModbusMap();
+    void prvReadSrNos();
 };
 #endif /* _UI_H_ */

@@ -2533,9 +2533,9 @@ void MON_UI::prvProductInfo()
  * firstly the characters from engine serial number is pushed in an array (arrTemp)
  * and then sent the same for display.
  */
-    for(nu8EngSrNo=0;nu8EngSrNo<12;nu8EngSrNo++)
+    for(nu8EngSrNo=0;nu8EngSrNo<20;nu8EngSrNo++)
     {
-        arrTemp[nu8EngSrNo] = EngSrNo[nu8EngSrNo];
+        arrTemp[nu8EngSrNo] = UI::_stSrNos.u8EngSrNo[nu8EngSrNo];// EngSrNo[nu8EngSrNo];
     }
     arrTemp[nu8EngSrNo] = '\0';
 

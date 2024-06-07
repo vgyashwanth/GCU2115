@@ -654,7 +654,9 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             prvSetAlarmActivation(CANOPY_DOOR_OPEN, u8Activation);
             ArrAlarmMonitoring[CANOPY_DOOR_OPEN].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
             ArrAlarmMonitoring[CANOPY_DOOR_OPEN].pValue = &_ArrAlarmValue[CANOPY_DOOR_OPEN_STATUS];
+            
             prvSetAlarmActivation(u8InputIndex, u8Activation);
+            ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[CANOPY_DOOR_OPEN_STATUS];            
 
             ArrAlarmMonitoring[CANOPY_DOOR_OPEN].u8LoggingID = Canopy_Door_Open_id;
     }
@@ -1987,7 +1989,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         case EXTENDED_OVERLOAD:
         {
             ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true;
-            ArrAlarmMonitoring[u8AlarmIndex].bEnableShutdown = true;
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableElectricTrip = true;
             ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
             ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
             ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Extended_Overload_id;
@@ -2345,16 +2347,44 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[CA_FAIL].bAlarmActive;
             break;
         case Battery_Over_Voltage_id :
-            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[VBAT_OV].bAlarmActive;
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_MON_SOURCE) == CFGZ::CFGZ_MON_SRC_BATTERY)
+            {
+                _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[VBAT_OV].bAlarmActive;
+            }
+            else
+            {
+                _ArrAlarmStatus[u8LoggingID] = &_u8DummyZero;
+            }
             break;
         case Battery_Under_Voltage_id :
-            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[VBAT_UV].bAlarmActive;
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_MON_SOURCE) == CFGZ::CFGZ_MON_SRC_BATTERY)
+            {
+                _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[VBAT_UV].bAlarmActive;
+            }
+            else
+            {
+                _ArrAlarmStatus[u8LoggingID] = &_u8DummyZero;
+            }
             break;
         case Supercap_Over_Voltage_id :
-            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[VBAT_OV].bAlarmActive;
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_MON_SOURCE) != CFGZ::CFGZ_MON_SRC_BATTERY)
+            {
+                _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[VBAT_OV].bAlarmActive;
+            }
+            else
+            {
+                _ArrAlarmStatus[u8LoggingID] = &_u8DummyZero;
+            }
             break;
         case Supercap_Under_Voltage_id :
-            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[VBAT_UV].bAlarmActive;
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_MON_SOURCE) != CFGZ::CFGZ_MON_SRC_BATTERY)
+            {
+                _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[VBAT_UV].bAlarmActive;
+            }
+            else
+            {
+                _ArrAlarmStatus[u8LoggingID] = &_u8DummyZero;
+            }
             break;
         case Over_Current_id :
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[OVERCURRENT].bAlarmActive;

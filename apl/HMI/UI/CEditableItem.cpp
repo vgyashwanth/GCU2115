@@ -172,7 +172,7 @@ CEditableItem::CEditableItem(PASSWORD_t stVal, const char* PromptMessage, const 
     initTempValue();
 }
 
-CEditableItem::CEditableItem(uint8_t* stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASS_t ePassLevel, CEditableItem::PRODUCT_SRNO_TYPES_t eSrNoType )
+CEditableItem::CEditableItem(uint8_t* stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASS_t ePassLevel, CEditableItem::SRNO_TYPES_t eSrNoType )
 {
     CEditableItem();
     uint8_t u8Len = 0;
@@ -367,33 +367,99 @@ const char* CEditableItem::getString()
     return getString(value);
 }
 
-void CEditableItem::incrementValue(uint8_t* pu8Val, bool bIncrementBy5)
+uint8_t CEditableItem::u8GetNextEngSrDigit(uint8_t u8Val, bool bIncrement)
 {
-    /*This function is for incrementing the product sr no values*/
-    uint8_t u8MaxVal = 90; //Ascii value of code 90, i.e. "Z"
-    uint8_t u8MinVal = 48; //Ascii value of code 48, i.e. "0"
-    switch(dataType)
+    /*0 i.e. NULL*/
+    /*48 to 57 i.e. 0 to 9*/
+    /*58 to 59 i.e. : to ;*/
+    /*65 to 90 i.e. A to Z*/
+    #define DISCONT_GRP_CNT    (4)
+    uint8_t u8Arr[DISCONT_GRP_CNT][2] = {{0, 0}, {48, 57}, {58, 59}, {65, 90}};
+    uint8_t u8RetVal = u8Arr[1][0];
+    for(uint8_t i = 0; i < DISCONT_GRP_CNT; i++)
     {
-        case DT_SRNO:
-            if(bIncrementBy5 && ((*pu8Val) + 5 <= u8MaxVal) )
+        if((u8Val >= u8Arr[i][0]) && (u8Val <= u8Arr[i][1]))
+        {
+            if(bIncrement)
             {
-                (*pu8Val) += 5 ;
-            }
-            else if ((*pu8Val) < u8MaxVal)
-            {
-                (*pu8Val) = (*pu8Val) + 1;
-            }
-            else
-            {
-                if(bIncrementBy5)
+                /*Increment command has been given on the keypad*/
+                if(u8Val == u8Arr[i][1])
                 {
-                    (*pu8Val) = u8MinVal + (u8MaxVal - (*pu8Val));
+                    if(i == (DISCONT_GRP_CNT - 1))
+                    {
+                        /*Loop back to the first item in the list*/
+                        u8RetVal = u8Arr[0][0];
+                    }
+                    else
+                    {
+                        u8RetVal = u8Arr[i+1][0];     
+                    }
                 }
                 else
                 {
-                    (*pu8Val) = u8MinVal;
+                    u8RetVal = u8Val + 1;
                 }
-                
+            }
+            else
+            {
+                /*Decrement command has been given on the keypad*/
+                if(u8Val == u8Arr[i][0])
+                {
+                    if(i == 0)
+                    {
+                        /*Loop back to the first item in the list*/
+                        u8RetVal = u8Arr[(DISCONT_GRP_CNT - 1)][1];
+                    }
+                    else
+                    {
+                        u8RetVal = u8Arr[i-1][1];     
+                    }
+                }
+                else
+                {
+                    u8RetVal = u8Val - 1;
+                }
+            }
+        }
+    }
+    return u8RetVal;
+
+}
+
+void CEditableItem::incrementValue(uint8_t* pu8Val, bool bIncrementBy5)
+{
+    /*This function is for incrementing the product sr no values*/
+    _bValuesChanged = true;
+    switch(dataType)
+    {
+        case DT_SRNO:
+            if(bIncrementBy5)
+            {
+                for(uint8_t i = 0; i < 5; i++)
+                {
+                    *pu8Val = u8GetNextEngSrDigit(*pu8Val, true);
+                }
+            }
+            else
+            {
+                *pu8Val = u8GetNextEngSrDigit(*pu8Val, true);
+            }
+            if(*pu8Val == 0) /*Ascii code for NULL*/
+            {
+                /*Check if subsequent digits are all NULL*/
+                bool bAllDigitsNull = true;
+                for( uint8_t i = u8MultiItemEditIndex; i < u8MaxOneScreenEditItems; i++ )
+                {
+                    if(u8TempSrNoArr[_eSrNoType].u8Arr[i] != 0)
+                    {
+                        bAllDigitsNull = false;
+                        break;
+                    }
+                }
+                if(!bAllDigitsNull)
+                {
+                    *pu8Val = u8GetNextEngSrDigit(*pu8Val, true);
+                }
             }
             break;
         default:
@@ -667,31 +733,37 @@ void CEditableItem::incrementValue(bool bTemp, bool bIncrementBy5 )
 
 void CEditableItem::decrementValue(uint8_t* pu8Val, bool bdecrementBy5)
 {
-    /*This function is for incrementing the product sr no values*/
-    uint8_t u8MaxVal = 90; //Ascii value of code 90, i.e. "Z"
-    uint8_t u8MinVal = 48; //Ascii value of code 48, i.e. "0"
+    _bValuesChanged = true;
     switch(dataType)
     {
         case DT_SRNO:
-            if(bdecrementBy5 && ((*pu8Val) - 5 > u8MinVal) )
+            if(bdecrementBy5)
             {
-                (*pu8Val) -= 5 ;
-            }
-            else if ((*pu8Val) > u8MinVal)
-            {
-                (*pu8Val) = (*pu8Val) - 1;
+                for(uint8_t i = 0; i < 5; i++)
+                {
+                    *pu8Val = u8GetNextEngSrDigit(*pu8Val, false);
+                }
             }
             else
             {
-                if(bdecrementBy5)
+                *pu8Val = u8GetNextEngSrDigit(*pu8Val, false);
+            }
+            if(*pu8Val == 0) /*Ascii code for NULL*/
+            {
+                /*Check if subsequent digits are all NULL*/
+                bool bAllDigitsNull = true;
+                for( uint8_t i = u8MultiItemEditIndex; i < u8MaxOneScreenEditItems; i++ )
                 {
-                    (*pu8Val) = u8MaxVal - ((*pu8Val) - u8MinVal);
+                    if(u8TempSrNoArr[_eSrNoType].u8Arr[i] != 0)
+                    {
+                        bAllDigitsNull = false;
+                        break;
+                    }
                 }
-                else
+                if(!bAllDigitsNull)
                 {
-                    (*pu8Val) = u8MaxVal;
+                    *pu8Val = u8GetNextEngSrDigit(*pu8Val, false);
                 }
-                
             }
             break;
         default:
@@ -942,6 +1014,8 @@ CEditableItem::EditableItemValue_t CEditableItem::decrementValue(
             }
         }
         break;
+    default:
+        break;
     }
     return aValue;
 }
@@ -972,7 +1046,7 @@ void CEditableItem::initTempValue()
     }
     else if(dataType == DT_SRNO)
     {
-        u8TempSrNoArr[_eSrNoType] = u8SrNoArr[_eSrNoType];
+        memcpy((uint8_t*)(&(u8TempSrNoArr[_eSrNoType].u8Arr[0])), &(u8SrNoArr[_eSrNoType].u8Arr[0]), u8MaxOneScreenEditItems);
     }
     else
     {
@@ -986,12 +1060,8 @@ void CEditableItem::saveTempValue()
 {
     if(dataType == DT_SRNO)
     {
-        if(u8SrNoArr[_eSrNoType] != u8TempSrNoArr[_eSrNoType])
-        {
-            u8SrNoArr[_eSrNoType] = u8TempSrNoArr[_eSrNoType];
-            UI::bSrNosEdited = true;
-        }
-        
+        memcpy((uint8_t*)(&(u8SrNoArr[_eSrNoType].u8Arr[0])), &(u8TempSrNoArr[_eSrNoType].u8Arr[0]), u8MaxOneScreenEditItems);
+        UI::bSrNosEdited = true;
     }
     else
     {
@@ -1023,8 +1093,16 @@ void CEditableItem::CopyPrevValue()
 }
 void CEditableItem:: DisplayEngSrChar(uint8_t val)
 {
-    char chTemp;
-    sprintf(&chTemp," %c ",val);
+    char chTemp[32];
+    if(val == 0)
+    {
+        /*Value is null, print _*/
+        sprintf(chTemp," %c ",95);
+    }
+    else
+    {
+        sprintf(chTemp," %c ",val);
+    }
     gpDisplay->printStringCenterAligned((char *)(&chTemp),FONT_VERDANA);
 }
 
@@ -1284,28 +1362,37 @@ void CEditableItem::print(EditableItemValue_t val)
         }
         else if(dataType == DT_SRNO)
         {
-            for(int i=0;i<19;i++)
+            uint8_t u8XOffset;
+            if(_eSrNoType >= SRNO_SITEID)
+            {
+                u8XOffset = 20;
+            }
+            else
+            {
+                u8XOffset = 10;
+            }
+            for(int i=0;i<u8MaxOneScreenEditItems;i++)
             {
                 if(i < 12)
                 {
-                    gpDisplay->gotoxy(GLCD_X(10+10*i),GLCD_Y(37));
+                    gpDisplay->gotoxy(GLCD_X(u8XOffset+10*i),GLCD_Y(37));
                     DisplayEngSrChar(u8TempSrNoArr[_eSrNoType].u8Arr[i]);
                 }
                 else
                 {
-                    gpDisplay->gotoxy(GLCD_X(10+10*(i-12)),GLCD_Y(50));
+                    gpDisplay->gotoxy(GLCD_X(3*u8XOffset + u8XOffset/2 +10*(i-12)),GLCD_Y(50));
                     DisplayEngSrChar(u8TempSrNoArr[_eSrNoType].u8Arr[i]);
                 }
             }
             if(u8MultiItemEditIndex < 12)
             {
-                gpDisplay->drawHorizontalLine(GLCD_X(6+u8MultiItemEditIndex*10), GLCD_Y(47), GLCD_X(13+u8MultiItemEditIndex*10));
-                gpDisplay->drawHorizontalLine(GLCD_X(6+u8MultiItemEditIndex*10), GLCD_Y(48), GLCD_X(13+u8MultiItemEditIndex*10));
+                gpDisplay->drawHorizontalLine(GLCD_X(u8XOffset - 4 +u8MultiItemEditIndex*10), GLCD_Y(47), GLCD_X(u8XOffset + 3 +u8MultiItemEditIndex*10));
+                gpDisplay->drawHorizontalLine(GLCD_X(u8XOffset - 4 +u8MultiItemEditIndex*10), GLCD_Y(48), GLCD_X(u8XOffset + 3 +u8MultiItemEditIndex*10));
             }
             else
             {
-                gpDisplay->drawHorizontalLine(GLCD_X(6+(u8MultiItemEditIndex-12)*10), GLCD_Y(60), GLCD_X(13+(u8MultiItemEditIndex-12)*10));
-                gpDisplay->drawHorizontalLine(GLCD_X(6+(u8MultiItemEditIndex-12)*10), GLCD_Y(61), GLCD_X(13+(u8MultiItemEditIndex-12)*10));
+                gpDisplay->drawHorizontalLine(GLCD_X(3*u8XOffset + u8XOffset/2 - 4 +(u8MultiItemEditIndex-12)*10), GLCD_Y(60), GLCD_X(2*u8XOffset + 3 +(u8MultiItemEditIndex-12)*10));
+                gpDisplay->drawHorizontalLine(GLCD_X(3*u8XOffset + u8XOffset/2 - 4 +(u8MultiItemEditIndex-12)*10), GLCD_Y(61), GLCD_X(2*u8XOffset + 3 +(u8MultiItemEditIndex-12)*10));
             }
         }
 
@@ -1351,16 +1438,25 @@ void CEditableItem::print(EditableItemValue_t val)
         }
         else if(dataType == DT_SRNO)
         {
-            for(int i=0;i<19;i++)
+            uint8_t u8XOffset;
+            if(_eSrNoType >= SRNO_SITEID)
+            {
+                u8XOffset = 20;
+            }
+            else
+            {
+                u8XOffset = 10;
+            }
+            for(int i=0;i<u8MaxOneScreenEditItems;i++)
             {
                 if(i < 12)
                 {
-                    gpDisplay->gotoxy(GLCD_X(10+10*i),GLCD_Y(37));
+                    gpDisplay->gotoxy(GLCD_X(u8XOffset+10*i),GLCD_Y(37));
                     DisplayEngSrChar(u8TempSrNoArr[_eSrNoType].u8Arr[i]);
                 }
                 else
                 {
-                    gpDisplay->gotoxy(GLCD_X(10+10*(i-12)),GLCD_Y(50));
+                    gpDisplay->gotoxy(GLCD_X(3*u8XOffset + u8XOffset/2 +10*(i-12)),GLCD_Y(50));
                     DisplayEngSrChar(u8TempSrNoArr[_eSrNoType].u8Arr[i]);
                 }
                 
@@ -1368,12 +1464,12 @@ void CEditableItem::print(EditableItemValue_t val)
             
             if(u8MultiItemEditIndex < 12)
             {
-                gpDisplay->gotoxy(GLCD_X(10+u8MultiItemEditIndex*10), GLCD_Y(37));
+                gpDisplay->gotoxy(GLCD_X(u8XOffset+u8MultiItemEditIndex*10), GLCD_Y(37));
                 sprintf(arrTemp,"  %c",32);
             }
             else
             {
-                gpDisplay->gotoxy(GLCD_X(10+(u8MultiItemEditIndex-12)*10), GLCD_Y(50));
+                gpDisplay->gotoxy(GLCD_X(3*u8XOffset + u8XOffset/2 +(u8MultiItemEditIndex-12)*10), GLCD_Y(50));
                 sprintf(arrTemp,"  %c",32);
             }
             gpDisplay->printStringCenterAligned((char *)arrTemp,FONT_VERDANA);

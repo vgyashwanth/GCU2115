@@ -1039,6 +1039,7 @@ CMenu mainMenu;
 CMenu* pCurMenu = &mainMenu;
 UI::PASSWORD_EDIT_FLAGS_t UI::stPassEdit={false,false};
 bool UI::bSrNosEdited = false;
+PRODUCT_SR_NOS_t UI::_stSrNos = {};
 
 /*char* arrMonth[12];*/
 
@@ -1060,6 +1061,59 @@ _pCurEditableItemsScreen(NULL)
     UTILS_ResetTimer(&_ValIncDecTimer);
     prvFetchProfileNames();
     prvUpdateAutomationModbusMap();
+    prvReadSrNos();
+}
+
+void UI::prvReadSrNos()
+{
+    bool bUpdateDataInEEPROM;
+    /*Copy signature, version and crc into the structure*/
+    _objHal.Objeeprom.BlockingRead(SERIAL_NOS_AREA_START_ADDRESS, (uint8_t*)&_stSrNos,  sizeof(PRODUCT_SR_NOS_t));
+    if(_stSrNos.u32Signature == SR_NO_DATA_SIGNATURE)
+    {
+        if(_stSrNos.u16ProdSrNoVer == SR_NOS_LATEST_VER)
+        {
+            if(CRC16::ComputeCRCGeneric((uint8_t *)&_stSrNos + (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2),
+              (sizeof(PRODUCT_SR_NOS_t) - SERIAL_NOS_SIGNATURE_LEN - SERIAL_NOS_VER_LEN - 2),
+             CRC_MEMORY_SEED) != _stSrNos.u16Crc)
+            {
+                /*CRC does not match*/
+                bUpdateDataInEEPROM = true;
+            }
+            else
+            {
+                bUpdateDataInEEPROM = false;
+            }
+        }
+        else
+        {
+            /*Version is different. Add code for handling future versions here*/
+            bUpdateDataInEEPROM = true;
+        }
+    }
+    else
+    {
+        /*Signature is incorrect*/
+        bUpdateDataInEEPROM = true;
+    }
+
+    if(bUpdateDataInEEPROM) /*Sr no data is invalid*/
+    {
+        uint16_t u16DataLen = (sizeof(PRODUCT_SR_NOS_t) - SERIAL_NOS_SIGNATURE_LEN - SERIAL_NOS_VER_LEN - 2);
+        uint8_t* pu8DataStart = (uint8_t *)&_stSrNos + (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2);
+        memset(pu8DataStart, 48, u16DataLen); //Ascii code for 0
+        _stSrNos.u32Signature = SR_NO_DATA_SIGNATURE;
+        _stSrNos.u16ProdSrNoVer = SR_NOS_LATEST_VER;
+        _stSrNos.u8GenSrNo[ID_GEN_SRNO_CHAR_LAST-1] = '\0';
+        _stSrNos.u8GenSrNo[ID_ENG_SRNO_CHAR_LAST-1] = '\0';
+        _stSrNos.u8GenSrNo[ID_ALT_SRNO_CHAR_LAST-1] = '\0';
+        _stSrNos.u8GenSrNo[ID_MAIN_CONT_SRNO_CHAR_LAST-1] = '\0';
+        _stSrNos.u8GenSrNo[ID_ENG_CONT_SRNO_CHAR_LAST-1] = '\0';
+        _stSrNos.u8GenSrNo[ID_SITE_ID_CHAR_LAST-1] = '\0';
+        _stSrNos.u16Crc = CRC16::ComputeCRCGeneric((uint8_t *)&_stSrNos + (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2),
+               u16DataLen, CRC_MEMORY_SEED);
+        _objHal.Objeeprom.RequestWrite(SERIAL_NOS_AREA_START_ADDRESS, (uint8_t*)&_stSrNos, sizeof(PRODUCT_SR_NOS_t), NULL);
+    }
 }
 
 void UI::InitEditableItems()
@@ -1690,12 +1744,12 @@ void UI::InitEditableItems()
     stPIN_2 = {0,0,0,0};
 
     //ArrEditableItem[INDEX_OF_ENG_SR_NO]  = CEditableItem((CEditableItem::SR_NO_t)stENG_SR_NO,"", "", "%u", (CEditableItem::ENG_SR_NO_t){35,35,35,35,35,35,35,35,35,35,35,35}, (CEditableItem::ENG_SR_NO_t) {90,90,90,90,90,90,90,90,90,90,90,90}, CEditableItem::PIN1_ALLOWED );
-    ArrEditableItem[INDEX_OF_GENSET_SR_NO]  = CEditableItem((uint8_t*)_MiscParam.u8GenSrNo, strLeafNode[_u8LanguageArrayIndex][SID_GENSET_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_GENSET );
-    ArrEditableItem[INDEX_OF_ENGINE_SR_NO]  = CEditableItem((uint8_t*)_MiscParam.u8EngSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ENGINE_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ENGINE );
-    ArrEditableItem[INDEX_OF_ALTERNATOR_SR_NO]  = CEditableItem((uint8_t*)_MiscParam.u8AltSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ALTERNATOR_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ALT );
-    ArrEditableItem[INDEX_OF_MAIN_CONTROLLER_SR_NO]  = CEditableItem((uint8_t*)_MiscParam.u8MainContSrNo, strLeafNode[_u8LanguageArrayIndex][SID_MAIN_CONTROLLER_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_MAINCONT );
-    ArrEditableItem[INDEX_OF_ENGINE_CONTROLLER_SR_NO]  = CEditableItem((uint8_t*)_MiscParam.u8EngContSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ENGINE_CONTROLLER_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ENGCONT );
-    ArrEditableItem[INDEX_OF_SITE_ID]  = CEditableItem((uint8_t*)_MiscParam.u8SiteId, strLeafNode[_u8LanguageArrayIndex][SID_SITE_ID], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_SITEID );
+    ArrEditableItem[INDEX_OF_GENSET_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8GenSrNo, strLeafNode[_u8LanguageArrayIndex][SID_GENSET_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_GENSET );
+    ArrEditableItem[INDEX_OF_ENGINE_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8EngSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ENGINE_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ENGINE );
+    ArrEditableItem[INDEX_OF_ALTERNATOR_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8AltSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ALTERNATOR_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ALT );
+    ArrEditableItem[INDEX_OF_MAIN_CONTROLLER_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8MainContSrNo, strLeafNode[_u8LanguageArrayIndex][SID_MAIN_CONTROLLER_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_MAINCONT );
+    ArrEditableItem[INDEX_OF_ENGINE_CONTROLLER_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8EngContSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ENGINE_CONTROLLER_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ENGCONT );
+    ArrEditableItem[INDEX_OF_SITE_ID]  = CEditableItem((uint8_t*)_stSrNos.u8SiteId, strLeafNode[_u8LanguageArrayIndex][SID_SITE_ID], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_SITEID );
     ArrEditableItem[INDEX_OF_PIN_1]  = CEditableItem((CEditableItem::PASSWORD_t)stPIN_1,"", "", "%u", (CEditableItem::PASSWORD_t){0,0,0,0}, (CEditableItem::PASSWORD_t){9,9,9,9}, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_PIN_2]  = CEditableItem((CEditableItem::PASSWORD_t)stPIN_2,"", "", "%u", (CEditableItem::PASSWORD_t){0,0,0,0},(CEditableItem::PASSWORD_t) {9,9,9,9}, CEditableItem::PIN1_PIN2_ALLOWED );
 
@@ -1945,8 +1999,13 @@ void UI::SaveConfigFile()
 
         if(bSrNosEdited)
         {
+            bSrNosEdited = false;
             /*Sr nos are edited. Copy updated values into SrNos structure, calculate CRC and write into Eeprom*/
-            
+            uint16_t u16DataLen = (sizeof(PRODUCT_SR_NOS_t) - SERIAL_NOS_SIGNATURE_LEN - SERIAL_NOS_VER_LEN - 2);
+            memcpy((uint8_t*)&_stSrNos + SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2, (uint8_t*)&(CEditableItem::u8SrNoArr[0].u8Arr[0]), u16DataLen);
+            _stSrNos.u16Crc = CRC16::ComputeCRCGeneric((uint8_t *)&_stSrNos + (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2),
+               u16DataLen, CRC_MEMORY_SEED);
+            _objHal.Objeeprom.RequestWrite(SERIAL_NOS_AREA_START_ADDRESS, (uint8_t*)&_stSrNos, sizeof(PRODUCT_SR_NOS_t), NULL);
         }
         prvUpdateAutomationModbusMap();
     }
@@ -2712,7 +2771,19 @@ void UI::Handler(int keyCode)
                 prvUpdateEngineTypeDependency();
                 if(_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].dataType > CEditableItem::DT_TIME_HRS_MINS)
                 {
-                    _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex++;
+                    if((_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].dataType != CEditableItem::DT_SRNO)
+                      || 
+                      (CEditableItem::u8TempSrNoArr[(_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem])._eSrNoType]
+                      .u8Arr[_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex])
+                      != 0) /*Check that the temp value doesnt contain ascii value of 0*/
+                    {
+                        _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex++;  
+                    }
+                    else
+                    {
+                        _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex = 0;
+                        uiState = UI_STATE_SHOWING_MENU;  
+                    }
                     if(_pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MultiItemEditIndex >=
                             _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].u8MaxOneScreenEditItems)
                     {

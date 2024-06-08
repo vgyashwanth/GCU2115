@@ -25,8 +25,8 @@ extern GLCD *configGlcd;
 //extern CFGZ *pcfgz;
 
 bool CEditableItem::_bValuesChanged= false;
-CEditableItem::SR_NO_t CEditableItem::u8SrNoArr[6] = {0};
-CEditableItem::SR_NO_t CEditableItem::u8TempSrNoArr[6] = {0};
+CEditableItem::SR_NO_t CEditableItem::u8SrNoArr[CEditableItem::SRNO_TYPE_LAST] = {0};
+CEditableItem::SR_NO_t CEditableItem::u8TempSrNoArr[CEditableItem::SRNO_TYPE_LAST] = {0};
 
 const char* CEditableItem::dt2str(EDITABLE_ITEMS_DATA_TYPE_t dt)
 {
@@ -172,7 +172,7 @@ CEditableItem::CEditableItem(PASSWORD_t stVal, const char* PromptMessage, const 
     initTempValue();
 }
 
-CEditableItem::CEditableItem(uint8_t* stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASS_t ePassLevel, CEditableItem::SRNO_TYPES_t eSrNoType )
+CEditableItem::CEditableItem(uint8_t* pu8Val, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASS_t ePassLevel, CEditableItem::SRNO_TYPES_t eSrNoType )
 {
     CEditableItem();
     uint8_t u8Len = 0;
@@ -184,7 +184,7 @@ CEditableItem::CEditableItem(uint8_t* stVal, const char* PromptMessage, const ch
     {
         u8Len = 19;
     }
-    memcpy((uint8_t*)(&u8SrNoArr[eSrNoType].u8Arr[0]), stVal, u8Len);
+    memcpy((void*)(&u8SrNoArr[eSrNoType].u8Arr[0]), pu8Val, u8Len);
     this->dataType = DT_SRNO;
     this->promptMessage = PromptMessage;
     this->unitOfMeasurement = UnitOfMeasurement;
@@ -426,7 +426,7 @@ uint8_t CEditableItem::u8GetNextEngSrDigit(uint8_t u8Val, bool bIncrement)
 
 }
 
-void CEditableItem::incrementValue(uint8_t* pu8Val, bool bIncrementBy5)
+void CEditableItem::prvIncrementSrNoValue(uint8_t* pu8Val, bool bIncrementBy5)
 {
     /*This function is for incrementing the product sr no values*/
     _bValuesChanged = true;
@@ -719,7 +719,7 @@ void CEditableItem::incrementValue(bool bTemp, bool bIncrementBy5 )
 {
     if(bTemp && (dataType == DT_SRNO))
     {
-        incrementValue((uint8_t*)&u8TempSrNoArr[_eSrNoType].u8Arr[u8MultiItemEditIndex], bIncrementBy5);
+        prvIncrementSrNoValue((uint8_t*)&u8TempSrNoArr[_eSrNoType].u8Arr[u8MultiItemEditIndex], bIncrementBy5);
     }
     else if (bTemp)
     {
@@ -731,7 +731,7 @@ void CEditableItem::incrementValue(bool bTemp, bool bIncrementBy5 )
     }
 }
 
-void CEditableItem::decrementValue(uint8_t* pu8Val, bool bdecrementBy5)
+void CEditableItem::prvDecrementSrNoValue(uint8_t* pu8Val, bool bdecrementBy5)
 {
     _bValuesChanged = true;
     switch(dataType)
@@ -1027,7 +1027,7 @@ void CEditableItem::decrementValue(bool bTemp, bool bdecrementBy5)
 {
     if(bTemp && (dataType == DT_SRNO))
     {
-        decrementValue((uint8_t*)&u8TempSrNoArr[_eSrNoType].u8Arr[u8MultiItemEditIndex], bdecrementBy5);
+        prvDecrementSrNoValue((uint8_t*)&u8TempSrNoArr[_eSrNoType].u8Arr[u8MultiItemEditIndex], bdecrementBy5);
     }
     else if(bTemp)
     {
@@ -1046,7 +1046,7 @@ void CEditableItem::initTempValue()
     }
     else if(dataType == DT_SRNO)
     {
-        memcpy((uint8_t*)(&(u8TempSrNoArr[_eSrNoType].u8Arr[0])), &(u8SrNoArr[_eSrNoType].u8Arr[0]), u8MaxOneScreenEditItems);
+        memcpy((void*)(&(u8TempSrNoArr[_eSrNoType].u8Arr[0])), &(u8SrNoArr[_eSrNoType].u8Arr[0]), u8MaxOneScreenEditItems);
     }
     else
     {
@@ -1060,7 +1060,7 @@ void CEditableItem::saveTempValue()
 {
     if(dataType == DT_SRNO)
     {
-        memcpy((uint8_t*)(&(u8SrNoArr[_eSrNoType].u8Arr[0])), &(u8TempSrNoArr[_eSrNoType].u8Arr[0]), u8MaxOneScreenEditItems);
+        memcpy((void*)(&(u8SrNoArr[_eSrNoType].u8Arr[0])), &(u8TempSrNoArr[_eSrNoType].u8Arr[0]), u8MaxOneScreenEditItems);
         UI::bSrNosEdited = true;
     }
     else
@@ -1499,31 +1499,15 @@ void CEditableItem::print()
 }
 void CEditableItem::print(bool bTemp)
 {
-    if(dataType == DT_SRNO)
+    if (bTemp)
     {
-        if (bTemp)
-        {
-            // i.e. print tempValue rather than value
-            print(tempValue);
-        }
-        else
-        {
-            print(value);
-        }
+        // i.e. print tempValue rather than value
+        print(tempValue);
     }
     else
     {
-        if (bTemp)
-        {
-            // i.e. print tempValue rather than value
-            print(tempValue);
-        }
-        else
-        {
-            print(value);
-        }
+        print(value);
     }
-    
 }
 #else
 #error No valid Target defined!

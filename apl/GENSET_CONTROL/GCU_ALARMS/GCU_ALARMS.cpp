@@ -654,7 +654,6 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
             prvSetAlarmActivation(CANOPY_DOOR_OPEN, u8Activation);
             ArrAlarmMonitoring[CANOPY_DOOR_OPEN].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
             ArrAlarmMonitoring[CANOPY_DOOR_OPEN].pValue = &_ArrAlarmValue[CANOPY_DOOR_OPEN_STATUS];
-            
             prvSetAlarmActivation(u8InputIndex, u8Activation);
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[CANOPY_DOOR_OPEN_STATUS];            
 
@@ -815,7 +814,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
             ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Canopy_Temp_Sen_Ckt_Open_id;
             ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
-            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20 * 30; //Monitor this for 30 sec.
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * 30; //Monitor this for 30 sec.
             ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[CANOPY_TEMP_OPEN_CKT];
@@ -1291,7 +1290,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
             ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Engine_Temperature_Ckt_Open_id;
             ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
-            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 20 * 30; //Monitor this for 30 sec.
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * 30; //Monitor this for 30 sec.
             ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[ENG_TEMP_OPEN_CKT];
@@ -1994,7 +1993,7 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
             ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Extended_Overload_id;
             ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
-            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 1;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC * _cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_OVERLOAD_MON_DELAY);
             ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[EXTENDED_OVERLOAD_STATUS];
@@ -2077,7 +2076,10 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[LUBE_OIL_TEMP].f32Value = stLubeOilTemp.stValAndStatus.f32InstSensorVal;
 
     A_SENSE::SENSOR_RET_t stCanopyTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_CANOPY_TEMPERATURE);
-    _ArrAlarmValue[CANOPY_TEMP].f32Value = stCanopyTemp.stValAndStatus.f32InstSensorVal;
+    if(stCanopyTemp.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED)
+    {
+        _ArrAlarmValue[CANOPY_TEMP].f32Value = stCanopyTemp.stValAndStatus.f32InstSensorVal;
+    }
 
     _ArrAlarmValue[CANOPY_TEMP_OPEN_CKT].u8Value = (uint8_t)(stCanopyTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_OPEN_CKT);
 
@@ -2112,17 +2114,10 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     {
         _ArrAlarmValue[ENG_RUN_HOURS].u16Value = (uint16_t)(GetSelectedEngRunMin()/60);
     }
-    if(_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM) == CFGZ::CFGZ_3_PHASE_SYSTEM)
-    {
-        _u16OverloadPct = (uint16_t)((_hal.AcSensors.GENSET_GetActivePowerWatts(R_PHASE) +
+    
+    _ArrAlarmValue[TOTAL_KW_PERCENT].u16Value = (uint16_t)((_hal.AcSensors.GENSET_GetActivePowerWatts(R_PHASE) +
                                                 _hal.AcSensors.GENSET_GetActivePowerWatts(Y_PHASE) +
                                                 _hal.AcSensors.GENSET_GetActivePowerWatts(B_PHASE))/(_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_GEN_RATING)*10));
-    }
-    else
-    {
-        _u16OverloadPct = (uint16_t)((_hal.AcSensors.GENSET_GetActivePowerWatts(R_PHASE))/(_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_GEN_RATING)*10));
-    }
-    _ArrAlarmValue[TOTAL_KW_PERCENT].u16Value = _u16OverloadPct;
 
     _ArrAlarmValue[FUEL_THEFT_ALARM].u8Value = _u8FuelTheftAlarm;
     _ArrAlarmValue[GEN_PHASE_ROTATION_STATUS].u8Value = (uint8_t)_hal.AcSensors.GENSET_GetPhaseRotStatus();
@@ -2367,7 +2362,7 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
             }
             break;
         case Supercap_Over_Voltage_id :
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_MON_SOURCE) != CFGZ::CFGZ_MON_SRC_BATTERY)
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_MON_SOURCE) == CFGZ::CGFZ_MON_SRC_SUPERCAP)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[VBAT_OV].bAlarmActive;
             }
@@ -2377,7 +2372,7 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
             }
             break;
         case Supercap_Under_Voltage_id :
-            if(_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_MON_SOURCE) != CFGZ::CFGZ_MON_SRC_BATTERY)
+            if(_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_MON_SOURCE) == CFGZ::CGFZ_MON_SRC_SUPERCAP)
             {
                 _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[VBAT_UV].bAlarmActive;
             }
@@ -2585,8 +2580,9 @@ void GCU_ALARMS::prvUpdateAlarmStatus()
     _u8GenAvailable = ENGINE_MONITORING::IsGenAvailable();
     _u8MonOn = START_STOP::IsGenMonOn();
     _u8FuelRelayOn = START_STOP::IsFuelRelayOn();
-    /*Function used to set common warning and shutdown if certain SPN-FMI combinations are received, indicating EGR failure*/
-    SetEgrSpnCommonFaults();
+    /*Set common warning and shutdown if certain SPN-FMI combinations are received, indicating EGR failure*/
+    _bCommonWarning = _bCommonWarning || (gpJ1939->IsFaultCodeReceived(5838, 15)) || (gpJ1939->IsFaultCodeReceived(5838, 2));
+    _bCommonShutdown = _bCommonShutdown || (gpJ1939->IsFaultCodeReceived(5838, 3));
 
     for(_u8AlarmIndex = 0; _u8AlarmIndex < ALARM_LIST_LAST; _u8AlarmIndex++)
     {
@@ -3056,7 +3052,7 @@ bool GCU_ALARMS::IsAlarmPresent()
 bool GCU_ALARMS::IsExtendedOverLoad()
 {
     bool bRet = false;
-    if( (_u16OverloadPct > 100) && (_u16OverloadPct < (_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_OVERLOAD_THRESHOLD))) )
+    if( (_ArrAlarmValue[TOTAL_KW_PERCENT].u16Value > 100) && (_ArrAlarmValue[TOTAL_KW_PERCENT].u16Value < (_cfgz.GetCFGZ_Param(CFGZ::ID_LOAD_MONITOR_OVERLOAD_THRESHOLD))) )
     {
         bRet = true;
     }
@@ -3123,8 +3119,8 @@ void GCU_ALARMS::LogEvent(uint8_t u8EventID, uint8_t u8EventType)
      * Config , Quick Flash and M-logic flashing are some events which
      * will be still logged. */
 
-    if( /*&&(u8EventID!=Firmware_Flashing_id)&&*/
-        (u8EventID!= Config_Modified_By_User_id)
+    if( (u8EventID!=Firmware_Flashing_id)
+        &&(u8EventID!= Config_Modified_By_User_id)
         &&(u8EventID!=Active_Profile_flashing_id)
         &&(u8EventID!=Factory_Profile_flashing_id)
         &&(_hal.AnlgIp.GetADCcntOfSensor((ANLG_IP::MUX2_ADC_CH_t)ANLG_IP::DC_OFFSET)== MUX_OUTPUT_CNT_POWERED_VIA_USB_ONLY))
@@ -3391,17 +3387,11 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(prvIsEgrFaultPresent() || prvIsEgrFaultRecvdFromECU(), ACTUATOR::ACT_EGR);
     prvActDeactOutput(ArrAlarmMonitoring[SUPERCAP_FAIL].bResultInstant, ACTUATOR::ACT_SUPERCAP_UNHEALTHY);
     prvActDeactOutput((_u8HighCanopyTempAlarm || ArrAlarmMonitoring[OPEN_CANOPY_TEMP_CKT].bAlarmActive), ACTUATOR::ACT_CANOPY_TEMP_UNHEALTHY);
-    prvActDeactOutput(IsDgOnLoad(), ACTUATOR::ACT_DG_ON_LOAD);
+    prvActDeactOutput(prvIsDgOnLoad(), ACTUATOR::ACT_DG_ON_LOAD);
     prvActDeactOutput(ArrAlarmMonitoring[OVERLOAD].bAlarmActive, ACTUATOR::ACT_DG_OVERLOAD);
 }
 
-void GCU_ALARMS::SetEgrSpnCommonFaults()
-{
-    _bCommonWarning = _bCommonWarning || (gpJ1939->IsFaultCodeReceived(5838, 15)) || (gpJ1939->IsFaultCodeReceived(5838, 2));
-    _bCommonShutdown = _bCommonShutdown || (gpJ1939->IsFaultCodeReceived(5838, 3));
-}
-
-bool GCU_ALARMS::IsDgOnLoad()
+bool GCU_ALARMS::prvIsDgOnLoad()
 {
     bool bRet;
     float f32MinCurr = _hal.AcSensors.GENSET_GetCurrentAmps(R_PHASE);
@@ -3410,7 +3400,7 @@ bool GCU_ALARMS::IsDgOnLoad()
         for(uint8_t u8Local = Y_PHASE; u8Local < PHASE_END ; u8Local++)
         {
             float f32Curr = _hal.AcSensors.GENSET_GetCurrentAmps((PHASE_t)u8Local);
-            if(f32MinCurr < f32Curr)
+            if(f32MinCurr > f32Curr)
             {
                 f32MinCurr = f32Curr;
             }

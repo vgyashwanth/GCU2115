@@ -171,7 +171,7 @@ bool MB_APP::prvSetMultipleInputRegisters(MODBUS_INPUT_REGISTERS_t eStartRegiste
         }
         /*Determine the start address for the group*/
         uint16_t u16StartAddress =  _aAddressGrp[u8Grp].u16StartAddress;
-        memcpy((uint8_t*)&_aAddressGrp[u8Grp].pu16Registers[eStartRegister-u16StartAddress], pu8DataStart, u8DataLen);
+        memcpy((void*)&_aAddressGrp[u8Grp].pu16Registers[eStartRegister-u16StartAddress], pu8DataStart, u8DataLen);
         return true;
     }
 }
@@ -324,17 +324,17 @@ void MB_APP::prvUpdateInputRegisters()
 
     SetReadRegisterValue(MB_INPUT_REG_PROTOCOL_VER, 23);
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8GenSrNo), 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8GenSrNo), GEN_SRNO_LEN);
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8EngSrNo), 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8EngSrNo), ENG_SRNO_LEN);
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8AltSrNo), 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8AltSrNo), ALT_SRNO_LEN);
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8MainContSrNo), 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8MainContSrNo), MAIN_CONT_SRNO_LEN);
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8EngContSrNo), 20);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8EngContSrNo), ENG_CONT_SRNO_LEN);
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_SITE_ID_5, (uint8_t*)&(UI::_stSrNos.u8SiteId), 10);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_SITE_ID_5, (uint8_t*)&(UI::_stSrNos.u8SiteId), SITE_ID_LEN);
 
     /*Get the current time*/
     RTC::TIME_t currentTime;
@@ -477,7 +477,7 @@ void MB_APP::prvUpdateInputRegisters()
     /*Store canopy temp at far side of engine*/
     A_SENSE::SENSOR_RET_t stCanopyTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_CANOPY_TEMPERATURE);
     if((stCanopyTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
-        &&(stCanopyTemp.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED))
+        &&(stCanopyTemp.eStatus == A_SENSE::SENSOR_READ_SUCCESS))
     {
         SetReadRegisterValue(MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR, (uint16_t)(stCanopyTemp.stValAndStatus.f32InstSensorVal*10));
     }
@@ -718,7 +718,7 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
 
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_RESERVED_46, false);
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_WARNING , (_gcuAlarm.GetFaultPreset72HrsTimeInMin() >= EGR_WARNING_INDUCEMENT_LEVEL_TIME)); //(gpJ1939->IsEGRWarningPresent())
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_WARNING , (_gcuAlarm.GetFaultPreset72HrsTimeInMin() >= _cfgz.GetEGRWarningTimer())); //(gpJ1939->IsEGRWarningPresent())
     
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_WARNING , gpJ1939->IsFaultCodeReceived(5838, 2));
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_FAULT , gpJ1939->IsFaultCodeReceived(5838, 3));

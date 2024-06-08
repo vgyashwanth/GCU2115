@@ -108,12 +108,34 @@ void APL_Manager::prvCheckFirmwareInfo()
     }
 }
 
+bool APL_Manager::prvCheckIfFirmwareUpdated()
+{
+    static uint16_t u16PrevFirmwareCRC;
+    uint16_t u16CurrentFirmwareCRC;
+    bool bFirmwareUpdated = false;
+
+    Objeeprom.BlockingRead(PREV_FW_META_DATA_CRC_ADDRESS, (uint8_t*)&u16PrevFirmwareCRC,
+                                sizeof(u16PrevFirmwareCRC));
+    Objpflash.Read(FIRMWARE_META_DATA_ADDRESS, (uint8_t*)&u16CurrentFirmwareCRC,
+                                sizeof(u16CurrentFirmwareCRC));
+
+    if(u16PrevFirmwareCRC != u16CurrentFirmwareCRC)
+    {
+        u16PrevFirmwareCRC = u16CurrentFirmwareCRC;
+        Objeeprom.RequestWrite(PREV_FW_META_DATA_CRC_ADDRESS,
+                                            (uint8_t*)&u16PrevFirmwareCRC, sizeof(u16PrevFirmwareCRC), NULL);
+        bFirmwareUpdated = true;
+    }
+
+    return bFirmwareUpdated;
+}
+
 void APL_Manager::prvCheckAndLogFlashingEvent()
 {
-    /*if(prvCheckIfFirmwareUpdated())
+    if(prvCheckIfFirmwareUpdated())
     {
-        _gcuAlarms.LogEvent(GCU_ALARMS::Firmware_Flashing_id,GCU_ALARMS::ALARM_NONE, GCU_ALARMS::EVENT_ADDN_INFO_NULL);
-    }*/
+        _gcuAlarms.LogEvent(GCU_ALARMS::Firmware_Flashing_id, (uint8_t)0);
+    }
 
     if(_cfgz.CheckIfFactoryProfilesUpdatedViaBL())
     {

@@ -69,7 +69,9 @@ _stTampEnergyRegister{},
 _stEnergyRegister{},
 _stMainsEnergyRegister{},
 _bCrankStateLatched(false),
-_bFailedCrankStateLatched(false)
+_bFailedCrankStateLatched(false),
+_u8OvldExtMinCnt(0),
+_u8OvldExtOneHrContCnt(0)
 #if (TEST_AUTOMATION == YES)
 ,_bFromAutomation(false)
 #endif
@@ -784,9 +786,9 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _stCummulativeCnt.u32GenNoLoadRunTime_min =0;
         _stCummulativeCnt.u32GenOnLoadRunTime_min =0;
         _stCummulativeCnt.u32GenExtOverloadRunTime_min =0;
-        memset((uint8_t*)(&_stCummulativeCnt.ExtOvldStartTime), 0, sizeof(RTC::TIME_t));
-        _stCummulativeCnt.u8ExtOvldStarted =false;
-        _stCummulativeCnt.u8ExtOvldFault =false;
+        memset((void*)(&_stCummulativeCnt.ExtOvldStartTime), 0, sizeof(RTC::TIME_t));
+        _stCummulativeCnt.u8ExtOvldStarted =0;
+        _stCummulativeCnt.u8ExtOvldFault =0;
 
 
         _stCummulativeCnt.f32GenKWH =0.0;
@@ -806,7 +808,7 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _u8ActiveSectorForCummulative =0;
     }
     _stStoredCummulativeCnt = _stCummulativeCnt;
-    _GCUAlarms.SetExtOverloadFault((bool)_stCummulativeCnt.u8ExtOvldFault);
+    _GCUAlarms.SetExtOverloadFault((bool)(_stCummulativeCnt.u8ExtOvldFault) == 1);
 }
 
 void ENGINE_MONITORING::prvUpdateEngineONstatus(void)
@@ -891,40 +893,43 @@ void ENGINE_MONITORING::prvUpdateExtOvldRunHrs()
     /*NOTE: This function is only to be called inside prvUpdateEngineRunHrs() in the 1 min timeout*/
     if(_GCUAlarms.IsExtendedOverLoad())
     {
-        if(!_stCummulativeCnt.u8ExtOvldStarted)
+        if(!(_stCummulativeCnt.u8ExtOvldStarted != 0))
         {
             /*extended overload condition is met for the first time. Set the flag and storenthe current time*/
-            _stCummulativeCnt.u8ExtOvldStarted = true;
+            _stCummulativeCnt.u8ExtOvldStarted = 1;
             _hal.ObjRTC.GetTime( &(_stCummulativeCnt.ExtOvldStartTime) );
             _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
         }
         _stCummulativeCnt.u32GenExtOverloadRunTime_min++;
     }
 
-    if((_stCummulativeCnt.u32GenExtOverloadRunTime_min >= 60) && _stCummulativeCnt.u8ExtOvldStarted)
+    if((_stCummulativeCnt.u32GenExtOverloadRunTime_min >= 60) && (_stCummulativeCnt.u8ExtOvldStarted != 0))
     {
         /*The overload run time has passed 1 hour. Set extended overload alarm*/
         _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
-        _stCummulativeCnt.u8ExtOvldFault = true;
+        _stCummulativeCnt.u8ExtOvldFault = 1;
         _GCUAlarms.SetExtOverloadFault((bool)_stCummulativeCnt.u8ExtOvldFault);
         StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
     }
 
-    if(IsDiffTwelveHr() && _stCummulativeCnt.u8ExtOvldStarted)
+    if(IsDiffTwelveHr() && (_stCummulativeCnt.u8ExtOvldStarted != 0))
     {
         /*Reset the cycle cnt*/
         _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
-        _stCummulativeCnt.u8ExtOvldStarted = false;
-        _stCummulativeCnt.u8ExtOvldFault = false;
-        _GCUAlarms.SetExtOverloadFault((bool)_stCummulativeCnt.u8ExtOvldFault);
+        _stCummulativeCnt.u8ExtOvldStarted = 0;
+        _stCummulativeCnt.u8ExtOvldFault = 0;
+        _GCUAlarms.SetExtOverloadFault((_stCummulativeCnt.u8ExtOvldFault != 0));
         StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
     }
 
-    u8StoreCnt++;
-    if(u8StoreCnt >= 2)
+    if(_stCummulativeCnt.u8ExtOvldStarted != 0)
     {
-        StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
-        u8StoreCnt = 0;
+        u8StoreCnt++;
+        if(u8StoreCnt >= 2)
+        {
+            StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
+            u8StoreCnt = 0;
+        }
     }
 }
 

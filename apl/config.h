@@ -63,6 +63,7 @@
 #define EXT_EEPROM_CUMMULATIVE_START_ADD_SECT1    (EXT_EEPROM_CUMMULATIVE_START_ADD_SECT0 +\
                                                    EXT_EEPROM_CUMMULATIVE_LENGTH)
 
+#define PREV_FW_META_DATA_CRC_ADDRESS             (0x5230)
 #define PREV_FACTORY_PROFILES_CRC_ADDRESS         (0x5234) /*Address to store previously stored active profile CRC to log active profile flashing*/
 #define PREV_ACTIVE_CRC_ADDRESS                   (0x5238) /*Address to store previously stored factory profile CRC to log factory profile flashing*/
 

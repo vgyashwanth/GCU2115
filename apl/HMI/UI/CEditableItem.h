@@ -16,6 +16,7 @@
 #include "stdint.h"
 #include "GLCD.h"
 #include "../mw/DISPLAY/Display.h"
+#include "../UI_DS.h"
 #pragma once
 #include "Configuration.h"
 
@@ -55,13 +56,8 @@ public:
 
     typedef struct
     {
-        uint8_t u8Arr[20];
+        uint8_t u8Arr[SR_NOS_MAX_SIZE];
     }SR_NO_t;
-
-    static SR_NO_t u8SrNoArr[6];
-    static SR_NO_t u8TempSrNoArr[6];
-    //static SR_NO_t u8SrNoMinArr[6]; For future development, in case different min-max values
-    //static SR_NO_t u8SrNoMaxArr[6]; are required for individual indices
 
     typedef enum 
     {
@@ -73,6 +69,11 @@ public:
         SRNO_SITEID,
         SRNO_TYPE_LAST
     }SRNO_TYPES_t;
+
+    static SR_NO_t u8SrNoArr[SRNO_TYPE_LAST];
+    static SR_NO_t u8TempSrNoArr[SRNO_TYPE_LAST];
+    //static SR_NO_t u8SrNoMinArr[SRNO_TYPE_LAST]; For future development, in case different min-max values
+    //static SR_NO_t u8SrNoMaxArr[SRNO_TYPE_LAST]; are required for individual indices
 
     typedef enum
     {
@@ -150,7 +151,7 @@ public:
     CEditableItem(float fVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, float minFVal = -999999999999.0f, float maxFVal = 999999999999.0f, float ValLC = 0.1f, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
     CEditableItem(float fVal, const char* promptMessage,const char* unitOfMeasurement, const char* formatString,float minFval, float maxFval, PASS_t  ePassLevel);
     CEditableItem(PASSWORD_t stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASSWORD_t stminval = {0,0,0,0} ,  PASSWORD_t stmaxval = {9,9,9,9} , PASS_t  ePassLevel  = PIN1_PIN2_PIN3_ALLOWED);
-    CEditableItem(uint8_t* stVal, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASS_t ePassLevel = PIN1_PIN2_PIN3_ALLOWED, SRNO_TYPES_t eSrNoType = SRNO_GENSET);
+    CEditableItem(uint8_t* pu8Val, const char* PromptMessage, const char* UnitOfMeasurement, const char* FormatString, PASS_t ePassLevel = PIN1_PIN2_PIN3_ALLOWED, SRNO_TYPES_t eSrNoType = SRNO_GENSET);
     //CEditableItem(char *pStrVal, const char* promptMessage, const char* UnitOfMeasurement, const char* formatString, unsigned int minLength = 1, unsigned int maxLength = STRING_PARAM_MAX_LEN, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
     CEditableItem(uint32_t u32CurrentOption, const char* promptMessage, const char* UnitOfMeasurement, const char* FormatString, const char** StringFixedOptions, uint32_t NumOfStringFixedOptions, PASS_t  ePassLevel = PIN1_PIN2_PIN3_ALLOWED );
              // converts value to string and returns the string
@@ -164,8 +165,8 @@ public:
     void decrementValue();  // decrement value
     void incrementValue(bool bTemp, bool bIncrementBy5);  // increment value or tempValue
     void decrementValue(bool bTemp,  bool bdecrementBy5);  // decrement value or tempValue
-    void incrementValue(uint8_t* pu8Val, bool bIncrementBy5);
-    void decrementValue(uint8_t* pu8Val, bool bdecrementBy5);
+    void prvIncrementSrNoValue(uint8_t* pu8Val, bool bIncrementBy5);
+    void prvDecrementSrNoValue(uint8_t* pu8Val, bool bdecrementBy5);
     EditableItemValue_t incrementValue(EditableItemValue_t aValue, bool bIncrementBy5); // increments the given value and returns it
     EditableItemValue_t decrementValue(EditableItemValue_t aValue, bool bdecrementBy5); // decrements the given value and returns it
     void print();

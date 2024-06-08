@@ -1101,15 +1101,15 @@ void UI::prvReadSrNos()
     {
         uint16_t u16DataLen = (sizeof(PRODUCT_SR_NOS_t) - SERIAL_NOS_SIGNATURE_LEN - SERIAL_NOS_VER_LEN - 2);
         uint8_t* pu8DataStart = (uint8_t *)&_stSrNos + (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2);
-        memset(pu8DataStart, 48, u16DataLen); //Ascii code for 0
+        memset(pu8DataStart, 0, u16DataLen); //Ascii code for NULL
         _stSrNos.u32Signature = SR_NO_DATA_SIGNATURE;
         _stSrNos.u16ProdSrNoVer = SR_NOS_LATEST_VER;
-        _stSrNos.u8GenSrNo[ID_GEN_SRNO_CHAR_LAST-1] = '\0';
-        _stSrNos.u8GenSrNo[ID_ENG_SRNO_CHAR_LAST-1] = '\0';
-        _stSrNos.u8GenSrNo[ID_ALT_SRNO_CHAR_LAST-1] = '\0';
-        _stSrNos.u8GenSrNo[ID_MAIN_CONT_SRNO_CHAR_LAST-1] = '\0';
-        _stSrNos.u8GenSrNo[ID_ENG_CONT_SRNO_CHAR_LAST-1] = '\0';
-        _stSrNos.u8GenSrNo[ID_SITE_ID_CHAR_LAST-1] = '\0';
+        _stSrNos.u8GenSrNo[GEN_SRNO_LEN-1] = '\0';
+        _stSrNos.u8EngSrNo[ENG_SRNO_LEN-1] = '\0';
+        _stSrNos.u8AltSrNo[ALT_SRNO_LEN-1] = '\0';
+        _stSrNos.u8MainContSrNo[MAIN_CONT_SRNO_LEN-1] = '\0';
+        _stSrNos.u8EngContSrNo[ENG_CONT_SRNO_LEN-1] = '\0';
+        _stSrNos.u8SiteId[SITE_ID_LEN-1] = '\0';
         _stSrNos.u16Crc = CRC16::ComputeCRCGeneric((uint8_t *)&_stSrNos + (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2),
                u16DataLen, CRC_MEMORY_SEED);
         _objHal.Objeeprom.RequestWrite(SERIAL_NOS_AREA_START_ADDRESS, (uint8_t*)&_stSrNos, sizeof(PRODUCT_SR_NOS_t), NULL);
@@ -1377,14 +1377,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_HIGH_TEMP_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_HIGH_TEMP_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_HIGH_TEMP_THRESHOLD], arrUnit[ID_DEG_C], "%.0f",(float)20.0, (float)60.0,(float)1,CEditableItem::PIN1_ALLOWED );//16
     ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_LOW_TEMP_THRESHOLD] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_LOW_TEMP_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_LOW_TEMP_THRESHOLD], arrUnit[ID_DEG_C], "%.0f",(float)18.0, (float)55.0,(float)1, CEditableItem::PIN1_ALLOWED );//16
     ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_HIGH_TEMP_MON_DELAY] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_HIGH_TEMP_MON_DELAY), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_HIGH_TEMP_MON_DELAY], arrUnit[ID_SEC], "%u", (uint16_t)5, (uint16_t)300, CEditableItem::PIN1_ALLOWED );
-    if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
-    {
-        ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_OPEN_CKT_WARNING],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
-    }
-    else
-    {
-        ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );  
-    }
+    ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_DG_RUN_DURATION] = CEditableItem((uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_DG_RUN_DURATION), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_DG_RUN_DURATION], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)720, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_R1] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_R1), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_R1], arrUnit[ID_OHM],  "%.0f", (float)0, (float)1000.0,(float)1,CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_T1] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_T1), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_T1],arrUnit[ID_DEG_C],  "%.0f", (float)-5.0, (float)300.0,(float)1, CEditableItem::PIN1_ALLOWED );
@@ -1716,9 +1709,9 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_HIGH_OIL_TEMP_WARNING_THRESH_FROM_ECU] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_HIGH_OIL_TEMP_FROM_ECU_WARNING_THRESH), strLeafNode[_u8LanguageArrayIndex][SID_OIL_TEMP_WARNING_THRESH], arrUnit[ID_DEG_C], "%.0f", (float)25, (float)199, (float)1, CEditableItem::PIN1_ALLOWED);
 
     ArrEditableItem[INDEX_OF_CANOPY_TEMP_SHUTDOWN_EN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CANOPY_TEMP_SHUTDOWN_EN),strLeafNode[_u8LanguageArrayIndex][SID_CANOPY_TEMP_SHUTDOWN_EN], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE],2, CEditableItem::PIN1_ALLOWED );
-    ArrEditableItem[INDEX_OF_CANOPY_TEMP_SHUTDOWN_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CANOPY_TEMP_SHUTDOWN_THRESH), strLeafNode[_u8LanguageArrayIndex][SID_CANOPY_TEMP_SHUTDOWN_THRESH], arrUnit[ID_DEG_C], "%.0f", (float)5, (float)300, (float)1, CEditableItem::PIN1_ALLOWED);
+    ArrEditableItem[INDEX_OF_CANOPY_TEMP_SHUTDOWN_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CANOPY_TEMP_SHUTDOWN_THRESH), strLeafNode[_u8LanguageArrayIndex][SID_CANOPY_TEMP_SHUTDOWN_THRESH], arrUnit[ID_DEG_C], "%.0f", (float)-5, (float)300, (float)1, CEditableItem::PIN1_ALLOWED);
     ArrEditableItem[INDEX_OF_CANOPY_TEMP_WARNING_EN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CANOPY_TEMP_WARNING_EN),strLeafNode[_u8LanguageArrayIndex][SID_CANOPY_TEMP_WARNING_EN], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE],2, CEditableItem::PIN1_ALLOWED );
-    ArrEditableItem[INDEX_OF_CANOPY_TEMP_WARNING_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CANOPY_TEMP_WARNING_THRESH), strLeafNode[_u8LanguageArrayIndex][SID_CANOPY_TEMP_WARNING_THRESH], arrUnit[ID_DEG_C], "%.0f", (float)5, (float)295, (float)1, CEditableItem::PIN1_ALLOWED);
+    ArrEditableItem[INDEX_OF_CANOPY_TEMP_WARNING_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CANOPY_TEMP_WARNING_THRESH), strLeafNode[_u8LanguageArrayIndex][SID_CANOPY_TEMP_WARNING_THRESH], arrUnit[ID_DEG_C], "%.0f", (float)-5, (float)298, (float)1, CEditableItem::PIN1_ALLOWED);
 
     ArrEditableItem[INDEX_OF_ENABLE_EGR_TIMERS] = CEditableItem((uint32_t)_objcfgz.GetProductSpecificData(CFGZ::PS_EGR_TIMERS_ENABLE),strLeafNode[_u8LanguageArrayIndex][SID_ENABLE_EGR_TIMERS], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO], 2, CEditableItem::PIN3_ALLOWED );
     ArrEditableItem[INDEX_OF_FAULT_SHUTDOWN_TIMER] = CEditableItem((uint16_t)_objcfgz.GetProductSpecificData(CFGZ::PS_EGR_CONFIGURED_SHUTDOWN_TIMER), strLeafNode[_u8LanguageArrayIndex][SID_FAULT_SHUTDOWN_TIMER], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)FAULT_PRESENT_MONITORING_TIME_MINUTES, CEditableItem::PIN3_ALLOWED);
@@ -1743,7 +1736,6 @@ void UI::InitEditableItems()
     stPIN_1 = {0,0,0,0};
     stPIN_2 = {0,0,0,0};
 
-    //ArrEditableItem[INDEX_OF_ENG_SR_NO]  = CEditableItem((CEditableItem::SR_NO_t)stENG_SR_NO,"", "", "%u", (CEditableItem::ENG_SR_NO_t){35,35,35,35,35,35,35,35,35,35,35,35}, (CEditableItem::ENG_SR_NO_t) {90,90,90,90,90,90,90,90,90,90,90,90}, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_GENSET_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8GenSrNo, strLeafNode[_u8LanguageArrayIndex][SID_GENSET_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_GENSET );
     ArrEditableItem[INDEX_OF_ENGINE_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8EngSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ENGINE_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ENGINE );
     ArrEditableItem[INDEX_OF_ALTERNATOR_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8AltSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ALTERNATOR_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ALT );
@@ -2002,7 +1994,7 @@ void UI::SaveConfigFile()
             bSrNosEdited = false;
             /*Sr nos are edited. Copy updated values into SrNos structure, calculate CRC and write into Eeprom*/
             uint16_t u16DataLen = (sizeof(PRODUCT_SR_NOS_t) - SERIAL_NOS_SIGNATURE_LEN - SERIAL_NOS_VER_LEN - 2);
-            memcpy((uint8_t*)&_stSrNos + SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2, (uint8_t*)&(CEditableItem::u8SrNoArr[0].u8Arr[0]), u16DataLen);
+            memcpy((void*)((uint8_t*)&_stSrNos + SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2), (uint8_t*)&(CEditableItem::u8SrNoArr[0].u8Arr[0]), u16DataLen);
             _stSrNos.u16Crc = CRC16::ComputeCRCGeneric((uint8_t *)&_stSrNos + (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2),
                u16DataLen, CRC_MEMORY_SEED);
             _objHal.Objeeprom.RequestWrite(SERIAL_NOS_AREA_START_ADDRESS, (uint8_t*)&_stSrNos, sizeof(PRODUCT_SR_NOS_t), NULL);
@@ -2876,11 +2868,11 @@ void UI::InitialiseCustomSensor()
     {
         if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].tempValue.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
         {
-            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_OPEN_CKT_WARNING],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN2_ALLOWED );
+            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_OPEN_CKT_WARNING],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
         }
         else
         {
-            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN2_ALLOWED );  
+            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );  
         }  
     }
     

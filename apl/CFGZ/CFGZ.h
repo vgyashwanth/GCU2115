@@ -602,7 +602,6 @@ class CFGZ
         ID_ARR_SENSOR_S3_NAME,
         ID_ARR_SENSOR_S4_NAME,
         ID_ARR_PROFILE,
-
         ID_ARRAY_20_BYTE_LAST
      }ARRAY_PARAMS_t;
 

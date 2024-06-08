@@ -283,7 +283,7 @@ public:
         SuperCap_Charge_Fail_id,
         Canopy_Door_Open_id,
         Extended_Overload_id,
-        /*Firmware_Flashing_id,*/
+        Firmware_Flashing_id,
         Active_Profile_flashing_id,
         Factory_Profile_flashing_id,
         ID_ALL_ALARMS_LAST
@@ -587,8 +587,7 @@ public:
     ANLG_IP::ANLG_IP_STATE_t GetSPNSensorState(uint8_t u8SPNErrorStatus);
     A_SENSE::SENSOR_RET_t GetLubeOilTempSensVal();
     bool IsCanopyTempSensFault();
-    bool IsDgOnLoad();
-    void SetEgrSpnCommonFaults();
+    bool prvIsDgOnLoad();
     void SetExtOverloadFault(bool bExtOverload);
 private:
 #define FUEL_THEFT_WAKEUP_TIMER (4U)
@@ -771,7 +770,6 @@ private:
     uint8_t _u8MPULossAlarm;
     uint8_t _u8AlarmArrayIndex;
     uint8_t _u8MaintAlarm;
-    uint16_t _u16OverloadPct;
     float _f32FuelLevelOldValue;
     stTimer _FuelSettlingTimer;
     stTimer _SounderAlarmTimer;

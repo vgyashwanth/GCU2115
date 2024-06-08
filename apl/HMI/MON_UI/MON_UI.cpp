@@ -758,6 +758,12 @@ void MON_UI::prvConfigureScreenEnable()
                     _ArrScreenEnDs[u8Screen] = true;
                 }
                 break;
+            case DISP_MON_CANOPY_TEMP :
+                if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+                {
+                    _ArrScreenEnDs[u8Screen] = true;
+                }
+                break;
             case DISP_MON_AUX_2 :
                 if(_cfgz.GetCFGZ_Param(CFGZ::ID_AUX_S2_RES_DIG_N_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR1)
                 {
@@ -2309,15 +2315,38 @@ void MON_UI::prvNormalMonScreens()
             _Disp.gotoxy(GLCD_X(110),GLCD_Y(33));
 
             stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_SHELTER_TEMPERATURE);
-
             prvPrintSensorStatus(stTemp,(char*)"`C", INTEGER_TYPE);
-            if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+            if(stTemp.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED)
             {
-                sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
-                _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
-                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
-                _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
-                _Disp.printStringLeftAligned((char*)"`F",FONT_VERDANA);
+                if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+                {
+                    sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
+                    _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
+                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                    _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
+                    _Disp.printStringLeftAligned((char*)"`F",FONT_VERDANA);
+                }
+            }
+        }
+        break;
+
+        case DISP_MON_CANOPY_TEMP:
+        {
+            _Disp.printImage((uint8_t *)gau8LIShelterTemp, 4, 32, 26, 7);
+            _Disp.gotoxy(GLCD_X(110),GLCD_Y(33));
+
+            stTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_CANOPY_TEMPERATURE);
+            prvPrintSensorStatus(stTemp,(char*)"`C", INTEGER_TYPE);
+            if(stTemp.eStatus != A_SENSE::SENSOR_NOT_CONFIGRUED)
+            {
+                if(stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+                {
+                    sprintf(arrTemp,"%d",(int16_t)( (stTemp.stValAndStatus.f32InstSensorVal *DEG_F_FACTOR1) + DEG_F_FACTOR2 ));
+                    _Disp.gotoxy(GLCD_X(93),GLCD_Y(42));
+                    _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                    _Disp.gotoxy(GLCD_X(95),GLCD_Y(42));
+                    _Disp.printStringLeftAligned((char*)"`F",FONT_VERDANA);
+                }  
             }
         }
         break;
@@ -2479,9 +2508,6 @@ void MON_UI::prvProductInfo()
     char SeriesId[3];
     _cfgc.GetSeriesProductID(SeriesId);
 
-    char EngSrNo[12];
-    _cfgz.GetEngSrNo(EngSrNo);
-
     sprintf(arrTemp,"Ver :");
     _Disp.gotoxy(GLCD_X(2),GLCD_Y(22));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
@@ -2504,11 +2530,8 @@ void MON_UI::prvProductInfo()
  * firstly the characters from engine serial number is pushed in an array (arrTemp)
  * and then sent the same for display.
  */
-    for(nu8EngSrNo=0;nu8EngSrNo<12;nu8EngSrNo++)
-    {
-        arrTemp[nu8EngSrNo] = EngSrNo[nu8EngSrNo];
-    }
-    arrTemp[nu8EngSrNo] = '\0';
+    UI::GetSrNoByIndex(CEditableItem::SRNO_ENGINE, (uint8_t*)arrTemp);
+    arrTemp[SR_NOS_MAX_SIZE - 1] = '\0';
 
     _Disp.gotoxy(GLCD_X(43),GLCD_Y(34));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);

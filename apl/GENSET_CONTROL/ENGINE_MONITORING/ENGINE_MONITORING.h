@@ -14,6 +14,7 @@
 #ifndef _ENGINE_MONITORING_H_
 #define _ENGINE_MONITORING_H_
 
+#include <time.h>
 #include "stdio.h"
 #include "HAL_Manager.h"
 #include "../../apl/CFGZ/CFGZ.h"
@@ -39,6 +40,14 @@ public:
        REACTIVE_POWER, /**< REACTIVE */
        POWER_LAST/**< POWER_LAST */
     }POWER_TP_t;
+
+    typedef enum
+    {
+        CUM_STORE_GENERAL,
+        CUM_STORE_CRANK_CNTS,
+        CUM_STORE_OVLD_EXT_RUN_HRS,
+        CUM_STORE_LAST
+    }CUM_STORE_t;
 
 
     typedef struct
@@ -111,7 +120,7 @@ public:
     void UpdateStartStopState(uint8_t u8StartStopState);
 
 /* store cumulative counts data to external eeprom */
-    void StoreCummulativeCnt(bool isForCrankCnt);
+    void StoreCummulativeCnt(CUM_STORE_t eType);
 
 /* Updation prototypes */
     void ReadEnergySetEnergyOffset(bool bFromEeprom);
@@ -195,6 +204,8 @@ public:
      * @param u32NumberOfTrips - Desired no. of trips counts.
      */
     void SetGenNumberOfTrips(uint32_t u32NumberOfTrips);
+
+
 #endif
 
 
@@ -216,6 +227,7 @@ private:
     #define TIME_4th_SLOT_SEC           (15*60U) //15min
 
     #define ONE_MIN_CNT                 (60)
+    #define TWELVE_HR_IN_SEC            (12*60*60) //in min
     #define MAX_NO_OF_STARTS            (65000)
     #define MAX_NO_OF_TRIPS             (65000)
     #define TMR_COUNT_FOR_TWO_SECS      (40)
@@ -236,6 +248,11 @@ private:
         uint32_t u32GenManualRunTime_min;
         uint32_t u32GenNoLoadRunTime_min;
         uint32_t u32GenOnLoadRunTime_min;
+        uint32_t u32GenExtOverloadRunTime_min;
+        time_t  ExtOvldStartTime;
+        uint8_t u8ExtOvldStarted;
+        uint8_t u8ExtOvldFault;
+        uint8_t u8Dummy[2];
 
         uint32_t u32TamperedRunTime_min;
         float f32GenKWH;
@@ -307,6 +324,9 @@ private:
     bool                        _bCrankStateLatched;
     bool                        _bFailedCrankStateLatched;
 
+    uint8_t                     _u8OvldExtMinCnt;
+    uint8_t                     _u8OvldExtOneHrContCnt;
+
 #if(TEST_AUTOMATION == YES)
     /**
      * This variable is used to flag if request to store power related info
@@ -364,6 +384,8 @@ private:
     bool prvDisconnectCranckByLOPSwitch();
    
     void prvUpdateCumCrankCnts();
+    void prvUpdateExtOvldRunHrs();
+    time_t prvGetCurrTimeStamp(); 
 };
 
 #endif

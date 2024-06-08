@@ -98,7 +98,7 @@ const char *strHystogram[]=
 
 };
 char Mains_status[32] = "MAINS READING";
-const char *strMonScreens[1][50]=
+const char *strMonScreens[1][51]=
 {
     {
         "EXHAUST AFT TREAT",
@@ -137,6 +137,7 @@ const char *strMonScreens[1][50]=
         "ENG REM FUEL",
         //Sensor
         "SHELTER TEMP",
+        "CANOPY TEMP",
         //Engine
         (char *)&strAuxS2String,
         "ENG SPEED",
@@ -381,6 +382,8 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"Low Fuel level",
       (char*)"High Eng Temp",
       (char*)"High Lube Oil Temp",
+      (char*)"High Canopy Temp",
+      (char*)"Canopy Temp - Ckt Open",
       (char*)"Low Water Level Switch",
       (char*)"Over Speed",
       (char*)"Gross Over Speed",
@@ -397,6 +400,8 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"Charge Fail",
       (char*)"Battery Over Voltage",
       (char*)"Battery Under Voltage",
+      (char*)"Supercap Over Voltage",
+      (char*)"Supercap Under Voltage",
       (char*)"Over Current",
       (char*)"Maintenance Due",
       (char*)"Over Load",
@@ -455,6 +460,11 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"EB MCCB Feedback ON",
       (char*)"DG MCCB Feedback ON",
       (char*)"Supercapacitor Fail",
+      (char*)"Canopy Door Open",
+      (char*)"Extended Over Load Trip",
+      (char*)"Firmware Flashed",
+      (char*)"Active Profile Flashed",
+      (char*)"Factory Profiles Flashed",
  }
 };
 

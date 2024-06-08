@@ -171,7 +171,7 @@ bool MB_APP::prvSetMultipleInputRegisters(MODBUS_INPUT_REGISTERS_t eStartRegiste
         }
         /*Determine the start address for the group*/
         uint16_t u16StartAddress =  _aAddressGrp[u8Grp].u16StartAddress;
-        memcpy((uint8_t*)&_aAddressGrp[u8Grp].pu16Registers[eStartRegister-u16StartAddress], pu8DataStart, u8DataLen);
+        memcpy((void*)&_aAddressGrp[u8Grp].pu16Registers[eStartRegister-u16StartAddress], pu8DataStart, u8DataLen);
         return true;
     }
 }
@@ -324,25 +324,25 @@ void MB_APP::prvUpdateInputRegisters()
 
     SetReadRegisterValue(MB_INPUT_REG_PROTOCOL_VER, 23);
 
-    //char strGensetSerialNo[20] = "AAAAAAAAAABBBBBBBBBB"
-    uint8_t strGensetSerialNo[20] = {0xFF};
-    memset(strGensetSerialNo,0xFF,20);
-    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+    uint8_t u8StrSrNo[SR_NOS_MAX_SIZE];
 
-    //char strEngineSerialNo[20] = "AAAAAAAAAACCCCCCCCCC"
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+    UI::GetSrNoByIndex(CEditableItem::SRNO_GENSET, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*)u8StrSrNo, GEN_SRNO_LEN);
 
-    //char strAltSerialNo[20] = "AAAAAAAAAADDDDDDDDDD"
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+    UI::GetSrNoByIndex(CEditableItem::SRNO_ENGINE, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*)u8StrSrNo, ENG_SRNO_LEN);
 
-    //char strMainControllerNo[20] = "AAAAAAAAAAEEEEEEEEEE"
-    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+    UI::GetSrNoByIndex(CEditableItem::SRNO_ALT, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*)u8StrSrNo, ALT_SRNO_LEN);
 
-    //char strEngineControllerNo[20] = "AAAAAAAAAAFFFFFFFFFF"
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 20);
+    UI::GetSrNoByIndex(CEditableItem::SRNO_MAINCONT, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*)u8StrSrNo, MAIN_CONT_SRNO_LEN);
 
-    //char strSiteId[10] = "AAAAAGGGGG"
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*) &strGensetSerialNo, 10);
+    UI::GetSrNoByIndex(CEditableItem::SRNO_ENGCONT, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*)u8StrSrNo, ENG_CONT_SRNO_LEN);
+
+    UI::GetSrNoByIndex(CEditableItem::SRNO_SITEID, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_SITE_ID_5, (uint8_t*)u8StrSrNo, SITE_ID_LEN);
 
     /*Get the current time*/
     RTC::TIME_t currentTime;
@@ -483,8 +483,17 @@ void MB_APP::prvUpdateInputRegisters()
     SetReadRegisterValue(MB_INPUT_REG_ALWAYS0xFFFF_102, 0xFFFF);
 
     /*Store canopy temp at far side of engine*/
-    SetReadRegisterValue(MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR, 0xFFFF); /*Input not added yet*/
-
+    A_SENSE::SENSOR_RET_t stCanopyTemp = _hal.AnalogSensors.GetSensorValue(AnalogSensor::A_SENSE_CANOPY_TEMPERATURE);
+    if((stCanopyTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL)
+        &&(stCanopyTemp.eStatus == A_SENSE::SENSOR_READ_SUCCESS))
+    {
+        SetReadRegisterValue(MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR, (uint16_t)(stCanopyTemp.stValAndStatus.f32InstSensorVal*10));
+    }
+    else
+    {
+        SetReadRegisterValue(MB_INPUT_REG_CANOPY_TEMP_FAR_END_RADIATOR, 0xFFFF);
+    }
+    
     for(uint8_t i = 0U; i < 6; i++)
     {
         SetReadRegisterValue((MODBUS_INPUT_REGISTERS_t)(MB_INPUT_REG_ALWAYS0xFFFF_104_6 + i), 0xFFFF);
@@ -598,13 +607,13 @@ void MB_APP::prvUpdateInputRegisters()
 
     /*Store the start mode*/
     BASE_MODES::GCU_OPERATING_MODE_t eOpMode = BASE_MODES::GetGCUOperatingMode();
-    if(eOpMode == BASE_MODES::MANUAL_MODE)
+    if((eOpMode != BASE_MODES::MANUAL_MODE) && _StartStop.IsGenStarted())
     {
-        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 0);
+        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 1);
     }
     else
     {
-        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 1);
+        SetReadRegisterValue(MB_INPUT_STARTED_ON_REMOTE_MANUAL, 0);
     }
 
 
@@ -632,7 +641,9 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
                    (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SMOKE_FIRE].bResultInstant);
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_SMOKE_FIRE , bStatus);
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_CANOPY_DOOR_OPEN , false); /*Not an available alarm. Input not added yet*/
+    bStatus = (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::CANOPY_DOOR_OPEN].bEnableMonitoring) &&
+                   (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::CANOPY_DOOR_OPEN].bResultInstant);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_CANOPY_DOOR_OPEN , bStatus);
 
     /*Store load on gen*/
     bStatus = (_hal.actuators.GetActStatus(ACTUATOR::ACT_CLOSE_GEN_CONTACTOR) == ACT_Manager::ACT_LATCHED);
@@ -652,14 +663,14 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_COMMON_FAULT , _gcuAlarm.IsCommonAlarm());
 
     /*Store LLOP fault*/
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_LLOP_FAULT , _gcuAlarm.IsLowOilPresAlarmActive());
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_GEN_LLOP_FAULT , _gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::LLOP_SWITCH].bResultInstant);
 
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_ALWAYS0_7 , false); /*Always 0*/
 
     /*Store Fuel level below 15 pct alarm*/
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_LOW_FUEL_LVL_AT_15PCT , bFuelPctBelow15Pct);
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_CANOPY_TEMP_HIGH , false); /*Input not added yet*/
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_CANOPY_TEMP_HIGH , _gcuAlarm.IsCanopyTempSensFault());
 
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_ENGINE_COOLANT_TEMP_HIGH , _gcuAlarm.IsHighEngTempAlarmActive());
 
@@ -695,7 +706,9 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
         SetReadDiscreteInputValue((MODBUS_DISCRETE_INPUTS_t)(MB_DISCRETE_INPUT_ALWAYS0_32_5 + i) , false);
     }
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_MAIN_CONTROLLER_FAIL_ALARM, false);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_MAIN_CONTROLLER_FAIL_ALARM, (_gcuAlarm.GetEgrEcuFaultStatus() > 0) 
+                                     || ((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::ALARM_COM_FAIL].bEnableMonitoring == true) 
+                                        && (_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::ALARM_COM_FAIL].bResultInstant)));
 
     for(uint8_t i = 0; i < 3; i++)
     {
@@ -713,17 +726,14 @@ void MB_APP::prvUpdateDiscreteInputRegisters()
 
     SetReadDiscreteInputValue(MB_DISCRETE_INPUT_RESERVED_46, false);
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_WARNING , (gpJ1939->IsEGRWarningPresent()));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_WARNING , (_gcuAlarm.GetFaultPreset72HrsTimeInMin() >= _cfgz.GetEGRWarningTimer())); //(gpJ1939->IsEGRWarningPresent())
     
-    
-
-    bStatus = false;
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_WARNING , bStatus);
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_FAULT , bStatus);
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_WARNING , gpJ1939->IsFaultCodeReceived(5838, 2));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_NCD_FAULT , gpJ1939->IsFaultCodeReceived(5838, 3));
 
     GCU_ALARMS::EGR_FAULT_LIST_t eEgrFault = _gcuAlarm.GetEgrEcuFaultStatus();
 
-    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_FAULT, (eEgrFault > GCU_ALARMS::EGR_NO_FAULT));
+    SetReadDiscreteInputValue(MB_DISCRETE_INPUT_EGR_FAULT, (_gcuAlarm.GetFaultPreset72HrsTimeInMin() >= _cfgz.GetEGRShutdownTimer())); //(eEgrFault > GCU_ALARMS::EGR_NO_FAULT)
 
     if(eEgrFault == GCU_ALARMS::EGR_ECU_FAULT)
     {
@@ -1335,6 +1345,15 @@ void MB_APP::prvUpdateAUXSensorVal()
     {
         // S1 as shelter temperature
         stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_SHELTER_TEMPERATURE);
+        if((stTemp.eStatus == A_SENSE::SENSOR_READ_SUCCESS) && (stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
+        {
+            u16AuxSensorVal = (int16_t)(round(stTemp.stValAndStatus.f32InstSensorVal*10));
+        }
+    }
+    else if(_cfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    {
+        // S1 as shelter temperature
+        stTemp = sensor.GetSensorValue(AnalogSensor::A_SENSE_CANOPY_TEMPERATURE);
         if((stTemp.eStatus == A_SENSE::SENSOR_READ_SUCCESS) && (stTemp.stValAndStatus.eState == ANLG_IP::BSP_STATE_NORMAL) )
         {
             u16AuxSensorVal = (int16_t)(round(stTemp.stValAndStatus.f32InstSensorVal*10));
@@ -2251,7 +2270,7 @@ void MB_APP::prvUpdateMBWriteRegisterForAutomation(void)
 
     if(bStoreInEeprom)
     {
-        _engineMonitoring.StoreCummulativeCnt(false);
+        _engineMonitoring.StoreCummulativeCnt(ENGINE_MONITORING::CUM_STORE_GENERAL);
         _engineMonitoring.ReadEnergySetEnergyOffset(true);
         bStoreInEeprom = false;
     }

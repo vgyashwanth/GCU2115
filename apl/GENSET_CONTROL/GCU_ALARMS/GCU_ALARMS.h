@@ -18,6 +18,8 @@
 
 #define MAX_DTC_ALLOWED (106U)
 
+#define MUX_OUTPUT_CNT_POWERED_VIA_USB_ONLY   (4095U)
+
 class GCU_ALARMS
 {
 public:
@@ -78,6 +80,9 @@ public:
         HIGH_WATER_TEMP_WARNING,
         HIGH_LUBE_OIL_TEMP_SHUTDOWN,
         HIGH_LUBE_OIL_TEMP_WARNING,
+        HIGH_CANOPY_TEMP_SHUTDOWN,
+        HIGH_CANOPY_TEMP_WARNING,
+        OPEN_CANOPY_TEMP_CKT,
 
         OVERSPEED_L1,
         OVERSPEED_L2,
@@ -184,6 +189,8 @@ public:
         ALARM_MIL_LAMP,
         ALARM_PROTECT_LAMP,
         SUPERCAP_FAIL,
+        CANOPY_DOOR_OPEN,
+        EXTENDED_OVERLOAD,
         ALARM_LIST_LAST
     } ALARM_LIST_t;
 
@@ -194,6 +201,8 @@ public:
         fuel_level_id,
         High_Water_Temperature_id,
         High_Lube_Oil_Temp_id,
+        High_Canopy_Temp_id,
+        Canopy_Temp_Sen_Ckt_Open_id,
         Radiator_Water_Level_id,
         Over_Speed_l1_id,
         Over_Speed_l2_id,
@@ -210,6 +219,8 @@ public:
         Charge_Fail_id,
         Battery_Over_Voltage_id,
         Battery_Under_Voltage_id,
+        Supercap_Over_Voltage_id,
+        Supercap_Under_Voltage_id,
         Over_Current_id,
         Filter_maintenance_id,
         Over_Load_id,
@@ -270,6 +281,11 @@ public:
         EB_Mccb_On_Feedback_id,
         DG_Mccb_On_Feedback_id,
         SuperCap_Charge_Fail_id,
+        Canopy_Door_Open_id,
+        Extended_Overload_id,
+        Firmware_Flashing_id,
+        Active_Profile_flashing_id,
+        Factory_Profile_flashing_id,
         ID_ALL_ALARMS_LAST
     } ALARM_LOGGING_ID_t;
 
@@ -491,6 +507,7 @@ public:
 
     void UpdateFuelTheftCalculation();
     void ClearAutoModeSwitchAlarm();
+    bool IsExtendedOverLoad();
     static bool _bUpdateModbusCountCalc;
 
     /**
@@ -569,13 +586,16 @@ public:
 
     ANLG_IP::ANLG_IP_STATE_t GetSPNSensorState(uint8_t u8SPNErrorStatus);
     A_SENSE::SENSOR_RET_t GetLubeOilTempSensVal();
-
+    bool IsCanopyTempSensFault();
+    bool prvIsDgOnLoad();
+    void SetExtOverloadFault(bool bExtOverload);
 private:
 #define FUEL_THEFT_WAKEUP_TIMER (4U)
     typedef enum
     {
         LUBE_OIL_PRESSURE,
         LUBE_OIL_TEMP,
+        CANOPY_TEMP,
         FUEL_LEVEL,
         ENGINE_TEMPERATURE,
         ENGINE_SPEED,
@@ -649,6 +669,7 @@ private:
         ANLG_SENS_S2_VAL,
         SHELTER_TEMP_VAL,
         SHELT_TEMP_OPEN_CKT,
+        CANOPY_TEMP_OPEN_CKT,
         EARTH_LEAKAGE_CURR_VAL,
         LOP_SENS_OVER_VAL,
         FUEL_OPEN_CKT_VAL,
@@ -665,6 +686,8 @@ private:
         J1939_MIL_LAMP_STATUS,
         J1939_PROTECT_LAMP_STATUS,
         SUPERCAP_FAIL_STATUS,
+        CANOPY_DOOR_OPEN_STATUS,
+        EXTENDED_OVERLOAD_STATUS,
         ALARM_VALUE_LAST
     } ALARM_VALUE_t;
 
@@ -699,6 +722,7 @@ private:
     bool _bHighShelterTemp;
     bool _bLowShelterTemp;
     bool _bUpdateFuelTheftCalc;
+    bool _bExtOverload;
     bool _bEgrShutdownLatched;
     uint8_t _u8UnderFreqAlarm;
     uint8_t _u8OverFreqAlarm;
@@ -720,6 +744,7 @@ private:
     uint8_t _u8HighEngTempAlarm;
     uint8_t _u8HighEngTempSwitch;
     uint8_t _u8HighLubeOilTempAlarm;
+    uint8_t _u8HighCanopyTempAlarm;
     uint8_t _u8AlarmIndex;
     uint8_t _u8DummyZero;
     uint8_t _u8DummyOne;
@@ -871,6 +896,6 @@ private:
     void prvMonitorEgrFaultStatus(void);
     void prvEGR_TimeLog_WriteToNV(void);
     bool prvIsEgrFaultPresent();
-
+    bool prvIsEgrFaultRecvdFromECU();
 };
 #endif

@@ -29,7 +29,7 @@ extern const uint8_t u8BmpLogoLoad[3][20];
 extern const uint8_t u8BmpLogoshelterTemp[3][20];
 extern const char *strTimerStatus[1][14];
 extern const char *strGCUStatus[1][10];
-extern const char *strMonScreens[1][50]; /*todo : MON_UI::DISP_MON_LAST should be used here for indexing */
+extern const char *strMonScreens[1][51]; /*todo : MON_UI::DISP_MON_LAST should be used here for indexing */
 extern const char *strGCUMode[1][5];
 extern const char *strIDLMode[];
 extern const uint8_t u8ArrContactor1[6][16];

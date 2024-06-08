@@ -32,31 +32,46 @@ typedef enum
     MISC_8_LAST
 }MISC_PARAM_8_t;
 
-typedef enum
-{
-    ID_ENG_CHAR0,
-    ID_ENG_CHAR1,
-    ID_ENG_CHAR2,
-    ID_ENG_CHAR3,
-    ID_ENG_CHAR4,
-    ID_ENG_CHAR5,
-    ID_ENG_CHAR6,
-    ID_ENG_CHAR7,
-    ID_ENG_CHAR8,
-    ID_ENG_CHAR9,
-    ID_ENG_CHAR10,
-    ID_ENG_CHAR11,
-    ENG_ID_CHAR_LAST
-}ENG_ID_t;
+#define MISC_PARAM_DUMMY_BYTES        ( 4 - ( ( (MISC_16_LAST)*2 ) + (MISC_8_LAST) )%4 )%4
 
 typedef struct
- {
-     uint16_t u16MiscParam[MISC_16_LAST];
-     uint8_t u8MiscParam[MISC_8_LAST];
-     uint8_t u8EngId[ENG_ID_CHAR_LAST];
-     // uint8_t u8Dummy[2];
-     uint16_t u16CRC;
+{
+    uint16_t u16MiscParam[MISC_16_LAST];
+    uint8_t u8MiscParam[MISC_8_LAST];
+#if(MISC_PARAM_DUMMY_BYTES > 0)    
+    uint8_t u8Dummy[MISC_PARAM_DUMMY_BYTES];
+#endif
+    uint16_t u16CRC;
  }MISC_PARAM_t;
+
+#define SR_NOS_MAX_SIZE       (20)
+#define GEN_SRNO_LEN (20)
+#define ENG_SRNO_LEN (20)
+#define ALT_SRNO_LEN (20)
+#define MAIN_CONT_SRNO_LEN (20)
+#define ENG_CONT_SRNO_LEN (20)
+#define SITE_ID_LEN (10)
+#define SR_NO_DATA_SIGNATURE  (0x72344268)
+#define SR_NOS_DUMMY_BYTES    ((4 - (((GEN_SRNO_LEN) + (ENG_SRNO_LEN) + (ALT_SRNO_LEN) + (MAIN_CONT_SRNO_LEN) +\
+                                      (ENG_CONT_SRNO_LEN) + (SITE_ID_LEN)) %4) ) %4)
+#define SR_NOS_LATEST_VER     (0)
+typedef struct
+{
+    uint32_t u32Signature;
+    uint16_t u16ProdSrNoVer;
+    uint16_t u16Crc; 
+    uint8_t u8GenSrNo[GEN_SRNO_LEN]; 
+    uint8_t u8EngSrNo[ENG_SRNO_LEN];
+    uint8_t u8AltSrNo[ALT_SRNO_LEN];
+    uint8_t u8MainContSrNo[MAIN_CONT_SRNO_LEN];
+    uint8_t u8EngContSrNo[ENG_CONT_SRNO_LEN];
+    uint8_t u8SiteId[SITE_ID_LEN];
+#if(SR_NOS_DUMMY_BYTES > 0)    
+    uint8_t u8Dummy[SR_NOS_DUMMY_BYTES];
+#endif
+}PRODUCT_SR_NOS_t;
+
+#define SR_NOS_HEADER_SIZE    (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2)
 
 
 #define STOP_KEY_LONG_PRESS      KEYPAD::BSP_KEY_4_LONG_PRESS

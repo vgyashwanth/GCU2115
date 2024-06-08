@@ -62,19 +62,27 @@
 #define EXT_EEPROM_CUMMULATIVE_LENGTH              512
 #define EXT_EEPROM_CUMMULATIVE_START_ADD_SECT1    (EXT_EEPROM_CUMMULATIVE_START_ADD_SECT0 +\
                                                    EXT_EEPROM_CUMMULATIVE_LENGTH)
+
+#define PREV_FW_META_DATA_CRC_ADDRESS             (0x5230)
+#define PREV_FACTORY_PROFILES_CRC_ADDRESS         (0x5234) /*Address to store previously stored active profile CRC to log active profile flashing*/
+#define PREV_ACTIVE_CRC_ADDRESS                   (0x5238) /*Address to store previously stored factory profile CRC to log factory profile flashing*/
+
+
 /*
  * SuryaPranayTeja.BVV 09-11-2022
  * The below address locations of EEPROM is used for the miscellaneous parameters
  * which need to be saved.
  * In GC2111 , One such parameter is Modbus Connection Count which is shown in the Event Log Screen.
  */
-#define EXT_EEPROM_MISC_PARAM_START                0x5400
-#define EXT_EEPROM_MISC_PARAM_LENGTH               256
+#define PRODUCT_SPECIFIC_AREA_START_ADDR          (0x5400)
+#define PRODUCT_SPECIFIC_AREA_MAX_LENGTH          (0x318)//(0x3E0)
+#define PRODUCT_SPECIFIC_DATA_VERSION_ADDR        (PRODUCT_SPECIFIC_AREA_START_ADDR + PRODUCT_SPECIFIC_AREA_MAX_LENGTH - 1 )
 
-#define  PRODUCT_SPECIFIC_AREA_START_ADDR     (0x5400)
-#define  PRODUCT_SPECIFIC_AREA_MAX_LENGTH    (0x3E0)
-
-#define PRODUCT_SPECIFIC_DATA_VERSION_ADDR     (PRODUCT_SPECIFIC_AREA_START_ADDR + PRODUCT_SPECIFIC_AREA_MAX_LENGTH - 1 )
+#define SERIAL_NOS_AREA_LENGTH                    (200)
+#define SERIAL_NOS_AREA_START_ADDRESS             (0x5718)
+#define SERIAL_NOS_SIGNATURE_LEN                  (4)
+#define SERIAL_NOS_VER_LEN                        (2)
+#define SERIAL_NOS_DATA_START_ADDRESS             (SERIAL_NOS_AREA_START_ADDRESS + SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN)
 
 /**********************************PFlash***********************************/
 #define FACTORY_CFGZ_ADDRESS_1_MB_MCU               0xF8000
@@ -82,5 +90,13 @@
 
 #define MAX_NUMBER_OF_PROFILE   10
 #define MAX_DISP_CONST   100
+
+#define FW_AREA_END_ADDRESS                      (0xF7FFF)
+#define FACTORY_PROFILES_END_ADDRESS             (0xFFFFF)
+
+#define SIZE_OF_META_DATA_IN_BYTES               (16U)
+
+#define FIRMWARE_META_DATA_ADDRESS              (FW_AREA_END_ADDRESS + 1 - SIZE_OF_META_DATA_IN_BYTES)
+#define FACTORY_PROFILES_META_DATA_ADDRESS      (FACTORY_PROFILES_END_ADDRESS + 1 - SIZE_OF_META_DATA_IN_BYTES)
 
 #endif /* APL_CONFIG_H_ */

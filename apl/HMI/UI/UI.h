@@ -50,7 +50,6 @@ class UI
 {
 
 public:
-
     typedef struct
     {
         bool bPIN1Changed;
@@ -80,6 +79,8 @@ public:
     void HandleMenuVisibility(void);
     void LowestLevelMenuEnDis(uint16_t u16StartIndex , uint16_t u16EndIndex , bool bEn_Ds);
     void InitialiseCustomSensor();
+    static void GetSrNoByIndex(CEditableItem::SRNO_TYPES_t eSrNoType, uint8_t* pu8Srno);
+    static void StoreSrNo();
 
     CEditableItem ArrEditableItem[INDEX_LAST];
     CEditableItemsScreen ArrEditableItemScreen[INDEX_LAST];
@@ -108,7 +109,8 @@ private:
     CEditableItemsScreen* _pCurEditableItemsScreen;
     stTimer _ValIncDecTimer;
     CEditableItem::DATE_t _stMaintenanceDt;
-
+    static PRODUCT_SR_NOS_t _stSrNos;
+    static bool bSrNosEdited;
 
     void prvFetchProfileNames();
     uint16_t prvMaxDaysInMonth(uint8_t u8Month ,uint16_t u16Year);
@@ -118,5 +120,6 @@ private:
     void prvUpdateEngineTypeDependency(void);
     void prvSetPasswordAccessLevel(uint16_t u16Index, uint8_t u8PasswordLevel);
     void prvUpdateAutomationModbusMap();
+    void prvReadSrNos();
 };
 #endif /* _UI_H_ */

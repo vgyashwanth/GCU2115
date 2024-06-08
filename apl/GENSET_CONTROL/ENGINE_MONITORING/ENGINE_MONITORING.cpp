@@ -69,7 +69,9 @@ _stTampEnergyRegister{},
 _stEnergyRegister{},
 _stMainsEnergyRegister{},
 _bCrankStateLatched(false),
-_bFailedCrankStateLatched(false)
+_bFailedCrankStateLatched(false),
+_u8OvldExtMinCnt(0),
+_u8OvldExtOneHrContCnt(0)
 #if (TEST_AUTOMATION == YES)
 ,_bFromAutomation(false)
 #endif
@@ -108,7 +110,7 @@ void ENGINE_MONITORING::prvUpdateCumCrankCnts()
     {
         _stCummulativeCnt.u32GenNumberOfCranks++;
         _bCrankStateLatched = true;
-        StoreCummulativeCnt(true);
+        StoreCummulativeCnt(CUM_STORE_CRANK_CNTS);
     }
     else if(_u8StartStopSMState != START_STOP::ID_STATE_SS_CRANKING)
     {
@@ -119,7 +121,7 @@ void ENGINE_MONITORING::prvUpdateCumCrankCnts()
     {
         _stCummulativeCnt.u32GenNumberOfFailedCranks++;
         _bFailedCrankStateLatched = true;
-        StoreCummulativeCnt(true);
+        StoreCummulativeCnt(CUM_STORE_CRANK_CNTS);
     }
     else if(_u8StartStopSMState == START_STOP::ID_STATE_SS_CRANKING)
     {
@@ -381,7 +383,7 @@ void ENGINE_MONITORING::prvUpdateGenReady()
             {
                 /* do nothing */
             }
-            StoreCummulativeCnt(false);
+            StoreCummulativeCnt(CUM_STORE_GENERAL);
             UTILS_ResetTimer(&_GenWarmUpTimer);
         }
     }
@@ -455,7 +457,7 @@ void ENGINE_MONITORING::prvCheckTrips()
         {
             /* do nothing */
         }
-        StoreCummulativeCnt(false);  /* store cumm data if trip arises */
+        StoreCummulativeCnt(CUM_STORE_GENERAL);  /* store cumm data if trip arises */
         _bTripLatched = true;
     }
     else
@@ -513,11 +515,12 @@ void ENGINE_MONITORING::prvUpdateCumulativeTamperedEnergyCounts()
 }
 
 
-void ENGINE_MONITORING::StoreCummulativeCnt(bool isForCrankCnt)
+void ENGINE_MONITORING::StoreCummulativeCnt(ENGINE_MONITORING::CUM_STORE_t eType)
 {
     static CUMULATIVE_t stStoredCummulative0,stStoredCummulative1;
     CUMULATIVE_t stCummulativeCntToStore;
-    if(!isForCrankCnt)
+
+    if(eType == CUM_STORE_GENERAL)
     {
 #if (TEST_AUTOMATION == YES)
         if(_bFromAutomation)
@@ -532,12 +535,21 @@ void ENGINE_MONITORING::StoreCummulativeCnt(bool isForCrankCnt)
         }
         stCummulativeCntToStore = _stCummulativeCnt;
     }
-    else
+    else if(eType == CUM_STORE_CRANK_CNTS)
     {
         stCummulativeCntToStore = _stStoredCummulativeCnt;
         stCummulativeCntToStore.u32GenNumberOfCranks = _stCummulativeCnt.u32GenNumberOfCranks;
         stCummulativeCntToStore.u32GenNumberOfFailedCranks = _stCummulativeCnt.u32GenNumberOfFailedCranks;
     }
+    else if(eType == CUM_STORE_OVLD_EXT_RUN_HRS)
+    {
+        stCummulativeCntToStore = _stStoredCummulativeCnt;
+        stCummulativeCntToStore.ExtOvldStartTime = _stCummulativeCnt.ExtOvldStartTime;
+        stCummulativeCntToStore.u32GenExtOverloadRunTime_min = _stCummulativeCnt.u32GenExtOverloadRunTime_min;
+        stCummulativeCntToStore.u8ExtOvldStarted = _stCummulativeCnt.u8ExtOvldStarted;
+        stCummulativeCntToStore.u8ExtOvldFault = _stCummulativeCnt.u8ExtOvldFault;
+    }
+
     _stCummulativeCnt.u64Header++;
     stCummulativeCntToStore.u64Header++;
     stCummulativeCntToStore.u32CRC =(uint16_t) CRC16::ComputeCRCGeneric((uint8_t *)&stCummulativeCntToStore,
@@ -773,6 +785,12 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _stCummulativeCnt.u32GenManualRunTime_min =0;
         _stCummulativeCnt.u32GenNoLoadRunTime_min =0;
         _stCummulativeCnt.u32GenOnLoadRunTime_min =0;
+        _stCummulativeCnt.u32GenExtOverloadRunTime_min =0;
+        memset((void*)(&_stCummulativeCnt.ExtOvldStartTime), 0, sizeof(RTC::TIME_t));
+        _stCummulativeCnt.u8ExtOvldStarted =0;
+        _stCummulativeCnt.u8ExtOvldFault =0;
+
+
         _stCummulativeCnt.f32GenKWH =0.0;
         _stCummulativeCnt.f32GenKVAH =0.0;
         _stCummulativeCnt.f32GenKVARH =0.0;
@@ -790,6 +808,7 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _u8ActiveSectorForCummulative =0;
     }
     _stStoredCummulativeCnt = _stCummulativeCnt;
+    _GCUAlarms.SetExtOverloadFault((bool)(_stCummulativeCnt.u8ExtOvldFault != 0));
 }
 
 void ENGINE_MONITORING::prvUpdateEngineONstatus(void)
@@ -837,10 +856,12 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
                 _stCummulativeCnt.u32GenNoLoadRunTime_min++;
             }
 
+            prvUpdateExtOvldRunHrs();
+
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32EngineRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerGenUpdateCumulative) >= u16TimeSlot)
             {
-                StoreCummulativeCnt(false);
+                StoreCummulativeCnt(CUM_STORE_GENERAL);
                 UTILS_ResetTimer(&_TimerGenUpdateCumulative);
             }
         }
@@ -851,7 +872,7 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32TamperedRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerUpdateTamperedCumulative) >= u16TimeSlot)
             {
-                StoreCummulativeCnt(false);
+                StoreCummulativeCnt(CUM_STORE_GENERAL);
                 UTILS_ResetTimer(&_TimerUpdateTamperedCumulative);
             }
         }
@@ -864,6 +885,81 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
     {
         /* do nothing */
     }
+}
+
+void ENGINE_MONITORING::prvUpdateExtOvldRunHrs()
+{
+    static uint8_t u8StoreCnt = 0U; 
+    /*NOTE: This function is only to be called inside prvUpdateEngineRunHrs() in the 1 min timeout*/
+    if(_GCUAlarms.IsExtendedOverLoad())
+    {
+        if(!(_stCummulativeCnt.u8ExtOvldStarted != 0))
+        {
+            /*extended overload condition is met for the first time. Set the flag and storenthe current time*/
+            _stCummulativeCnt.u8ExtOvldStarted = 1;
+            
+            _stCummulativeCnt.ExtOvldStartTime = prvGetCurrTimeStamp();
+            _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
+        }
+        _stCummulativeCnt.u32GenExtOverloadRunTime_min++;
+    }
+
+    if((_stCummulativeCnt.u32GenExtOverloadRunTime_min >= 60) && (_stCummulativeCnt.u8ExtOvldStarted != 0))
+    {
+        /*The overload run time has passed 1 hour. Set extended overload alarm*/
+        _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
+        _stCummulativeCnt.u8ExtOvldFault = 1;
+        _GCUAlarms.SetExtOverloadFault((bool)(_stCummulativeCnt.u8ExtOvldFault != 0));
+        StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
+    }
+
+    /**/
+    bool bTwelveHrsPassed = true;
+    time_t stCurrTime = prvGetCurrTimeStamp();
+    /*If current time is greater than the stored time, check if twelve hours have passed
+    if not, there is some issue with the RTC, hence we assume twelve hours have passed*/
+    if(stCurrTime >= _stCummulativeCnt.ExtOvldStartTime)
+    {
+        bTwelveHrsPassed = ((stCurrTime - _stCummulativeCnt.ExtOvldStartTime) >= TWELVE_HR_IN_SEC);
+    }
+    
+    if(bTwelveHrsPassed && (_stCummulativeCnt.u8ExtOvldStarted != 0))
+    {
+        /*Reset the cycle cnt*/
+        _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
+        _stCummulativeCnt.u8ExtOvldStarted = 0;
+        _stCummulativeCnt.u8ExtOvldFault = 0;
+        _GCUAlarms.SetExtOverloadFault((_stCummulativeCnt.u8ExtOvldFault != 0));
+        StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
+    }
+
+    if(_stCummulativeCnt.u8ExtOvldStarted != 0)
+    {
+        u8StoreCnt++;
+        if(u8StoreCnt >= 2)
+        {
+            StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
+            u8StoreCnt = 0;
+        }
+    }
+}
+
+time_t ENGINE_MONITORING::prvGetCurrTimeStamp() 
+{
+    RTC::TIME_t stCurrentTime;
+    _hal.ObjRTC.GetTime(&stCurrentTime);
+    time_t stRetVal;
+    struct tm stDateTime;
+    /* 1900 is being sued below as the same year is used as reference in the mktime library function */
+    stDateTime.tm_year = (int)(stCurrentTime.u16Year - 1900);
+    stDateTime.tm_mon = (int)(stCurrentTime.u8Month - 1);
+    stDateTime.tm_mday = (int)stCurrentTime.u8Day;
+    stDateTime.tm_hour = (int)stCurrentTime.u8Hour;
+    stDateTime.tm_min = (int)stCurrentTime.u8Minute;
+    stDateTime.tm_sec = (int)stCurrentTime.u8Second;
+    /* mktime is a library function that converts the given tm struct into a timestamp  */
+    stRetVal = mktime(&stDateTime);
+    return stRetVal;
 }
 
 void ENGINE_MONITORING::prvUpdateMainsRunHrs()
@@ -889,7 +985,7 @@ void ENGINE_MONITORING::prvUpdateMainsRunHrs()
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32MainsRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerMainsUpdateCumulative) >= u16TimeSlot)
             {
-               StoreCummulativeCnt(false);
+               StoreCummulativeCnt(CUM_STORE_GENERAL);
                UTILS_ResetTimer(&_TimerMainsUpdateCumulative);
             }
             UTILS_ResetTimer(&_MainsRunTimeBaseTimer);
@@ -922,7 +1018,7 @@ void ENGINE_MONITORING::prvUpdateBTSRunHrs()
             u16TimeSlot = prvCheckTimeSlot(_stCummulativeCnt.u32BTSRunTime_min);
             if(UTILS_GetElapsedTimeInSec(&_TimerBTSUpdateCumulative) >= u16TimeSlot)
             {
-               StoreCummulativeCnt(false);
+               StoreCummulativeCnt(CUM_STORE_GENERAL);
                UTILS_ResetTimer(&_TimerBTSUpdateCumulative);
             }
             UTILS_ResetTimer(&_BTSRunTimeBaseTimer);

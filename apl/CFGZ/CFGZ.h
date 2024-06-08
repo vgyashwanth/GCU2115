@@ -239,7 +239,9 @@ class CFGZ
         ID_HIGH_CLNT_TEMP_WARNING_THRESH,
         ID_HIGH_OIL_TEMP_FROM_ECU_SHUTDOWN_THRESH,
         ID_HIGH_OIL_TEMP_FROM_ECU_WARNING_THRESH,
-
+        
+        ID_HIGH_CANOPY_TEMP_SHUTDOWN_THRESH,
+        ID_HIGH_CANOPY_TEMP_WARNING_THRESH,
         ID_FLOAT_LAST
     }FLOAT_PARAMS_t;
 
@@ -525,6 +527,7 @@ class CFGZ
         ID_SPEED_MONITOR_SPEED_SENSE_SOURCE,
         /*ID_SPEED_MONITOR_RESERVED,*/
         ID_SPEED_MONITOR_UNDER_SPEED_SHUTDOWN,
+        ID_BATTERY_MONITOR_MON_SOURCE,
         ID_BATTERY_MONITOR_LOW_VOLT_ACTION,
         ID_BATTERY_MONITOR_HIGH_VOLT_ACTION,
         ID_CHARGE_ALT_MON_FAIL_ACTION,
@@ -561,6 +564,8 @@ class CFGZ
         ID_CLNT_TEMP_WARNING_EN,
         ID_OIL_TEMP_FROM_ECU_SHUTDOWN_EN,
         ID_OIL_TEMP_FROM_ECU_WARNING_EN,
+        ID_CANOPY_TEMP_SHUTDOWN_EN,
+        ID_CANOPY_TEMP_WARNING_EN,
 
         ID_MAINT_ALARM_ACTION,
         ID_ALARM_DUE_DATE_SERVICE_DATE_1,
@@ -597,7 +602,6 @@ class CFGZ
         ID_ARR_SENSOR_S3_NAME,
         ID_ARR_SENSOR_S4_NAME,
         ID_ARR_PROFILE,
-
         ID_ARRAY_20_BYTE_LAST
      }ARRAY_PARAMS_t;
 
@@ -642,6 +646,7 @@ class CFGZ
         CFGZ_EB_MCCB_ON_FEEDBACK,
         CFGZ_DG_MCCB_ON_FEEDBACK,
         CFGZ_SUPERCAP_FAIL,
+        CFGZ_CANOPY_DOOR_OPEN,
         CFGZ_INPUT_LAST,
 
 } CFGZ_DIGITAL_SENSORS_t;
@@ -710,6 +715,11 @@ class CFGZ
         CFGZ_MODBUS_MAP_A_RJIO,
         CFGZ_MODBUS_MAP_B_INDUS
     }CFGZ_MODBUS_MAP_t;
+
+    typedef enum{
+        CFGZ_MON_SRC_BATTERY,
+        CGFZ_MON_SRC_SUPERCAP
+    }CFGZ_MON_SRC_VOLT_t;
 
     /*An helper type to define mapping of sensors between CFGZ and A_SENSE*/
     typedef struct
@@ -793,6 +803,9 @@ class CFGZ
         CFGZ_AUTO_MODE_SW_OUTPUT,
         CFGZ_BATTERY_UNHEALTHY,
         CFGZ_SUPERCAP_UNHEALTHY,
+        CFGZ_CANOPY_TEMP_SENS_UNHEALTHY,
+        CFGZ_DG_ON_LOAD,
+        CFGZ_DG_OVERLOAD,
         CFGZ_OUTPUT_LAST
     } CFGZ_ACT_TYPS_t;
 
@@ -1058,15 +1071,15 @@ class CFGZ
 
    ENGINE_TYPES_t GetEngType(void);
 
-   void GetEngSrNo(char EngSrNo[]);
-
    uint8_t GetArrLanguageIndex();
 
    uint8_t GetCustomerCodefromCFGC();
 
     bool IsCLNTTempJ1939Configured(void);
-    
+
     bool IsOilTemperatureConfigured(void);
+
+    bool IsCanopyTemperatureConfigured(void);
 
    /**
    * This function is used to read the whole Product Specific Data
@@ -1146,6 +1159,9 @@ class CFGZ
     * @return  : Value of the EGR Heal Timer
     */
    uint16_t GetEGRFaultTimer();
+
+   bool CheckIfFactoryProfilesUpdatedViaBL();
+   bool CheckIfActiveProfileUpdatedViaBL();
 
 private:
     /**

@@ -209,7 +209,7 @@ BSP_STATUS_t CFGZ::WriteActiveProfile(CFGZ_PARAMS_t* _pAllparams)
 
     memcpy((uint8_t*)&_All_Param, _pAllparams, sizeof(CFGZ_PARAMS_t) );
 
-    uint16_t u16CRC = CRC16::ComputeCRCGeneric((uint8_t*)&_All_Param,
+    static uint16_t u16CRC = CRC16::ComputeCRCGeneric((uint8_t*)&_All_Param,
                                                sizeof(CFGZ_PARAMS_t) - (sizeof(uint8_t)*DUMMY_ITEMS),
                                                CRC_MEMORY_SEED);
     strCFGZMetadata.u16CFGZCrc = u16CRC;
@@ -221,6 +221,9 @@ BSP_STATUS_t CFGZ::WriteActiveProfile(CFGZ_PARAMS_t* _pAllparams)
 
     _hal.Objeeprom.RequestWrite((EXT_EEPROM_ACTIVE_PROFILE_START_ADDRESS+ EXT_EEPROM_ACTIVE_PROFILE_LENGTH
             - sizeof(CFGZ_METADATA_t)) , (uint8_t*)&strCFGZMetadata, sizeof(CFGZ_METADATA_t),NULL);
+    
+    _hal.Objeeprom.RequestWrite(PREV_ACTIVE_CRC_ADDRESS, (uint8_t*)&u16CRC, sizeof(u16CRC), NULL); /*Store active profile CRC to check if it has been changed*/
+
     _eEvent = EEPROM::NO_STATUS;
     _hal.Objeeprom.RequestWrite(EXT_EEPROM_ACTIVE_PROFILE_START_ADDRESS, (uint8_t*)&_All_Param, sizeof(CFGZ_PARAMS_t),EEpromWritCB);
 
@@ -456,7 +459,8 @@ DigitalSensor::D_SENSOR_TYPS_t CFGZ::prvGetDigitalSensor(uint8_t u8CfgSensorIdx,
      { CFGZ_EGR_ECU_DIGITAL_IN                        , DigitalSensor::DI_EGR_ECU_DIGITAL_IN          },
      { CFGZ_EB_MCCB_ON_FEEDBACK                      , DigitalSensor:: DI_EB_MCCB_ON_FEEDBACK         },
      { CFGZ_DG_MCCB_ON_FEEDBACK                      , DigitalSensor:: DI_DG_MCCB_ON_FEEDBACK         },
-     { CFGZ_SUPERCAP_FAIL                            , DigitalSensor:: DI_SUPERCAP_FAIL               }
+     { CFGZ_SUPERCAP_FAIL                            , DigitalSensor:: DI_SUPERCAP_FAIL               },
+     { CFGZ_CANOPY_DOOR_OPEN                         , DigitalSensor:: DI_CANOPY_DOOR_OPEN            }
     };
 
     /*Configurable input types*/
@@ -550,7 +554,8 @@ void CFGZ::prvConfigureASENSE()
     {
      {CFGZ_ANLG_SENSOR_NOT_USED , AnalogSensor::A_SENSE_NOT_USED},
      {CFGZ_ANLG_DIG_IN          , AnalogSensor::A_SENSE_DIG_M   },
-     {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_SHELTER_TEMPERATURE}
+     {CFGZ_ANLG_CUSTOM_SENSOR1  , AnalogSensor::A_SENSE_SHELTER_TEMPERATURE},
+     {CFGZ_ANLG_CUSTOM_SENSOR2  , AnalogSensor::A_SENSE_CANOPY_TEMPERATURE}
     };
 
     u8MapSize = sizeof(aPIN14MAP)/sizeof(ASENSOR_MAP_ROW_t);
@@ -638,7 +643,7 @@ void CFGZ::prvConfigureASENSE()
     _hal.AnalogSensors.ConfigureNumberOfPoles((uint8_t)((_All_Param.u8ArrParam[ID_ALT_CONFIG_NUMBER_OF_POLES] * 2) + 2));
 }
 
-AnalogSensor::TYPS_t CFGZ::prGetAnalogSensor(uint8_t u8CfgSensorIdx,
+AnalogSensor::TYPS_t CFGZ:: prGetAnalogSensor(uint8_t u8CfgSensorIdx,
                                         const ASENSOR_MAP_ROW_t *pMap, uint8_t u8MapSize)
 {
     for(int i=0; i<u8MapSize; i++)
@@ -790,7 +795,11 @@ ACTUATOR::ACTUATOR_TYPS_t CFGZ::prvGetACTType(uint8_t u8CfgzActuatorTypeIdx)
      { CFGZ_AUTO_MODE_SW_OUTPUT               , ACTUATOR::ACT_AUTO_MODE_SW_OUTPUT        },
      { CFGZ_BATTERY_UNHEALTHY                 , ACTUATOR::ACT_BATTERY_UNHEALTHY          },
      { CFGZ_SUPERCAP_UNHEALTHY                , ACTUATOR::ACT_SUPERCAP_UNHEALTHY         },
+     { CFGZ_CANOPY_TEMP_SENS_UNHEALTHY        , ACTUATOR::ACT_CANOPY_TEMP_UNHEALTHY      },
+     { CFGZ_DG_ON_LOAD                        , ACTUATOR::ACT_DG_ON_LOAD                 },
+     { CFGZ_DG_OVERLOAD                       , ACTUATOR::ACT_DG_OVERLOAD                 }
     };
+    
 
     for(uint8_t i=0;i<(sizeof(dsenseMap)/sizeof(ACTUATOR_MAP_ROW_t));i++)
     {
@@ -937,10 +946,6 @@ void CFGZ::prvSetPassword()
         _stMiscParam.u16MiscParam[PASSWORD2]= u16ArrPassword[1];
         _stMiscParam.u8MiscParam[RESET_COUNTER] = 0;
 
-        for(int i= ID_ENG_CHAR0;i<ENG_ID_CHAR_LAST;i++)
-        {
-            _stMiscParam.u8EngId[i] = 48; //Sets the default Engine Serial number
-        }
         _stMiscParam.u16CRC = CRC16::ComputeCRCGeneric((uint8_t *)&_stMiscParam, sizeof(MISC_PARAM_t) -sizeof(uint16_t)
                                                        , CRC_MEMORY_SEED);
 
@@ -966,14 +971,6 @@ CFGZ::ENGINE_TYPES_t CFGZ::GetEngType(void)
     return((CFGZ::ENGINE_TYPES_t)_All_Param.u8ArrParam[ID_ENGINE_TYPE]);
 }
 
-void CFGZ::GetEngSrNo(char EngSrNo[])
-{
-    for(int i=0;i<12;i++)
-    {
-        EngSrNo[i] = (char) _stMiscParam.u8EngId[i];
-    }
-}
-
 uint8_t CFGZ::GetArrLanguageIndex()
 {
     return (uint8_t)(0); //No multiple language support.
@@ -994,6 +991,11 @@ bool CFGZ::IsOilTemperatureConfigured()
 {
     return ((GetEngType() != CFGZ::CFGZ_CONVENTIONAL)
             && (GetCFGZ_Param(CFGZ::ID_OIL_TEMP_FROM_ECU) == CFGZ::CFGZ_ENABLE));
+}
+
+bool CFGZ::IsCanopyTemperatureConfigured()
+{
+    return (GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_SENSOR_SELECTION) == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2);
 }
 
 float CFGZ::GetProductSpecificData(PRODUCT_SPECIFIC_PARAM_FLOAT32_t eProductData)
@@ -1081,4 +1083,49 @@ uint16_t CFGZ::GetEGRHealTimer()
 uint16_t CFGZ::GetEGRFaultTimer()
 {
     return _stProductSpecificData.u16ProductParam[PS_EGR_FAULT_TIMER];
+}
+
+bool CFGZ::CheckIfFactoryProfilesUpdatedViaBL()
+{
+    static uint16_t u16PreviousFactoryProfilesCRC;
+    uint16_t u16CurrentFactoryProfilesCRC;
+
+    bool bFactoryProfilesUpdated = false;
+    _hal.Objeeprom.BlockingRead(PREV_FACTORY_PROFILES_CRC_ADDRESS, (uint8_t*)&u16PreviousFactoryProfilesCRC,
+                                sizeof(u16PreviousFactoryProfilesCRC));
+    _hal.Objpflash.Read(FACTORY_PROFILES_META_DATA_ADDRESS, (uint8_t*)&u16CurrentFactoryProfilesCRC,
+                                sizeof(u16CurrentFactoryProfilesCRC));
+
+    if(u16PreviousFactoryProfilesCRC != u16CurrentFactoryProfilesCRC)
+    {
+        u16PreviousFactoryProfilesCRC = u16CurrentFactoryProfilesCRC;
+        _hal.Objeeprom.RequestWrite(PREV_FACTORY_PROFILES_CRC_ADDRESS,
+                                            (uint8_t*)&u16PreviousFactoryProfilesCRC, sizeof(u16PreviousFactoryProfilesCRC), NULL);
+        bFactoryProfilesUpdated = true;
+    }
+
+    return bFactoryProfilesUpdated;
+
+}
+
+bool CFGZ::CheckIfActiveProfileUpdatedViaBL()
+{
+    static uint16_t u16PreviousActiveProfileCRC;
+    uint16_t u16CurrentActiveProfilesCRC;
+    bool bActiveProfileUpdated = false;
+
+    _hal.Objeeprom.BlockingRead((EXT_EEPROM_ACTIVE_PROFILE_START_ADDRESS + EXT_EEPROM_ACTIVE_PROFILE_LENGTH
+            - sizeof(CFGZ_METADATA_t)), (uint8_t*)&u16CurrentActiveProfilesCRC, sizeof(u16CurrentActiveProfilesCRC));
+    _hal.Objeeprom.BlockingRead(PREV_ACTIVE_CRC_ADDRESS, (uint8_t*)&u16PreviousActiveProfileCRC,
+                                sizeof(u16PreviousActiveProfileCRC));
+
+    if(u16CurrentActiveProfilesCRC != u16PreviousActiveProfileCRC)
+    {
+        u16PreviousActiveProfileCRC = u16CurrentActiveProfilesCRC;
+        _hal.Objeeprom.RequestWrite(PREV_ACTIVE_CRC_ADDRESS,
+                                            (uint8_t*)&u16PreviousActiveProfileCRC, sizeof(u16PreviousActiveProfileCRC), NULL);
+        bActiveProfileUpdated = true;
+    }
+
+    return bActiveProfileUpdated;
 }

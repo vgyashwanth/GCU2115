@@ -808,7 +808,7 @@ void ENGINE_MONITORING:: prvGetCumulativeCnt()
         _u8ActiveSectorForCummulative =0;
     }
     _stStoredCummulativeCnt = _stCummulativeCnt;
-    _GCUAlarms.SetExtOverloadFault((bool)(_stCummulativeCnt.u8ExtOvldFault) == 1);
+    _GCUAlarms.SetExtOverloadFault((bool)(_stCummulativeCnt.u8ExtOvldFault != 0));
 }
 
 void ENGINE_MONITORING::prvUpdateEngineONstatus(void)
@@ -908,7 +908,7 @@ void ENGINE_MONITORING::prvUpdateExtOvldRunHrs()
         /*The overload run time has passed 1 hour. Set extended overload alarm*/
         _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
         _stCummulativeCnt.u8ExtOvldFault = 1;
-        _GCUAlarms.SetExtOverloadFault((bool)_stCummulativeCnt.u8ExtOvldFault);
+        _GCUAlarms.SetExtOverloadFault((bool)(_stCummulativeCnt.u8ExtOvldFault != 0));
         StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
     }
 

@@ -2508,9 +2508,6 @@ void MON_UI::prvProductInfo()
     char SeriesId[3];
     _cfgc.GetSeriesProductID(SeriesId);
 
-    char EngSrNo[12];
-    _cfgz.GetEngSrNo(EngSrNo);
-
     sprintf(arrTemp,"Ver :");
     _Disp.gotoxy(GLCD_X(2),GLCD_Y(22));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
@@ -2535,7 +2532,7 @@ void MON_UI::prvProductInfo()
  */
     for(nu8EngSrNo=0;nu8EngSrNo<20;nu8EngSrNo++)
     {
-        arrTemp[nu8EngSrNo] = UI::_stSrNos.u8EngSrNo[nu8EngSrNo];// EngSrNo[nu8EngSrNo];
+        arrTemp[nu8EngSrNo] = UI::_stSrNos.u8EngSrNo[nu8EngSrNo];
     }
     arrTemp[nu8EngSrNo] = '\0';
 

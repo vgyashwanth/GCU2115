@@ -1071,8 +1071,6 @@ class CFGZ
 
    ENGINE_TYPES_t GetEngType(void);
 
-   void GetEngSrNo(char EngSrNo[]);
-
    uint8_t GetArrLanguageIndex();
 
    uint8_t GetCustomerCodefromCFGC();

@@ -209,7 +209,7 @@ BSP_STATUS_t CFGZ::WriteActiveProfile(CFGZ_PARAMS_t* _pAllparams)
 
     memcpy((uint8_t*)&_All_Param, _pAllparams, sizeof(CFGZ_PARAMS_t) );
 
-    uint16_t u16CRC = CRC16::ComputeCRCGeneric((uint8_t*)&_All_Param,
+    static uint16_t u16CRC = CRC16::ComputeCRCGeneric((uint8_t*)&_All_Param,
                                                sizeof(CFGZ_PARAMS_t) - (sizeof(uint8_t)*DUMMY_ITEMS),
                                                CRC_MEMORY_SEED);
     strCFGZMetadata.u16CFGZCrc = u16CRC;
@@ -969,14 +969,6 @@ void CFGZ::EnableDisableMainsParam()
 CFGZ::ENGINE_TYPES_t CFGZ::GetEngType(void)
 {
     return((CFGZ::ENGINE_TYPES_t)_All_Param.u8ArrParam[ID_ENGINE_TYPE]);
-}
-
-void CFGZ::GetEngSrNo(char EngSrNo[])
-{
-    for(int i=0;i<12;i++)
-    {
-        //EngSrNo[i] = (char) _stMiscParam.u8EngSrNo[i];
-    }
 }
 
 uint8_t CFGZ::GetArrLanguageIndex()

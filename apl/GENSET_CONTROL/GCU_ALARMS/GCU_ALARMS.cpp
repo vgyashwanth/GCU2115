@@ -3394,20 +3394,9 @@ void GCU_ALARMS::prvUpdateOutputs()
 bool GCU_ALARMS::prvIsDgOnLoad()
 {
     bool bRet;
-    float f32MinCurr = _hal.AcSensors.GENSET_GetCurrentAmps(R_PHASE);
-    if((_cfgz.GetCFGZ_Param(CFGZ::ID_ALT_CONFIG_ALT_AC_SYSTEM)== CFGZ::CFGZ_3_PHASE_SYSTEM))
-    {
-        for(uint8_t u8Local = Y_PHASE; u8Local < PHASE_END ; u8Local++)
-        {
-            float f32Curr = _hal.AcSensors.GENSET_GetCurrentAmps((PHASE_t)u8Local);
-            if(f32MinCurr > f32Curr)
-            {
-                f32MinCurr = f32Curr;
-            }
-        }
-    }
-    //f32MinCurr = 4.0F;
-    if(f32MinCurr > 3.0F)
+    float f32TotalLoadCurr = _hal.AcSensors.GENSET_GetCurrentAmps(R_PHASE) + _hal.AcSensors.GENSET_GetCurrentAmps(Y_PHASE) +
+                             _hal.AcSensors.GENSET_GetCurrentAmps(B_PHASE);
+    if(f32TotalLoadCurr > 3.0F)
     {
         bRet = true;
     }

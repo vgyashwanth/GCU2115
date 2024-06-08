@@ -58,7 +58,6 @@ public:
 
     UI(HAL_Manager &hal, PASSWORD_ENTRY_UI &Password, CFGZ &cfgz, Display &Disp,ENGINE_MONITORING &engMon, MB_APP &MbApp);
     static PASSWORD_EDIT_FLAGS_t stPassEdit;
-    static bool bSrNosEdited;
     void Handler(int keyCode);
     void ClearScreen();
     void SaveConfigFile();
@@ -80,6 +79,8 @@ public:
     void HandleMenuVisibility(void);
     void LowestLevelMenuEnDis(uint16_t u16StartIndex , uint16_t u16EndIndex , bool bEn_Ds);
     void InitialiseCustomSensor();
+    static void GetSrNoByIndex(CEditableItem::SRNO_TYPES_t eSrNoType, uint8_t* pu8Srno);
+    static void StoreSrNo();
 
     CEditableItem ArrEditableItem[INDEX_LAST];
     CEditableItemsScreen ArrEditableItemScreen[INDEX_LAST];
@@ -88,7 +89,6 @@ public:
     static CMenuItem menuItemsLowestLevel[INDEX_LAST];
     static CMenuItem menuItemsMidLevel[NUM_OF_MENU_ITEMS_AT_MID_LEVEL];
     static CMenuItem menuItemsTopLevel[NUM_OF_MENU_ITEMS_AT_TOP_LEVEL];
-    static PRODUCT_SR_NOS_t _stSrNos;
 
 private:
     #define IsLeapYear(Y) ((!((Y)%4)) && (((Y)%100) || (!((Y)%400))))
@@ -109,7 +109,8 @@ private:
     CEditableItemsScreen* _pCurEditableItemsScreen;
     stTimer _ValIncDecTimer;
     CEditableItem::DATE_t _stMaintenanceDt;
-
+    static PRODUCT_SR_NOS_t _stSrNos;
+    static bool bSrNosEdited;
 
     void prvFetchProfileNames();
     uint16_t prvMaxDaysInMonth(uint8_t u8Month ,uint16_t u16Year);

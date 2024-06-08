@@ -165,8 +165,6 @@ public:
     void decrementValue();  // decrement value
     void incrementValue(bool bTemp, bool bIncrementBy5);  // increment value or tempValue
     void decrementValue(bool bTemp,  bool bdecrementBy5);  // decrement value or tempValue
-    void prvIncrementSrNoValue(uint8_t* pu8Val, bool bIncrementBy5);
-    void prvDecrementSrNoValue(uint8_t* pu8Val, bool bdecrementBy5);
     EditableItemValue_t incrementValue(EditableItemValue_t aValue, bool bIncrementBy5); // increments the given value and returns it
     EditableItemValue_t decrementValue(EditableItemValue_t aValue, bool bdecrementBy5); // decrements the given value and returns it
     void print();
@@ -183,10 +181,12 @@ private:
     char valueString[STRING_PARAM_MAX_LEN + 1];
     static bool _bValuesChanged;
     const char* dt2str(EDITABLE_ITEMS_DATA_TYPE_t dt);
-
+    void prvIncrementSrNoValue(uint8_t* pu8Val, bool bIncrementBy5);
+    void prvDecrementSrNoValue(uint8_t* pu8Val, bool bdecrementBy5);
     void prvPrint_Password_Edit_Screen(EditableItemValue_t val);
     uint8_t u8GetNextEngSrDigit(uint8_t u8Val, bool bIncrement);
     void DisplayEngSrChar(uint8_t val);
+    void prvPrintSrNo(bool bblinkoff);
 };
 
 #endif /* _CEDITABLEITEM_H_ */

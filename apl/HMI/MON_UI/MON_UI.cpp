@@ -2530,11 +2530,8 @@ void MON_UI::prvProductInfo()
  * firstly the characters from engine serial number is pushed in an array (arrTemp)
  * and then sent the same for display.
  */
-    for(nu8EngSrNo=0;nu8EngSrNo<20;nu8EngSrNo++)
-    {
-        arrTemp[nu8EngSrNo] = UI::_stSrNos.u8EngSrNo[nu8EngSrNo];
-    }
-    arrTemp[nu8EngSrNo] = '\0';
+    UI::GetSrNoByIndex(CEditableItem::SRNO_ENGINE, (uint8_t*)arrTemp);
+    arrTemp[SR_NOS_MAX_SIZE - 1] = '\0';
 
     _Disp.gotoxy(GLCD_X(43),GLCD_Y(34));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);

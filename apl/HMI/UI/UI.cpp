@@ -1073,8 +1073,8 @@ void UI::prvReadSrNos()
     {
         if(_stSrNos.u16ProdSrNoVer == SR_NOS_LATEST_VER)
         {
-            if(CRC16::ComputeCRCGeneric((uint8_t *)&_stSrNos + (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2),
-              (sizeof(PRODUCT_SR_NOS_t) - SERIAL_NOS_SIGNATURE_LEN - SERIAL_NOS_VER_LEN - 2),
+            if(CRC16::ComputeCRCGeneric((uint8_t *)&_stSrNos + SR_NOS_HEADER_SIZE,
+              (sizeof(PRODUCT_SR_NOS_t) - SR_NOS_HEADER_SIZE),
              CRC_MEMORY_SEED) != _stSrNos.u16Crc)
             {
                 /*CRC does not match*/
@@ -1099,8 +1099,8 @@ void UI::prvReadSrNos()
 
     if(bUpdateDataInEEPROM) /*Sr no data is invalid*/
     {
-        uint16_t u16DataLen = (sizeof(PRODUCT_SR_NOS_t) - SERIAL_NOS_SIGNATURE_LEN - SERIAL_NOS_VER_LEN - 2);
-        uint8_t* pu8DataStart = (uint8_t *)&_stSrNos + (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2);
+        uint16_t u16DataLen = (sizeof(PRODUCT_SR_NOS_t) - SR_NOS_HEADER_SIZE);
+        uint8_t* pu8DataStart = (uint8_t *)&_stSrNos + SR_NOS_HEADER_SIZE;
         memset(pu8DataStart, 0, u16DataLen); //Ascii code for NULL
         _stSrNos.u32Signature = SR_NO_DATA_SIGNATURE;
         _stSrNos.u16ProdSrNoVer = SR_NOS_LATEST_VER;
@@ -1110,7 +1110,7 @@ void UI::prvReadSrNos()
         _stSrNos.u8MainContSrNo[MAIN_CONT_SRNO_LEN-1] = '\0';
         _stSrNos.u8EngContSrNo[ENG_CONT_SRNO_LEN-1] = '\0';
         _stSrNos.u8SiteId[SITE_ID_LEN-1] = '\0';
-        _stSrNos.u16Crc = CRC16::ComputeCRCGeneric((uint8_t *)&_stSrNos + (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2),
+        _stSrNos.u16Crc = CRC16::ComputeCRCGeneric((uint8_t *)&_stSrNos + SR_NOS_HEADER_SIZE,
                u16DataLen, CRC_MEMORY_SEED);
         _objHal.Objeeprom.RequestWrite(SERIAL_NOS_AREA_START_ADDRESS, (uint8_t*)&_stSrNos, sizeof(PRODUCT_SR_NOS_t), NULL);
     }
@@ -1993,9 +1993,9 @@ void UI::SaveConfigFile()
         {
             bSrNosEdited = false;
             /*Sr nos are edited. Copy updated values into SrNos structure, calculate CRC and write into Eeprom*/
-            uint16_t u16DataLen = (sizeof(PRODUCT_SR_NOS_t) - SERIAL_NOS_SIGNATURE_LEN - SERIAL_NOS_VER_LEN - 2);
-            memcpy((void*)((uint8_t*)&_stSrNos + SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2), (uint8_t*)&(CEditableItem::u8SrNoArr[0].u8Arr[0]), u16DataLen);
-            _stSrNos.u16Crc = CRC16::ComputeCRCGeneric((uint8_t *)&_stSrNos + (SERIAL_NOS_SIGNATURE_LEN + SERIAL_NOS_VER_LEN + 2),
+            uint16_t u16DataLen = (sizeof(PRODUCT_SR_NOS_t) - SR_NOS_HEADER_SIZE);
+            memcpy((void*)((uint8_t*)&_stSrNos + SR_NOS_HEADER_SIZE), (uint8_t*)&(CEditableItem::u8SrNoArr[0].u8Arr[0]), u16DataLen);
+            _stSrNos.u16Crc = CRC16::ComputeCRCGeneric((uint8_t *)&_stSrNos + (SR_NOS_HEADER_SIZE),
                u16DataLen, CRC_MEMORY_SEED);
             _objHal.Objeeprom.RequestWrite(SERIAL_NOS_AREA_START_ADDRESS, (uint8_t*)&_stSrNos, sizeof(PRODUCT_SR_NOS_t), NULL);
         }
@@ -3186,4 +3186,62 @@ void UI::prvSetPasswordAccessLevel(uint16_t u16Index,uint8_t u8PasswordLevel)
     {
         ArrEditableItem[u16Index].u8PasswordLevel = u8PasswordLevel;
     }
+}
+
+void UI::GetSrNoByIndex(CEditableItem::SRNO_TYPES_t eSrNoType, uint8_t* pu8Srno)
+{
+    uint8_t* pu8Src;
+    uint8_t u8Size;
+    if((eSrNoType < CEditableItem::SRNO_TYPE_LAST) && (pu8Srno != 0))
+    {
+        switch(eSrNoType)
+        {
+        case(CEditableItem::SRNO_GENSET):
+        {
+            pu8Src = &_stSrNos.u8GenSrNo[0];
+            u8Size = sizeof(_stSrNos.u8GenSrNo);
+        }
+        break;
+        case(CEditableItem::SRNO_ENGINE):
+        {
+            pu8Src = &_stSrNos.u8EngSrNo[0];
+            u8Size = sizeof(_stSrNos.u8EngSrNo);  
+        }
+        break;
+        case(CEditableItem::SRNO_ALT):
+        {
+            pu8Src = &_stSrNos.u8AltSrNo[0];
+            u8Size = sizeof(_stSrNos.u8AltSrNo);  
+        }
+        break;
+        case(CEditableItem::SRNO_MAINCONT):
+        {
+            pu8Src = &_stSrNos.u8MainContSrNo[0];
+            u8Size = sizeof(_stSrNos.u8MainContSrNo);
+        }
+        break;
+        case(CEditableItem::SRNO_ENGCONT):
+        {
+            pu8Src = &_stSrNos.u8EngContSrNo[0];
+            u8Size = sizeof(_stSrNos.u8EngContSrNo);  
+        }
+        break;
+        case(CEditableItem::SRNO_SITEID):
+        {
+            pu8Src = &_stSrNos.u8SiteId[0];
+            u8Size = sizeof(_stSrNos.u8SiteId);  
+        }
+        break;
+        default:
+            pu8Src = &_stSrNos.u8EngSrNo[0];
+            u8Size = sizeof(_stSrNos.u8EngSrNo);
+        break;
+        }
+        memcpy((void*)pu8Srno, (void*)pu8Src, u8Size);
+    }  
+}
+
+void UI::StoreSrNo()
+{
+    bSrNosEdited = true;  
 }

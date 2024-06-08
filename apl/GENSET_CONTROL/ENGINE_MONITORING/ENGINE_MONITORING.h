@@ -14,6 +14,7 @@
 #ifndef _ENGINE_MONITORING_H_
 #define _ENGINE_MONITORING_H_
 
+#include <time.h>
 #include "stdio.h"
 #include "HAL_Manager.h"
 #include "../../apl/CFGZ/CFGZ.h"
@@ -146,7 +147,6 @@ public:
     uint32_t GetOnLoadRunTimeMin();
     uint32_t GetCumCrankCnt();
     uint32_t GetCumFailedCrankCnt();
-    bool IsDiffTwelveHr();
 
 #if (TEST_AUTOMATION == YES)
     /**
@@ -227,7 +227,7 @@ private:
     #define TIME_4th_SLOT_SEC           (15*60U) //15min
 
     #define ONE_MIN_CNT                 (60)
-    #define TWELVE_HR_CNT               (720) //in min
+    #define TWELVE_HR_IN_SEC            (12*60*60) //in min
     #define MAX_NO_OF_STARTS            (65000)
     #define MAX_NO_OF_TRIPS             (65000)
     #define TMR_COUNT_FOR_TWO_SECS      (40)
@@ -249,7 +249,7 @@ private:
         uint32_t u32GenNoLoadRunTime_min;
         uint32_t u32GenOnLoadRunTime_min;
         uint32_t u32GenExtOverloadRunTime_min;
-        RTC::TIME_t ExtOvldStartTime;
+        time_t  ExtOvldStartTime;
         uint8_t u8ExtOvldStarted;
         uint8_t u8ExtOvldFault;
         uint8_t u8Dummy[2];
@@ -385,6 +385,7 @@ private:
    
     void prvUpdateCumCrankCnts();
     void prvUpdateExtOvldRunHrs();
+    time_t prvGetCurrTimeStamp(); 
 };
 
 #endif

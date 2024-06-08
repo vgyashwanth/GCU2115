@@ -324,17 +324,25 @@ void MB_APP::prvUpdateInputRegisters()
 
     SetReadRegisterValue(MB_INPUT_REG_PROTOCOL_VER, 23);
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8GenSrNo), GEN_SRNO_LEN);
+    uint8_t u8StrSrNo[SR_NOS_MAX_SIZE];
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8EngSrNo), ENG_SRNO_LEN);
+    UI::GetSrNoByIndex(CEditableItem::SRNO_GENSET, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_GEN_SERIAL_NO_10, (uint8_t*)u8StrSrNo, GEN_SRNO_LEN);
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8AltSrNo), ALT_SRNO_LEN);
+    UI::GetSrNoByIndex(CEditableItem::SRNO_ENGINE, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_SERIAL_NO_10, (uint8_t*)u8StrSrNo, ENG_SRNO_LEN);
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8MainContSrNo), MAIN_CONT_SRNO_LEN);
+    UI::GetSrNoByIndex(CEditableItem::SRNO_ALT, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ALT_SERIAL_NO_10, (uint8_t*)u8StrSrNo, ALT_SRNO_LEN);
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*)&(UI::_stSrNos.u8EngContSrNo), ENG_CONT_SRNO_LEN);
+    UI::GetSrNoByIndex(CEditableItem::SRNO_MAINCONT, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_MAIN_CONTROLLER_SERIAL_NO_10, (uint8_t*)u8StrSrNo, MAIN_CONT_SRNO_LEN);
 
-    prvSetMultipleInputRegisters(MB_INPUT_REG_SITE_ID_5, (uint8_t*)&(UI::_stSrNos.u8SiteId), SITE_ID_LEN);
+    UI::GetSrNoByIndex(CEditableItem::SRNO_ENGCONT, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_ENGINE_CONTROLLER_SERIAL_NO_10, (uint8_t*)u8StrSrNo, ENG_CONT_SRNO_LEN);
+
+    UI::GetSrNoByIndex(CEditableItem::SRNO_SITEID, u8StrSrNo);
+    prvSetMultipleInputRegisters(MB_INPUT_REG_SITE_ID_5, (uint8_t*)u8StrSrNo, SITE_ID_LEN);
 
     /*Get the current time*/
     RTC::TIME_t currentTime;

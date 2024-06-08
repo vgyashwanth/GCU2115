@@ -889,7 +889,7 @@ void ENGINE_MONITORING::prvUpdateEngineRunHrs()
 
 void ENGINE_MONITORING::prvUpdateExtOvldRunHrs()
 {
-    static uint8_t u8StoreCnt = 0U;
+    static uint8_t u8StoreCnt = 0U; 
     /*NOTE: This function is only to be called inside prvUpdateEngineRunHrs() in the 1 min timeout*/
     if(_GCUAlarms.IsExtendedOverLoad())
     {
@@ -897,7 +897,8 @@ void ENGINE_MONITORING::prvUpdateExtOvldRunHrs()
         {
             /*extended overload condition is met for the first time. Set the flag and storenthe current time*/
             _stCummulativeCnt.u8ExtOvldStarted = 1;
-            _hal.ObjRTC.GetTime( &(_stCummulativeCnt.ExtOvldStartTime) );
+            
+            _stCummulativeCnt.ExtOvldStartTime = prvGetCurrTimeStamp();
             _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
         }
         _stCummulativeCnt.u32GenExtOverloadRunTime_min++;
@@ -912,7 +913,17 @@ void ENGINE_MONITORING::prvUpdateExtOvldRunHrs()
         StoreCummulativeCnt(CUM_STORE_OVLD_EXT_RUN_HRS);
     }
 
-    if(IsDiffTwelveHr() && (_stCummulativeCnt.u8ExtOvldStarted != 0))
+    /**/
+    bool bTwelveHrsPassed = true;
+    time_t stCurrTime = prvGetCurrTimeStamp();
+    /*If current time is greater than the stored time, check if twelve hours have passed
+    if not, there is some issue with the RTC, hence we assume twelve hours have passed*/
+    if(stCurrTime >= _stCummulativeCnt.ExtOvldStartTime)
+    {
+        bTwelveHrsPassed = ((stCurrTime - _stCummulativeCnt.ExtOvldStartTime) >= TWELVE_HR_IN_SEC);
+    }
+    
+    if(bTwelveHrsPassed && (_stCummulativeCnt.u8ExtOvldStarted != 0))
     {
         /*Reset the cycle cnt*/
         _stCummulativeCnt.u32GenExtOverloadRunTime_min = 0U;
@@ -933,132 +944,23 @@ void ENGINE_MONITORING::prvUpdateExtOvldRunHrs()
     }
 }
 
-bool ENGINE_MONITORING::IsDiffTwelveHr()
+time_t ENGINE_MONITORING::prvGetCurrTimeStamp() 
 {
-    uint8_t u8MonthDayCnt[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    bool bRet = true;
-    RTC::TIME_t CurrTime;
-    _hal.ObjRTC.GetTime(&CurrTime);
-
-    #define STORED_YEAR  (_stCummulativeCnt.ExtOvldStartTime.u16Year)
-    #define STORED_MONTH (_stCummulativeCnt.ExtOvldStartTime.u8Month)
-    #define STORED_DAY   (_stCummulativeCnt.ExtOvldStartTime.u8Day)
-    #define STORED_HOUR  (_stCummulativeCnt.ExtOvldStartTime.u8Hour)
-    #define STORED_MIN   (_stCummulativeCnt.ExtOvldStartTime.u8Minute)
-
-    #define CURR_YEAR  (CurrTime.u16Year)
-    #define CURR_MONTH (CurrTime.u8Month)
-    #define CURR_DAY   (CurrTime.u8Day)
-    #define CURR_HOUR  (CurrTime.u8Hour)
-    #define CURR_MIN   (CurrTime.u8Minute)
-
-    if((CURR_YEAR > STORED_YEAR) && ((CURR_YEAR - STORED_YEAR) >= 2))
-    {
-        bRet = true;
-    }
-    else if((CURR_YEAR == (STORED_YEAR + 1)))
-    {
-        uint32_t u32StoredYearMinCnt = 0;
-        if( (((STORED_YEAR)%4 == 0) && ((STORED_YEAR)%100 != 0)) || ((STORED_YEAR)%400 == 0) ) /*Check for leap years*/
-        {
-            u8MonthDayCnt[1] = 29;
-            u32StoredYearMinCnt = 366*24*60;
-        }
-        uint16_t u16DayCnt = 0;
-        for(uint8_t u8Idx = 0; u8Idx <= ((STORED_MONTH) - 1); u8Idx++ )
-        {
-            if(u8Idx == ((STORED_MONTH) - 1))
-            {
-                break;
-            }
-            u16DayCnt = u16DayCnt + u8MonthDayCnt[u8Idx];
-        }
-        u16DayCnt = u16DayCnt + STORED_DAY;
-        u32StoredYearMinCnt = u32StoredYearMinCnt - (u16DayCnt*24*60 + STORED_HOUR + STORED_MIN);
-
-        u8MonthDayCnt[1] = 29;
-        uint32_t u32CurrYearMinCnt = 0;
-        if( (((CURR_YEAR)%4 == 0) && ((CURR_YEAR)%100 != 0)) || ((CURR_YEAR)%400 == 0) ) /*Check for leap years*/
-        {
-            u8MonthDayCnt[1] = 29;
-        }
-        u16DayCnt = 0;
-        for(uint8_t u8Idx = 0; u8Idx <= ((CURR_MONTH) - 1); u8Idx++ )
-        {
-            if(u8Idx == ((CURR_MONTH) - 1))
-            {
-                break;
-            }
-            u16DayCnt = u16DayCnt + u8MonthDayCnt[u8Idx];
-        }
-        u16DayCnt = u16DayCnt + CURR_DAY;
-        u32CurrYearMinCnt = (u16DayCnt*24*60 + CURR_HOUR + CURR_MIN);
-
-        if((u32CurrYearMinCnt + u32StoredYearMinCnt) >= 720) /*Difference is greater than 12 hrs*/
-        {
-            bRet = true;
-        }
-        else
-        {
-            bRet = false;
-        }
-        
-    }
-    else if(CURR_YEAR == (STORED_YEAR))
-    {
-        uint32_t u32StoredYearMinCnt = 0;
-        if( (((STORED_YEAR)%4 == 0) && ((STORED_YEAR)%100 != 0)) || ((STORED_YEAR)%400 == 0) ) /*Check for leap years*/
-        {
-            u8MonthDayCnt[1] = 29;
-        }
-        uint16_t u16DayCnt = 0;
-        for(uint8_t u8Idx = 0; u8Idx <= ((STORED_MONTH) - 1); u8Idx++ )
-        {
-            if(u8Idx == ((STORED_MONTH) - 1))
-            {
-                break;
-            }
-            u16DayCnt = u16DayCnt + u8MonthDayCnt[u8Idx];
-        }
-        u16DayCnt = u16DayCnt + STORED_DAY;
-        u32StoredYearMinCnt = (u16DayCnt*24*60 + STORED_HOUR + STORED_MIN);
-
-        u16DayCnt = 0;
-        uint32_t u32CurrYearMinCnt = 0;
-        for(uint8_t u8Idx = 0; u8Idx <= ((CURR_MONTH) - 1); u8Idx++ )
-        {
-            if(u8Idx == ((CURR_MONTH) - 1))
-            {
-                break;
-            }
-            u16DayCnt = u16DayCnt + u8MonthDayCnt[u8Idx];
-        }
-        u16DayCnt = u16DayCnt + CURR_DAY;
-        u32CurrYearMinCnt = (u16DayCnt*24*60 + CURR_HOUR + CURR_MIN);
-
-        if(u32CurrYearMinCnt > u32StoredYearMinCnt)
-        {
-            if((u32CurrYearMinCnt - u32StoredYearMinCnt) >= 720) /*Difference is greater than 12 hrs*/
-            {
-                bRet = true;
-            }
-            else
-            {
-                bRet = false;
-            }
-        }
-        else
-        {
-            /*Curr time is less than stored time. \
-            As there is some mismatch, condition is assumed to be met to avoid further issues*/
-            bRet = true;
-        }
-    }
-
-    return bRet;
-
+    RTC::TIME_t stCurrentTime;
+    _hal.ObjRTC.GetTime(&stCurrentTime);
+    time_t stRetVal;
+    struct tm stDateTime;
+    /* 1900 is being sued below as the same year is used as reference in the mktime library function */
+    stDateTime.tm_year = (int)(stCurrentTime.u16Year - 1900);
+    stDateTime.tm_mon = (int)(stCurrentTime.u8Month - 1);
+    stDateTime.tm_mday = (int)stCurrentTime.u8Day;
+    stDateTime.tm_hour = (int)stCurrentTime.u8Hour;
+    stDateTime.tm_min = (int)stCurrentTime.u8Minute;
+    stDateTime.tm_sec = (int)stCurrentTime.u8Second;
+    /* mktime is a library function that converts the given tm struct into a timestamp  */
+    stRetVal = mktime(&stDateTime);
+    return stRetVal;
 }
-
 
 void ENGINE_MONITORING::prvUpdateMainsRunHrs()
 {

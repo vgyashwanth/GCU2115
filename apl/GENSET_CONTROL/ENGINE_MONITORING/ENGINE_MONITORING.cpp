@@ -900,7 +900,7 @@ void ENGINE_MONITORING::prvCheckExtOvldReset()
         if not, there is some issue with the RTC, hence we assume twelve hours have passed*/
         if(stCurrTime >= _stCummulativeCnt.ExtOvldStartTime)
         {
-            bTwelveHrsPassed = ((stCurrTime - _stCummulativeCnt.ExtOvldStartTime) >= (FIVE_MIN_IN_SEC)/*TWELVE_HR_IN_SEC*/);
+            bTwelveHrsPassed = ((stCurrTime - _stCummulativeCnt.ExtOvldStartTime) >= (TWELVE_HR_IN_SEC));
         }
         
         if(bTwelveHrsPassed && (_stCummulativeCnt.u8ExtOvldStarted != 0))
@@ -937,7 +937,7 @@ void ENGINE_MONITORING::prvUpdateExtOvldRunHrs()
         _stCummulativeCnt.u32GenExtOverloadRunTime_min++;
     }
 
-    if((_stCummulativeCnt.u32GenExtOverloadRunTime_min >= 3/*60*/) && (_stCummulativeCnt.u8ExtOvldStarted != 0)
+    if((_stCummulativeCnt.u32GenExtOverloadRunTime_min >= 60) && (_stCummulativeCnt.u8ExtOvldStarted != 0)
     && (_stCummulativeCnt.u8ExtOvldFault == 0))
     {
         /*The overload run time has passed 1 hour. Set extended overload alarm*/

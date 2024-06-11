@@ -227,7 +227,8 @@ private:
     #define TIME_4th_SLOT_SEC           (15*60U) //15min
 
     #define ONE_MIN_CNT                 (60)
-    #define TWELVE_HR_IN_SEC            (12*60*60) //in min
+    #define TWELVE_HR_IN_SEC            (12*60*60) //in sec
+    #define FIVE_MIN_IN_SEC             (5*60) //in sec
     #define MAX_NO_OF_STARTS            (65000)
     #define MAX_NO_OF_TRIPS             (65000)
     #define TMR_COUNT_FOR_TWO_SECS      (40)
@@ -385,6 +386,7 @@ private:
    
     void prvUpdateCumCrankCnts();
     void prvUpdateExtOvldRunHrs();
+    void prvCheckExtOvldReset();
     time_t prvGetCurrTimeStamp(); 
 };
 

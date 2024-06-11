@@ -53,6 +53,7 @@ _bHighShelterTemp(false),
 _bLowShelterTemp(false),
 _bUpdateFuelTheftCalc(false),
 _bExtOverload(false),
+_bMonSourceIsBatt(false),
 _u8UnderFreqAlarm(0),
 _u8OverFreqAlarm(0),
 _u8RPhaseOverVoltAlarm(0),
@@ -1105,10 +1106,12 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_MON_SOURCE) == CFGZ::CFGZ_MON_SRC_BATTERY)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Battery_Over_Voltage_id;
+                _bMonSourceIsBatt = true;
             }
             else
             {
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Supercap_Over_Voltage_id;
+                _bMonSourceIsBatt = false;
             }
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[BATTERY_VOLTAGE];
@@ -1125,10 +1128,12 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_BATTERY_MONITOR_MON_SOURCE) == CFGZ::CFGZ_MON_SRC_BATTERY)
             {
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Battery_Under_Voltage_id;
+                _bMonSourceIsBatt = true;
             }
             else
             {
                 ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Supercap_Under_Voltage_id;
+                _bMonSourceIsBatt = false;
             }
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[BATTERY_VOLTAGE];
@@ -3382,10 +3387,11 @@ void GCU_ALARMS::prvUpdateOutputs()
 //    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_06_PIN_03, eDOJState);
 //    R_IOPORT_PinWrite(&g_ioport_ctrl, BSP_IO_PORT_06_PIN_02, eDOJState);
 
-    prvActDeactOutput(ArrAlarmMonitoring[VBAT_OV].bResultInstant || ArrAlarmMonitoring[VBAT_UV].bResultInstant, ACTUATOR::ACT_BATTERY_UNHEALTHY);
+    prvActDeactOutput((ArrAlarmMonitoring[VBAT_OV].bResultInstant || ArrAlarmMonitoring[VBAT_UV].bResultInstant) && (_bMonSourceIsBatt), ACTUATOR::ACT_BATTERY_UNHEALTHY);
     prvActDeactOutput(_bAutomaticModeSwitchStatus, ACTUATOR::ACT_AUTO_MODE_SW_OUTPUT);
     prvActDeactOutput(prvIsEgrFaultPresent() || prvIsEgrFaultRecvdFromECU(), ACTUATOR::ACT_EGR);
-    prvActDeactOutput(ArrAlarmMonitoring[SUPERCAP_FAIL].bResultInstant, ACTUATOR::ACT_SUPERCAP_UNHEALTHY);
+    prvActDeactOutput((ArrAlarmMonitoring[SUPERCAP_FAIL].bResultInstant) 
+        || ((ArrAlarmMonitoring[VBAT_OV].bResultInstant || ArrAlarmMonitoring[VBAT_UV].bResultInstant) && (!_bMonSourceIsBatt)), ACTUATOR::ACT_SUPERCAP_UNHEALTHY);
     prvActDeactOutput((_u8HighCanopyTempAlarm || ArrAlarmMonitoring[OPEN_CANOPY_TEMP_CKT].bAlarmActive), ACTUATOR::ACT_CANOPY_TEMP_UNHEALTHY);
     prvActDeactOutput(prvIsDgOnLoad(), ACTUATOR::ACT_DG_ON_LOAD);
     prvActDeactOutput(ArrAlarmMonitoring[OVERLOAD].bAlarmActive, ACTUATOR::ACT_DG_OVERLOAD);

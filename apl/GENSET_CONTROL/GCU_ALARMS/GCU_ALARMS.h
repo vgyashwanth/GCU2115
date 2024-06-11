@@ -724,6 +724,7 @@ private:
     bool _bUpdateFuelTheftCalc;
     bool _bExtOverload;
     bool _bEgrShutdownLatched;
+    bool _bMonSourceIsBatt;
     uint8_t _u8UnderFreqAlarm;
     uint8_t _u8OverFreqAlarm;
     uint8_t _u8RPhaseOverVoltAlarm;

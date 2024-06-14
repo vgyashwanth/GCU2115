@@ -2897,6 +2897,7 @@ void UI::prvUpdateConfigStrings()
         ArrEditableItem[INDEX_OF_HWT_WARNING_EN].promptMessage = strLeafNode[_u8LanguageArrayIndex][SID_CLNT_TEMP_WARNING_EN];
         ArrEditableItem[INDEX_OF_HWT_WARNING_THRESH].promptMessage = strLeafNode[_u8LanguageArrayIndex][SID_CLNT_TEMP_WARNING_THRESH];
         menuItemsMidLevel[ID_ENG_TEMPERATURE].pItemName = strSubMenu[_u8LanguageArrayIndex][ID_ENG_TEMPERATURE];
+        ArrSubMenu[ID_ENG_TEMPERATURE].pMenuTitle = strSubMenu[_u8LanguageArrayIndex][ID_ENG_TEMPERATURE];
     }
     else
     {
@@ -2904,7 +2905,8 @@ void UI::prvUpdateConfigStrings()
         ArrEditableItem[INDEX_OF_HWT_SHUTDOWN_THRESH].promptMessage = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_EDITITEM_ENG_TEMP_SHDN_TH];
         ArrEditableItem[INDEX_OF_HWT_WARNING_EN].promptMessage = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_EDITITEM_ENG_TEMP_WARN_EN];
         ArrEditableItem[INDEX_OF_HWT_WARNING_THRESH].promptMessage = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_EDITITEM_ENG_TEMP_WARN_TH];
-        menuItemsMidLevel[ID_ENG_TEMPERATURE].pItemName = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_SUBMENU_ENG_TEMPERATURE];  
+        menuItemsMidLevel[ID_ENG_TEMPERATURE].pItemName = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_SUBMENU_ENG_TEMPERATURE];
+        ArrSubMenu[ID_ENG_TEMPERATURE].pMenuTitle = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_SUBMENU_ENG_TEMPERATURE];  
     }  
 
     if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)

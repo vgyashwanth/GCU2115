@@ -469,8 +469,6 @@ public:
     static bool _bModeSwitchAlarm;
     static bool _bAutomaticModeSwitchStatus;
 
-    static bool _bEventNumberReadDone;
-    static bool _bRollOverReadDone;
     uint32_t GetCurrentEventNumber();
     bool GetEventRolloverBit();
     static bool bEventWrittenSuccessfully;

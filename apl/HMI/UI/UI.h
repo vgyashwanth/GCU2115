@@ -121,5 +121,6 @@ private:
     void prvSetPasswordAccessLevel(uint16_t u16Index, uint8_t u8PasswordLevel);
     void prvUpdateAutomationModbusMap();
     void prvReadSrNos();
+    void prvUpdateConfigStrings();
 };
 #endif /* _UI_H_ */

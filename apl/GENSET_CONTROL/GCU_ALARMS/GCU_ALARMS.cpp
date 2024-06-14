@@ -22,14 +22,10 @@
 #define LOP_VOLT_MAX_VAL        5.5//V
 
 extern J1939APP *gpJ1939;
-void ReadEventNumber(EEPROM::EVENTS_t evt);
-void ReadRollOver(EEPROM::EVENTS_t evt);
 void EventWriteCB(EEPROM::EVENTS_t evt);
 
 bool GCU_ALARMS::_bModeSwitchAlarm = false;
 bool GCU_ALARMS::_bAutomaticModeSwitchStatus = false;
-bool GCU_ALARMS::_bEventNumberReadDone=false;
-bool GCU_ALARMS::_bRollOverReadDone=false;
 CircularQueue<GCU_ALARMS::EVENT_LOG_Q_t> GCU_ALARMS::_EventQueue = {GCU_ALARMS::_EventQArr,EVENT_LOG_Q_SIZE};
 GCU_ALARMS::EVENT_LOG_Q_t GCU_ALARMS::_EventQArr[EVENT_LOG_Q_SIZE]={};
 
@@ -130,8 +126,16 @@ u16PulseDetectionCount(0U)
     UTILS_ResetTimer(&_AlarmUpdate);
     UTILS_ResetTimer(&_FuelTheftOneHourTimer);
     UTILS_ResetTimer(&_Modbus10minTimer);
-    _hal.Objeeprom.RequestRead(EXT_EEPROM_CURRENT_EVENT_NO_ADDRESS,(uint8_t*) &_u32EventNumber, 4, ReadEventNumber);
-    _hal.Objeeprom.RequestRead(EXT_EEPROM_ROLLED_OVER_ADDRESS,(uint8_t*) &_u32RolledOverByte, 4, ReadRollOver);
+    _hal.Objeeprom.BlockingRead(EXT_EEPROM_CURRENT_EVENT_NO_ADDRESS,(uint8_t*) &_u32EventNumber, 4);
+    _hal.Objeeprom.BlockingRead(EXT_EEPROM_ROLLED_OVER_ADDRESS,(uint8_t*) &_u32RolledOverByte, 4);
+    if(_u32EventNumber >= CFGC::GetMaxNumberOfEvents())
+    {
+        _u32EventNumber = 0U;
+    }
+    if(_u32RolledOverByte > 1U)
+    {
+        _u32RolledOverByte =0U;
+    }
 
     _u32EgrFaultMonTime_sec = _cfgz.GetProductSpecificData(CFGZ::PS_EGR_FAULT_TIMER)*60U;
     _u32EgrFaultHealTime_sec = _cfgz.GetProductSpecificData(CFGZ::PS_EGR_HEAL_TIMER)*60U;
@@ -159,78 +163,62 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
 
     _u8UnbalancedloadMon = prvUpdateUnbalancedLoadMon();
 
-    if(_bEventNumberReadDone && _bRollOverReadDone)
+    if(UTILS_GetElapsedTimeInSec(&_AlarmUpdate) >= FOUR_SEC)
     {
-        _bEventNumberReadDone = false;
-        _bRollOverReadDone = false;
-        if(_u32EventNumber >= CFGC::GetMaxNumberOfEvents())
+        /*
+         * SuryaPranayTeja.BVV
+         * After power on reset the execution comes here once and will configure all the alarms.
+         */
+        bAlarmUpdate = true;
+        UTILS_ResetTimer(&_UpdateAlarmMonTimer);
+        UTILS_DisableTimer(&_AlarmUpdate);
+
+        for(uint8_t u8Index = 0; u8Index < ALARM_LIST_LAST; u8Index++)
         {
-            _u32EventNumber =0;
+            ConfigureGCUAlarms(u8Index);
         }
-        if(_u32RolledOverByte > 1)
+        for(uint8_t u8LoggingID = 0; u8LoggingID < ID_ALL_ALARMS_LAST; u8LoggingID++)
         {
-            _u32RolledOverByte =0;
+            AssignAlarmsForDisplay(u8LoggingID);
         }
     }
-    else
+    if(UTILS_GetElapsedTimeInSec(&_FuelTheftOneHourTimer) >= 3600)
     {
-        if(UTILS_GetElapsedTimeInSec(&_AlarmUpdate) >= FOUR_SEC)
+        UTILS_ResetTimer(&_FuelTheftOneHourTimer);
+        _bUpdateFuelTheftCalc = true;
+        UTILS_ResetTimer(&_FuelTheftWakeUpTimer);
+    }
+    if(UTILS_GetElapsedTimeInSec(&_Modbus10minTimer) >= 60*10)
+    {
+        UTILS_ResetTimer(&_Modbus10minTimer);
+        _bUpdateModbusCountCalc = true;
+    }
+    if((UTILS_GetElapsedTimeInMs(&_UpdateAlarmMonTimer) >= FIFTY_MSEC) && (bAlarmUpdate))
+    {
+        if(_EventQueue.Peek(&_stLog) && bEventWrittenSuccessfully)
         {
-            /*
-             * SuryaPranayTeja.BVV
-             * After power on reset the execution comes here once and will configure all the alarms.
-             */
-            bAlarmUpdate = true;
+            bEventWrittenSuccessfully = false;
+            _hal.Objeeprom.RequestWrite((_stLog.u32EventNo *sizeof(EVENT_LOG_t))+ EXT_EEPROM_EVENT_LOG_START_ADDRESS ,
+                                        (uint8_t*)&_stLog.stEventLog, sizeof(EVENT_LOG_t), EventWriteCB);
+            _stLog.u32EventNo++;
+            _hal.Objeeprom.RequestWrite(EXT_EEPROM_CURRENT_EVENT_NO_ADDRESS , (uint8_t*)&_stLog.u32EventNo,
+                                        EXT_EEPROM_CURRENT_EVENT_NO_LENGTH, NULL);
+            EVENT_LOG_Q_t stLocalLog;
+
+            _EventQueue.DeQueue(&stLocalLog);
+        }
+        if(!bDeviceInConfigMode)
+        {
             UTILS_ResetTimer(&_UpdateAlarmMonTimer);
-            UTILS_DisableTimer(&_AlarmUpdate);
+            prvUpdateGCUAlarmsValue();
+            prvUpdateAlarmStatus();
+            prvUpdateOutputs();
+            prvIsFuelTheftAlarm();
 
-            for(uint8_t u8Index = 0; u8Index < ALARM_LIST_LAST; u8Index++)
-            {
-                ConfigureGCUAlarms(u8Index);
-            }
-            for(uint8_t u8LoggingID = 0; u8LoggingID < ID_ALL_ALARMS_LAST; u8LoggingID++)
-            {
-                AssignAlarmsForDisplay(u8LoggingID);
-            }
-        }
-        if(UTILS_GetElapsedTimeInSec(&_FuelTheftOneHourTimer) >= 3600)
-        {
-            UTILS_ResetTimer(&_FuelTheftOneHourTimer);
-            _bUpdateFuelTheftCalc = true;
-            UTILS_ResetTimer(&_FuelTheftWakeUpTimer);
-        }
-        if(UTILS_GetElapsedTimeInSec(&_Modbus10minTimer) >= 60*10)
-        {
-            UTILS_ResetTimer(&_Modbus10minTimer);
-            _bUpdateModbusCountCalc = true;
-        }
-        if((UTILS_GetElapsedTimeInMs(&_UpdateAlarmMonTimer) >= FIFTY_MSEC) && (bAlarmUpdate))
-        {
-            if(_EventQueue.Peek(&_stLog) && bEventWrittenSuccessfully)
-            {
-                bEventWrittenSuccessfully = false;
-                _hal.Objeeprom.RequestWrite((_stLog.u32EventNo *sizeof(EVENT_LOG_t))+ EXT_EEPROM_EVENT_LOG_START_ADDRESS ,
-                                            (uint8_t*)&_stLog.stEventLog, sizeof(EVENT_LOG_t), EventWriteCB);
-                _stLog.u32EventNo++;
-                _hal.Objeeprom.RequestWrite(EXT_EEPROM_CURRENT_EVENT_NO_ADDRESS , (uint8_t*)&_stLog.u32EventNo,
-                                            EXT_EEPROM_CURRENT_EVENT_NO_LENGTH, NULL);
-                EVENT_LOG_Q_t stLocalLog;
-
-                _EventQueue.DeQueue(&stLocalLog);
-            }
-            if(!bDeviceInConfigMode)
-            {
-                UTILS_ResetTimer(&_UpdateAlarmMonTimer);
-                prvUpdateGCUAlarmsValue();
-                prvUpdateAlarmStatus();
-                prvUpdateOutputs();
-                prvIsFuelTheftAlarm();
-
-                prvMainsHighLowOutputs();
-                FillDisplayAlarmArray();
-                UpdateEgrDetections();
-                prvUpdateDTCEventLog();
-            }
+            prvMainsHighLowOutputs();
+            FillDisplayAlarmArray();
+            UpdateEgrDetections();
+            prvUpdateDTCEventLog();
         }
     }
 }
@@ -3800,22 +3788,6 @@ void GCU_ALARMS::prvMainsHighLowOutputs()
 bool GCU_ALARMS::prvIsNeedToCheckSensFltAlarm()
 {
     return(START_STOP::IsFuelRelayOn() && (!IsAlarmActive(GCU_ALARMS::MPU_LOSS) &&  ENGINE_MONITORING::IsEngineCranked()));
-}
-
-void ReadEventNumber(EEPROM::EVENTS_t evt)
-{
-    if(evt ==EEPROM::READ_COMPLETE)
-    {
-        GCU_ALARMS:: _bEventNumberReadDone = true;
-    }
-}
-
-void ReadRollOver(EEPROM::EVENTS_t evt)
-{
-    if(evt ==EEPROM::READ_COMPLETE)
-    {
-        GCU_ALARMS:: _bRollOverReadDone = true;
-    }
 }
 
 uint32_t GCU_ALARMS::GetCurrentEventNumber()

@@ -381,6 +381,27 @@ static const char* strMainMenu[1][ID_MAIN_MENU_LAST]
     }
 };
 
+typedef enum
+{
+    /*This enum is for strAlternate which provides alternate strings*/
+    ID_STR_ALT_SUBMENU_ENG_TEMPERATURE,
+    ID_STR_ALT_EDITITEM_ENG_TEMP_SHDN_EN,
+    ID_STR_ALT_EDITITEM_ENG_TEMP_SHDN_TH,
+    ID_STR_ALT_EDITITEM_ENG_TEMP_WARN_EN,
+    ID_STR_ALT_EDITITEM_ENG_TEMP_WARN_TH,
+    ID_STR_ALT_LAST
+}STR_ALT;
+static const char* strAlternate[1][ID_STR_ALT_LAST]
+{
+  {
+    "ENG TEMPERATURE",
+    "ENG TEMP SHDN EN",
+    "ENG TEMP SHDN TH",
+    "ENG TEMP WARN EN",
+    "ENG TEMP WARN TH"
+  }
+};
+
 static const char* strSubMenu[1][ID_SUB_MENU_LAST]
 {
     {
@@ -452,7 +473,7 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
 
         "ENG CONTROL UNIT",
         "LUBE OIL PRESSURE",
-        "ENG TEMPERATURE",
+        "CLNT TEMPERATURE",
         "LUBE OIL TEMP",
         "CANOPY TEMP",
 
@@ -602,7 +623,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "FUEL THEFT WARNING",
         "FUEL THEFT THRESHOLD",
         "FUEL CONSUMPTION",
-        "FUEL IN PCT",
+        "FUEL IN PERCENT",
         "R1",
         "L1",
         "R2",
@@ -1026,7 +1047,7 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "GENSET SR NO",
         "ENGINE SR NO",
         "ALTERNATOR SR NO",
-        "MAIN CONTROLLER SR NO",
+        "CONTROLLER SR NO",
         "ENG CONTROLLER SR NO",
         "SITE ID",
 
@@ -1739,7 +1760,7 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_GENSET_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8GenSrNo, strLeafNode[_u8LanguageArrayIndex][SID_GENSET_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_GENSET );
     ArrEditableItem[INDEX_OF_ENGINE_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8EngSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ENGINE_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ENGINE );
     ArrEditableItem[INDEX_OF_ALTERNATOR_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8AltSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ALTERNATOR_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ALT );
-    ArrEditableItem[INDEX_OF_MAIN_CONTROLLER_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8MainContSrNo, strLeafNode[_u8LanguageArrayIndex][SID_MAIN_CONTROLLER_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_MAINCONT );
+    ArrEditableItem[INDEX_OF_MAIN_CONTROLLER_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8MainContSrNo, strLeafNode[_u8LanguageArrayIndex][SID_MAIN_CONTROLLER_SR_NO], "", "%u", CEditableItem::NOT_ALLOWED, CEditableItem::SRNO_MAINCONT );
     ArrEditableItem[INDEX_OF_ENGINE_CONTROLLER_SR_NO]  = CEditableItem((uint8_t*)_stSrNos.u8EngContSrNo, strLeafNode[_u8LanguageArrayIndex][SID_ENGINE_CONTROLLER_SR_NO], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_ENGCONT );
     ArrEditableItem[INDEX_OF_SITE_ID]  = CEditableItem((uint8_t*)_stSrNos.u8SiteId, strLeafNode[_u8LanguageArrayIndex][SID_SITE_ID], "", "%u", CEditableItem::PIN1_ALLOWED, CEditableItem::SRNO_SITEID );
     ArrEditableItem[INDEX_OF_PIN_1]  = CEditableItem((CEditableItem::PASSWORD_t)stPIN_1,"", "", "%u", (CEditableItem::PASSWORD_t){0,0,0,0}, (CEditableItem::PASSWORD_t){9,9,9,9}, CEditableItem::PIN1_ALLOWED );
@@ -1805,6 +1826,10 @@ void UI::InitMenuItemsAndMenus()
     {
         menuItemsMidLevel[i] = CMenuItem (strSubMenu[_u8LanguageArrayIndex][i], &ArrSubMenu[i]);
     }
+
+    /*Need to disable Passwords in config UI*/
+    menuItemsMidLevel[ID_PASSWORD_1].isEnabled = false;
+    menuItemsMidLevel[ID_PASSWORD_2].isEnabled = false;
     //End
     //MainMenu
     //NewUI
@@ -1842,6 +1867,7 @@ void UI::Initialize()
     InitialiseCustomSensor();
     HandleMenuVisibility();
     prvInitialiseECUParam();
+    prvUpdateConfigStrings();
     prvUpdateAutomationModbusMap();
 }
 
@@ -2790,6 +2816,7 @@ void UI::Handler(int keyCode)
                 }
                 InitialiseCustomSensor();
                 _pCurEditableItemsScreen->pEditableItems[_pCurEditableItemsScreen->indexOfSelectedEditableItem].saveTempValue();
+                prvUpdateConfigStrings();
                 HandleMenuVisibility();
                 UpdateMaxNumberOfItem();
                 pCurMenu->show();
@@ -2861,22 +2888,39 @@ void UI::prvUpdateAutomationModbusMap()
 #endif
 }
 
+void UI::prvUpdateConfigStrings()
+{
+    if(ArrEditableItem[INDEX_OF_COOLANT_TEMP_FROM_ECU].value.u8Val == CFGZ::CFGZ_ENABLE)
+    {
+        ArrEditableItem[INDEX_OF_HWT_SHUTDOWN_EN].promptMessage = strLeafNode[_u8LanguageArrayIndex][SID_CLNT_TEMP_SHUTDOWN_EN]; 
+        ArrEditableItem[INDEX_OF_HWT_SHUTDOWN_THRESH].promptMessage = strLeafNode[_u8LanguageArrayIndex][SID_CLNT_TEMP_SHUTDOWN_THRESH]; 
+        ArrEditableItem[INDEX_OF_HWT_WARNING_EN].promptMessage = strLeafNode[_u8LanguageArrayIndex][SID_CLNT_TEMP_WARNING_EN];
+        ArrEditableItem[INDEX_OF_HWT_WARNING_THRESH].promptMessage = strLeafNode[_u8LanguageArrayIndex][SID_CLNT_TEMP_WARNING_THRESH];
+        menuItemsMidLevel[ID_ENG_TEMPERATURE].pItemName = strSubMenu[_u8LanguageArrayIndex][ID_ENG_TEMPERATURE];
+        ArrSubMenu[ID_ENG_TEMPERATURE].pMenuTitle = strSubMenu[_u8LanguageArrayIndex][ID_ENG_TEMPERATURE];
+    }
+    else
+    {
+        ArrEditableItem[INDEX_OF_HWT_SHUTDOWN_EN].promptMessage = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_EDITITEM_ENG_TEMP_SHDN_EN];
+        ArrEditableItem[INDEX_OF_HWT_SHUTDOWN_THRESH].promptMessage = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_EDITITEM_ENG_TEMP_SHDN_TH];
+        ArrEditableItem[INDEX_OF_HWT_WARNING_EN].promptMessage = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_EDITITEM_ENG_TEMP_WARN_EN];
+        ArrEditableItem[INDEX_OF_HWT_WARNING_THRESH].promptMessage = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_EDITITEM_ENG_TEMP_WARN_TH];
+        menuItemsMidLevel[ID_ENG_TEMPERATURE].pItemName = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_SUBMENU_ENG_TEMPERATURE];
+        ArrSubMenu[ID_ENG_TEMPERATURE].pMenuTitle = strAlternate[_u8LanguageArrayIndex][ID_STR_ALT_SUBMENU_ENG_TEMPERATURE];  
+    }  
+
+    if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].value.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
+    {
+        ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION].promptMessage = strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_OPEN_CKT_WARNING];
+    }
+    else
+    {
+        ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION].promptMessage = strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION];  
+    }  
+}
 
 void UI::InitialiseCustomSensor()
 {
-    if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].value.u8Val != ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].tempValue.u8Val)
-    {
-        if(ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_SENSOR_SELECTION].tempValue.u8Val == CFGZ::CFGZ_ANLG_CUSTOM_SENSOR2)
-        {
-            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_OPEN_CKT_WARNING],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );
-        }
-        else
-        {
-            ArrEditableItem[INDEX_OF_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION), strLeafNode[_u8LanguageArrayIndex][SID_SHEL_TEMP_DIG_M_OPEN_CKT_NOTIFICATION],"", "%s",  strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE], 2, CEditableItem::PIN1_ALLOWED );  
-        }  
-    }
-    
-
     if((ArrEditableItem[INDEX_OF_PREHEAT_AMB_TEMPERATURE].value.u8Val != ArrEditableItem[INDEX_OF_PREHEAT_AMB_TEMPERATURE].tempValue.u8Val))
     {
         if(ArrEditableItem[INDEX_OF_PREHEAT_AMB_TEMPERATURE].tempValue.u8Val == CFGZ::CFGZ_ENABLE)
@@ -3055,7 +3099,6 @@ void UI::prvInitialiseECUParam()
          }
     }
     u8EngineType=ArrEditableItem[INDEX_OF_ENGINE_TYPE].value.u8Val;
-
 }
 
 

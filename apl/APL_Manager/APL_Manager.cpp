@@ -44,6 +44,10 @@ _PowerOnUpdateTimer{0, false}
     {
         AnlgIp.SetHSDKFactor(1547.0F);
     }
+    else if((_cfgc.GetPCBPID()==15046) || (_cfgc.GetPCBPID()==15559)) ////VN7140ASTR HSD
+    {
+        AnlgIp.SetHSDKFactor(475.0F);
+    }
     else
     {
         AnlgIp.SetHSDKFactor(1547.0F);

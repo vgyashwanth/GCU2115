@@ -187,76 +187,75 @@ void CHARGING_ALT::RunPIDLoop()
     if(u8CntCAPIDUpdate >= CHRG_ALT_PID_UPDATE_CNT)
     {
         u8CntCAPIDUpdate =0;
-//        if(!_bChargAltOut)
-//        {
-//            _f32FilteredAltCurrent   = 0;
-//            _u16TicksInCurrentWindow = 0;
-//            f32DutyCycle = 0;
-//            /*Turn off HSD*/
-//            _hal.hsdManager.AltExcitation.TurnOff();
-//            return;
-//        }
 
-           /*Get current from analog input*/
-           float fIntaneousAltCurrent = _hal.AnlgIp.GetChargingAltCurrent_A().f32InstSensorVal;
-           /*Apply IIR filter*/
-           _f32FilteredAltCurrent = (CHRG_ALT_IIR_FILT_CONST*_f32FilteredAltCurrent) +
-                                           ((1-CHRG_ALT_IIR_FILT_CONST)*fIntaneousAltCurrent);
-//         if(_f32FilteredAltCurrent > 200.0f)
-//          _f32FilteredAltCurrent = _f32FilteredAltCurrent -200.0;
-           /*Determine the previous error*/
-           float f32PrevError = CHRG_ALT_SET_VAL - _f32FilteredAltCurrent;
+        /*Get current from analog input*/
+        float fIntaneousAltCurrent = _hal.AnlgIp.GetChargingAltCurrent_A().f32InstSensorVal;
+        /*Apply IIR filter*/
+        _f32FilteredAltCurrent = (CHRG_ALT_IIR_FILT_CONST*_f32FilteredAltCurrent) +
+                                       ((1-CHRG_ALT_IIR_FILT_CONST)*fIntaneousAltCurrent);
+        //         if(_f32FilteredAltCurrent > 200.0f)
+        //          _f32FilteredAltCurrent = _f32FilteredAltCurrent -200.0;
+        /*Determine the previous error*/
+        float f32PrevError = CHRG_ALT_SET_VAL - _f32FilteredAltCurrent;
 
 
-           /*Determine the current error*/
-           float f32CurrentError = CHRG_ALT_SET_VAL - _f32FilteredAltCurrent;
-           /*Determine the differential term*/
-           float f32Differential = f32CurrentError - f32PrevError;
-           /*Determine the integral term*/
-           _f32Integral += f32CurrentError;
+        /*Determine the current error*/
+        float f32CurrentError = CHRG_ALT_SET_VAL - _f32FilteredAltCurrent;
+        /*Determine the differential term*/
+        float f32Differential = f32CurrentError - f32PrevError;
+        /*Determine the integral term*/
+        _f32Integral += f32CurrentError;
 
 
-           /*Integral windup*/
-           if((_f32Integral*CHRG_ALT_KI) > CHRG_MAX_DUTY)
-           {
-               _f32Integral = (CHRG_MAX_DUTY/CHRG_ALT_KI);
-           }
-           else if(_f32Integral < 0)
-           {
-               _f32Integral = 0;
-           }
-           /*Determine the duty from controller transfer function*/
-           f32DutyCycle = (f32CurrentError * CHRG_ALT_KP)
-                                   + (_f32Integral*CHRG_ALT_KI)
-                                       + (f32Differential * CHRG_ALT_KD);
-    }
-
-  // f32DutyCycle = 0;
-    if(!_bChargAltOut)
-    {
-//        _f32FilteredAltCurrent   = 0;
-        _u16TicksInCurrentWindow = 0;
-        f32DutyCycle = 0;
-        /*Turn off HSD*/
-        _hal.hsdManager.AltExcitation.TurnOff();
-        //  return;
-    }
-    else
-    {
-        if(f32DutyCycle <= _u16TicksInCurrentWindow)
+        /*Integral windup*/
+        if((_f32Integral*CHRG_ALT_KI) > CHRG_MAX_DUTY)
         {
-            /*Turn off HSD*/
-            _hal.hsdManager.AltExcitation.TurnOff();
+           _f32Integral = (CHRG_MAX_DUTY/CHRG_ALT_KI);
+        }
+        else if(_f32Integral < 0)
+        {
+           _f32Integral = 0;
+        }
+
+        if(_bChargAltOut)
+        {
+            /*Determine the duty from controller transfer function*/
+            f32DutyCycle = (f32CurrentError * CHRG_ALT_KP)
+                                               + (_f32Integral*CHRG_ALT_KI)
+                                               + (f32Differential * CHRG_ALT_KD);
+
+            if(f32DutyCycle >= CHRG_MAX_DUTY)
+            {
+                f32DutyCycle = CHRG_MAX_DUTY;
+            }
+            else if(f32DutyCycle <= 0)
+            {
+                f32DutyCycle = 0;
+            }
         }
         else
         {
-            /*Turn on HSD*/
-            _hal.hsdManager.AltExcitation.TurnOn();
-        }
-        _u16TicksInCurrentWindow++;
+            f32DutyCycle = 0;
+            f32CurrentError = 0;
+            _f32Integral = 0;
+            f32Differential = 0;
 
-        _u16TicksInCurrentWindow %= (uint16_t)CHRG_MAX_DUTY;
+        }
     }
+
+    if(f32DutyCycle <= _u16TicksInCurrentWindow)
+    {
+        /*Turn off HSD*/
+        _hal.hsdManager.AltExcitation.TurnOff();
+    }
+    else
+    {
+        /*Turn on HSD*/
+        _hal.hsdManager.AltExcitation.TurnOn();
+    }
+    _u16TicksInCurrentWindow++;
+
+    _u16TicksInCurrentWindow %= (uint16_t)CHRG_MAX_DUTY;
 }
 
 static void prvTimerCb()

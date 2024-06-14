@@ -2516,9 +2516,9 @@ void MON_UI::prvProductInfo()
     _Disp.gotoxy(GLCD_X(43),GLCD_Y(22));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
-    sprintf(arrTemp,"Eng Sr  :");
+/*    sprintf(arrTemp,"Eng Sr  :");
     _Disp.gotoxy(GLCD_X(2),GLCD_Y(34));
-    _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
+    _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);*/
 
 /*
  * SuryaPranayTeja.BVV
@@ -2530,18 +2530,18 @@ void MON_UI::prvProductInfo()
  * firstly the characters from engine serial number is pushed in an array (arrTemp)
  * and then sent the same for display.
  */
-    UI::GetSrNoByIndex(CEditableItem::SRNO_ENGINE, (uint8_t*)arrTemp);
+/*    UI::GetSrNoByIndex(CEditableItem::SRNO_ENGINE, (uint8_t*)arrTemp);
     arrTemp[SR_NOS_MAX_SIZE - 1] = '\0';
 
     _Disp.gotoxy(GLCD_X(43),GLCD_Y(34));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
-
+*/
     sprintf(arrTemp,(char*)StrInfoDate[_u8LanguageIndex]);
-    _Disp.gotoxy(GLCD_X(2),GLCD_Y(47));
+    _Disp.gotoxy(GLCD_X(2),GLCD_Y(34)); //47 is for the third line. Eng Sr no is removed, and RTC time is moved to 2nd row
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
     sprintf(arrTemp,"%d.%s.%d",CurrentTime.u8Day, (char*)StrMonth[_u8LanguageIndex][CurrentTime.u8Month - 1],CurrentTime.u16Year);
-    _Disp.gotoxy(GLCD_X(48),GLCD_Y(47));
+    _Disp.gotoxy(GLCD_X(48),GLCD_Y(34));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 
     //Blinking ":" for every second
@@ -2553,7 +2553,7 @@ void MON_UI::prvProductInfo()
     {
         sprintf(arrTemp,"%d %02d",CurrentTime.u8Hour, CurrentTime.u8Minute );
     }
-    _Disp.gotoxy(GLCD_X(102),GLCD_Y(47));
+    _Disp.gotoxy(GLCD_X(102),GLCD_Y(34));
     _Disp.printStringLeftAligned((char *)arrTemp,FONT_VERDANA);
 }
 

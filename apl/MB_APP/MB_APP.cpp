@@ -630,7 +630,7 @@ void MB_APP::prvUpdateInputRegisters()
     prvSetMultipleInputRegisters(MB_INPUT_REG_NCD_ERR_HRS_2, (uint8_t*)(&u32Tmp), 4);
 
     /*Store NCD heal hours, scaling 0.1*/
-    u32Tmp = (uint32_t)((_cfgz.GetEGRHealTimer()*10)/60);
+    u32Tmp = (uint32_t)((_cfgz.GetEGRCurrHealTimer()*10)/60);
     prvSetMultipleInputRegisters(MB_INPUT_REG_NCD_HEAL_HRS_2, (uint8_t*)(&u32Tmp), 4);
     
 }

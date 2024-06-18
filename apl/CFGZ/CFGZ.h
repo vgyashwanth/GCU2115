@@ -1160,6 +1160,8 @@ class CFGZ
     */
    uint16_t GetEGRFaultTimer();
 
+   uint16_t GetEGRCurrHealTimer();
+
    bool CheckIfFactoryProfilesUpdatedViaBL();
    bool CheckIfActiveProfileUpdatedViaBL();
 

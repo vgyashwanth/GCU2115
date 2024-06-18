@@ -59,15 +59,13 @@
 #define  MAX_EVENT_LOGS                           100
 
 #define EXT_EEPROM_CUMMULATIVE_START_ADD_SECT0     0x5000
-#define EXT_EEPROM_CUMMULATIVE_LENGTH              512
+#define EXT_EEPROM_CUMMULATIVE_LENGTH              256
 #define EXT_EEPROM_CUMMULATIVE_START_ADD_SECT1    (EXT_EEPROM_CUMMULATIVE_START_ADD_SECT0 +\
-                                                   EXT_EEPROM_CUMMULATIVE_LENGTH)
+                                                   (EXT_EEPROM_CUMMULATIVE_LENGTH))
 
 #define PREV_FW_META_DATA_CRC_ADDRESS             (0x5230)
 #define PREV_FACTORY_PROFILES_CRC_ADDRESS         (0x5234) /*Address to store previously stored active profile CRC to log active profile flashing*/
 #define PREV_ACTIVE_CRC_ADDRESS                   (0x5238) /*Address to store previously stored factory profile CRC to log factory profile flashing*/
-
-
 /*
  * SuryaPranayTeja.BVV 09-11-2022
  * The below address locations of EEPROM is used for the miscellaneous parameters

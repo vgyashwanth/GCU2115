@@ -1085,11 +1085,6 @@ uint16_t CFGZ::GetEGRFaultTimer()
     return _stProductSpecificData.u16ProductParam[PS_EGR_FAULT_TIMER];
 }
 
-uint16_t CFGZ::GetEGRCurrHealTimer()
-{
-    return _stProductSpecificData.u16ProductParam[PS_EGR_HEAL_TIMER];
-}
-
 bool CFGZ::CheckIfFactoryProfilesUpdatedViaBL()
 {
     static uint16_t u16PreviousFactoryProfilesCRC;

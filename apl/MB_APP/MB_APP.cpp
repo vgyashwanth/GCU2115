@@ -625,12 +625,12 @@ void MB_APP::prvUpdateInputRegisters()
     }
 
     /*Store NCD error hours, scaling 0.1*/
-    u32Tmp = (uint32_t)((_cfgz.GetEGRFaultTimer()*10)/60);
+    u32Tmp = (uint32_t)((_gcuAlarm.GetFaultPreset72HrsTimeInMin()*10)/60);
     //u32Tmp = 0xFFFFFFFFU;
     prvSetMultipleInputRegisters(MB_INPUT_REG_NCD_ERR_HRS_2, (uint8_t*)(&u32Tmp), 4);
 
     /*Store NCD heal hours, scaling 0.1*/
-    u32Tmp = (uint32_t)((_cfgz.GetEGRCurrHealTimer()*10)/60);
+    u32Tmp = (uint32_t)((_gcuAlarm.GetFaultReset40HrsTimeInMin()*10)/60);
     prvSetMultipleInputRegisters(MB_INPUT_REG_NCD_HEAL_HRS_2, (uint8_t*)(&u32Tmp), 4);
     
 }

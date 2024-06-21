@@ -601,7 +601,8 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
         case CFGZ:: CFGZ_EB_MCCB_ON_FEEDBACK:
 
             ArrAlarmMonitoring[EB_MCCB_ON_FEEDBACK_ALARM].bEnableMonitoring = true;
-            prvSetAlarmActivation(EB_MCCB_ON_FEEDBACK_ALARM, CFGZ::CFGZ_ALWAYS);
+            prvSetAlarmAction_NoWESN(EB_MCCB_ON_FEEDBACK_ALARM, u8AlarmAction);
+            prvSetAlarmActivation(EB_MCCB_ON_FEEDBACK_ALARM, u8Activation);
             ArrAlarmMonitoring[EB_MCCB_ON_FEEDBACK_ALARM].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
 
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[EB_MCCB_ON_FEEDBACK_STATUS];
@@ -614,7 +615,8 @@ void GCU_ALARMS::prvAssignInputSettings(uint8_t u8InputIndex, uint8_t u8InputSou
         case CFGZ:: CFGZ_DG_MCCB_ON_FEEDBACK:
 
             ArrAlarmMonitoring[DG_MCCB_ON_FEEDBACK_ALARM].bEnableMonitoring = true;
-            prvSetAlarmActivation(DG_MCCB_ON_FEEDBACK_ALARM, CFGZ::CFGZ_ALWAYS);
+            prvSetAlarmAction_NoWESN(DG_MCCB_ON_FEEDBACK_ALARM, u8AlarmAction);
+            prvSetAlarmActivation(DG_MCCB_ON_FEEDBACK_ALARM, u8Activation);
             ArrAlarmMonitoring[DG_MCCB_ON_FEEDBACK_ALARM].u16CounterMax = NO_OF_50MSEC_TICKS_FOR_1SEC*u8ActivationDelay;
 
             ArrAlarmMonitoring[u8InputIndex].pValue = &_ArrAlarmValue[DG_MCCB_ON_FEEDBACK_STATUS];

@@ -281,7 +281,7 @@ static const char* strOutputSources[1][CFGZ::CFGZ_OUTPUT_LAST] =
   "Supercapacitor Unhealthy",
   "Canopy Temp Sensor",
   "DG On Load",
-  "Overload"
+  "DG Overload"
  }
 };
 
@@ -2053,6 +2053,8 @@ void UI::DigitalInputMenuVisiblity(uint16_t u16SourceIndex)
             case CFGZ::CFGZ_VBEL_BROKEN_SWITCH:
             case CFGZ::CFGZ_BATTERY_CHARGER_FAIL:
             case CFGZ::CFGZ_SMOKE_FIRE:
+            case CFGZ::CFGZ_EB_MCCB_ON_FEEDBACK:
+            case CFGZ::CFGZ_DG_MCCB_ON_FEEDBACK:
             {
                //Do nothing
             }
@@ -2088,8 +2090,6 @@ void UI::DigitalInputMenuVisiblity(uint16_t u16SourceIndex)
             case CFGZ::CFGZ_GEN_CONTACTOR_LATCHED:
             case CFGZ::CFGZ_MODE_SELECT:
             case CFGZ::CFGZ_AMB_TEMP_SELECT:
-            case CFGZ::CFGZ_EB_MCCB_ON_FEEDBACK:
-            case CFGZ::CFGZ_DG_MCCB_ON_FEEDBACK:
             {
                 menuItemsLowestLevel[u16SourceIndex + 2].isEnabled =false;
                 menuItemsLowestLevel[u16SourceIndex + 3].isEnabled =false;

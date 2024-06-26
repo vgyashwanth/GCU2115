@@ -208,7 +208,9 @@ BSP_STATUS_t CFGZ::WriteActiveProfile(CFGZ_PARAMS_t* _pAllparams)
     _bConfigWritten = false;
 
     memcpy((uint8_t*)&_All_Param, _pAllparams, sizeof(CFGZ_PARAMS_t) );
-
+    
+    /*26/06/24 Aditya Joshi: The variable 'u16CRC' has been made static as we are writing into EEPROM from it, 
+    as a local (stack) variable would likely be overwritten before the EEPROM write was actually executed*/
     static uint16_t u16CRC = 0U;
 
     u16CRC = CRC16::ComputeCRCGeneric((uint8_t*)&_All_Param,

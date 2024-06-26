@@ -75,8 +75,8 @@ _aInputStatusGrp{
     {MB_DISCRETE_INPUT_SMOKE_FIRE, MB_DISCRETE_INPUT_LAST , _au8Grp1StatusBytes, true, false, MODBUS_REG_DISCRETE_INPUT},
     {MB_COIL_DG_STOP_CMD_OR_OFF, MB_COIL_LAST , _au8Grp2StatusBytes, true, false, MODBUS_REG_COIL},
 },
-_InputStatusGroupLst{_aInputStatusGrp , MODBUS_INPUTS_COIL_GROUPS},
 _AddressGrpLst{_aAddressGrp, MODBUS_ADDRESS_GROUPS},
+_InputStatusGroupLst{_aInputStatusGrp , MODBUS_INPUTS_COIL_GROUPS},
 _u16TempAlarmVal(0)
 {
 

@@ -26,7 +26,7 @@ void J1939DRIVER::CalculateSPN(double f64Resolution, double f64Offset, double f6
     if(u8DataDir == CALC_FOR_TRANSMIT)
     {
         /* Added check to resolve 127D LDRA resolution, Denominator checked for not equal to zero*/
-        if((0 != f64Resolution) && (tSPN.f64SPNData <= f64MaxValue)) //
+        if(((0 > f64Resolution) || (0 < f64Resolution)) && (tSPN.f64SPNData <= f64MaxValue)) //
         {
             /* calculation logic has been updated for -ve values of offset */
             tSPN.u64SPNData  =(uint64_t) ( (tSPN.f64SPNData- f64Offset) / f64Resolution );

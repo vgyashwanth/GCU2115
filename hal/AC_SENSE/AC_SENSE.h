@@ -693,9 +693,9 @@ private:
     AC_SYSTEM_TYP_t   _ePrvGenSysType;
 
     float              _f32ECurrentOffsetAccumulator;
+    uint16_t          _u16EarthCurrentDCOffsetSampleCount;
     float              _f32LatchedECurrentOffsetValue;
 
-    uint16_t          _u16EarthCurrentDCOffsetSampleCount;
     uint16_t          _u16LatchedECurrentOffsetValue;
     /*Accumulator of current sample values, used in deducing DC offset*/
     uint32_t          _u32ECurrentOffsetAccumulator;

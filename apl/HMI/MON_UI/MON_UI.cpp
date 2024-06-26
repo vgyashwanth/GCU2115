@@ -2500,7 +2500,6 @@ void MON_UI::prvDisplayBootLogo()
 void MON_UI::prvProductInfo()
 {
     char arrTemp[32];
-    uint8_t nu8EngSrNo;
 
     RTC::TIME_t CurrentTime;
     _hal.ObjRTC.GetTime(&CurrentTime);

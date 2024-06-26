@@ -209,7 +209,9 @@ BSP_STATUS_t CFGZ::WriteActiveProfile(CFGZ_PARAMS_t* _pAllparams)
 
     memcpy((uint8_t*)&_All_Param, _pAllparams, sizeof(CFGZ_PARAMS_t) );
 
-    static uint16_t u16CRC = CRC16::ComputeCRCGeneric((uint8_t*)&_All_Param,
+    static uint16_t u16CRC = 0U;
+
+    u16CRC = CRC16::ComputeCRCGeneric((uint8_t*)&_All_Param,
                                                sizeof(CFGZ_PARAMS_t) - (sizeof(uint8_t)*DUMMY_ITEMS),
                                                CRC_MEMORY_SEED);
     strCFGZMetadata.u16CFGZCrc = u16CRC;

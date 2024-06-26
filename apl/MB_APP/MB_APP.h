@@ -666,10 +666,12 @@ private:
 
     /*List to store address groups*/
     MODBUS::ADDRESS_GROUP_t   _aAddressGrp[MODBUS_ADDRESS_GROUPS];
-    MODBUS::ADDRESS_GRP_LST_t _AddressGrpLst;
+
     /*List to store address groups for discrete inputs and coils.
     A differnet structure is used as they can be stored in a single bit*/
     MODBUS::INPUTS_STATUS_GROUP_t   _aInputStatusGrp[MODBUS_INPUTS_COIL_GROUPS];
+
+    MODBUS::ADDRESS_GRP_LST_t _AddressGrpLst;
     MODBUS::INPUTS_STATUS_GRP_LST_t  _InputStatusGroupLst;
     uint16_t _u16TempAlarmVal;
 

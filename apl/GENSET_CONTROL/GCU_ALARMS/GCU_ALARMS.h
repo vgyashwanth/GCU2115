@@ -191,6 +191,7 @@ public:
         SUPERCAP_FAIL,
         CANOPY_DOOR_OPEN,
         EXTENDED_OVERLOAD,
+        DG_NO_LOAD,
         ALARM_LIST_LAST
     } ALARM_LIST_t;
 
@@ -286,6 +287,7 @@ public:
         Firmware_Flashing_id,
         Active_Profile_flashing_id,
         Factory_Profile_flashing_id,
+        Dg_No_Load_id,
         ID_ALL_ALARMS_LAST
     } ALARM_LOGGING_ID_t;
 
@@ -686,6 +688,7 @@ private:
         SUPERCAP_FAIL_STATUS,
         CANOPY_DOOR_OPEN_STATUS,
         EXTENDED_OVERLOAD_STATUS,
+        DG_NO_LOAD_STATUS,
         ALARM_VALUE_LAST
     } ALARM_VALUE_t;
 
@@ -723,6 +726,7 @@ private:
     bool _bExtOverload;
     bool _bEgrShutdownLatched;
     bool _bMonSourceIsBatt;
+    bool _bGenNoLoad;
     uint8_t _u8UnderFreqAlarm;
     uint8_t _u8OverFreqAlarm;
     uint8_t _u8RPhaseOverVoltAlarm;
@@ -777,6 +781,7 @@ private:
     stTimer _FuelTheftOneHourTimer;
     stTimer _FuelTheftWakeUpTimer;
     stTimer _Modbus10minTimer;
+    stTimer _GenNoLoad5minTimer;
     uint8_t *_ArrAlarmStatus[ID_ALL_ALARMS_LAST];
     PARAM_VALUE_t _ArrAlarmValue[ALARM_VALUE_LAST];
     uint8_t _ArrAlarmForDisplay[ID_ALL_ALARMS_LAST];

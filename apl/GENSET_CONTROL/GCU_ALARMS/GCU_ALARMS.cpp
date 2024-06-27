@@ -49,6 +49,7 @@ _bHighShelterTemp(false),
 _bLowShelterTemp(false),
 _bUpdateFuelTheftCalc(false),
 _bExtOverload(false),
+_bGenNoLoad(false),
 _bMonSourceIsBatt(false),
 _u8UnderFreqAlarm(0),
 _u8OverFreqAlarm(0),
@@ -104,6 +105,7 @@ _AlarmUpdate{0, false},
 _FuelTheftOneHourTimer{0, false},
 _FuelTheftWakeUpTimer{0, false},
 _Modbus10minTimer{0,false},
+_GenNoLoad5minTimer{0,false},
 _ArrAlarmStatus{NULL},
 _ArrAlarmValue{0.0,0,0},
 _ArrAlarmForDisplay{0},
@@ -2265,6 +2267,8 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
 
     _ArrAlarmValue[EXTENDED_OVERLOAD_STATUS].u8Value = _bExtOverload && IsExtendedOverLoad();
 
+    _ArrAlarmValue[DG_NO_LOAD_STATUS].u8Value = _bGenNoLoad;
+
 }
 
 void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
@@ -2554,6 +2558,9 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
             break;
         case Extended_Overload_id:
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[EXTENDED_OVERLOAD].bAlarmActive;
+            break;
+        case Dg_No_Load_id:
+            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DG_NO_LOAD].bAlarmActive;
             break;
         default:
             _ArrAlarmStatus[u8LoggingID] = &_u8DummyZero;
@@ -3399,6 +3406,14 @@ bool GCU_ALARMS::prvIsDgOnLoad()
         bRet = false;
     }
     return bRet;
+}
+
+void prvUpdateNoLoadAlarmStatus()
+{
+    if( !(_bGenNoLoad) && (_hal.actuators.GetActStatus(ACTUATOR::ACT_DG_ON_LOAD)!=ACT_Manager::ACT_NOT_CONFIGURED) )
+    {
+
+    }
 }
 
 bool GCU_ALARMS::IsCanopyTempSensFault()

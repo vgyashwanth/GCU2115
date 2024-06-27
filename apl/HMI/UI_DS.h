@@ -32,7 +32,7 @@ typedef enum
     MISC_8_LAST
 }MISC_PARAM_8_t;
 
-#define MISC_PARAM_DUMMY_BYTES        ( 4 - ( ( (MISC_16_LAST)*2 ) + (MISC_8_LAST) )%4 )%4
+#define MISC_PARAM_DUMMY_BYTES        (0U)
 
 typedef struct
 {

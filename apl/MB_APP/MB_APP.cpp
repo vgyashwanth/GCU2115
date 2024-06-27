@@ -75,8 +75,8 @@ _aInputStatusGrp{
     {MB_DISCRETE_INPUT_SMOKE_FIRE, MB_DISCRETE_INPUT_LAST , _au8Grp1StatusBytes, true, false, MODBUS_REG_DISCRETE_INPUT},
     {MB_COIL_DG_STOP_CMD_OR_OFF, MB_COIL_LAST , _au8Grp2StatusBytes, true, false, MODBUS_REG_COIL},
 },
-_InputStatusGroupLst{_aInputStatusGrp , MODBUS_INPUTS_COIL_GROUPS},
 _AddressGrpLst{_aAddressGrp, MODBUS_ADDRESS_GROUPS},
+_InputStatusGroupLst{_aInputStatusGrp , MODBUS_INPUTS_COIL_GROUPS},
 _u16TempAlarmVal(0)
 {
 
@@ -1060,7 +1060,7 @@ void MB_APP::prvUpdateAnalogParams()
     if((_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL)
         && (_cfgz.GetCFGZ_Param(CFGZ::ID_LOP_FROM_ENG) == CFGZ::CFGZ_ENABLE))
     { 
-        u16Tmp =(uint16_t)((round(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263, 0)*10)*10) * 0.01);
+        u16Tmp =(uint16_t)(round(gpJ1939->GetReadData(RX_PGN_EFL_P1_65263, 0)*10) * 0.01);
         SetReadRegisterValue(MB_OIL_PRESSURE, u16Tmp);
     }
     else
@@ -1401,7 +1401,7 @@ void MB_APP::prvUpdateGCUAlarms()
     /* DIG ALARM 1 */
     _u16TempAlarmVal =0;
     
-    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_H].bAlarmActive << 0);
+    _u16TempAlarmVal |=   (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::CANOPY_DOOR_OPEN].bAlarmActive << 0);
     _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::SMOKE_FIRE].bAlarmActive << 1U); /* smoke fire */
     _u16TempAlarmVal |= (uint16_t)(_gcuAlarm.IsLowOilPresAlarmActive() << 2U); /* LOP sensor/switch */
     _u16TempAlarmVal |=   (uint16_t)(((_gcuAlarm.ArrAlarmMonitoring[GCU_ALARMS::DIG_IN_D].bAlarmActive) || (_gcuAlarm.IsHighEngTempAlarmActive()) )<< 3);

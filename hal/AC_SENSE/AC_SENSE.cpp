@@ -110,10 +110,10 @@ _eMainsSystemType(PHASE_3_SYSTEM),
 _ePrvGenSysType(PHASE_3_SYSTEM),
 _f32ECurrentOffsetAccumulator(0),
 _u16EarthCurrentDCOffsetSampleCount(0),
+_f32LatchedECurrentOffsetValue(0.0F),
 _u16LatchedECurrentOffsetValue(DC_VOLTAGE_OFFSET*V_TO_ADC_SAMPLE),
 _u32ECurrentOffsetAccumulator(0),
-_u16EarthCurrentDCOffsetWindowSize(INIT_DC_OFFSET_WINDOW_SIZE),
-_f32LatchedECurrentOffsetValue(0.0F)
+_u16EarthCurrentDCOffsetWindowSize(INIT_DC_OFFSET_WINDOW_SIZE)
 #if (SUPPORT_CALIBRATION == YES)
 ,_eeprom(Eeprom),
 _stCalibrationData{}

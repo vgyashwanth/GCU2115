@@ -2011,29 +2011,38 @@ void MON_UI::prvNormalMonScreens()
              {
                  if((!_j1939.IsCommunicationFail()) && (_j1939.GetSPNErrorStatus(RX_PGN_VEP1_65271,0) == J1939APP::VALID_DATA))
                  {
-                      sprintf(arrTemp, "%.2f V", (_j1939.GetReadData(RX_PGN_VEP1_65271,0)));
+                      sprintf(arrTemp,"%0.1f", (_j1939.GetReadData(RX_PGN_VEP1_65271,0)));
+                      _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                      _Disp.gotoxy(GLCD_X(116),GLCD_Y(26));
+                      _Disp.printStringLeftAligned((char*)"V",FONT_VERDANA);
                  }
                  else
                  {
                      if(_j1939.GetSPNErrorStatus(RX_PGN_VEP1_65271,0) ==  J1939APP::NOT_AVAILABLE)
                      {
                          sprintf(arrTemp,StrNotAvailable);
+                         _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
                      }
                      else if(_j1939.GetSPNErrorStatus(RX_PGN_VEP1_65271,0) == J1939APP::ERROR)
                      {
                          sprintf(arrTemp,StrErr);
+                         _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
                      }
                      else
                      {
                          sprintf(arrTemp,StrCANErr);
+                         _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
                      }
                  }
              }
              else
              {
-                 sprintf(arrTemp,"%0.1fV",_hal.AnalogSensors.GetFilteredVbattVolts());
+                 sprintf(arrTemp,"%0.1f", (_hal.AnalogSensors.GetFilteredVbattVolts()));
+                _Disp.printStringRightAligned((char *)arrTemp,FONT_ARIAL);
+                _Disp.gotoxy(GLCD_X(116),GLCD_Y(26));
+                _Disp.printStringLeftAligned((char*)"V",FONT_VERDANA);
              }
-             _Disp.printStringCenterAligned((char *)arrTemp,FONT_VERDANA);
+             
             if(_cfgz.GetCFGZ_Param(CFGZ::ID_BTS_CONFIG_BATTERY_MON) == CFGZ::CFGZ_ENABLE)
             {
                 /* V BTS */
@@ -2500,7 +2509,6 @@ void MON_UI::prvDisplayBootLogo()
 void MON_UI::prvProductInfo()
 {
     char arrTemp[32];
-    uint8_t nu8EngSrNo;
 
     RTC::TIME_t CurrentTime;
     _hal.ObjRTC.GetTime(&CurrentTime);

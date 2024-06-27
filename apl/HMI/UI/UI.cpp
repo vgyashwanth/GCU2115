@@ -1139,6 +1139,7 @@ void UI::prvReadSrNos()
 
 void UI::InitEditableItems()
 {
+    _objcfgz.ReadMiscParam(&_MiscParam);
     CEditableItem::PASSWORD_t stPIN_1,stPIN_2;
 
     _u8LanguageArrayIndex =  0;
@@ -1744,8 +1745,6 @@ void UI::InitEditableItems()
 
     _stMaintenanceDt ={(uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALARM_DUE_DATE_SERVICE_DATE_1),(uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALARM_DUE_DATE_SERVICE_DATE_2),(uint16_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ALARM_DUE_DATE_SERVICE_DATE_3)};
     ArrEditableItem[INDEX_OF_ALARM_DUE_DATE_SERVICE_DATE] = CEditableItem((CEditableItem::DATE_t)_stMaintenanceDt, "", "","%u",(CEditableItem::DATE_t){1,1,2024}, (CEditableItem::DATE_t){31,12,2080},CEditableItem::PIN1_ALLOWED );
-
-    _objcfgz.ReadMiscParam(&_MiscParam);
 
     if(_MiscParam.u8MiscParam[PROFILE_NO] > MAX_NUMBER_OF_PROFILE)
     {

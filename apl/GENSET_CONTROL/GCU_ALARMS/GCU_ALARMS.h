@@ -19,6 +19,7 @@
 #define MAX_DTC_ALLOWED (106U)
 
 #define MUX_OUTPUT_CNT_POWERED_VIA_USB_ONLY   (4095U)
+#define DG_NO_LOAD_TIME_SEC    (5*60) //Time after which no load alarm is set, in sec
 
 class GCU_ALARMS
 {
@@ -724,9 +725,9 @@ private:
     bool _bLowShelterTemp;
     bool _bUpdateFuelTheftCalc;
     bool _bExtOverload;
+    bool _bGenNoLoad;
     bool _bEgrShutdownLatched;
     bool _bMonSourceIsBatt;
-    bool _bGenNoLoad;
     uint8_t _u8UnderFreqAlarm;
     uint8_t _u8OverFreqAlarm;
     uint8_t _u8RPhaseOverVoltAlarm;
@@ -901,5 +902,6 @@ private:
     void prvEGR_TimeLog_WriteToNV(void);
     bool prvIsEgrFaultPresent();
     bool prvIsEgrFaultRecvdFromECU();
+    void prvUpdateNoLoadAlarmStatus();
 };
 #endif

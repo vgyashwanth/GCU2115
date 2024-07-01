@@ -221,6 +221,7 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
             FillDisplayAlarmArray();
             UpdateEgrDetections();
             prvUpdateDTCEventLog();
+            prvUpdateNoLoadAlarmStatus();
         }
     }
 }
@@ -2903,6 +2904,7 @@ void GCU_ALARMS::ClearAllAlarms()
     }
     _bFailToStop = false;
     _bFailToStart = false;
+    _bGenNoLoad = false;
     _u8FuelTheftAlarm = 0;
 
     _u8AFTActivationTimeout = 0;
@@ -3397,7 +3399,7 @@ bool GCU_ALARMS::prvIsDgOnLoad()
     bool bRet;
     float f32TotalLoadCurr = _hal.AcSensors.GENSET_GetCurrentAmps(R_PHASE) + _hal.AcSensors.GENSET_GetCurrentAmps(Y_PHASE) +
                              _hal.AcSensors.GENSET_GetCurrentAmps(B_PHASE);
-    if(f32TotalLoadCurr > 3.0F)
+    if(f32TotalLoadCurr > 5.0F)
     {
         bRet = true;
     }
@@ -3408,11 +3410,26 @@ bool GCU_ALARMS::prvIsDgOnLoad()
     return bRet;
 }
 
-void prvUpdateNoLoadAlarmStatus()
+void GCU_ALARMS::prvUpdateNoLoadAlarmStatus()
 {
-    if( !(_bGenNoLoad) && (_hal.actuators.GetActStatus(ACTUATOR::ACT_DG_ON_LOAD)!=ACT_Manager::ACT_NOT_CONFIGURED) )
+    /*If actuator is configured and the 5 min timer has passed, set the status to true. If not configured, disable the timer*/
+    if( (_hal.actuators.GetActStatus(ACTUATOR::ACT_DG_ON_LOAD) != ACT_Manager::ACT_NOT_CONFIGURED) 
+        && (ENGINE_MONITORING::IsEngineOn()) && !(prvIsDgOnLoad()) && !(_bGenNoLoad) )
     {
+        if( !(UTILS_IsTimerEnabled(&_GenNoLoad5minTimer)) ) /*Check if condition was not true when last checked*/
+        {
+            UTILS_ResetTimer(&_GenNoLoad5minTimer); /*Condition was not true*/
+        }
 
+        if( UTILS_IsTimerEnabled(&_GenNoLoad5minTimer) 
+          && (UTILS_GetElapsedTimeInSec(&_GenNoLoad5minTimer) > DG_NO_LOAD_TIME_SEC) )
+        {
+            _bGenNoLoad = true; /*Fault timer has run out*/
+        }
+    }
+    else
+    {
+        UTILS_DisableTimer(&_GenNoLoad5minTimer);
     }
 }
 

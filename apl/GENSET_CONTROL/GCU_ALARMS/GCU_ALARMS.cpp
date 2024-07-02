@@ -105,7 +105,6 @@ _AlarmUpdate{0, false},
 _FuelTheftOneHourTimer{0, false},
 _FuelTheftWakeUpTimer{0, false},
 _Modbus10minTimer{0,false},
-_GenNoLoad5minTimer{0,false},
 _ArrAlarmStatus{NULL},
 _ArrAlarmValue{0.0,0,0},
 _ArrAlarmForDisplay{0},
@@ -1994,7 +1993,19 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[EXTENDED_OVERLOAD_STATUS];
         break;
-
+        case DG_NO_LOAD:
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true;
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableElectricTrip = true;
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
+            ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Dg_No_Load_id;
+            ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 0U;
+            ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
+        }
+        ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DG_NO_LOAD_STATUS];
+        break;
         default :
             break;
     }
@@ -2266,9 +2277,9 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[J1939_RED_LAMP_STATUS].u8Value = gpJ1939->IsRedLampON();
     _ArrAlarmValue[J1939_MIL_LAMP_STATUS].u8Value = gpJ1939->IsMilLampON();
 
-    _ArrAlarmValue[EXTENDED_OVERLOAD_STATUS].u8Value = _bExtOverload && IsExtendedOverLoad();
+    _ArrAlarmValue[EXTENDED_OVERLOAD_STATUS].u8Value = CONVERT_BOOL_TO_UINT8_T(_bExtOverload && IsExtendedOverLoad());
 
-    _ArrAlarmValue[DG_NO_LOAD_STATUS].u8Value = _bGenNoLoad;
+    _ArrAlarmValue[DG_NO_LOAD_STATUS].u8Value = CONVERT_BOOL_TO_UINT8_T(_bGenNoLoad);
 
 }
 
@@ -3414,24 +3425,20 @@ bool GCU_ALARMS::prvIsDgOnLoad()
 
 void GCU_ALARMS::prvUpdateNoLoadAlarmStatus()
 {
+    static uint16_t u16GenNoLoad50msTick = 0U;
     /*If actuator is configured and the 5 min timer has passed, set the status to true. If not configured, disable the timer*/
     if( (_hal.actuators.GetActStatus(ACTUATOR::ACT_DG_ON_LOAD) != ACT_Manager::ACT_NOT_CONFIGURED) 
         && (ENGINE_MONITORING::IsEngineOn()) && !(prvIsDgOnLoad()) && !(_bGenNoLoad) )
     {
-        if( !(UTILS_IsTimerEnabled(&_GenNoLoad5minTimer)) ) /*Check if condition was not true when last checked*/
-        {
-            UTILS_ResetTimer(&_GenNoLoad5minTimer); /*Condition was not true*/
-        }
-
-        if( UTILS_IsTimerEnabled(&_GenNoLoad5minTimer) 
-          && (UTILS_GetElapsedTimeInSec(&_GenNoLoad5minTimer) > DG_NO_LOAD_TIME_SEC) )
+        u16GenNoLoad50msTick++;
+        if( u16GenNoLoad50msTick >= (DG_NO_LOAD_TIME_SEC)*(NO_OF_50MSEC_TICKS_FOR_1SEC) )
         {
             _bGenNoLoad = true; /*Fault timer has run out*/
         }
     }
     else
     {
-        UTILS_DisableTimer(&_GenNoLoad5minTimer);
+        u16GenNoLoad50msTick = 0U;
     }
 }
 

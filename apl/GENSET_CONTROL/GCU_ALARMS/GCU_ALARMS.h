@@ -782,7 +782,6 @@ private:
     stTimer _FuelTheftOneHourTimer;
     stTimer _FuelTheftWakeUpTimer;
     stTimer _Modbus10minTimer;
-    stTimer _GenNoLoad5minTimer;
     uint8_t *_ArrAlarmStatus[ID_ALL_ALARMS_LAST];
     PARAM_VALUE_t _ArrAlarmValue[ALARM_VALUE_LAST];
     uint8_t _ArrAlarmForDisplay[ID_ALL_ALARMS_LAST];

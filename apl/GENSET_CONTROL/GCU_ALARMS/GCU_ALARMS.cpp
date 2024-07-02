@@ -49,6 +49,7 @@ _bHighShelterTemp(false),
 _bLowShelterTemp(false),
 _bUpdateFuelTheftCalc(false),
 _bExtOverload(false),
+_bGenNoLoad(false),
 _bMonSourceIsBatt(false),
 _u8UnderFreqAlarm(0),
 _u8OverFreqAlarm(0),
@@ -219,6 +220,7 @@ void GCU_ALARMS::Update(bool bDeviceInConfigMode)
             FillDisplayAlarmArray();
             UpdateEgrDetections();
             prvUpdateDTCEventLog();
+            prvUpdateNoLoadAlarmStatus();
         }
     }
 }
@@ -1991,7 +1993,19 @@ void GCU_ALARMS::ConfigureGCUAlarms(uint8_t u8AlarmIndex)
         }
         ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[EXTENDED_OVERLOAD_STATUS];
         break;
-
+        case DG_NO_LOAD:
+        {
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableMonitoring = true;
+            ArrAlarmMonitoring[u8AlarmIndex].bEnableElectricTrip = true;
+            ArrAlarmMonitoring[u8AlarmIndex].LocalEnable = &_u8DummyOne;
+            ArrAlarmMonitoring[u8AlarmIndex].bMonitoringPolarity = true;
+            ArrAlarmMonitoring[u8AlarmIndex].u8LoggingID = Dg_No_Load_id;
+            ArrAlarmMonitoring[u8AlarmIndex].Threshold.u8Value = 0;
+            ArrAlarmMonitoring[u8AlarmIndex].u16CounterMax = 0U;
+            ArrAlarmMonitoring[u8AlarmIndex].ThreshDataType = ONE_BYTE_INT;
+        }
+        ArrAlarmMonitoring[u8AlarmIndex].pValue = &_ArrAlarmValue[DG_NO_LOAD_STATUS];
+        break;
         default :
             break;
     }
@@ -2263,7 +2277,9 @@ void GCU_ALARMS::prvUpdateGCUAlarmsValue()
     _ArrAlarmValue[J1939_RED_LAMP_STATUS].u8Value = gpJ1939->IsRedLampON();
     _ArrAlarmValue[J1939_MIL_LAMP_STATUS].u8Value = gpJ1939->IsMilLampON();
 
-    _ArrAlarmValue[EXTENDED_OVERLOAD_STATUS].u8Value = _bExtOverload && IsExtendedOverLoad();
+    _ArrAlarmValue[EXTENDED_OVERLOAD_STATUS].u8Value = CONVERT_BOOL_TO_UINT8_T(_bExtOverload && IsExtendedOverLoad());
+
+    _ArrAlarmValue[DG_NO_LOAD_STATUS].u8Value = CONVERT_BOOL_TO_UINT8_T(_bGenNoLoad);
 
 }
 
@@ -2554,6 +2570,9 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
             break;
         case Extended_Overload_id:
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[EXTENDED_OVERLOAD].bAlarmActive;
+            break;
+        case Dg_No_Load_id:
+            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[DG_NO_LOAD].bAlarmActive;
             break;
         default:
             _ArrAlarmStatus[u8LoggingID] = &_u8DummyZero;
@@ -2896,6 +2915,7 @@ void GCU_ALARMS::ClearAllAlarms()
     }
     _bFailToStop = false;
     _bFailToStart = false;
+    _bGenNoLoad = false;
     _u8FuelTheftAlarm = 0;
 
     _u8AFTActivationTimeout = 0;
@@ -2934,6 +2954,7 @@ void GCU_ALARMS::ClearAllAlarms()
     gpJ1939->RequestDM11PGN();
     gpJ1939->SetDm2MsgCount(0);
     gpJ1939->ClearDM2Messages();
+    gpJ1939->ClearDm1DtcRecvdSinceClr();
 //    gpJ1939->ClearNCDandPCDAlarms();
     clearEgrFaults();
 }
@@ -3223,15 +3244,16 @@ void GCU_ALARMS::LogEvent(uint8_t u8EventID, uint8_t u8EventType, uint32_t u32SP
 
     stLogLocal.stEventLog.u32EngineHrs = (uint32_t)GetSelectedEngRunMin();
     stLogLocal.u32EventNo =_u32EventNumber;
-    _EventQueue.EnQueue(&stLogLocal);
-
-    _u32EventNumber++;
-    if(_u32EventNumber >= CFGC::GetMaxNumberOfEvents())
+    if(_EventQueue.EnQueue(&stLogLocal))
     {
-       _u32EventNumber =0;
-       _u32RolledOverByte =1;
-       _hal.Objeeprom.RequestWrite(EXT_EEPROM_ROLLED_OVER_ADDRESS , (uint8_t*)&_u32RolledOverByte,
-                                   sizeof(_u32RolledOverByte), NULL);
+        _u32EventNumber++;
+        if(_u32EventNumber >= CFGC::GetMaxNumberOfEvents())
+        {
+           _u32EventNumber =0;
+           _u32RolledOverByte =1;
+           _hal.Objeeprom.RequestWrite(EXT_EEPROM_ROLLED_OVER_ADDRESS , (uint8_t*)&_u32RolledOverByte,
+                                       sizeof(_u32RolledOverByte), NULL);
+        }
     }
 }
 
@@ -3297,7 +3319,7 @@ void GCU_ALARMS::prvUpdateOutputs()
     //Activate and Deactivate of ACT_CLOSE_GEN_CONTACTOR is done in BASE_MODES
     //Activate and Deactivate of ACT_CLOSE_MAINS_CONTACTOR is done in BASE_MODES
     prvActDeactOutput(!(BASE_MODES::GetMainsStatus() ==  BASE_MODES::MAINS_HELATHY), ACTUATOR::ACT_MAINS_FAILURE);
-    prvActDeactOutput((_bCommonAlarm || _bModeSwitchAlarm), ACTUATOR::ACT_ALARM);
+    prvActDeactOutput((gpJ1939->IsDm1DtcRecvdSinceClr() || _bCommonAlarm || _bModeSwitchAlarm), ACTUATOR::ACT_ALARM);
     prvActDeactOutput(_bCommonElectricTrip, ACTUATOR::ACT_ELEC_TRIP);
     prvActDeactOutput(_bCommonShutdown, ACTUATOR::ACT_SHUTDOWN);
     prvActDeactOutput(_bCommonWarning, ACTUATOR::ACT_WARNING);
@@ -3390,7 +3412,7 @@ bool GCU_ALARMS::prvIsDgOnLoad()
     bool bRet;
     float f32TotalLoadCurr = _hal.AcSensors.GENSET_GetCurrentAmps(R_PHASE) + _hal.AcSensors.GENSET_GetCurrentAmps(Y_PHASE) +
                              _hal.AcSensors.GENSET_GetCurrentAmps(B_PHASE);
-    if(f32TotalLoadCurr > 3.0F)
+    if(f32TotalLoadCurr > 5.0F)
     {
         bRet = true;
     }
@@ -3400,6 +3422,27 @@ bool GCU_ALARMS::prvIsDgOnLoad()
     }
     return bRet;
 }
+
+void GCU_ALARMS::prvUpdateNoLoadAlarmStatus()
+{
+    static uint16_t u16GenNoLoad50msTick = 0U;
+    /*If actuator is configured and the 5 min timer has passed, set the status to true. If not configured, disable the timer*/
+    if( (_hal.actuators.GetActStatus(ACTUATOR::ACT_DG_ON_LOAD) != ACT_Manager::ACT_NOT_CONFIGURED) 
+        && (ENGINE_MONITORING::IsEngineOn()) && !(prvIsDgOnLoad()) && !(_bGenNoLoad) )
+    {
+        u16GenNoLoad50msTick++;
+        if( u16GenNoLoad50msTick >= (DG_NO_LOAD_TIME_SEC)*(NO_OF_50MSEC_TICKS_FOR_1SEC) )
+        {
+            _bGenNoLoad = true; /*Fault timer has run out*/
+        }
+    }
+    else
+    {
+        u16GenNoLoad50msTick = 0U;
+    }
+}
+
+
 
 bool GCU_ALARMS::IsCanopyTempSensFault()
 {
@@ -4021,12 +4064,13 @@ bool GCU_ALARMS::IsNotificationAlarmEnabled(ALARM_LIST_t AlarmID)
 
 void GCU_ALARMS::prvUpdateDTCEventLog()
 {
-  if((gpJ1939->GetDm1MsgCount() != 0) && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL))
-  {
-      uint8_t _u8DTCNumber = 0;
-      J1939APP::J1939_DM_MSG_DECODE stDmMsg = {};
-      while (_u8DTCNumber < gpJ1939->GetDm1MsgCount())
-      {
+    if((gpJ1939->GetDm1MsgCount() != 0) && (_cfgz.GetCFGZ_Param(CFGZ::ID_ENGINE_TYPE)!=CFGZ::CFGZ_CONVENTIONAL) && gpJ1939->IsSpnValidated())
+    {
+        gpJ1939->ClearSpnValidatedFlag();
+        uint8_t _u8DTCNumber = 0;
+        J1939APP::J1939_DM_MSG_DECODE stDmMsg = {};
+        while (_u8DTCNumber < gpJ1939->GetDm1MsgCount())
+        {
           stDmMsg = gpJ1939->GetDM1Message(_u8DTCNumber) ;
 
           if(prvIsNewDTC(stDmMsg.u32SpnNo, stDmMsg.u8FMI, stDmMsg.u8OC))
@@ -4034,8 +4078,8 @@ void GCU_ALARMS::prvUpdateDTCEventLog()
               LogEvent(GCU_ALARMS::J1939DTC_id, CFGZ::CFGZ_ACTION_NONE_NoWESN, stDmMsg.u32SpnNo, (uint16_t)stDmMsg.u8FMI);
           }
           _u8DTCNumber++;
-      }
-  }
+        }
+    }
 }
 
 bool GCU_ALARMS::prvIsNewDTC(uint32_t u32Spn, uint8_t u8FMI, uint8_t u8Occurances){

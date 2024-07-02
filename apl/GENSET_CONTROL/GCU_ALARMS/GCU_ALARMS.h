@@ -19,6 +19,7 @@
 #define MAX_DTC_ALLOWED (106U)
 
 #define MUX_OUTPUT_CNT_POWERED_VIA_USB_ONLY   (4095U)
+#define DG_NO_LOAD_TIME_SEC    (5*60) //Time after which no load alarm is set, in sec
 
 class GCU_ALARMS
 {
@@ -191,6 +192,7 @@ public:
         SUPERCAP_FAIL,
         CANOPY_DOOR_OPEN,
         EXTENDED_OVERLOAD,
+        DG_NO_LOAD,
         ALARM_LIST_LAST
     } ALARM_LIST_t;
 
@@ -286,6 +288,7 @@ public:
         Firmware_Flashing_id,
         Active_Profile_flashing_id,
         Factory_Profile_flashing_id,
+        Dg_No_Load_id,
         ID_ALL_ALARMS_LAST
     } ALARM_LOGGING_ID_t;
 
@@ -686,6 +689,7 @@ private:
         SUPERCAP_FAIL_STATUS,
         CANOPY_DOOR_OPEN_STATUS,
         EXTENDED_OVERLOAD_STATUS,
+        DG_NO_LOAD_STATUS,
         ALARM_VALUE_LAST
     } ALARM_VALUE_t;
 
@@ -721,6 +725,7 @@ private:
     bool _bLowShelterTemp;
     bool _bUpdateFuelTheftCalc;
     bool _bExtOverload;
+    bool _bGenNoLoad;
     bool _bEgrShutdownLatched;
     bool _bMonSourceIsBatt;
     uint8_t _u8UnderFreqAlarm;
@@ -800,7 +805,7 @@ private:
 
     EVENT_LOG_Q_t _stLog;
 
-#define EVENT_LOG_Q_SIZE (10)
+#define EVENT_LOG_Q_SIZE (20)
 
     /** Internal Q to hold received frames */
     static CircularQueue<EVENT_LOG_Q_t> _EventQueue;
@@ -896,5 +901,6 @@ private:
     void prvEGR_TimeLog_WriteToNV(void);
     bool prvIsEgrFaultPresent();
     bool prvIsEgrFaultRecvdFromECU();
+    void prvUpdateNoLoadAlarmStatus();
 };
 #endif

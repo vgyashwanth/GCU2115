@@ -160,6 +160,10 @@ public:
     uint16_t GetGenStatusRegister(void);
     bool IsEGRWarningPresent();
     bool IsEGRShutdownPresent();
+    void ClearDm1DtcRecvdSinceClr();
+    bool IsDm1DtcRecvdSinceClr();
+    bool IsSpnValidated(void);
+    void ClearSpnValidatedFlag(void);
 
 private:
     #define DM1_DTC_SIZE    4U
@@ -332,6 +336,8 @@ private:
      * This DTC indicates that DEF level is severe (0.15 % remaining)
      *  These will be cleared when DTC are cleared**/
     bool    _bIsDEFLevelSevere;
+    bool    _bDm1DtcRecvd;
+    bool    _bSpnValidated;
     stTimer _BeepOnTimer;
     stTimer _BeepOffTimer;
     J1939_DM_MSG_DECODE _stDm1Decode[TOTAL_NO_OF_SPNS];

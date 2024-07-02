@@ -806,7 +806,7 @@ private:
 
     EVENT_LOG_Q_t _stLog;
 
-#define EVENT_LOG_Q_SIZE (10)
+#define EVENT_LOG_Q_SIZE (20)
 
     /** Internal Q to hold received frames */
     static CircularQueue<EVENT_LOG_Q_t> _EventQueue;

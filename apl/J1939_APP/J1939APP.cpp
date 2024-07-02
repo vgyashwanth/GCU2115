@@ -146,6 +146,8 @@ ubypReadRxPgns{
     _bRequestDM11PGN(false),
     _bIsDEFLevelLow(false),
     _bIsDEFLevelSevere(false),
+    _bDm1DtcRecvd(false),
+    _bSpnValidated(false),
     _BeepOnTimer{0 , false},
     _BeepOffTimer{0,false},
     _stDm1Decode{0,0,0},
@@ -1965,6 +1967,7 @@ void  J1939APP::prvExtractDmMsg(uint16_t u16DmMsgNo, uint8_t u8NoOfSpnInDmMsg)
             {
                 prvAssignDmMsgVal(&_stDm1Decode[u8LocalCounterDM1], u32LocalDTC,(uint8_t)DTCSPN.DM1DTC.u8FMI, (uint8_t)DTCSPN.DM1DTC.u8Ocuurenece);
                 u8LocalCounterDM1++;
+                _bDm1DtcRecvd = true; /*This flag indicates that a DTC has been received since the last alarm acknowledgement*/
             }
             else
             {
@@ -1992,6 +1995,7 @@ void  J1939APP::prvExtractDmMsg(uint16_t u16DmMsgNo, uint8_t u8NoOfSpnInDmMsg)
                 _u8NoOfInvalidSpnInDm2Msg++;
             }
         }
+        _bSpnValidated = true;
     }
 }
 
@@ -2082,6 +2086,16 @@ uint32_t J1939APP::prvExtractSPN(uint8_t *pCANData, uint8_t ubyPGN, uint8_t ubyS
         _ArrSpnErrorNAStatus[ubyPGN][ubySPN] = VALID_DATA;
     }
     return(ulData);
+}
+
+bool J1939APP::IsDm1DtcRecvdSinceClr(void)
+{
+    return _bDm1DtcRecvd;
+}
+
+void J1939APP::ClearDm1DtcRecvdSinceClr(void)
+{
+    _bDm1DtcRecvd = false;
 }
 
 bool J1939APP::IsCommunicationFail(void)
@@ -2586,5 +2600,15 @@ uint16_t J1939APP::GetGenStatusRegister(void)
     }
 
     return u16GenStatus;
+}
+
+bool J1939APP::IsSpnValidated(void)
+{
+    return _bSpnValidated;
+}
+
+void J1939APP::ClearSpnValidatedFlag(void)
+{
+    _bSpnValidated = false;
 }
 

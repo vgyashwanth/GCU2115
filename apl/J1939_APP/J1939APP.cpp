@@ -1995,6 +1995,12 @@ void  J1939APP::prvExtractDmMsg(uint16_t u16DmMsgNo, uint8_t u8NoOfSpnInDmMsg)
                 _u8NoOfInvalidSpnInDm2Msg++;
             }
         }
+    }
+
+    if((PGN_DM01 == u16DmMsgNo) && (u8LocalCounterDM1 > 0))
+    {
+        /*If any valid DTCs are received and the DM message being processed is DM01,
+        Set the flag that will allow DTCs to be logged*/
         _bSpnValidated = true;
     }
 }

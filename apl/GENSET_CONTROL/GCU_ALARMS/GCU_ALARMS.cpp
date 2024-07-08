@@ -4264,17 +4264,26 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
         break;
     }
 
-    if(IS_ONE_SECOND_TIME_ELAPSED())
+    if((_eEgrMonState == EGR_MON_72_HRS_FAULT_CONFIRM_OPERATION)
+        || (_eEgrMonState == EGR_MON_40_HRS_FAULT_RESET_OPERATION))
     {
-        u16CntInSeconds++;
-        KICK_ONE_SECOND_TIMER();
-    }
+        if(IS_ONE_SECOND_TIME_ELAPSED())
+        {
+            u16CntInSeconds++;
+            KICK_ONE_SECOND_TIMER();
+        }
 
-    if(u16CntInSeconds >= EGR_LOG_NV_WRITE_CYCLE_IN_SECONDS)
+        if(u16CntInSeconds >= EGR_LOG_NV_WRITE_CYCLE_IN_SECONDS)
+        {
+            u16CntInSeconds = 0U;
+            prvEGR_TimeLog_WriteToNV();
+        }
+    }
+    else
     {
         u16CntInSeconds = 0U;
-        prvEGR_TimeLog_WriteToNV();
     }
+    
 
 }
 

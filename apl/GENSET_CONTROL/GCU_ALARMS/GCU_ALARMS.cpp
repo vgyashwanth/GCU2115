@@ -4279,6 +4279,10 @@ void GCU_ALARMS::prvMonitorEgrFaultStatus(void)
             prvEGR_TimeLog_WriteToNV();
         }
     }
+    else
+    {
+        u16CntInSeconds = 0U;
+    }
     
 
 }

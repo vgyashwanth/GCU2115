@@ -251,6 +251,7 @@ static const char* strOutputSources[1][CFGZ::CFGZ_OUTPUT_LAST] =
   "B Phase UV Shutdown",
   "Gen Over Current",
   "High Engine Temp",
+  "Low Fuel LVL Switch",
   "LFL Sensor Notification",
   "Low LOP",
   "Mains High Volt",
@@ -281,7 +282,6 @@ static const char* strOutputSources[1][CFGZ::CFGZ_OUTPUT_LAST] =
   "Canopy Temp Sensor",
   "DG On Load",
   "DG Overload",
-  "Low Fuel LVL Switch",
   "LFL Sensor Shutdown"
  }
 };

@@ -75,8 +75,6 @@ public:
         ACT_GEN_B_UV_SHUTDOWN,
         ACT_GEN_OC,
         ACT_HIGH_TEMP,
-        ACT_LOW_FUEL_SWITCH,
-        ACT_LOW_FUEL_SHUTDOWN,
         ACT_LOW_FUEL_NOTIFICATION,
         ACT_LOW_PRES,
         ACT_MAINS_HIGH,
@@ -106,7 +104,9 @@ public:
         ACT_SUPERCAP_UNHEALTHY,
         ACT_CANOPY_TEMP_UNHEALTHY,
         ACT_DG_ON_LOAD,
-        ACT_DG_OVERLOAD
+        ACT_DG_OVERLOAD,
+        ACT_LOW_FUEL_SWITCH,
+        ACT_LOW_FUEL_SHUTDOWN
     } ACTUATOR_TYPS_t;
 
     /* Two possibilities for activation*/

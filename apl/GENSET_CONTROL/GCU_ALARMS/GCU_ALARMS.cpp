@@ -3354,7 +3354,7 @@ void GCU_ALARMS::prvUpdateOutputs()
     prvActDeactOutput(ArrAlarmMonitoring[DG_B_UV_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_GEN_B_UV_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[OVERCURRENT].bResultLatched, ACTUATOR::ACT_GEN_OC);
     prvActDeactOutput(ArrAlarmMonitoring[HIGH_WATER_TEMP_SHUTDOWN].bAlarmActive || ArrAlarmMonitoring[HIGH_WATER_TEMP_WARNING].bAlarmActive || ArrAlarmMonitoring[HWT_SWITCH].bAlarmActive, ACTUATOR::ACT_HIGH_TEMP);
-    prvActDeactOutput((bool)_ArrAlarmValue[LOW_FUEL_LVL_SWITCH_STATUS].u8Value, ACTUATOR::ACT_LOW_FUEL_SWITCH);
+    prvActDeactOutput(ArrAlarmMonitoring[LFL_SWITCH].bAlarmActive, ACTUATOR::ACT_LOW_FUEL_SWITCH);
     prvActDeactOutput(ArrAlarmMonitoring[LOW_FUEL_LEVEL_SHUTDOWN].bShutdownLatched, ACTUATOR::ACT_LOW_FUEL_SHUTDOWN);
     prvActDeactOutput(ArrAlarmMonitoring[LOW_FUEL_LEVEL_NOTIFICATION].bNotificationLatched, ACTUATOR::ACT_LOW_FUEL_NOTIFICATION);
     prvActDeactOutput(_u8LowOilPressAlarm, ACTUATOR::ACT_LOW_PRES);

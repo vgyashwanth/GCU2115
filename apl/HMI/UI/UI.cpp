@@ -252,7 +252,6 @@ static const char* strOutputSources[1][CFGZ::CFGZ_OUTPUT_LAST] =
   "Gen Over Current",
   "High Engine Temp",
   "Low Fuel LVL Switch",
-  "LFL Sensor Shutdown"
   "LFL Sensor Notification",
   "Low LOP",
   "Mains High Volt",
@@ -282,7 +281,8 @@ static const char* strOutputSources[1][CFGZ::CFGZ_OUTPUT_LAST] =
   "Supercapacitor Unhealthy",
   "Canopy Temp Sensor",
   "DG On Load",
-  "DG Overload"
+  "DG Overload",
+  "LFL Sensor Shutdown"
  }
 };
 

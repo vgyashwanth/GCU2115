@@ -465,6 +465,7 @@ const char *strAlaram[1][GCU_ALARMS::ID_ALL_ALARMS_LAST] =
       (char*)"Firmware Flashed",
       (char*)"Active Profile Flashed",
       (char*)"Factory Profiles Flashed",
+      (char*)"DG No Load"
  }
 };
 

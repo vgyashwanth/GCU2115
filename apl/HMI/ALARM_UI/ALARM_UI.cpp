@@ -372,8 +372,8 @@ void ALARM_UI::prvDisplayDMScreen(uint8_t u8DMNum)
     if((_u8NumberOfAlarms==0U) || _J1939.IsCommunicationFail() )
     {
 
-         sprintf(arrTemp," %d/%d", u8AlarmScreenNum, _u8NumberOfAlarms);
-        _Disp.gotoxy(106, 1 );
+         sprintf(arrTemp," %d/%d", 0, 0);
+        _Disp.gotoxy(100, 1 );
         _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
 
         if(DM1 == _eAlarmType)
@@ -397,7 +397,7 @@ void ALARM_UI::prvDisplayDMScreen(uint8_t u8DMNum)
         {
 
             sprintf(arrTemp," %d/%d", u8AlarmScreenNum + 1, _u8NumberOfAlarms);
-            _Disp.gotoxy(102, 1 );
+            _Disp.gotoxy(100, 1 );
             _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
 
             if(u8AlarmScreenNum > _u8NumberOfAlarms)
@@ -442,7 +442,7 @@ void ALARM_UI::prvDisplayDMScreen(uint8_t u8DMNum)
         {
 
             sprintf(arrTemp," %d/%d", 0, 0);
-            _Disp.gotoxy(106, 1 );
+            _Disp.gotoxy(100, 1 );
             _Disp.printStringLeftAligned(arrTemp, FONT_VERDANA);
             _Disp.gotoxy(32, 64);
             if(DM1 == _eAlarmType)

@@ -2534,6 +2534,16 @@ void GCU_ALARMS::AssignAlarmsForDisplay(uint8_t u8LoggingID)
         case Automatic_md_switch_id:
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[AUTOMATIC_MD_SWITCH].bAlarmActive;
             break;
+
+            /*adding Alarm for speed fault notification */
+
+        case Speed_Fault_notifaction:
+            /*adding the requried code here*/
+            _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[ABRUPT_SPEED_ALARM].bAlarmActive;
+        break;
+
+
+
         /* EGR alarm */
         case Egr_Fault_Notification:
             _ArrAlarmStatus[u8LoggingID] = (uint8_t *)&ArrAlarmMonitoring[EGR_FAULT_NOTIFICATION].bAlarmActive;

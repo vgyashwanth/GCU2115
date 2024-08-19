@@ -86,6 +86,9 @@ uint8_t ParamInSubmenus[ID_SUB_MENU_LAST] =
  LEAFNODES_IN_COOL_TEMP_ECU,
  LEAFNODES_IN_LOT_ECU,
  LEAFNODES_IN_CANOPY_TEMP_ECU,
+    /*newly added*/
+ LEAFNODES_IN_ABRUPT_SPEED_MON,
+
  LEAFNODES_IN_EGR_FAULT_MON,
  LEAFNODES_IN_MAINT_ALARM,
  LEAFNODES_IN_ALARM_DUE_DATE,
@@ -477,6 +480,8 @@ static const char* strSubMenu[1][ID_SUB_MENU_LAST]
         "CLNT TEMPERATURE",
         "LUBE OIL TEMP",
         "CANOPY TEMP",
+        /*newly added submenu*/
+        "ABRUPT SPEED MON",
 
         //EGR
         "EGR TIMERS",
@@ -1029,6 +1034,12 @@ static const char* strLeafNode[1][SID_LEAF_NODE_STRING]
         "CANOPY TEMP SHDN TH",
         "CANOPY TEMP WARN EN",
         "CANOPY TEMP WARN TH",
+
+        /*newly added leafnode for the submenu ABRUPT SPEED MON*/
+        "ABRUPT SPEED MON EN",
+        "ABRUPT SPEED THRE",
+        "ABRUPT SPEED ACTION",
+        "ABRUPT SPEED DELAY",
 
         //EGR Timers
         "ENABLE TIMERS",
@@ -1735,7 +1746,16 @@ void UI::InitEditableItems()
     ArrEditableItem[INDEX_OF_CANOPY_TEMP_SHUTDOWN_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CANOPY_TEMP_SHUTDOWN_THRESH), strLeafNode[_u8LanguageArrayIndex][SID_CANOPY_TEMP_SHUTDOWN_THRESH], arrUnit[ID_DEG_C], "%.0f", (float)-5, (float)300, (float)1, CEditableItem::PIN1_ALLOWED);
     ArrEditableItem[INDEX_OF_CANOPY_TEMP_WARNING_EN] = CEditableItem((uint32_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_CANOPY_TEMP_WARNING_EN),strLeafNode[_u8LanguageArrayIndex][SID_CANOPY_TEMP_WARNING_EN], "", "%s", strOptions[_u8LanguageArrayIndex][ID_ENABLE_DISABLE],2, CEditableItem::PIN1_ALLOWED );
     ArrEditableItem[INDEX_OF_CANOPY_TEMP_WARNING_THRESH] = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_HIGH_CANOPY_TEMP_WARNING_THRESH), strLeafNode[_u8LanguageArrayIndex][SID_CANOPY_TEMP_WARNING_THRESH], arrUnit[ID_DEG_C], "%.0f", (float)-5, (float)298, (float)1, CEditableItem::PIN1_ALLOWED);
+                           
+                            /*add the editable items here for the submenu : ABRUPT SPEED MON*/
 
+    ArrEditableItem[INDEX_OF_ABRUPT_SPEED_MON_ENABLE] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ::ID_ABRUPT_SPEED_MONITOR_EN),strLeafNode[_u8LanguageArrayIndex][SID_ABRUPT_SPEED_MON_EN], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO],2, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_ABRUPT_SPEED_THRESHOLD]  = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_ABRUPT_SPEED_THRESHOLD), strLeafNode[_u8LanguageArrayIndex][SID_ABRUPT_SPEED_TH], arrUnit[ID_RPM], "%.0f", (float)-5, (float)3600, (float)1, CEditableItem::PIN1_ALLOWED);
+    ArrEditableItem[INDEX_OF_ABRUPT_SPEED_DELAY]      = CEditableItem((float)_objcfgz.GetCFGZ_Param(CFGZ::ID_ABRUPT_SPEED_DELAY),strLeafNode[_u8LanguageArrayIndex][SID_ABRUPT_SPEED_DELAY],arrUnit[ID_SEC], "%.0f",(float)-5,(float)100,(float)1, CEditableItem::PIN1_ALLOWED );
+    ArrEditableItem[INDEX_OF_ABRUPT_SPEED_ACTION] = CEditableItem((uint8_t)_objcfgz.GetCFGZ_Param(CFGZ:: ID_ABRUPT_SPEED_ACTION), strLeafNode[_u8LanguageArrayIndex][SID_ABRUPT_SPEED_ACTION], "", "%s",strOptions[_u8LanguageArrayIndex][ID_ECU_ALARM_ACTION],4, CEditableItem::PIN1_ALLOWED);
+
+                                                        /*end*/
+                                                        
     ArrEditableItem[INDEX_OF_ENABLE_EGR_TIMERS] = CEditableItem((uint32_t)_objcfgz.GetProductSpecificData(CFGZ::PS_EGR_TIMERS_ENABLE),strLeafNode[_u8LanguageArrayIndex][SID_ENABLE_EGR_TIMERS], "", "%s", strOptions[_u8LanguageArrayIndex][ID_YES_NO], 2, CEditableItem::PIN3_ALLOWED );
     ArrEditableItem[INDEX_OF_FAULT_SHUTDOWN_TIMER] = CEditableItem((uint16_t)_objcfgz.GetProductSpecificData(CFGZ::PS_EGR_CONFIGURED_SHUTDOWN_TIMER), strLeafNode[_u8LanguageArrayIndex][SID_FAULT_SHUTDOWN_TIMER], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)FAULT_PRESENT_MONITORING_TIME_MINUTES, CEditableItem::PIN3_ALLOWED);
     ArrEditableItem[INDEX_OF_FAULT_WARNING_TIMER] = CEditableItem((uint16_t)_objcfgz.GetProductSpecificData(CFGZ::PS_EGR_CONFIGURED_WARNING_TIMER), strLeafNode[_u8LanguageArrayIndex][SID_FAULT_WARNING_TIMER], arrUnit[ID_MINS], "%u", (uint16_t)1, (uint16_t)EGR_WARNING_INDUCEMENT_LEVEL_TIME, CEditableItem::PIN3_ALLOWED);

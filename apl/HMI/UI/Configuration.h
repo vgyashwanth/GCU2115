@@ -33,7 +33,7 @@
 #define SUBMENUS_IN_TIMERS                  2
 #define SUBMENUS_IN_GENERATOR               6
 #define SUBMENUS_IN_MAINS                   5
-#define SUBMENUS_IN_ENGINE                  11
+#define SUBMENUS_IN_ENGINE                 12   /* edited */
 #define SUBMENUS_IN_MAINTENANCE             2
 #define SUBMENUS_IN_ID                      3
 #define SUBMENUS_IN_MISC                    1
@@ -111,6 +111,7 @@
 #define LEAFNODES_IN_COOL_TEMP_ECU          4
 #define LEAFNODES_IN_LOT_ECU                4
 #define LEAFNODES_IN_CANOPY_TEMP_ECU        4
+#define LEAFNODES_IN_ABRUPT_SPEED_MON       4   /*newly added*/
 /*EGR Fault Monitoring Timers*/
 #define LEAFNODES_IN_EGR_FAULT_MON          4
 /*Maintenance*/
@@ -637,10 +638,22 @@
        SID_CANOPY_TEMP_WARNING_EN,
        SID_CANOPY_TEMP_WARNING_THRESH,
 
+       /*ABRUPT SPEED MONITOR SUBMENU LEAFS   newly added */
+
+       SID_ABRUPT_SPEED_MON_EN,
+       SID_ABRUPT_SPEED_TH,
+       SID_ABRUPT_SPEED_ACTION,
+       SID_ABRUPT_SPEED_DELAY,
+
+        /*EGR Timers*/
+
        SID_ENABLE_EGR_TIMERS,
        SID_FAULT_SHUTDOWN_TIMER,
        SID_FAULT_WARNING_TIMER,
        SID_HEAL_TIMER,
+
+       
+       
 
        SID_MAINT_ALARM_ACTION,
        SID_MAINT_ALARM_DUE_AT_ENGINE_HOURS,
@@ -658,7 +671,7 @@
        SID_PROFILE_NAME,
 
        SID_LEAF_NODE_STRING
-   };
+   }/* need to get clarification to edit this enum*/;
 
    //Main Menus
    enum
@@ -745,15 +758,18 @@
        ID_BATTERY_MONITOR_S,
        ID_CHARGE_ALT_MON_S,
        ID_PREHEAT_S,
-
        ID_ECU,
        ID_LUBE_OIL_PRESSURE,
        ID_ENG_TEMPERATURE,
        ID_LUBE_OIL_TEMPERATURE,
        ID_CANOPY_TEMPERATURE,
-
+       /*Abrupt Speed Monitoring*/
+       ID_ABRUPT_SPEED_MONITOR,   /*newly added*/
        /*EGR Timers*/
        ID_EGR_TIMERS,
+       
+       
+
        /*Maintenance*/
        ID_MAINT_ALARM_S,
        ID_ALARM_DUE_DATE_S,
@@ -1219,7 +1235,9 @@ enum
     INDEX_OF_OVER_FREQ_MON_ENABLE,
     INDEX_OF_OVER_FREQ_MON_TRIP,
     INDEX_OF_OVER_FREQ_MON_RETURN,
+
     /*Engine menu*/
+
     INDEX_OF_CRANK_DISCONN_START_ATTEMPTS,
     INDEX_OF_CRANK_DISCONN_DISCONN_ON_LOP_SENS,
     INDEX_OF_CRANK_DISCONN_DISCONN_LOP_SENS,
@@ -1231,9 +1249,10 @@ enum
     INDEX_OF_CRANK_DISCONN_ENGINE_SPEED,
     INDEX_OF_CRANK_DISCONN_DISCONN_ON_CHG_ALT_VOLT,
     INDEX_OF_CRANK_DISCONN_CHG_ALT_THRESHOLD,
-
     INDEX_OF_SPEED_MONITOR_SPEED_SENSE_SOURCE,
+
     /*INDEX_OF_SPEED_MONITOR_RESERVED,*/
+
     INDEX_OF_SPEED_MONITOR_UNDER_SPEED_SHUTDOWN,
     INDEX_OF_SPEED_MONITOR_UNDER_SPEED_THRESHOLD,
     INDEX_OF_SPEED_MONITOR_UNDER_SPEED_DELAY,
@@ -1299,6 +1318,12 @@ enum
     INDEX_OF_CANOPY_TEMP_SHUTDOWN_THRESH,
     INDEX_OF_CANOPY_TEMP_WARNING_EN,
     INDEX_OF_CANOPY_TEMP_WARNING_THRESH,
+
+    /*For Abrupt speed monitoring newly added */ 
+    INDEX_OF_ABRUPT_SPEED_MON_ENABLE,
+    INDEX_OF_ABRUPT_SPEED_THRESHOLD,
+    INDEX_OF_ABRUPT_SPEED_ACTION,
+    INDEX_OF_ABRUPT_SPEED_DELAY,
 
     /*EGR Timers Menu*/
     INDEX_OF_ENABLE_EGR_TIMERS,

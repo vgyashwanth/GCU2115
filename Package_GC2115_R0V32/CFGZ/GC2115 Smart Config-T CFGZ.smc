@@ -1,0 +1,3537 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SEDEMAC xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="GC2115 R1">
+  <ParameterSet_GC2115_R1>
+    <Menu>Module</Menu>
+    <SubMenu>General</SubMenu>
+    <Parameter>Profile Name</Parameter>
+    <Value key="key_profilenumber">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Power On Mode</Parameter>
+    <Value key="key_poweronmode">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Power On Lamp Test</Parameter>
+    <Value key="key_poweronlamptemp">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Password Lock</Parameter>
+    <Value key="key_passwordlock">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Display</SubMenu>
+    <Parameter>Display Contrast (%)</Parameter>
+    <Value key="key_displaycontrastpercent">50</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Power Save Mode</Parameter>
+    <Value key="key_powersavemode">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Modbus Communication</SubMenu>
+    <Parameter>Comm Mode</Parameter>
+    <Value key="key_communicationmode">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>MODBUS Slave ID</Parameter>
+    <Value key="key_modbusslaveid">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>MODBUS Baudrate</Parameter>
+    <Value key="key_modbusbaudrate">3</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Parity Bit</Parameter>
+    <Value key="key_paritybit">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>MODBUS Map</Parameter>
+    <Value key="key_modbusmap">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>BTS</SubMenu>
+    <Parameter>Battery Montoring</Parameter>
+    <Value key="key_batterymonitoring">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Battery Threshold</Parameter>
+    <Value key="key_lowvoltagethreshold">46.5</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Battery Monitoring Delay</Parameter>
+    <Value key="key_batterymonitoringdelay">10</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Genset Run Duration</Parameter>
+    <Value key="key_gensetrunduration">270</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Cyclic Mode</SubMenu>
+    <Parameter>Cyclic Mode</Parameter>
+    <Value key="key_cyclicmode">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Genset Off Time</Parameter>
+    <Value key="key_gensetofftime">240</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Genset On Time</Parameter>
+    <Value key="key_gensetontime">240</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Night Restriction Mode</SubMenu>
+    <Parameter>Night Mode</Parameter>
+    <Value key="key_nightmode">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Start Time</Parameter>
+    <Value key="key_nightmodestarttime">0959</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Off Duration</Parameter>
+    <Value key="key_nightmodeoffduration">480</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>AUTO MD SWITCH</SubMenu>
+    <Parameter>AUTO MD SWITCH</Parameter>
+    <Value key="key_automodeswitch">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>MANUAL MODE TIME (Min)</Parameter>
+    <Value key="key_manualmodetime">16</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>OUTPUT ON TIME (Min)</Parameter>
+    <Value key="key_outputontime">15</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu>Digital Inputs</Menu>
+    <SubMenu>Digital Input A</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputasource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input A</Parameter>
+    <Value key="key_diginaname">Auxiliary Input A</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputapolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputaaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputaactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay (Sec)</Parameter>
+    <Value key="key_digitalinputaactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Input B</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputbsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input B</Parameter>
+    <Value key="key_diginbname">Auxiliary Input B</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputbpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputbaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputbactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay (Sec)</Parameter>
+    <Value key="key_digitalinputbactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Input C</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputcsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input C</Parameter>
+    <Value key="key_digincname">Auxiliary Input C</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputcpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputcaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputcactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay (Sec)</Parameter>
+    <Value key="key_digitalinputcactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Input D</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputdsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input D</Parameter>
+    <Value key="key_digindname">Auxiliary Input D</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputdpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputdaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputdactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay (Sec)</Parameter>
+    <Value key="key_digitalinputdactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Input E</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputesource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input E</Parameter>
+    <Value key="key_diginename">Auxiliary Input E</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputepolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputeaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputeactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay (Sec)</Parameter>
+    <Value key="key_digitalinputeactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Input F</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputfsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input F</Parameter>
+    <Value key="key_diginfname">Auxiliary Input F</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputfpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputfaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputfactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay (Sec)</Parameter>
+    <Value key="key_digitalinputfactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Input G</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputgsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input G</Parameter>
+    <Value key="key_digingname">Auxiliary Input G</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputgpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputgaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputgactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay (Sec)</Parameter>
+    <Value key="key_digitalinputgactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Input H</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputhsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input H</Parameter>
+    <Value key="key_diginhname">Auxiliary Input H</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputhpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputhaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputhactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay (Sec)</Parameter>
+    <Value key="key_digitalinputhactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Input I</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputisource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input I</Parameter>
+    <Value key="key_digininame">Auxiliary Input I</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputipolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputiaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputiactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay (Sec)</Parameter>
+    <Value key="key_digitalinputiactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu>Analog Inputs</Menu>
+    <SubMenu>LOP / DIG J</SubMenu>
+    <Parameter>Sensor Selection</Parameter>
+    <Value key="key_analoginput1sensorselection">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputjsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input J</Parameter>
+    <Value key="key_diginjname">Auxiliary Input J</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputjpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputjaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputjactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay(Sec)</Parameter>
+    <Value key="key_digitalinputjactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>LOP Sensor Open Ckt Alarm</Parameter>
+    <Value key="key_lopopencircuitalarm">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R1</Parameter>
+    <Value key="key_analoginput1calibR1">10</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V1</Parameter>
+    <Value key="key_analoginput1calibV1">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R2</Parameter>
+    <Value key="key_analoginput1calibR2">30</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V2</Parameter>
+    <Value key="key_analoginput1calibV2">1</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R3</Parameter>
+    <Value key="key_analoginput1calibR3">40</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V3</Parameter>
+    <Value key="key_analoginput1calibV3">2</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R4</Parameter>
+    <Value key="key_analoginput1calibR4">64</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V4</Parameter>
+    <Value key="key_analoginput1calibV4">3</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R5</Parameter>
+    <Value key="key_analoginput1calibR5">80</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V5</Parameter>
+    <Value key="key_analoginput1calibV5">4</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R6</Parameter>
+    <Value key="key_analoginput1calibR6">96</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V6</Parameter>
+    <Value key="key_analoginput1calibV6">5</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R7</Parameter>
+    <Value key="key_analoginput1calibR7">96</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V7</Parameter>
+    <Value key="key_analoginput1calibV7">5</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R8</Parameter>
+    <Value key="key_analoginput1calibR8">96</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V8</Parameter>
+    <Value key="key_analoginput1calibV8">5</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R9</Parameter>
+    <Value key="key_analoginput1calibR9">96</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V9</Parameter>
+    <Value key="key_analoginput1calibV9">5</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R10</Parameter>
+    <Value key="key_analoginput1calibR10">96</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V10</Parameter>
+    <Value key="key_analoginput1calibV10">5</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Fuel Level / DIG K</SubMenu>
+    <Parameter>Sensor selection</Parameter>
+    <Value key="key_analoginput2sensorselection">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputksource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input K</Parameter>
+    <Value key="key_diginkname">Auxiliary Input K</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputkpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputkaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputkactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay (Sec)</Parameter>
+    <Value key="key_digitalinputkactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Fuel Level Monitoring</SubMenu>
+    <Parameter>Low Fuel Level Shutdown</Parameter>
+    <Value key="key_lowfuellevelshutdown">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Fuel Level Shutdown threshold (%)</Parameter>
+    <Value key="key_lflshutdownthresholdpercent">10</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Fuel Level Notification</Parameter>
+    <Value key="key_lflnotification">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Fuel Level Notification threshold (%)</Parameter>
+    <Value key="key_lflnotificationthresholdpercent">12</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fuel Tank Capacity (Litre)</Parameter>
+    <Value key="key_fueltankcapacity">100</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fuel Theft Alarm</Parameter>
+    <Value key="key_fueltheftalarm">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fuel Theft Threshold (%/Hr)</Parameter>
+    <Value key="key_fueltheftthreshold">50</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fuel Consumption (Ltr/Hr)</Parameter>
+    <Value key="key_fuelconsumption">50.0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Display Fuel In %</Parameter>
+    <Value key="key_displayfuelinpercent">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R1</Parameter>
+    <Value key="key_analoginput2calibR1">10</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L1</Parameter>
+    <Value key="key_analoginput2calibL1">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R2</Parameter>
+    <Value key="key_analoginput2calibR2">27</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L2</Parameter>
+    <Value key="key_analoginput2calibL2">10</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R3</Parameter>
+    <Value key="key_analoginput2calibR3">44</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L3</Parameter>
+    <Value key="key_analoginput2calibL3">20</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R4</Parameter>
+    <Value key="key_analoginput2calibR4">61</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L4</Parameter>
+    <Value key="key_analoginput2calibL4">30</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R5</Parameter>
+    <Value key="key_analoginput2calibR5">78</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L5</Parameter>
+    <Value key="key_analoginput2calibL5">40</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R6</Parameter>
+    <Value key="key_analoginput2calibR6">95</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L6</Parameter>
+    <Value key="key_analoginput2calibL6">50</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R7</Parameter>
+    <Value key="key_analoginput2calibR7">112</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L7</Parameter>
+    <Value key="key_analoginput2calibL7">60</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R8</Parameter>
+    <Value key="key_analoginput2calibR8">129</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L8</Parameter>
+    <Value key="key_analoginput2calibL8">70</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R9</Parameter>
+    <Value key="key_analoginput2calibR9">146</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L9</Parameter>
+    <Value key="key_analoginput2calibL9">80</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R10</Parameter>
+    <Value key="key_analoginput2calibR10">180</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L10</Parameter>
+    <Value key="key_analoginput2calibL10">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R11</Parameter>
+    <Value key="key_analoginput2calibR11">180</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L11</Parameter>
+    <Value key="key_analoginput2calibL11">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R12</Parameter>
+    <Value key="key_analoginput2calibR12">180</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L12</Parameter>
+    <Value key="key_analoginput2calibL12">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R13</Parameter>
+    <Value key="key_analoginput2calibR13">180</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L13</Parameter>
+    <Value key="key_analoginput2calibL13">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R14</Parameter>
+    <Value key="key_analoginput2calibR14">180</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L14</Parameter>
+    <Value key="key_analoginput2calibL14">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R15</Parameter>
+    <Value key="key_analoginput2calibR15">180</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L15</Parameter>
+    <Value key="key_analoginput2calibL15">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R16</Parameter>
+    <Value key="key_analoginput2calibR16">180</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L16</Parameter>
+    <Value key="key_analoginput2calibL16">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R17</Parameter>
+    <Value key="key_analoginput2calibR17">180</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L17</Parameter>
+    <Value key="key_analoginput2calibL17">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R18</Parameter>
+    <Value key="key_analoginput2calibR18">180</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L18</Parameter>
+    <Value key="key_analoginput2calibL18">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R19</Parameter>
+    <Value key="key_analoginput2calibR19">180</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L19</Parameter>
+    <Value key="key_analoginput2calibL19">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R20</Parameter>
+    <Value key="key_analoginput2calibR20">180</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>L20</Parameter>
+    <Value key="key_analoginput2calibL20">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Engine Temp / DIG L</SubMenu>
+    <Parameter>Sensor selection</Parameter>
+    <Value key="key_analoginput3sensorselection">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputlsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input L</Parameter>
+    <Value key="key_diginlname">Auxiliary Input L</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputlpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputlaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputlactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay (Sec)</Parameter>
+    <Value key="key_digitalinputlactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Engine Temp Open Ckt Alarm</Parameter>
+    <Value key="key_engtempcktfaultwarning">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R1</Parameter>
+    <Value key="key_analoginput3calibR1">46</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>T1</Parameter>
+    <Value key="key_analoginput3calibT1">115</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R2</Parameter>
+    <Value key="key_analoginput3calibR2">52</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>T2</Parameter>
+    <Value key="key_analoginput3calibT2">110</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R3</Parameter>
+    <Value key="key_analoginput3calibR3">60</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>T3</Parameter>
+    <Value key="key_analoginput3calibT3">105</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R4</Parameter>
+    <Value key="key_analoginput3calibR4">70</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>T4</Parameter>
+    <Value key="key_analoginput3calibT4">100</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R5</Parameter>
+    <Value key="key_analoginput3calibR5">80</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>T5</Parameter>
+    <Value key="key_analoginput3calibT5">95</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R6</Parameter>
+    <Value key="key_analoginput3calibR6">93</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>T6</Parameter>
+    <Value key="key_analoginput3calibT6">90</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R7</Parameter>
+    <Value key="key_analoginput3calibR7">120</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>T7</Parameter>
+    <Value key="key_analoginput3calibT7">85</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R8</Parameter>
+    <Value key="key_analoginput3calibR8">222</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>T8</Parameter>
+    <Value key="key_analoginput3calibT8">65</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R9</Parameter>
+    <Value key="key_analoginput3calibR9">458</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>T9</Parameter>
+    <Value key="key_analoginput3calibT9">45</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R10</Parameter>
+    <Value key="key_analoginput3calibR10">1000</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>T10</Parameter>
+    <Value key="key_analoginput3calibT10">25</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Shelter Temp Sensor / Dig M</SubMenu>
+    <Parameter>Sensor Selection</Parameter>
+    <Value key="key_s1sensorselection">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputmsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input M</Parameter>
+    <Value key="key_diginmname">Auxiliary Input M</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputmpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputmaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputmactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay(Sec)</Parameter>
+    <Value key="key_digitalinputmactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Shelter Sensor Monitoring</SubMenu>
+    <Parameter>High Temp Threshold</Parameter>
+    <Value key="key_shelthightempthreshold">60</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Temp Threshold</Parameter>
+    <Value key="key_sheltlowtempthreshold">55</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Monitoring Delay(Sec)</Parameter>
+    <Value key="key_shelttempmonitoringdelay">10</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Genset Run Duration</Parameter>
+    <Value key="key_shelttemprunduration">2</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>S1 Sensor Open ckt alarm</Parameter>
+    <Value key="key_s1sensorcircuitfaultaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R1</Parameter>
+    <Value key="key_analoginputs1sensorcalibR1">1000</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val1</Parameter>
+    <Value key="key_analoginputs1sensorcalibVal1">15</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R2</Parameter>
+    <Value key="key_analoginputs1sensorcalibR2">841</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val2</Parameter>
+    <Value key="key_analoginputs1sensorcalibVal2">20</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R3</Parameter>
+    <Value key="key_analoginputs1sensorcalibR3">680</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val3</Parameter>
+    <Value key="key_analoginputs1sensorcalibVal3">25</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R4</Parameter>
+    <Value key="key_analoginputs1sensorcalibR4">554</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val4</Parameter>
+    <Value key="key_analoginputs1sensorcalibVal4">30</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R5</Parameter>
+    <Value key="key_analoginputs1sensorcalibR5">374</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val5</Parameter>
+    <Value key="key_analoginputs1sensorcalibVal5">40</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R6</Parameter>
+    <Value key="key_analoginputs1sensorcalibR6">311</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val6</Parameter>
+    <Value key="key_analoginputs1sensorcalibVal6">40</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R7</Parameter>
+    <Value key="key_analoginputs1sensorcalibR7">259</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val7</Parameter>
+    <Value key="key_analoginputs1sensorcalibVal7">50</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R8</Parameter>
+    <Value key="key_analoginputs1sensorcalibR8">218</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val8</Parameter>
+    <Value key="key_analoginputs1sensorcalibVal8">55</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R9</Parameter>
+    <Value key="key_analoginputs1sensorcalibR9">183</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val9</Parameter>
+    <Value key="key_analoginputs1sensorcalibVal9">60</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R10</Parameter>
+    <Value key="key_analoginputs1sensorcalibR10">156</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val10</Parameter>
+    <Value key="key_analoginputs1sensorcalibVal10">65</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>S2 SENSOR / Dig N</SubMenu>
+    <Parameter>Sensor Selection</Parameter>
+    <Value key="key_s2sensorselection">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputnsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input N</Parameter>
+    <Value key="key_diginnname">Auxiliary Input N</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputnpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputnaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputnactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay(Sec)</Parameter>
+    <Value key="key_digitalinputnactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>S2 SENSOR MONITORING</SubMenu>
+    <Parameter>Action</Parameter>
+    <Value key="key_s2sensoraction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Threshold</Parameter>
+    <Value key="key_s2sensorthreshold">100.0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Threshold Type</Parameter>
+    <Value key="key_s2sensorthresholdtype">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>S2 Sensor Open ckt alarm</Parameter>
+    <Value key="key_s2sensorcircuitfaultaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R1</Parameter>
+    <Value key="key_analoginputs2sensorcalibR1">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val1</Parameter>
+    <Value key="key_analoginputs2sensorcalibVal1">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R2</Parameter>
+    <Value key="key_analoginputs2sensorcalibR2">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val2</Parameter>
+    <Value key="key_analoginputs2sensorcalibVal2">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R3</Parameter>
+    <Value key="key_analoginputs2sensorcalibR3">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val3</Parameter>
+    <Value key="key_analoginputs2sensorcalibVal3">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R4</Parameter>
+    <Value key="key_analoginputs2sensorcalibR4">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val4</Parameter>
+    <Value key="key_analoginputs2sensorcalibVal4">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R5</Parameter>
+    <Value key="key_analoginputs2sensorcalibR5">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val5</Parameter>
+    <Value key="key_analoginputs2sensorcalibVal5">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R6</Parameter>
+    <Value key="key_analoginputs2sensorcalibR6">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val6</Parameter>
+    <Value key="key_analoginputs2sensorcalibVal6">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R7</Parameter>
+    <Value key="key_analoginputs2sensorcalibR7">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val7</Parameter>
+    <Value key="key_analoginputs2sensorcalibVal7">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R8</Parameter>
+    <Value key="key_analoginputs2sensorcalibR8">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val8</Parameter>
+    <Value key="key_analoginputs2sensorcalibVal8">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R9</Parameter>
+    <Value key="key_analoginputs2sensorcalibR9">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val9</Parameter>
+    <Value key="key_analoginputs2sensorcalibVal9">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>R10</Parameter>
+    <Value key="key_analoginputs2sensorcalibR10">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Val10</Parameter>
+    <Value key="key_analoginputs2sensorcalibVal10">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>S3 SENSOR / Dig O</SubMenu>
+    <Parameter>Sensor Selection</Parameter>
+    <Value key="key_s3sensorselection">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputosource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input O</Parameter>
+    <Value key="key_diginoname">Auxiliary Input O</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputopolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputoaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputoactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay(Sec)</Parameter>
+    <Value key="key_digitalinputoactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>LOP Sensor Open Ckt Alarm</Parameter>
+    <Value key="key_lopopencircuitalarm">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>I1</Parameter>
+    <Value key="key_analoginputs3sensorcalibI1">4</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V1</Parameter>
+    <Value key="key_analoginputs3sensorcalibV1">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>I2</Parameter>
+    <Value key="key_analoginputs3sensorcalibI2">6</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V2</Parameter>
+    <Value key="key_analoginputs3sensorcalibV2">1</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>I3</Parameter>
+    <Value key="key_analoginputs3sensorcalibI3">7</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V3</Parameter>
+    <Value key="key_analoginputs3sensorcalibV3">2</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>I4</Parameter>
+    <Value key="key_analoginputs3sensorcalibI4">9</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V4</Parameter>
+    <Value key="key_analoginputs3sensorcalibV4">3</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>I5</Parameter>
+    <Value key="key_analoginputs3sensorcalibI5">10</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V5</Parameter>
+    <Value key="key_analoginputs3sensorcalibV5">4</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>I6</Parameter>
+    <Value key="key_analoginputs3sensorcalibI6">12</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V6</Parameter>
+    <Value key="key_analoginputs3sensorcalibV6">5</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>I7</Parameter>
+    <Value key="key_analoginputs3sensorcalibI7">14</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V7</Parameter>
+    <Value key="key_analoginputs3sensorcalibV7">6</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>I8</Parameter>
+    <Value key="key_analoginputs3sensorcalibI8">15</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V8</Parameter>
+    <Value key="key_analoginputs3sensorcalibV8">7</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>I9</Parameter>
+    <Value key="key_analoginputs3sensorcalibI9">17</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V9</Parameter>
+    <Value key="key_analoginputs3sensorcalibV9">8</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>I10</Parameter>
+    <Value key="key_analoginputs3sensorcalibI10">20</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>V10</Parameter>
+    <Value key="key_analoginputs3sensorcalibV10">10</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>S4 SENSOR / Dig P</SubMenu>
+    <Parameter>Sensor Selection</Parameter>
+    <Value key="key_s4sensorselection">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Source</Parameter>
+    <Value key="key_digitalinputpsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>DIG Input P</Parameter>
+    <Value key="key_diginpname">Auxiliary Input P</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_digitalinputppolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Action</Parameter>
+    <Value key="key_digitalinputpaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation</Parameter>
+    <Value key="key_digitalinputpactivation">2</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Activation Delay(Sec)</Parameter>
+    <Value key="key_digitalinputpactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Fuel Level Monitoring</SubMenu>
+    <Parameter>Low Fuel Level Shutdown</Parameter>
+    <Value key="key_lowfuellevelshutdown">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Fuel Level Shutdown threshold (%)</Parameter>
+    <Value key="key_lflshutdownthresholdpercent">10</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Fuel Level Notification</Parameter>
+    <Value key="key_lflnotification">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Fuel Level Notification threshold (%)</Parameter>
+    <Value key="key_lflnotificationthresholdpercent">12</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fuel Theft Alarm</Parameter>
+    <Value key="key_fueltheftalarm">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fuel Theft Threshold (%/Hr)</Parameter>
+    <Value key="key_fueltheftthreshold">50</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fuel Consumption (Ltr/Hr)</Parameter>
+    <Value key="key_fuelconsumption">50.0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Display Fuel In Liters</Parameter>
+    <Value key="key_displayfuelinpercent">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Sensor Low Voltage (Volt)</Parameter>
+    <Value key="key_sensorlowvoltage">0.00</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Sensor High Voltage (Volt)</Parameter>
+    <Value key="key_sensorhighvoltage">5.00</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Tank With Step</Parameter>
+    <Value key="key_tankstep">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Tank Width (mm) - For Both Steps</Parameter>
+    <Value key="key_tankwidth">600</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Tank Step 1 Length (mm)</Parameter>
+    <Value key="key_tanksteponelength">1000</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Tank Step 1 Heigth (mm)</Parameter>
+    <Value key="key_tanksteponeheight">200</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Tank Step 2 Length (mm)</Parameter>
+    <Value key="key_tanksteptwolength">600</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Tank Step 2 Heigth (mm)</Parameter>
+    <Value key="key_tanksteptwoheight">150</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu>Outputs</Menu>
+    <SubMenu>Digital Output A</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputasource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputapolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output B</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputbsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputbpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output C</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputcsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputcpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output D</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputdsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputdpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output E</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputesource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputepolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output F</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputfsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputfpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output G</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputgsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputgpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output H</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputhsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputhpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output I</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputisource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputipolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output J</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputjsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputjpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output K</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputksource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputkpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output L</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputlsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputlpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output M</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputmsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputmpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output N</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputnsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputnpolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output O</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputosource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputopolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Digital Output P</SubMenu>
+    <Parameter>Source</Parameter>
+    <Value key="key_digitaloutputpsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Polarity</Parameter>
+    <Value key="key_outputppolarity">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu>Timers</Menu>
+    <SubMenu>Cranking</SubMenu>
+    <Parameter>Crank Hold Time (sec)</Parameter>
+    <Value key="key_crankholdtime">4</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Crank Rest Time (sec)</Parameter>
+    <Value key="key_crankresttime">10</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Manual Start Delay (sec)</Parameter>
+    <Value key="key_manualstartdelay">3</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Auto Start Delay (sec)</Parameter>
+    <Value key="key_autostartdelay">5</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>General</SubMenu>
+    <Parameter>Safety Monotoring Delay (sec)</Parameter>
+    <Value key="key_safetymonitoringdelay">10</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Mains Detect Delay (sec)</Parameter>
+    <Value key="key_mainsdetectdelay">5</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Alternator Detect Delay (sec)</Parameter>
+    <Value key="key_alternatordetectdelay">5</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Warm-up Delay (sec)</Parameter>
+    <Value key="key_warmupdelay">30</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Return To Mains Delay (sec)</Parameter>
+    <Value key="key_returntomainsdelay">60</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Engine Cooling Time (sec)</Parameter>
+    <Value key="key_enginecoolingtime">60</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Stop Action Time (sec)</Parameter>
+    <Value key="key_stopactiontime">30</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Additional Stopping Time (sec)</Parameter>
+    <Value key="key_additionalstoppingtime">10</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Load Transfer Delay (sec)</Parameter>
+    <Value key="key_loadtransferdelay">5</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Power Save Mode Delay (sec)</Parameter>
+    <Value key="key_powersavemodedelay">60</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Screen Changeover Time (sec)</Parameter>
+    <Value key="key_screenchangeovertime">30</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Sounder Alarm Time (sec)</Parameter>
+    <Value key="key_sounderalarmtime">60</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Test Mode Timer (min)</Parameter>
+    <Value key="key_testmodetimer">1</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu>Generator</Menu>
+    <SubMenu>Alternator Config</SubMenu>
+    <Parameter>Alternator Present</Parameter>
+    <Value key="key_alternatorpresent">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Number of Poles</Parameter>
+    <Value key="key_numberofpoles">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>AC System</Parameter>
+    <Value key="key_gensetacsystem">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Min Healthy Voltage (volt)</Parameter>
+    <Value key="key_minhealthyvoltage">185</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Min Healthy Frequency (Hz)</Parameter>
+    <Value key="key_minhealthyfrequency">47</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Phase Reversal Detection</Parameter>
+    <Value key="key_gensetphasereversaldetection">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Phase Reversal Action</Parameter>
+    <Value key="key_gensetphasereversalaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Auto-load Transfer</Parameter>
+    <Value key="key_autoloadtransfer">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Alternator Wave Detection</Parameter>
+    <Value key="key_alternatorwavedetection">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Voltage Monitoring</SubMenu>
+    <Parameter>UV Shutdown Enable</Parameter>
+    <Value key="key_undervoltageshutdownenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>UV Shutdown Threshold (volt)</Parameter>
+    <Value key="key_undervoltageshutdownthreshold">184</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>UV Warning Enable</Parameter>
+    <Value key="key_undervoltagewarningenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>UV Warning Threshold (volt)</Parameter>
+    <Value key="key_undervoltagewarningthreshold">189</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>OV Shutdown Enable</Parameter>
+    <Value key="key_overvoltageshutdownenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>OV Shutdown Threshold (volt)</Parameter>
+    <Value key="key_overvoltageshutdownthreshold">264</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>OV Warning Enable</Parameter>
+    <Value key="key_overvoltagewarningenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>OV Warning Threshold(volt)</Parameter>
+    <Value key="key_overvoltagewarningthreshold">260</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Frequency Monitoring</SubMenu>
+    <Parameter>UF Shutdown Enable</Parameter>
+    <Value key="key_underfrequencyshutdownenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>UF Shutdown Threshold (Hz)</Parameter>
+    <Value key="key_underfrequencyshutdownthreshold">47</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>UF Warning Enable</Parameter>
+    <Value key="key_underfrequencywarningenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>UF Warning Threshold (Hz)</Parameter>
+    <Value key="key_underfrequencywarningthreshold">48</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>OF Shutdown Enable</Parameter>
+    <Value key="key_overfrequencyshutdownenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>OF Shutdown Threshold (Hz)</Parameter>
+    <Value key="key_overfrequencyshutdownthreshold">53</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>OF Warning Enable</Parameter>
+    <Value key="key_overfrequencywarningenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>OF Warning Threshold (Hz)</Parameter>
+    <Value key="key_overfrequencywarningthreshold">52</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Current monitoring</SubMenu>
+    <Parameter>CT Ratio</Parameter>
+    <Value key="key_currentmonitoringprimaryctratio">100</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Over-current Action</Parameter>
+    <Value key="key_overcurrentaction">3</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Over-current Threshold (Amp)</Parameter>
+    <Value key="key_overcurrentthreshold">44</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Over-current Delay (sec)</Parameter>
+    <Value key="key_overcurrentdelay">3</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>CT Correction Factor</Parameter>
+    <Value key="key_ctcorrectionfactor">1</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>CT Location</Parameter>
+    <Value key="key_currentmonitoringctlocation">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Fan Current Monitoring</SubMenu>
+    <Parameter>Monitoring Enable</Parameter>
+    <Value key="key_fancurrentmonitoringenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fan CT Ratio</Parameter>
+    <Value key="key_fanmonitoringctratio">0</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fan Current High Threshold</Parameter>
+    <Value key="key_highcurrentthreshold">0.2</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fan Current High Action</Parameter>
+    <Value key="key_highcurrentaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fan Current Low Threshold</Parameter>
+    <Value key="key_lowcurrentaction">0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fan Current Low Action</Parameter>
+    <Value key="key_lowcurrentthreshold">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Fan Current Delay (sec)</Parameter>
+    <Value key="key_currentdelay">1</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Load Monitoring</SubMenu>
+    <Parameter>Generator Rating (kW)</Parameter>
+    <Value key="key_generatorratingloadmonitoring">8</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Full Load Current (Amp/Phase)</Parameter>
+    <Value key="key_fullloadrating">1</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Over-load Action</Parameter>
+    <Value key="key_overloadaction">3</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Load Monitoring Threshold (%)</Parameter>
+    <Value key="key_overloadthresholdpercent">111</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Over-load Delay (sec)</Parameter>
+    <Value key="key_overloaddelaytime">3</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Unbalanced Load Action</Parameter>
+    <Value key="key_unbalancedloadaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Unbalanced Load Threshold (%)</Parameter>
+    <Value key="key_unbalancedloadthresholdpercent">25</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Unbalanced Load Delay (sec)</Parameter>
+    <Value key="key_unbalancedloaddelay">10</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Unbalanced Load Activation Threshold (%)</Parameter>
+    <Value key="key_unbalancedloadactthresholdpercent">60</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu>Mains</Menu>
+    <SubMenu>Mains Config</SubMenu>
+    <Parameter>Mains Monitoring</Parameter>
+    <Value key="key_mainsmonitoring">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Mains AC system</Parameter>
+    <Value key="key_mainsacsystem">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Phase Reversal Detection</Parameter>
+    <Value key="key_mainsphasereversaldetection">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Phase Reversal Action</Parameter>
+    <Value key="key_mainsphasereversalaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Three Phase calc for one phase</Parameter>
+    <Value key="key_3phcalculationenfor1ph">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Under-voltage Monitoring</SubMenu>
+    <Parameter>Monitoring Enable</Parameter>
+    <Value key="key_undervoltagemonitoringenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Under-voltage Trip (Volt)</Parameter>
+    <Value key="key_undervoltagetrip">122</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Under-voltage Return (Volt)</Parameter>
+    <Value key="key_undervoltagereturn">131</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Over-voltage Monitoring</SubMenu>
+    <Parameter>Monitoring Enable</Parameter>
+    <Value key="key_overvoltagemonitoringenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Over-voltage Trip (Volt)</Parameter>
+    <Value key="key_overvoltagetrip">287</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Over-voltage Return (Volt)</Parameter>
+    <Value key="key_overvoltagereturn">277</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Under-frequency Monitoring</SubMenu>
+    <Parameter>Monitoring Enable</Parameter>
+    <Value key="key_underfrequencymonitoringenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Under-frequency Trip (Hz)</Parameter>
+    <Value key="key_underfrequencytrip">45</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Under-frequency Return (Hz)</Parameter>
+    <Value key="key_underfrequencyreturn">46</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Over-frequency Monitoring</SubMenu>
+    <Parameter>Monitoring Enable</Parameter>
+    <Value key="key_overfrequencymonitoringenable">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Over-frequency Trip (Hz)</Parameter>
+    <Value key="key_overfrequencytrip">54</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Over-frequency Return (Hz)</Parameter>
+    <Value key="key_overfrequencyreturn">53</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu>Engine</Menu>
+    <SubMenu>Crank Disconnect</SubMenu>
+    <Parameter>Start Attempts</Parameter>
+    <Value key="key_startattempts">3</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Disconnect On LOP Sensor</Parameter>
+    <Value key="key_disconnectonlopsensor">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Disconnect Pressure Threshold (bar)</Parameter>
+    <Value key="key_disconnectpressurethreshold">4.0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Mon Pres Switch Before Start</Parameter>
+    <Value key="key_monpresswitchbeforestart">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Mon Pres Sensor Before Start</Parameter>
+    <Value key="key_monpressensorbeforestart">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Disconnect On LLOP Switch</Parameter>
+    <Value key="key_disconnectonllopswitch">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>LLOP Switch Transient Time (sec)</Parameter>
+    <Value key="key_llopswitchtransienttime">0.1</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Alternator Frequency (Hz)</Parameter>
+    <Value key="key_crankdisconnectaltfrequency">20</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Engine Speed (Speed)</Parameter>
+    <Value key="key_enginespeed">600</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Disconnect On Charging Alt Voltage</Parameter>
+    <Value key="key_disconnectonchargingaltvoltage">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Charging Alt Voltage Threshold</Parameter>
+    <Value key="key_chargingaltvoltagethreshold">8.0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Speed Monitoring</SubMenu>
+    <Parameter>Engine Speed Sense Source</Parameter>
+    <Value key="key_enginespeedsensesource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Under-speed Shutdown</Parameter>
+    <Value key="key_underspeedshutdown">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Under-speed Threshold (RPM)</Parameter>
+    <Value key="key_underspeedthreshold">1380</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Under-speed Delay (sec)</Parameter>
+    <Value key="key_underspeeddelay">10</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Over-speed Threshold (RPM)</Parameter>
+    <Value key="key_overspeedthreshold">1650</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Over-speed Delay (sec)</Parameter>
+    <Value key="key_overspeeddelay">10</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Gross Over-speed Threshold (%)</Parameter>
+    <Value key="key_grossoverspeedthresholdpercent">120</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Battery Monitoring</SubMenu>
+    <Parameter>Monitoring Source</Parameter>
+    <Value key="key_monitoringsource">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Battery voltage action</Parameter>
+    <Value key="key_lowbatteryvoltageaction">4</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Battery Voltage Threshold (volt)</Parameter>
+    <Value key="key_lowbatteryvoltagethreshold">10.0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Battery Voltage Delay (sec)</Parameter>
+    <Value key="key_lowbatteryvoltagedelay">60</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>High Battery Voltage Action</Parameter>
+    <Value key="key_highbatteryvoltageaction">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>High Battery Voltage Threshold (volt)</Parameter>
+    <Value key="key_highbatteryvoltagethreshold">14</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>High Battery Voltage Delay (sec)</Parameter>
+    <Value key="key_highbatteryvoltagedelay">30</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Reserved</SubMenu>
+    <Parameter>Reserved</Parameter>
+    <Value key="key_reservedparameter1">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Reserved</Parameter>
+    <Value key="key_reservedparameter2">4.0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Reserved</Parameter>
+    <Value key="key_reservedparameter3">60</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Preheat</SubMenu>
+    <Parameter>Preheat Timer (sec)</Parameter>
+    <Value key="key_preheattimer">2</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Engine Temperature Limit</Parameter>
+    <Value key="key_enginecoolanttemperaturelimit">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Engine Temperature Limit (degC)</Parameter>
+    <Value key="key_enginecoolanttemperaturelimitdegc">25</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Ambient Temp</Parameter>
+    <Value key="key_ambienttemperature">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Engine Control Unit (ECU)</SubMenu>
+    <Parameter>Engine Type</Parameter>
+    <Value key="key_enginetype">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Engine Speed</Parameter>
+    <Value key="key_enginespeedfromecu">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Lube Oil Pressure</Parameter>
+    <Value key="key_lubeoilpressurefromecu">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Coolant Temperature</Parameter>
+    <Value key="key_coolanttemparaturefromecu">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Running Hours</Parameter>
+    <Value key="key_runninghoursfromecu">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Battery Monitoring By J1939</Parameter>
+    <Value key="key_batteryvoltagefromecu">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Oil Temperature</Parameter>
+    <Value key="key_oiltemperaturefromecu">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Communication Failure Action</Parameter>
+    <Value key="key_ecucommunicationfailureaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Communication Failure Activation</Parameter>
+    <Value key="key_ecucomunicationfailureactivation">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Communication Failure Activation Delay</Parameter>
+    <Value key="key_ecucomunicationfailureactivationdelay">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Amber Lamp Action</Parameter>
+    <Value key="key_ecuamberaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Amber Lamp Activation</Parameter>
+    <Value key="key_ecuamberactivation">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Amber Lamp Activation Delay</Parameter>
+    <Value key="key_ecuamberactivationdelay">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Red Lamp Action</Parameter>
+    <Value key="key_ecumalfunctionaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Red Lamp Activation</Parameter>
+    <Value key="key_ecumalfunctionactivation">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Red Lamp Activation Delay</Parameter>
+    <Value key="key_ecumalfunctionactivationdelay">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Malfunction Lamp Action</Parameter>
+    <Value key="key_ecuredaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Malfunction Lamp Activation</Parameter>
+    <Value key="key_ecuredactivation">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Malfunction Lamp Activation Delay</Parameter>
+    <Value key="key_ecuredactivationdelay">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Protect Lamp Action</Parameter>
+    <Value key="key_ecuprotectaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Protect Lamp Activation</Parameter>
+    <Value key="key_ecuprotectactivation">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Protect Lamp Activation Delay</Parameter>
+    <Value key="key_ecuprotectactivationdelay">60</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>GCU Source Address</Parameter>
+    <Value key="key_sgcsourceaddress">3</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>ECU Source Address</Parameter>
+    <Value key="key_ecusourceaddres">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Lube Oil Pressure</SubMenu>
+    <Parameter>Low Level Shutdown</Parameter>
+    <Value key="key_lopshutdown">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Shutdown Threshold (bar)</Parameter>
+    <Value key="key_lopshutdownthreshold">2.0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Low Level Warning</Parameter>
+    <Value key="key_lopwarning">1</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Warning Threshold (bar)</Parameter>
+    <Value key="key_lopwarningthreshold">3.0</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Coolant Temperature</SubMenu>
+    <Parameter>High Temp Shutdown</Parameter>
+    <Value key="key_enginecoolanttempshutdown">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Shutdown Threshold (deg C)</Parameter>
+    <Value key="key_enginecoolanttempshutdownthreshold">27</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>High Temp Warning</Parameter>
+    <Value key="key_enginecoolanttempwarning">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Warning Threshold (deg C)</Parameter>
+    <Value key="key_enginecoolanttempwarningthreshold">25</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Oil Temperature</SubMenu>
+    <Parameter>High Temp Shutdown</Parameter>
+    <Value key="key_oiltempshutdownenable">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Shutdown Threshold (deg C)</Parameter>
+    <Value key="key_oiltempshutdownthreshold">27</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>High Temp Warning</Parameter>
+    <Value key="key_oiltempwarningenable">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Warning Threshold (deg C)</Parameter>
+    <Value key="key_oiltempwarningthreshold">25</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu>Canopy Temperature</SubMenu>
+    <Parameter>High Temp Shutdown</Parameter>
+    <Value key="key_canopytempshutdown">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Shutdown Threshold (deg C)</Parameter>
+    <Value key="key_canopytempshutdownthreshold">110</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>High Temp Warning</Parameter>
+    <Value key="key_canopytempwarning">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Warning Threshold (deg C)</Parameter>
+    <Value key="key_canopytempwarningthreshold">85</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+
+<!-- Adding submenu (Abrupt Speed monitor) in the engine menu -->
+ <Menu />
+    <SubMenu>Abrupt Speed monitor </SubMenu>
+    <Parameter>Abrupt Speed monitor enable</Parameter>
+    <Value key="key_abruptspeedmonenable">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Abrupt Speed Threshold</Parameter>
+    <Value key="key_abruptspeedthreshold">3600</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Abrupt Speed Action</Parameter>
+    <Value key="key_abruptspeedaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Abrupt Speed delay</Parameter>
+    <Value key="key_abruptspeeddelay">30</Value>
+    <DataType>float</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+
+
+<!-- //////////////// end ////////////////////////  -->
+
+
+
+
+    <Menu>Maintenance</Menu>
+    <SubMenu>Filter</SubMenu>
+    <Parameter>Alarm Action</Parameter>
+    <Value key="key_alarmaction">0</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Due At Engine Hours</Parameter>
+    <Value key="key_dueatenginehours">250</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Alarm Due Day</Parameter>
+    <Value key="key_alarmdueday">01</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Alarm Due Month</Parameter>
+    <Value key="key_alarmduemonth">06</Value>
+    <DataType>uint8</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Alarm Due Year</Parameter>
+    <Value key="key_alarmdueyear">2024</Value>
+    <DataType>uint16</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+
+
+
+
+    <Menu>Strings</Menu>
+    <SubMenu>General</SubMenu>
+    <Parameter>Sensor S1 Name</Parameter>
+    <Value key="key_s1sensor">S1 Sensor</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Sensor S2 Name</Parameter>
+    <Value key="key_s2sensor">S2 Sensor</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Sensor S3 Name</Parameter>
+    <Value key="key_s3sensor">S3 Sensor</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Sensor S4 Name</Parameter>
+    <Value key="key_s4sensor">S4 Sensor</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+  <ParameterSet_GC2115_R1>
+    <Menu />
+    <SubMenu />
+    <Parameter>Profile Name</Parameter>
+    <Value key="key_profilename">Profile 1</Value>
+    <DataType>string20</DataType>
+  </ParameterSet_GC2115_R1>
+</SEDEMAC>

@@ -878,11 +878,11 @@ void MAIN_UI::prvHandleScreenChangeover()
        }
        else
        {
-            /* Do nothing */
+             /* Do nothing */
         }
     }
     else
     {
-        /* do nothing */
+            /* do nothing */
     }
 }

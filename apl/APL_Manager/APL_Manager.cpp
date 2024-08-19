@@ -60,11 +60,13 @@ _PowerOnUpdateTimer{0, false}
 
 void APL_Manager::Update()
 {
+
     HAL_Manager::Update();
     _sleep.Update();
     if(!AmIInSleep())
     {
-        if((!_cfgc.IsC02Error()) && (!_cfgz.IsC03Error()) )
+
+        if( (!_cfgc.IsC02Error()) && (!_cfgz.IsC03Error()) )
         {
             _EngineStartValidity.EngineStartValiditySM(bDeviceInConfigMode);
             _engineMonitoring.Update();
@@ -76,9 +78,13 @@ void APL_Manager::Update()
             _CyclicMode.Update(bDeviceInConfigMode);
             _cfgc.Update();
         }
+
+
     }
 
+
     bDeviceInConfigMode = _MainUI.Update();
+
     if(UTILS_GetElapsedTimeInSec(&_PowerOnUpdateTimer) >= BOOT_TIMER_SEC)
     {
         /*Don't update in case you are in sleep*/
@@ -89,7 +95,11 @@ void APL_Manager::Update()
             _J1939.Update(bDeviceInConfigMode);
             _chrgAlt.Update();
         }
+
     }
+
+
+
 }
 
 void APL_Manager::prvSetFwVerInMb()

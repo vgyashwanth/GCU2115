@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SedemacControllerDeviceMap>
+  <!--
+Device Map revision history log
+***********************************
+
+  Created by :- Jignesh Darji
+  Date        :- 08/04/2019
+  Description :- add all the required parameters
+-->
+
+<!--
+Common Configuration Section Below
+***********************************
+-->
+  <SeriesConfiguration>
+    <!--Custum parameters by Jignesh Darji-->
+
+    <ExternalEEPROMSize type="xs:unsignedInt">0x20000</ExternalEEPROMSize>
+    <!--(256U * 1024U)-->
+    <PFlashSectorSize type="xs:int">2048</PFlashSectorSize>
+    <DFlashectorSize type="xs:int">1024</DFlashectorSize>
+    <IntEEPROMSize>512</IntEEPROMSize>
+    <PFlashSize type="xs:unsignedInt">0x100000</PFlashSize>
+    <BootloaderMaxSize type="xs:unsignedInt">0x10000</BootloaderMaxSize>
+    <!--(30U * 1024U)-->
+    <FirwareMetaDataSize type="xs:int" >16</FirwareMetaDataSize>
+    <PFlashBaseAddress type="xs:unsignedInt">0x0</PFlashBaseAddress>
+
+	<FirmwareRevisionStartAddress type="xs:unsignedInt">0</FirmwareRevisionStartAddress>
+	<FirmwareRevisionSize type="xs:unsignedInt">1</FirmwareRevisionSize>
+	<FirmwareVersionStartAddress type="xs:unsignedInt">1</FirmwareVersionStartAddress>
+	<FirmwareVersionSize type="xs:unsignedInt">1</FirmwareVersionSize>
+	<FirmwarePLMIDStartAddress type="xs:unsignedInt">4</FirmwarePLMIDStartAddress>
+	<FirmwarePLMIDSize type="xs:unsignedInt">4</FirmwarePLMIDSize>
+
+	<FimwareInfoAddress type="xs:unsignedInt">0x40100080</FimwareInfoAddress>
+	<FimwareInfoSize type="xs:unsignedInt">6</FimwareInfoSize>
+    <!--<FirmwareStartAddress></FirmwareStartAddress>
+    <FirmwareMetaDataAddress></FirmwareMetaDataAddress>-->
+
+    <PacketDataSize>60</PacketDataSize>
+    <NumOfBytePerPacket>56</NumOfBytePerPacket>
+
+    <CFGZMaxNumofParams>500</CFGZMaxNumofParams>
+    <CFGCMaxNumOfParams>100</CFGCMaxNumOfParams>
+	<CFGZIntParamSize type="xs:int">2</CFGZIntParamSize>
+    <AuxStringsSize>21</AuxStringsSize>
+    <MaxNumOfAuxStrings>23</MaxNumOfAuxStrings>
+    <CFGZImageMaxLength type="xs:unsignedInt">0x8000</CFGZImageMaxLength>
+    <!--14U * 1024U because we have reserved 14KB space in DFlash for (CFGZ + Auxiliary strings)-->
+    <CFGZBaseAddress type="xs:unsignedInt">0x000F8000</CFGZBaseAddress>
+
+	<ActiveProfileIsCopy>1</ActiveProfileIsCopy>
+
+    <ProfilesAreaStrtAddress type="xs:unsignedInt">0x000F8000</ProfilesAreaStrtAddress>
+    <ProfilesAreaEndAddress type="xs:unsignedInt">0x000FFFFF</ProfilesAreaEndAddress>
+
+    <Profile0AreaStrtAddress type="xs:unsignedInt">0x6000</Profile0AreaStrtAddress>
+    <Profile0AreaEndAddress type="xs:unsignedInt">0x67FF</Profile0AreaEndAddress>
+
+    <ActiveProfileNumberAddress type="xs:unsignedInt">0x204</ActiveProfileNumberAddress>
+
+
+    <ActiveProfileAreaStrtAddress type="xs:unsignedInt">0x400</ActiveProfileAreaStrtAddress>
+    <ActiveProfileAreaEndAddress type="xs:unsignedInt">0xFFF</ActiveProfileAreaEndAddress>
+    <CFGCAreaStrtAddress type="xs:unsignedInt">0x40100100</CFGCAreaStrtAddress>
+    <CFGCAreaEndAddress type="xs:unsignedInt">0x4010017F</CFGCAreaEndAddress>
+    <FwAreaStrtAddress type="xs:unsignedInt">0x10000</FwAreaStrtAddress>
+    <FwAreaEndAddress type="xs:unsignedInt">0xF7FFF</FwAreaEndAddress>
+
+    <!-- EEPROM address for EHW, BIT and Temperature screening test results -->
+    <EHW_TEST1_RESULT_ADDR type="xs:unsignedInt">0x100</EHW_TEST1_RESULT_ADDR>
+    <BIT_RESULT_ADDR type="xs:unsignedInt">0x101</BIT_RESULT_ADDR>
+    <EHW_TEST2_RESULT_ADDR type="xs:unsignedInt">0x102</EHW_TEST2_RESULT_ADDR>
+    <TEMP_SCREEN_TEST_RESULT_ADDR type="xs:unsignedInt">0x103</TEMP_SCREEN_TEST_RESULT_ADDR>
+    <EHW_TEST3_RESULT_ADDR type="xs:unsignedInt">0x104</EHW_TEST3_RESULT_ADDR>
+    <EHW_TEST_REPORT_ADDR type="xs:unsignedInt">0x105</EHW_TEST_REPORT_ADDR>
+    <EHW_TEST_REPORT_END_ADDR type="xs:unsignedInt">0x114</EHW_TEST_REPORT_END_ADDR>
+
+    <CMDFirwareDownload type="xs:byte">0x05</CMDFirwareDownload>
+    <CMDFirmwareCFGZDownload type="xs:byte">0x04</CMDFirmwareCFGZDownload>
+    <CMDFirwareDownload_RA6M2 type="xs:byte">0x17</CMDFirwareDownload_RA6M2>
+    <CMDFirmwareCFGZDownload_RA6M2 type="xs:byte">0x18</CMDFirmwareCFGZDownload_RA6M2>
+    <!-- <EHWTestResultStorageArea parameter is for Internal or External EEPROM area.If area is Internal then this parameter is 0 else 1 -->
+    <EHWTestResultStorageArea type="xs:byte">2</EHWTestResultStorageArea>
+    <CMDIntEEPROMRead type="xs:byte">0x12</CMDIntEEPROMRead>
+    <CMDExtEEPROMRead type="xs:byte">0x03</CMDExtEEPROMRead>
+	<CMDDflashRead type="xs: byte">0x03</CMDDflashRead>
+    <EHWOverAllResultAddr type="xs:unsignedInt">0x40100000</EHWOverAllResultAddr>
+    <EHWOverAllResultSize type="xs:unsignedInt">4</EHWOverAllResultSize>
+    <!-- EHWTestArrayUse parameter is for EHW test string array of 1k or 2k.For 1k this parameter is 0 and for 2k is 1 -->
+    <EHWTestArrayUse type="xs:byte">0</EHWTestArrayUse>
+    <CMDCFGZDownload type="xs:byte">0x16</CMDCFGZDownload>
+    <IntEEPROMBaseAddress type="xs:unsignedInt">0x14000000</IntEEPROMBaseAddress>
+
+  <!--Paramerts to extract file from the downloaded zip-->
+    <PCBPCode>15046</PCBPCode>
+    <ProductCode>11</ProductCode>
+  </SeriesConfiguration>
+
+  <!--
+Product Revision Specific Configuration Section below
+*****************************************************
+ -->
+  <Product Name = "GC2115">
+    <Revision Id = "R1">
+      <CFGZMaxNumOfProfiles>10</CFGZMaxNumOfProfiles>
+      <!--Parameters for Smart Config-->
+      <EventLogStartAddress type="xs:unsignedInt">0x1100</EventLogStartAddress>
+      <NumOfEvents>100</NumOfEvents>
+      <NumOfBytePerEvent>28</NumOfBytePerEvent>
+      <SrNoStartAddress type="xs:unsignedInt">0x5718</SrNoStartAddress>
+    <!--End Smart Config Parameters-->
+      <CustomerCode>11</CustomerCode>
+      <GUIIntegerParamsPerProfile>478</GUIIntegerParamsPerProfile>
+      <AuxStringsPerProfile>21</AuxStringsPerProfile>
+      <AuxStringParamLengthPerString>21</AuxStringParamLengthPerString>
+    </Revision>
+  </Product>
+
+</SedemacControllerDeviceMap>

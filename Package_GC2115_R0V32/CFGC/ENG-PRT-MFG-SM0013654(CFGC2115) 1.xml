@@ -1,0 +1,316 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- This is new CFGC format, currently in use only for GC1031 -->
+<ProductInfo>
+  <Product_x0020_Info>
+    <!-- 16 bit unsigned value -->
+    <Parameter>Product ID</Parameter>
+    <Value>2115</Value>
+	<DataType>uint16</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 or 1 only) -->
+    <Parameter>Use Language</Parameter>
+    <Value>0</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 or 1 only) -->
+    <Parameter>Use Extended Event Log</Parameter>
+    <Value>1</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 1 Password Char 0</Parameter>
+    <Value>5</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 1 Password Char 1</Parameter>
+    <Value>5</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 1 Password Char 2</Parameter>
+    <Value>5</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 1 Password Char 3</Parameter>
+    <Value>5</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 2 Password Char 0</Parameter>
+    <Value>0</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 2 Password Char 1</Parameter>
+    <Value>1</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 2 Password Char 2</Parameter>
+    <Value>2</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 2 Password Char 3</Parameter>
+    <Value>3</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>CFGZxxx Revision</Parameter>
+    <Value>1</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>CFGCxxx Revision</Parameter>
+    <Value>1</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 or 1 only) -->
+    <Parameter>Use Multiple Profiles</Parameter>
+    <Value>1</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 3 Password Char 1</Parameter>
+    <Value>9</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 3 Password Char 2</Parameter>
+    <Value>8</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 3 Password Char 3</Parameter>
+    <Value>7</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value (0 through 9 only) -->
+    <Parameter>PIN 3 Password Char 4</Parameter>
+    <Value>6</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+   <Product_x0020_Info>
+    <!-- Two character string only -->
+    <Parameter>Series Product ID</Parameter>
+    <Value>GC</Value>
+	<DataType>string2</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Parameter Set Revision</Parameter>
+    <Value>7</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+   <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Product revision</Parameter>
+    <Value>1</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- PCBP ID is the PLM ID of that PCBP (stored in memory as a 32 bit unsigned int value) -->
+    <Parameter>PCBP ID</Parameter>
+    <Value>15046</Value>
+	<DataType>uint32</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>PCBP ID revision</Parameter>
+    <Value>1</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Product version</Parameter>
+    <Value>0</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Reserved Parameter1</Parameter>
+    <Value>0</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Reserved Parameter2</Parameter>
+    <Value>0</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 01</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 02</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 03</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 04</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 05</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 06</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 07</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 08</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 09</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 10</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 11</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 12</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 13</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 14</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 15</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 16</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 17</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 18</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 19</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 20</Parameter>
+    <DataType>uint8</DataType>
+    <Value>48</Value>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 21</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 22</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 23</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 24</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+  <Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+    <Parameter>Engine Sr No char 25</Parameter>
+    <Value>48</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+<Product_x0020_Info>
+    <!-- 8 bit unsigned value -->
+  <Parameter>Customer Code</Parameter>
+    <Value>01</Value>
+	<DataType>uint8</DataType>
+  </Product_x0020_Info>
+</ProductInfo>

@@ -178,6 +178,9 @@ public:
         INVALID_DG_START,
         AMB_TEMP_SWITCH,
         AUTOMATIC_MD_SWITCH,
+
+        /*ABRUPT SPEED ALARM newly added*/
+        ABRUPT_SPEED_ALARM,
         /* EGR alarms */
         EGR_FAULT_NOTIFICATION,
         EGR_FAULT_SHUTDOWN,
@@ -271,6 +274,10 @@ public:
         Invalid_gen_start_id,
         Lop_Short_To_Battery_id,
         Automatic_md_switch_id,
+
+        /* ABRUPT SPEED ALARMS newly added */
+        Speed_Fault_notifaction,
+
         /* EGR alarms */
         Egr_Fault_Notification,
         Egr_Fault_Shutdown,
@@ -289,7 +296,7 @@ public:
         Active_Profile_flashing_id,
         Factory_Profile_flashing_id,
         Dg_No_Load_id,
-        ID_ALL_ALARMS_LAST
+        ID_ALL_ALARMS_LAST  /*more important*/
     } ALARM_LOGGING_ID_t;
 
     typedef struct
@@ -676,6 +683,11 @@ private:
         FUEL_OPEN_CKT_VAL,
         LOP_CURR_STB,
         AUTOMATIC_MODE_SWITCH_STATUS,
+
+        /*ABRUPT SPEED newly added*/
+
+        ABRUPT_SPEED_STATUS,
+
         /* EGR alarm */
         EGR_ECU_FAULT_NOTIFICATION_STATUS,
         EGR_ECU_FAULT_SHUTDOWN_STATUS,

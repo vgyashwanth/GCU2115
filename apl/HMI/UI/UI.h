@@ -56,7 +56,7 @@ public:
         bool bPIN2Changed;
     }PASSWORD_EDIT_FLAGS_t;
 
-    UI(HAL_Manager &hal, PASSWORD_ENTRY_UI &Password, CFGZ &cfgz, Display &Disp,ENGINE_MONITORING &engMon, MB_APP &MbApp);
+    UI(HAL_Manager &hal, PASSWORD_ENTRY_UI &Password, CFGZ &cfgz, Display &Disp, ENGINE_MONITORING &engMon, MB_APP &MbApp);
     static PASSWORD_EDIT_FLAGS_t stPassEdit;
     void Handler(int keyCode);
     void ClearScreen();
